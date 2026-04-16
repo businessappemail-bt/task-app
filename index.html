@@ -59,7 +59,7 @@
 
     if (error) {
       document.getElementById("status").innerText = "Error posting task";
-      console.log(error);
+      console.log(data);
     } else {
       document.getElementById("status").innerText = "Task posted!";
 loadTasks();
@@ -87,11 +87,11 @@ async function loadTasks() {
     div.style.padding = "10px";
     div.style.marginTop = "10px";
 
-    div.innerHTML = `
-      <strong>${task.title}</strong><br/>
-      $${task.price}<br/>
-      Status: ${task.status}
-    `;
+div.innerHTML = `
+<strong>${task.title}</strong><br/>
+$${task.price}<br/>
+Status: ${task.status}
+`;
 
     container.appendChild(div);
   });
