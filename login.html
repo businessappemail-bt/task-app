@@ -74,83 +74,50 @@
       "https://dbcthtjmtlumidpbucrc.supabase.co",
       "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
     );
+    async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const status = document.getElementById("status");
 
-   const { data, error } = await supabaseClient.auth.signInWithPassword({
-  email,
-  password
-});
+  status.innerText = "";
 
-if (error) {
-  status.innerText = error.message;
-  return;
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    status.innerText = error.message;
+    return;
+  }
+
+  const user = data.user;
+
+  const { data: customerProfile } = await supabaseClient
+    .from("user_profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (customerProfile) {
+    window.location.href = "customer-home.html";
+    return;
+  }
+
+  const { data: workerProfile } = await supabaseClient
+    .from("worker_profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (workerProfile) {
+    window.location.href = "worker-home.html";
+    return;
+  }
+
+  status.innerText = "No profile found for this account.";
 }
-
-const user = data.user;
-
 // Check CUSTOMER profile
-const { data: customerProfile } = await supabaseClient
-  .from("user_profiles")
-  .select("*")
-  .eq("id", user.id)
-  .maybeSingle();
-
-if (customerProfile) {
-  window.location.href = "customer-home.html";
-  return;
-}
-
-// Check WORKER profile
-const { data: workerProfile } = await supabaseClient
-  .from("worker_profiles")
-  .select("*")
-  .eq("id", user.id)
-  .maybeSingle();
-
-if (workerProfile) {
-  window.location.href = "worker-home.html";
-  return;
-}
-
-status.innerText = "No profile found for this account.";
-      } else {
-     const { data, error } = await supabaseClient.auth.signInWithPassword({
-  email,
-  password
-});
-
-if (error) {
-  status.innerText = error.message;
-  return;
-}
-
-const user = data.user;
-
-// Check CUSTOMER profile
-const { data: customerProfile } = await supabaseClient
-  .from("user_profiles")
-  .select("*")
-  .eq("id", user.id)
-  .maybeSingle();
-
-if (customerProfile) {
-  window.location.href = "customer-home.html";
-  return;
-}
-
-// Check WORKER profile
-const { data: workerProfile } = await supabaseClient
-  .from("worker_profiles")
-  .select("*")
-  .eq("id", user.id)
-  .maybeSingle();
-
-if (workerProfile) {
-  window.location.href = "worker-home.html";
-  return;
-}
-
-status.innerText = "No profile found for this account.";
-    }
   </script>
 </body>
 </html>
