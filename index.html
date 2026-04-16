@@ -88,15 +88,29 @@
       div.style.marginTop = "10px";
 
       div.innerHTML = `
-        <strong>${task.title}</strong><br/>
-        $${task.price}<br/>
-        Status: ${task.status}
-      `;
+       <strong>${task.title}</strong><br/>
+  $${task.price}<br/>
+  Status: ${task.status}<br/>
+  <button onclick="acceptTask('${task.id}')">Accept Task</button>
+`;
 
       container.appendChild(div);
     });
   }
+async function acceptTask(taskId) {
+  const { error } = await supabaseClient
+    .from("tasks")
+    .update({
+      status: "assigned"
+    })
+    .eq("id", taskId);
 
+  if (error) {
+    console.log("ACCEPT ERROR:", error);
+  } else {
+    loadTasks();
+  }
+}
   loadTasks();
 </script>
 </script>
