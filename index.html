@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Task App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    button {
+      background: green;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Post a Task</h2>
+
+<input id="taskInput" placeholder="Help move a couch" />
+
+<button onclick="postTask()">Post Task</button>
+
+<p id="status"></p>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  const supabase = supabase.createClient(
+    "https://dbcthtjmtlumidpbucrc.supabase.co",
+    "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+  );
+
+  async function postTask() {
+    const task = document.getElementById("taskInput").value;
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert([
+        {
+          title: task,
+          description: task,
+          category: "general_labor",
+          price: 20,
+          status: "open"
+        }
+      ]);
+
+    if (error) {
+      document.getElementById("status").innerText = "Error posting task";
+      console.log(error);
+    } else {
+      document.getElementById("status").innerText = "Task posted!";
+    }
+  }
+</script>
+
+</body>
+</html>
