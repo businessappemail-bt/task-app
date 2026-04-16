@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Task App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    button {
+      background: green;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Post a Task</h2>
+
+<input id="taskInput" placeholder="Help move a couch" />
+
+<button onclick="postTask()">Post Task</button>
+<p id="status"></p>
+
+<h3>Available Tasks</h3>
+<div id="tasksList"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  const supabaseClient = supabase.createClient(
+    "https://dbcthtjmtlumidpbucrc.supabase.co",
+    "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+  );
+
+  async function postTask() {
+    const task = document.getElementById("taskInput").value;
+
+    const { data, error } = await supabaseClient
+      .from("tasks")
+     .insert([
+  {
+    title: task,
+    description: task,
+    category: "general_labor",
+    price: 20,
+    status: "open"
+  }
+])
+
+    if (error) {
+      document.getElementById("status").innerText = "Error posting task";
+      console.log("INSERT ERROR:", error);
+    } else {
+      document.getElementById("status").innerText = "Task posted successfully.";
+      console.log("INSERT DATA:", data);
+      loadTasks();
+    }
+  }
+
+  async function loadTasks() {
+    const { data, error } = await supabaseClient
+      .from("tasks")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log("LOAD ERROR:", error);
+      return;
+    }
+
+    const container = document.getElementById("tasksList");
+    container.innerHTML = "";
+
+    data.forEach(task => {
+      const div = document.createElement("div");
+      div.style.border = "1px solid #ccc";
+      div.style.padding = "10px";
+      div.style.marginTop = "10px";
+
+      div.innerHTML = `
+  <strong>${task.title}</strong><br/>
+  $${task.price}<br/>
+  Status: ${task.status}<br/>
+  <button onclick="acceptTask('${task.id}')">Accept Task</button>
+`;
+
+      container.appendChild(div);
+    });
+  }
+async function acceptTask(taskId) {
+  const { error } = await supabaseClient
+    .from("tasks")
+    .update({
+      status: "assigned"
+    })
+    .eq("id", taskId);
+
+  if (error) {
+    console.log("ACCEPT ERROR:", error);
+  } else {
+    loadTasks();
+  }
+}
+  loadTasks();
+</script>
+
+</body>
+</html>
