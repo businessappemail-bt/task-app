@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login - TaskMint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 60px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: green;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Login</h2>
+
+    <input id="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+
+    <button onclick="login()">Log In</button>
+
+    <p id="status"></p>
+
+    <div class="link">
+      <a href="index.html">Back</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://dbcthtjmtlumidpbucrc.supabase.co",
+      "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+    );
+
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const status = document.getElementById("status");
+
+      status.innerText = "";
+
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        status.innerText = error.message;
+      } else {
+        window.location.href = "tasks.html";
+      }
+    }
+  </script>
+</body>
+</html>
