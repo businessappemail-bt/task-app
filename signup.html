@@ -108,26 +108,45 @@
 
       const user = data.user;
 
-      if (user) {
-        const { error: insertError } = await supabaseClient
-          .from("users")
-          .insert([
-            {
-              id: user.id,
-              name: name,
-              email: email,
-              role: role
-            }
-          ]);
+   if (user) {
 
-        if (insertError) {
-          status.innerText = insertError.message;
-          return;
+  let insertError = null;
+
+  if (role === "customer") {
+    const result = await supabaseClient
+      .from("user_profiles")
+      .insert([
+        {
+          id: user.id,
+          full_name: name,
+          email: email
         }
-      }
+      ]);
 
-      status.innerText = "Account created. You can log in next.";
-    }
+    insertError = result.error;
+  }
+
+  if (role === "worker") {
+    const result = await supabaseClient
+      .from("worker_profiles")
+      .insert([
+        {
+          id: user.id,
+          full_name: name,
+          email_address: email
+        }
+      ]);
+
+    insertError = result.error;
+  }
+
+  if (insertError) {
+    status.innerText = insertError.message;
+    return;
+  }
+
+  status.innerText = "Account created successfully.";
+}
   </script>
 </body>
 </html>
