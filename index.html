@@ -47,15 +47,11 @@
 
     const { data, error } = await supabaseClient
       .from("tasks")
-      .insert([
-        {
-          title: task,
-          description: task,
-          category: "general_labor",
-          price: 20,
-          status: "open"
-        }
-      ]);
+     .insert([
+  {
+    title: task
+  }
+])
 
     if (error) {
       document.getElementById("status").innerText = "Error posting task";
