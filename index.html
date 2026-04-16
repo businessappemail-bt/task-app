@@ -88,7 +88,7 @@
       div.style.marginTop = "10px";
 
       div.innerHTML = `
-       <strong>${task.title}</strong><br/>
+  <strong>${task.title}</strong><br/>
   $${task.price}<br/>
   Status: ${task.status}<br/>
   <button onclick="acceptTask('${task.id}')">Accept Task</button>
@@ -112,7 +112,6 @@ async function acceptTask(taskId) {
   }
 }
   loadTasks();
-</script>
 </script>
 
 </body>
