@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Home - TaskMint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 30px 20px 40px;
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo-img {
+      width: 120px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    p {
+      text-align: center;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .card p {
+      text-align: left;
+      margin: 0 0 14px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .primary {
+      background: green;
+      color: white;
+    }
+
+    .secondary {
+      background: white;
+      color: #111;
+      border: 1px solid #ccc;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .nav .active {
+      color: green;
+      font-weight: bold;
+    }
+
+    .spacer {
+      height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-wrap">
+      <img src="taskmintlogo.png" class="logo-img">
+    </div>
+
+    <h1>Welcome</h1>
+    <p>Post a job and get help fast.</p>
+
+    <div class="card">
+      <h2>Need help today?</h2>
+      <p>Create a job, add details, and let workers apply.</p>
+      <button class="btn primary" onclick="goToPostJob()">Post a Job</button>
+    </div>
+
+    <div class="card">
+      <h2>Your Activity</h2>
+      <p>Check your active jobs, past jobs, and updates.</p>
+      <button class="btn secondary" onclick="goToMyJobs()">View My Jobs</button>
+      <button class="btn secondary" onclick="goToMessages()">Messages</button>
+      <button class="btn secondary" onclick="goToProfile()">Profile</button>
+    </div>
+
+    <div class="spacer"></div>
+  </div>
+
+  <div class="nav">
+    <a href="customer-home.html" class="active">Home</a>
+    <a href="my-jobs.html">My Jobs</a>
+    <a href="messages.html">Messages</a>
+    <a href="profile.html">Profile</a>
+  </div>
+
+  <script>
+    function goToPostJob() {
+      window.location.href = "post-job.html";
+    }
+
+    function goToMyJobs() {
+      window.location.href = "my-jobs.html";
+    }
+
+    function goToMessages() {
+      window.location.href = "messages.html";
+    }
+
+    function goToProfile() {
+      window.location.href = "profile.html";
+    }
+  </script>
+</body>
+</html>
