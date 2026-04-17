@@ -150,7 +150,22 @@
       "https://dbcthtjmtlumidpbcurc.supabase.co",
       "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
     );
+let currentUser = null;
 
+async function loadSession() {
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (session && session.user) {
+    currentUser = session.user;
+    console.log("User loaded:", currentUser.id);
+  } else {
+    console.log("No session found");
+  }
+}
+
+loadSession();
     async function postJob() {
       const title = document.getElementById("title").value;
       const description = document.getElementById("description").value;
@@ -167,17 +182,10 @@
         return;
       }
 
-     const {
-  data: { session },
-  error: sessionError
-} = await supabaseClient.auth.getSession();
-
-if (sessionError || !session || !session.user) {
+    if (!currentUser) {
   status.innerText = "You must be logged in.";
   return;
 }
-
-const user = session.user;
       const { error } = await supabaseClient
         .from("tasks")
         .insert([
@@ -189,7 +197,7 @@ const user = session.user;
             city: city,
             state: state,
             status: "open",
-            customer_id: user.id
+            customer_id: currentuser.id
           }
         ]);
 
