@@ -92,6 +92,7 @@
   }
 
   const user = data.user;
+      localStorage.setItem("taskmintUserId", user.id);
 
   const { data: customerProfile } = await supabaseClient
     .from("user_profiles")
@@ -99,22 +100,22 @@
     .eq("id", user.id)
     .maybeSingle();
 
-  if (customerProfile) {
-    window.location.href = "customer-home.html";
-    return;
-  }
-
+ if (customerProfile) {
+  localStorage.setItem("taskmintRole", "customer");
+  window.location.href = "customer-home.html";
+  return;
+}
   const { data: workerProfile } = await supabaseClient
     .from("worker_profiles")
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (workerProfile) {
-    window.location.href = "worker-home.html";
-    return;
-  }
-
+if (workerProfile) {
+  localStorage.setItem("taskmintRole", "worker");
+  window.location.href = "worker-home.html";
+  return;
+}
   status.innerText = "No profile found for this account.";
 }
   </script>
