@@ -167,16 +167,17 @@
         return;
       }
 
-      const {
-        data: { user },
-        error: userError
-      } = await supabaseClient.auth.getUser();
+     const {
+  data: { session },
+  error: sessionError
+} = await supabaseClient.auth.getSession();
 
-      if (userError || !user) {
-        status.innerText = "You must be logged in.";
-        return;
-      }
+if (sessionError || !session || !session.user) {
+  status.innerText = "You must be logged in.";
+  return;
+}
 
+const user = session.user;
       const { error } = await supabaseClient
         .from("tasks")
         .insert([
