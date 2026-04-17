@@ -151,26 +151,6 @@
     "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
   );
 
-  let currentUser = null;
-
-  async function restoreSession() {
-    const { data, error } = await supabaseClient.auth.getSession();
-
-    if (error) {
-      console.log("Session error:", error.message);
-      return;
-    }
-
-    if (data.session && data.session.user) {
-      currentUser = data.session.user;
-      console.log("Session restored:", currentUser.id);
-    } else {
-      console.log("No active session found");
-    }
-  }
-
-  restoreSession();
-
   async function postJob() {
     const title = document.getElementById("title").value;
     const description = document.getElementById("description").value;
@@ -187,9 +167,12 @@
       return;
     }
 
-    if (!currentUser) {
-      await restoreSession();
-    }
+const customerId = localStorage.getItem("taskmintUserId");
+
+if (!customerId) {
+  status.innerText = "You must be logged in.";
+  return;
+}
 
     if (!currentUser) {
       status.innerText = "You must be logged in.";
@@ -207,7 +190,7 @@
           city: city,
           state: state,
           status: "open",
-          customer_id: currentUser.id
+          customer_id: customerid
         }
       ]);
 
