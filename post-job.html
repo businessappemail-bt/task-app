@@ -144,81 +144,91 @@
     <a href="profile.html">Profile</a>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    const supabaseClient = supabase.createClient(
-      "https://dbcthtjmtlumidpbcurc.supabase.co",
-      "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
-    );
-let currentUser = null;
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  const supabaseClient = supabase.createClient(
+    "https://dbcthtjmtlumidpbcurc.supabase.co",
+    "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
+  );
 
-async function loadSession() {
-  const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
+  let currentUser = null;
 
-  if (session && session.user) {
-    currentUser = session.user;
-    console.log("User loaded:", currentUser.id);
-  } else {
-    console.log("No session found");
+  async function restoreSession() {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) {
+      console.log("Session error:", error.message);
+      return;
+    }
+
+    if (data.session && data.session.user) {
+      currentUser = data.session.user;
+      console.log("Session restored:", currentUser.id);
+    } else {
+      console.log("No active session found");
+    }
   }
-}
 
-loadSession();
-    async function postJob() {
-      const title = document.getElementById("title").value;
-      const description = document.getElementById("description").value;
-      const category = document.getElementById("category").value;
-      const budget = document.getElementById("budget").value;
-      const city = document.getElementById("city").value;
-      const state = document.getElementById("state").value;
-      const status = document.getElementById("status");
+  restoreSession();
 
-      status.innerText = "";
+  async function postJob() {
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const category = document.getElementById("category").value;
+    const budget = document.getElementById("budget").value;
+    const city = document.getElementById("city").value;
+    const state = document.getElementById("state").value;
+    const status = document.getElementById("status");
 
-      if (!title || !description || !category || !budget || !city || !state) {
-        status.innerText = "Please fill out all fields.";
-        return;
-      }
+    status.innerText = "";
+
+    if (!title || !description || !category || !budget || !city || !state) {
+      status.innerText = "Please fill out all fields.";
+      return;
+    }
 
     if (!currentUser) {
-  status.innerText = "You must be logged in.";
-  return;
-}
-      const { error } = await supabaseClient
-        .from("tasks")
-        .insert([
-          {
-            title: title,
-            description: description,
-            category: category,
-            price: budget,
-            city: city,
-            state: state,
-            status: "open",
-            customer_id: currentuser.id
-          }
-        ]);
-
-      if (error) {
-        status.innerText = error.message;
-        return;
-      }
-
-      status.innerText = "Job posted successfully.";
-
-      document.getElementById("title").value = "";
-      document.getElementById("description").value = "";
-      document.getElementById("category").value = "";
-      document.getElementById("budget").value = "";
-      document.getElementById("city").value = "";
-      document.getElementById("state").value = "";
+      await restoreSession();
     }
 
-    function goBack() {
-      window.location.href = "customer-home.html";
+    if (!currentUser) {
+      status.innerText = "You must be logged in.";
+      return;
     }
-  </script>
+
+    const { error } = await supabaseClient
+      .from("tasks")
+      .insert([
+        {
+          title: title,
+          description: description,
+          category: category,
+          price: budget,
+          city: city,
+          state: state,
+          status: "open",
+          customer_id: currentUser.id
+        }
+      ]);
+
+    if (error) {
+      status.innerText = error.message;
+      return;
+    }
+
+    status.innerText = "Job posted successfully.";
+
+    document.getElementById("title").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("budget").value = "";
+    document.getElementById("city").value = "";
+    document.getElementById("state").value = "";
+  }
+
+  function goBack() {
+    window.location.href = "customer-home.html";
+  }
+</script>
 </body>
 </html>
