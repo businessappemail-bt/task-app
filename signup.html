@@ -70,6 +70,8 @@
 <input id="streetAddress" type="text" placeholder="Street Address" />
 <input id="city" type="text" placeholder="City" />
 <input id="state" type="text" placeholder="State" />
+<input id="zipCode" type="text" placeholder="Zipcode" />
+
 
     <select id="role">
       <option value="customer">Customer</option>
@@ -102,8 +104,9 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
   const streetAddress = document.getElementById("streetAddress").value;
   const city = document.getElementById("city").value;
   const state = document.getElementById("state").value;
-  const accountType = document.getElementById("accountType").value;
-
+  const zipCode = document.getElementById("zipCode").value;
+const accountType = document.getElementById("role").value;
+  
   const status = document.getElementById("status");
 
   // Step 1: Create auth user
