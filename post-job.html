@@ -213,5 +213,24 @@ if (!customerId) {
     window.location.href = "customer-home.html";
   }
 </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const supabaseClient = supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7c02Z8CDxZyEKDLRzvtg_1UJC1ldJ"
+);
+
+async function protectPage() {
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+  if (error || !user) {
+    window.location.href = "login.html";
+    return;
+  }
+}
+
+protectPage();
+</script>
 </body>
 </html>
