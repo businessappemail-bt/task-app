@@ -120,8 +120,10 @@ const { data, error } = await supabaseClient.auth.signUp({
     return;
   }
 
-  const user = data.user;
-
+const user = data.user || data.session?.user;
+  
+  console.log("PROFILE ERROR:", profileError);
+  
   if (!user) {
     status.innerText = "User not returned";
     return;
