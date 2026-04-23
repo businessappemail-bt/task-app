@@ -174,13 +174,14 @@
       window.location.href = "profile.html";
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <script>
-  const supabaseClient = supabase.createClient(
+const supabaseClient = supabase.createClient(
   "https://dbcthtjmtlumidpbucrc.supabase.co",
-  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC1ldj"
+  "sb_publishable_3h7c02Z8CDxZyEKDLRzvtg_1UJC1ldJ"
 );
-  
+
 async function protectPage() {
   const { data: { user }, error } = await supabaseClient.auth.getUser();
 
@@ -188,17 +189,10 @@ async function protectPage() {
     window.location.href = "login.html";
     return;
   }
+}
 
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || profile.account_type !== "customer") {
-    window.location.href = "tasks.html";
-    return;
-  }
+protectPage();
+</script>
 }
 
 protectPage();
