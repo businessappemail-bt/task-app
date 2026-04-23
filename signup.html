@@ -62,16 +62,20 @@
   <div class="container">
     <h2>Create Account</h2>
 
-    <input id="name" type="text" placeholder="Full name" />
-    <input id="email" type="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
+<input id="firstName" type="text" placeholder="First Name" />
+<input id="lastName" type="text" placeholder="Last Name" />
+<input id="email" type="email" placeholder="Email" />
+<input id="password" type="password" placeholder="Password" />
+<input id="phone" type="text" placeholder="Phone Number" />
+<input id="city" type="text" placeholder="City" />
+<input id="state" type="text" placeholder="State" />
 
     <select id="role">
       <option value="customer">Customer</option>
       <option value="worker">Worker</option>
     </select>
 
-    <button onclick="signUp()">Create Account</button>
+   <button id="signupBtn">Create Account</button>
 
     <p id="status"></p>
 
@@ -82,74 +86,65 @@
 
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
-  const supabaseClient = supabase.createClient(
+  const supabaseClient = window.supabase.createClient(
     "https://dbcthtjmtlumidpbucrc.supabase.co",
     "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
   );
 
-  async function signUp() {
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const role = document.getElementById("role").value;
-    const status = document.getElementById("status");
+ document.getElementById("signupBtn").addEventListener("click", async () => {
 
-    status.innerText = "";
+  const firstName = document.getElementById("firstName").value;
+  const lastName = document.getElementById("lastName").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const phone = document.getElementById("phone").value;
+  const city = document.getElementById("city").value;
+  const state = document.getElementById("state").value;
+  const accountType = document.getElementById("accountType").value;
 
-    const { data, error } = await supabaseClient.auth.signUp({
-      email: email,
-      password: password
-    });
+  const status = document.getElementById("status");
 
-    if (error) {
-      status.innerText = error.message;
-      return;
-    }
+  // Step 1: Create auth user
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
 
-    const user = data.user;
-
-    if (!user) {
-      status.innerText = "Signup failed.";
-      return;
-    }
-
-    let insertError = null;
-
-    if (role === "customer") {
-      const result = await supabaseClient
-        .from("user_profiles")
-        .insert([
-          {
-            id: user.id,
-            full_name: name,
-            email: email
-          }
-        ]);
-
-      insertError = result.error;
-    }
-
-    if (role === "worker") {
-      const result = await supabaseClient
-        .from("worker_profiles")
-        .insert([
-          {
-            id: user.id,
-            full_name: name,
-            email: email
-          }
-        ]);
-
-      insertError = result.error;
-    }
-
-    if (insertError) {
-      status.innerText = insertError.message;
-      return;
-    }
-
-    status.innerText = "Account created successfully.";
+  if (error) {
+    status.innerText = error.message;
+    return;
   }
+
+  const user = data.user;
+
+  if (!user) {
+    status.innerText = "User not returned";
+    return;
+  }
+
+  // Step 2: Save profile data
+  const { error: profileError } = await supabase.from("profiles").insert([
+    {
+      id: user.id,
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      phone: phone,
+      street_address: streetAddress,
+      city: city,
+      state: state,
+      zip_code: zipCode,
+      account_type: accountType
+    }
+  ]);
+
+  if (profileError) {
+    status.innerText = profileError.message;
+    return;
+  }
+
+  status.innerText = "Account created successfully";
+});
 </script>
 </body>
 </html>
