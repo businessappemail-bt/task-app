@@ -110,10 +110,10 @@ const accountType = document.getElementById("role").value;
   const status = document.getElementById("status");
 
   // Step 1: Create auth user
- await supabaseClient.auth.signUp({
-    email,
-    password
-  });
+const { data, error } = await supabaseClient.auth.signUp({
+  email,
+  password
+});
 
   if (error) {
     status.innerText = error.message;
