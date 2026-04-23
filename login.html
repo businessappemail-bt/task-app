@@ -111,28 +111,6 @@ if (profile.account_type === "customer") {
   window.location.href = "tasks.html";
 }
     
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
-
- if (customerProfile) {
-  localStorage.setItem("taskmintRole", "customer");
-  window.location.href = "customer-home.html";
-  return;
-}
-  const { data: workerProfile } = await supabaseClient
-    .from("worker_profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
-
-if (workerProfile) {
-  localStorage.setItem("taskmintRole", "worker");
-  window.location.href = "worker-home.html";
-  return;
-}
-  status.innerText = "No profile found for this account.";
-}
   </script>
 </body>
 </html>
