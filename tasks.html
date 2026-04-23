@@ -113,6 +113,18 @@ async function acceptTask(taskId) {
 }
   loadTasks();
 </script>
+ <script>
+async function protectPage() {
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+  if (error || !user) {
+    window.location.href = "login.html";
+    return;
+  }
+}
+
+protectPage();
+</script> 
 
 </body>
 </html>
