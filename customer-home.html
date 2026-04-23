@@ -178,6 +178,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://dbcthtjmtlumidpbucrc.supabase.co",
@@ -185,9 +187,9 @@ const supabaseClient = window.supabase.createClient(
 );
 
 async function protectPage() {
-  const { data, error } = await supabaseClient.auth.getUser();
+  const { data, error } = await supabaseClient.auth.getSession();
 
-  if (error || !data.user) {
+  if (error || !data.session) {
     window.location.href = "login.html";
     return;
   }
