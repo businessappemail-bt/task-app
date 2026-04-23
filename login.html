@@ -93,9 +93,24 @@
 
   const user = data.user;
       localStorage.setItem("taskmintUserId", user.id);
+      
+      const { data: profile, error: profileError } = await supabaseClient
+  .from("profiles")
+  .select("*")
+  .eq("id", user.id)
+  .single();
 
-  const { data: customerProfile } = await supabaseClient
-    .from("user_profiles")
+if (profileError || !profile) {
+  status.innerText = "No profile found for this account.";
+  return;
+}
+
+if (profile.account_type === "customer") {
+  window.location.href = "customer-home.html";
+} else {
+  window.location.href = "tasks.html";
+}
+    
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
