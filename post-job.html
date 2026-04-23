@@ -213,7 +213,7 @@ if (!customerId) {
     window.location.href = "customer-home.html";
   }
 </script>
-</script>
+<script>
 async function protectPage() {
   const { data: { user }, error } = await supabaseClient.auth.getUser();
 
