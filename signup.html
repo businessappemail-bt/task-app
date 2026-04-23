@@ -148,8 +148,11 @@ const { data, error } = await supabaseClient.auth.signUp({
     return;
   }
 
-  status.innerText = "Account created successfully";
-});
+ status.innerText = "Account created successfully";
+
+setTimeout(() => {
+  window.location.href = "login.html";
+}, 1500);
 </script>
 </body>
 </html>
