@@ -113,28 +113,6 @@ if (profile.account_type === "customer") {
 
     }
   </script>
-
-  <script>
-  async function redirectIfLoggedIn() {
-  const { data } = await supabaseClient.auth.getUser();
-
-  if (data.user) {
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", data.user.id)
-      .single();
-
-    if (profile?.account_type === "customer") {
-      window.location.href = "customer-home.html";
-    } else {
-      window.location.href = "tasks.html";
-    }
-  }
-}
-
-redirectIfLoggedIn();
-</script>
   
 </body>
 </html>
