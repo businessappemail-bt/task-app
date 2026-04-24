@@ -78,6 +78,16 @@
       <option value="worker">Worker</option>
     </select>
 
+<label style="display:flex; gap:8px; font-size:14px; margin-top:10px;">
+  <input type="checkbox" id="termsCheck">
+  <span>
+    I agree to the
+    <a href="terms.html" target="_blank">Terms</a>
+    and
+    <a href="privacy.html" target="_blank">Privacy Policy</a>
+  </span>
+</label>
+    
    <button id="signupBtn">Create Account</button>
 
     <p id="status"></p>
@@ -95,6 +105,13 @@
   );
 
 document.getElementById("signupBtn").addEventListener("click", async () => {
+
+const termsCheck = document.getElementById("termsCheck");
+
+if (!termsCheck.checked) {
+  document.getElementById("status").innerText = "You must accept the terms.";
+  return;
+}
   
   const firstName = document.getElementById("firstName").value;
   const lastName = document.getElementById("lastName").value;
