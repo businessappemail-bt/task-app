@@ -108,34 +108,71 @@
     <h1>Post a Job</h1>
     <p class="subtext">Tell people what you need help with.</p>
 
-    <div class="card">
-      <input id="title" type="text" placeholder="Job title">
-      
-      <textarea id="description" placeholder="Describe the job"></textarea>
+   <div class="card" id="step1">
 
-      <select id="category">
-        <option value="">Select category</option>
-        <option value="Help Moving">Help Moving</option>
-        <option value="Furniture Assembly">Furniture Assembly</option>
-        <option value="Cleaning">Cleaning</option>
-        <option value="Yard Work">Yard Work</option>
-        <option value="Handyman Help">Handyman Help</option>
-        <option value="Errands">Errands</option>
-        <option value="Other">Other</option>
-      </select>
+  <h3>What is the task location?</h3>
 
-      <input id="amount" type="number" placeholder="Amount">
+  <input id="street_address" type="text" placeholder="Street address">
 
-      <input id="city" type="text" placeholder="City">
+  <input id="unit" type="text" placeholder="Optional unit or apt #">
 
-      <input id="state" type="text" placeholder="State">
+  <input id="city" type="text" placeholder="City">
 
-      <button class="primary" onclick="postJob()">Post Job</button>
-      <button class="secondary" onclick="goBack()">Back to Home</button>
+  <input id="state" type="text" placeholder="State">
 
-      <p id="status"></p>
-    </div>
-  </div>
+  <input id="zipcode" type="text" placeholder="Zipcode">
+
+  <button class="primary" onclick="goToStep2()">Continue</button>
+
+</div>
+    <div class="card" id="step2" style="display:none;">
+
+  <h3>What do you need help with?</h3>
+
+  <button onclick="selectCategory('Moving Help')">Moving Help</button>
+  <button onclick="selectCategory('Furniture Assembly')">Furniture Assembly</button>
+  <button onclick="selectCategory('Cleaning')">Cleaning</button>
+  <button onclick="selectCategory('Yard Work')">Yard Work</button>
+  <button onclick="selectCategory('Handyman Help')">Handyman Help</button>
+  <button onclick="selectCategory('Errands')">Errands</button>
+  <button onclick="selectCategory('Other')">Other</button>
+
+      <div class="card" id="step3" style="display:none;">
+
+  <h3>Describe your task</h3>
+
+  <input id="title" type="text" placeholder="Job title">
+
+  <textarea id="description" placeholder="Describe the job"></textarea>
+
+  <button class="primary" onclick="goToStep4()">Continue</button>
+
+</div>
+      <div class="card" id="step4" style="display:none;">
+
+  <h3>What is your budget?</h3>
+
+  <input id="budget" type="number" placeholder="Budget">
+
+  <button class="primary" onclick="goToStep5()">Continue</button>
+
+</div>
+
+<div class="card" id="step5" style="display:none;">
+
+  <h3>When do you need this done?</h3>
+
+  <select id="schedule">
+    <option value="">Select</option>
+    <option value="Today">Today</option>
+    <option value="Within 3 days">Within 3 days</option>
+    <option value="Within a week">Within a week</option>
+    <option value="Flexible">Flexible</option>
+  </select>
+
+  <button class="primary" onclick="postJob()">Post Task</button>
+
+</div>
 
   <div class="nav">
     <a href="customer-home.html">Home</a>
@@ -150,19 +187,44 @@
     "https://dbcthtjmtlumidpbcurc.supabase.co",
     "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
   );
+function goToStep2() {
+  document.getElementById("step1").style.display = "none";
+  document.getElementById("step2").style.display = "block";
+}
 
+function selectCategory(value) {
+  window.selectedCategory = value;
+  document.getElementById("step2").style.display = "none";
+  document.getElementById("step3").style.display = "block";
+}
+
+function goToStep4() {
+  document.getElementById("step3").style.display = "none";
+  document.getElementById("step4").style.display = "block";
+}
+
+function goToStep5() {
+  document.getElementById("step4").style.display = "none";
+  document.getElementById("step5").style.display = "block";
+}
+
+  
   async function postJob() {
     const title = document.getElementById("title").value;
     const description = document.getElementById("description").value;
-    const category = document.getElementById("category").value;
+    const category = window.selectedCategory;
     const budget = document.getElementById("budget").value;
     const city = document.getElementById("city").value;
     const state = document.getElementById("state").value;
     const status = document.getElementById("status");
+    const street_address = document.getElementById("street_address").value;
+const unit = document.getElementById("unit").value;
+const zipcode = document.getElementById("zipcode").value;
+const schedule = document.getElementById("schedule").value;
 
     status.innerText = "";
 
-    if (!title || !description || !category || !budget || !city || !state) {
+    if (!title || !description || !category || !budget || !city || !state || !street_address || !zipcode || !schedule)
       status.innerText = "Please fill out all fields.";
       return;
     }
@@ -181,18 +243,22 @@ if (!customerId) {
 
     const { error } = await supabaseClient
       .from("tasks")
-      .insert([
-        {
-          title: title,
-          description: description,
-          category: category,
-          price: budget,
-          city: city,
-          state: state,
-          status: "open",
-          customer_id: customerid
-        }
-      ]);
+     .insert([
+  {
+    title: title,
+    description: description,
+    category: category,
+    price: budget,
+    city: city,
+    state: state,
+    street_address: street_address,
+    unit: unit,
+    zipcode: zipcode,
+    schedule_preference: schedule,
+    status: "open",
+    customer_id: customerId
+  }
+])
 
     if (error) {
       status.innerText = error.message;
