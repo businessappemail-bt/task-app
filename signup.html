@@ -172,6 +172,39 @@ setTimeout(() => {
 }, 1500);
   
 });
+  async function sendPhoneCode() {
+  const phone = document.getElementById("phone").value;
+
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    phone: phone
+  });
+
+  if (error) {
+    document.getElementById("status").innerText = error.message;
+    return;
+  }
+
+  document.getElementById("status").innerText = "Code sent.";
+}
+
+async function verifyPhoneCode() {
+  const phone = document.getElementById("phone").value;
+  const code = document.getElementById("phoneCode").value;
+
+  const { error } = await supabaseClient.auth.verifyOtp({
+    phone: phone,
+    token: code,
+    type: "sms"
+  });
+
+  if (error) {
+    document.getElementById("status").innerText = error.message;
+    return;
+  }
+
+  document.getElementById("status").innerText = "Phone verified.";
+  window.phoneVerified = true;
+}
 </script>
 </body>
 </html>
