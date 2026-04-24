@@ -259,31 +259,51 @@ async function protectPage() {
 }
 
 protectPage();
-  loadMode();
-  async function toggleMode() {
-  const { data } = await supabaseClient.auth.getSession();
+ async function toggleMode() {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error || !data.session) {
+    window.location.href = "login.html";
+    return;
+  }
 
   const user = data.session.user;
 
-  // Get current profile
-  const { data: profile } = await supabaseClient
+  const { data: profile, error: profileError } = await supabaseClient
     .from("profiles")
     .select("account_type")
     .eq("id", user.id)
     .single();
 
-  let newMode = profile.account_type === "customer" ? "worker" : "customer";
+  if (profileError || !profile) {
+    alert("Could not load profile.");
+    return;
+  }
 
-  // Update in database
-  await supabaseClient
+  const newMode = profile.account_type === "customer" ? "worker" : "customer";
+
+  const { error: updateError } = await supabaseClient
     .from("profiles")
     .update({ account_type: newMode })
     .eq("id", user.id);
 
-  // Update UI
+  if (updateError) {
+    alert(updateError.message);
+    return;
+  }
+
   updateToggleUI(newMode);
+
+  setTimeout(() => {
+    if (newMode === "worker") {
+      window.location.href = "tasks.html";
+    } else {
+      window.location.href = "customer-home.html";
+    }
+  }, 300);
 }
-  function updateToggleUI(mode) {
+
+function updateToggleUI(mode) {
   const label = document.getElementById("modeLabel");
   const toggle = document.getElementById("toggleSwitch");
 
@@ -294,6 +314,25 @@ protectPage();
     label.innerText = "Customer Mode";
     toggle.classList.remove("active");
   }
+}
+
+async function loadMode() {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error || !data.session) {
+    return;
+  }
+
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("account_type")
+    .eq("id", data.session.user.id)
+    .single();
+
+  if (profile) {
+    updateToggleUI(profile.account_type);
+  }
+}
 }
   async function loadMode() {
   const { data } = await supabaseClient.auth.getSession();
@@ -327,6 +366,8 @@ protectPage();
 
   window.location.href = "tasks.html";
 }
+
+  loadMode();
 </script>
   
 </body>
