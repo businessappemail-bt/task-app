@@ -259,6 +259,7 @@ async function protectPage() {
 }
 
 protectPage();
+  loadMode();
   async function toggleMode() {
   const { data } = await supabaseClient.auth.getSession();
 
@@ -293,6 +294,18 @@ protectPage();
     label.innerText = "Customer Mode";
     toggle.classList.remove("active");
   }
+}
+  async function loadMode() {
+  const { data } = await supabaseClient.auth.getSession();
+  const user = data.session.user;
+
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("account_type")
+    .eq("id", user.id)
+    .single();
+
+  updateToggleUI(profile.account_type);
 }
   async function switchToWorker() {
   const { data, error } = await supabaseClient.auth.getSession();
