@@ -254,20 +254,46 @@ async function protectPage() {
 
   if (error || !data.session) {
     window.location.href = "login.html";
-    return;
+    return null;
+  }
+
+  return data.session.user;
+}
+
+function updateToggleUI(mode) {
+  const label = document.getElementById("modeLabel");
+  const toggle = document.getElementById("toggleSwitch");
+
+  if (mode === "worker") {
+    label.innerText = "Worker Mode";
+    toggle.classList.add("active");
+  } else {
+    label.innerText = "Customer Mode";
+    toggle.classList.remove("active");
   }
 }
 
-protectPage();
- async function toggleMode() {
-  const { data, error } = await supabaseClient.auth.getSession();
+async function loadMode() {
+  const user = await protectPage();
+  if (!user) return;
 
-  if (error || !data.session) {
-    window.location.href = "login.html";
+  const { data: profile, error } = await supabaseClient
+    .from("profiles")
+    .select("account_type")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !profile) {
+    alert("Could not load profile.");
     return;
   }
 
-  const user = data.session.user;
+  updateToggleUI(profile.account_type);
+}
+
+async function toggleMode() {
+  const user = await protectPage();
+  if (!user) return;
 
   const { data: profile, error: profileError } = await supabaseClient
     .from("profiles")
@@ -295,79 +321,13 @@ protectPage();
   updateToggleUI(newMode);
 
   setTimeout(() => {
-    if (newMode === "worker") {
-      window.location.href = "tasks.html";
-    } else {
-      window.location.href = "customer-home.html";
-    }
+    window.location.href = newMode === "worker"
+      ? "tasks.html"
+      : "customer-home.html";
   }, 300);
 }
 
-function updateToggleUI(mode) {
-  const label = document.getElementById("modeLabel");
-  const toggle = document.getElementById("toggleSwitch");
-
-  if (mode === "worker") {
-    label.innerText = "Worker Mode";
-    toggle.classList.add("active");
-  } else {
-    label.innerText = "Customer Mode";
-    toggle.classList.remove("active");
-  }
-}
-
-async function loadMode() {
-  const { data, error } = await supabaseClient.auth.getSession();
-
-  if (error || !data.session) {
-    return;
-  }
-
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("account_type")
-    .eq("id", data.session.user.id)
-    .single();
-
-  if (profile) {
-    updateToggleUI(profile.account_type);
-  }
-}
-}
-  async function loadMode() {
-  const { data } = await supabaseClient.auth.getSession();
-  const user = data.session.user;
-
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("account_type")
-    .eq("id", user.id)
-    .single();
-
-  updateToggleUI(profile.account_type);
-}
-  async function switchToWorker() {
-  const { data, error } = await supabaseClient.auth.getSession();
-
-  if (error || !data.session) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  const { error: updateError } = await supabaseClient
-    .from("profiles")
-    .update({ current_mode: "worker" })
-    .eq("id", data.session.user.id);
-
-  if (updateError) {
-    alert(updateError.message);
-    return;
-  }
-
-  window.location.href = "tasks.html";
-}
-
-  loadMode();
+loadMode();
 </script>
   
 </body>
