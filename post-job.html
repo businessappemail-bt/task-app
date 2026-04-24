@@ -214,7 +214,13 @@ if (!customerId) {
   }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+var supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7c02Z8CDxZyEKDLRzvtg_1UJC1ldJ"
+);
 
 async function protectPage() {
   const { data, error } = await supabaseClient.auth.getSession();
