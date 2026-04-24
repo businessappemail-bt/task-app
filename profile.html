@@ -1,131 +1,383 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
+
   <title>Profile - TaskMint</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+
     body {
+
       margin: 0;
+
       font-family: Arial, sans-serif;
+
       background: #f5f5f5;
+
       color: #111;
+
       padding-bottom: 80px;
+
     }
 
     .container {
+
       max-width: 420px;
+
       margin: 0 auto;
+
       padding: 30px 20px;
+
     }
 
     .logo-wrap {
+
       text-align: center;
+
       margin-bottom: 20px;
+
     }
 
     .logo-img {
+
       width: 120px;
+
     }
 
     h1 {
+
       text-align: center;
+
       margin-bottom: 8px;
+
     }
 
     .subtext {
+
       text-align: center;
+
       color: #555;
+
       margin-bottom: 25px;
+
     }
 
     .card {
+
       background: white;
+
       padding: 20px;
+
       border-radius: 12px;
+
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
     }
 
     .profile-row {
+
       margin-bottom: 14px;
+
     }
 
     .label {
+
       font-weight: bold;
+
       color: #333;
+
       margin-bottom: 4px;
+
     }
 
     .value {
+
       color: #555;
+
     }
 
     .btn {
+
       width: 100%;
+
       padding: 14px;
+
       margin-top: 15px;
+
       border: none;
+
       border-radius: 8px;
+
       font-size: 16px;
+
       cursor: pointer;
+
     }
 
     .primary {
+
       background: green;
+
       color: white;
+
     }
 
     .secondary {
+
       background: white;
+
       color: #111;
+
       border: 1px solid #ccc;
+
     }
 
     .status {
+
       text-align: center;
+
       margin-top: 15px;
+
       color: #555;
+
     }
 
     .nav {
+
       position: fixed;
+
       bottom: 0;
+
       left: 0;
+
       width: 100%;
+
       background: white;
+
       border-top: 1px solid #ddd;
+
       display: flex;
+
       justify-content: space-around;
+
       padding: 12px 0;
+
     }
 
     .nav a {
+
       text-decoration: none;
+
       color: #555;
+
       font-size: 14px;
+
     }
 
     .nav a.active {
+
       color: green;
+
       font-weight: bold;
+
     }
+
   </style>
+
 </head>
 
 <body>
+
   <div class="container">
 
     <div class="logo-wrap">
+
       <img src="taskmintlogo.png" class="logo-img" alt="TaskMint Logo">
+
     </div>
 
     <h1>Profile</h1>
+
     <p class="subtext">View your account information.</p>
 
     <div class="card" id="profileCard">
+
       Loading profile...
+
     </div>
 
     <p class="status" id="status"></p>
 
-    <button class="btn secondary" onclick="logout()">Log
+    <button class="btn secondary" onclick="logout()">Log Out</button>
+
+  </div>
+
+  <div class="nav">
+
+    <a href="customer-home.html">Home</a>
+
+    <a href="my-jobs.html">My Jobs</a>
+
+    <a href="messages.html">Messages</a>
+
+    <a href="profile.html" class="active">Profile</a>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+
+    const supabaseClient = window.supabase.createClient(
+
+      "https://dbcthtjmtlumidpbucrc.supabase.co",
+
+      "sb_publishable_3h7c02Z8CDxZyEKDLRzvtg_1UJC1ldJ"
+
+    );
+
+    async function protectPage() {
+
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      if (error || !data.session) {
+
+window.location.href = "login.html";
+
+        return null;
+
+      }
+
+      return data.session.user;
+
+    }
+
+    async function loadProfile() {
+
+      const user = await protectPage();
+
+      if (!user) return;
+
+      const profileCard = document.getElementById("profileCard");
+
+      const status = document.getElementById("status");
+
+      const { data: profile, error } = await supabaseClient
+
+        .from("profiles")
+
+        .select("*")
+
+        .eq("id", user.id)
+
+        .single();
+
+      if (error || !profile) {
+
+        profileCard.innerHTML = "Profile not found.";
+
+        status.innerText = error ? error.message : "";
+
+        return;
+
+      }
+
+      profileCard.innerHTML = `
+
+        <div class="profile-row">
+
+          <div class="label">First Name</div>
+
+          <div class="value">${profile.first_name || ""}</div>
+
+        </div>
+
+        <div class="profile-row">
+
+          <div class="label">Last Name</div>
+
+          <div class="value">${profile.last_name || ""}</div>
+
+        </div>
+
+        <div class="profile-row">
+
+          <div class="label">Email</div>
+
+          <div class="value">${profile.email || ""}</div>
+
+        </div>
+
+        <div class="profile-row">
+
+          <div class="label">Phone</div>
+
+          <div class="value">${profile.phone || ""}</div>
+
+        </div>
+
+        <div class="profile-row">
+
+          <div class="label">Street Address</div>
+
+          <div class="value">${profile.street_address || ""}</div>
+
+        </div>
+
+        <div class="profile-row">
+
+          <div class="label">City</div>
+
+          <div class="value">${profile.city || ""}</div>
+
+        </div>
+
+        <div class="profile-row">
+
+          <div class="label">State</div>
+
+          <div class="value">${profile.state || ""}</div>
+
+        </div>
+
+        <div class="profile-row">
+
+          <div class="label">Zipcode</div>
+
+          <div class="value">${profile.zipcode || ""}</div>
+
+        </div>
+
+        <div class="profile-row">
+
+          <div class="label">Account Type</div>
+
+          <div class="value">${profile.account_type || ""}</div>
+
+        </div>
+
+      `;
+
+    }
+
+    async function logout() {
+
+      await supabaseClient.auth.signOut();
+
+      localStorage.clear();
+
+      window.location.href = "login.html";
+
+    }
+
+    loadProfile();
+
+  </script>
+
+</body>
+
+</html>
