@@ -321,11 +321,10 @@ async function toggleMode() {
   updateToggleUI(newMode);
 
   setTimeout(() => {
-    window.location.href = newMode === "worker"
-      ? "tasks.html"
-      : "customer-home.html";
-  }, 300);
-}
+  if (newMode === "worker") {
+    window.location.href = "tasks.html";
+  }
+}, 300);
 
 loadMode();
 </script>
