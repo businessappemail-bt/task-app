@@ -220,23 +220,35 @@
     function goToProfile() {
       window.location.href = "profile.html";
     }
-    async function switchToWorker() {
-  const { data, error } = await supabaseClient.auth.getSession();
+   async function toggleMode() {
+  const { data } = await supabaseClient.auth.getSession();
 
-  if (error || !data.session) {
+  if (!data.session) {
     window.location.href = "login.html";
     return;
   }
 
-  const { error: updateError } = await supabaseClient
-    .from("profiles")
-    .update({ account_type: "worker" })
-    .eq("id", data.session.user.id);
+  const user = data.session.user;
 
-  if (updateError) {
-    alert(updateError.message);
-    return;
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("account_type")
+    .eq("id", user.id)
+    .single();
+
+  const newMode = profile.account_type === "customer" ? "worker" : "customer";
+
+  await supabaseClient
+    .from("profiles")
+    .update({ account_type: newMode })
+    .eq("id", user.id);
+
+  if (newMode === "worker") {
+    window.location.href = "tasks.html";
+  } else {
+    window.location.href = "customer-home.html";
   }
+}
 
   window.location.href = "tasks.html";
 }
