@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Jobs - TaskMint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+      padding-bottom: 80px;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    p {
+      text-align: center;
+      color: #555;
+    }
+
+    .job-card {
+      background: white;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .job-card h3 {
+      margin: 0 0 8px;
+    }
+
+    .job-card p {
+      text-align: left;
+      margin: 5px 0;
+    }
+
+    .status {
+      font-weight: bold;
+      color: green;
+    }
+
+    .empty {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      color: #555;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .nav a.active {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>My Jobs</h1>
+    <p>View jobs you have posted.</p>
+
+    <div id="jobsList">
+      Loading jobs...
+    </div>
+  </div>
+
+  <div class="nav">
+    <a href="customer-home.html">Home</a>
+    <a href="my-jobs.html" class="active">My Jobs</a>
+    <a href="messages.html">Messages</a>
+    <a href="profile.html">Profile</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const supabaseClient = window.supabase.createClient(
+      "https://dbcthtjmtlumidpbucrc.supabase.co",
+      "sb_publishable_3h7c02Z8CDxZyEKDLRzvtg_1UJC1ldJ"
+    );
+
+    async function protectPage() {
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      if (error || !data.session) {
+        window.location.href = "login.html";
+        return null;
+      }
+
+      return data.session.user;
+    }
+
+    async function loadMyJobs() {
+      const user = await protectPage();
+
+      if (!user) return;
+
+      const jobsList = document.getElementById("jobsList");
+
+      const { data: jobs, error } = await supabaseClient
+        .from("tasks")
+        .select("*")
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        jobsList.innerHTML = "Error loading jobs: " + error.message;
+        return;
+      }
+
+      if (!jobs || jobs.length === 0) {
+        jobsList.innerHTML = `
+          <div class="empty">
+            You have not posted any jobs yet.
+          </div>
+        `;
+        return;
+      }
+
+      jobsList.innerHTML 
