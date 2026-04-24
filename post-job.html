@@ -213,13 +213,18 @@ if (!customerId) {
     window.location.href = "customer-home.html";
   }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-async function protectPage() {
-  const { data: { user }, error } = await supabaseClient.auth.getUser();
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7c02Z8CDxZyEKDLRzvtg_1UJC1ldJ"
+);
 
-  if (error || !user) {
+async function protectPage() {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error || !data.session) {
     window.location.href = "login.html";
     return;
   }
