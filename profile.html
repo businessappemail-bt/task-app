@@ -5,120 +5,102 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: #f4f4f4;
-padding-bottom: 80px;
-}
-
-.container {
-max-width: 420px;
-margin: 0 auto;
-background: white;
-min-height: 100vh;
-}
-
-.header {
-text-align: center;
-padding: 20px;
-font-size: 22px;
-font-weight: bold;
-border-bottom: 1px solid #ddd;
-}
-
-.profile-top {
-text-align: center;
-padding: 30px 20px;
-border-bottom: 1px solid #ddd;
-}
+body { margin:0; font-family:Arial; background:#f4f4f4; padding-bottom:80px; }
+.container { max-width:420px; margin:0 auto; background:white; min-height:100vh; }
+.header { text-align:center; padding:20px; font-size:22px; font-weight:bold; border-bottom:1px solid #ddd; }
+.profile-top { text-align:center; padding:30px 20px; border-bottom:1px solid #ddd; }
 
 .avatar {
-width: 110px;
-height: 110px;
-border-radius: 50%;
-background: #ddd;
-margin: 0 auto 15px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 42px;
-color: green;
+width:110px;
+height:110px;
+border-radius:50%;
+background:#ddd;
+margin:0 auto 12px;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+font-size:40px;
+cursor:pointer;
 }
 
-.name {
-font-size: 22px;
-font-weight: bold;
+.avatar img {
+width:100%;
+height:100%;
+object-fit:cover;
 }
+
+.upload-text {
+font-size:14px;
+color:green;
+cursor:pointer;
+margin-bottom:15px;
+}
+
+#photoInput { display:none; }
+
+.name { font-size:22px; font-weight:bold; }
 
 .row {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 18px 20px;
-border-bottom: 1px solid #eee;
-font-size: 16px;
-cursor: pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 20px;
+border-bottom:1px solid #eee;
+cursor:pointer;
 }
 
-.row-title {
-font-weight: bold;
-}
-
-.row-value {
-color: #333;
-font-size: 15px;
-text-align: right;
-}
-
-.arrow {
-color: green;
-font-size: 22px;
-}
+.row-title { font-weight:bold; }
+.arrow { color:green; font-size:22px; }
 
 .center-row {
-text-align: center;
-padding: 18px;
-border-bottom: 1px solid #eee;
-cursor: pointer;
-font-size: 16px;
+text-align:center;
+padding:18px;
+border-bottom:1px solid #eee;
+cursor:pointer;
+font-weight:bold;
 }
 
 .logout {
-text-align: center;
-padding: 18px;
-cursor: pointer;
-font-size: 16px;
+text-align:center;
+padding:18px;
+cursor:pointer;
 }
 
 .nav {
-position: fixed;
-bottom: 0;
-left: 0;
-width: 100%;
-background: white;
-border-top: 1px solid #ddd;
-display: flex;
-justify-content: center;
+position:fixed;
+bottom:0;
+width:100%;
+background:white;
+border-top:1px solid #ddd;
+display:flex;
+justify-content:center;
 }
 
 .nav-inner {
-max-width: 420px;
-width: 100%;
-display: flex;
-justify-content: space-around;
-padding: 10px 0;
+max-width:420px;
+width:100%;
+display:flex;
+justify-content:space-around;
+padding:10px 0;
 }
 
 .nav a {
-text-decoration: none;
-color: #888;
-font-size: 14px;
+text-decoration:none;
+color:#777;
+font-size:14px;
 }
 
 .nav a.active {
-color: green;
-font-weight: bold;
+color:green;
+font-weight:bold;
+}
+
+#status {
+text-align:center;
+color:green;
+font-size:14px;
+margin-top:8px;
 }
 </style>
 </head>
@@ -130,13 +112,24 @@ font-weight: bold;
 <div class="header">Profile</div>
 
 <div class="profile-top">
-<div class="avatar">👤</div>
+<div class="avatar" onclick="document.getElementById('photoInput').click()">
+<span id="avatarPlaceholder">👤</span>
+<img id="profilePhoto" style="display:none;">
+</div>
+
+<div class="upload-text" onclick="document.getElementById('photoInput').click()">
+Add / Change Photo
+</div>
+
+<input id="photoInput" type="file" accept="image/*" onchange="uploadProfilePhoto()">
+
 <div class="name" id="profileName">Loading...</div>
+<div id="status"></div>
 </div>
 
 <div class="row" onclick="goToPage('account.html')">
 <div class="row-title">Account</div>
-<div class="row-value" id="profileEmail">Loading...</div>
+<div id="profileEmail">Loading...</div>
 </div>
 
 <div class="row" onclick="goToPage('account-security.html')">
@@ -165,17 +158,15 @@ font-weight: bold;
 </div>
 
 <div class="row" onclick="goToPage('about.html')">
-<div class="row-title">About Taskmint</div>
+<div class="row-title">About</div>
 <div class="arrow">›</div>
 </div>
 
 <div class="center-row" onclick="goToPage('worker-application.html')">
-I want to accept task!
+I want to accept task
 </div>
 
-<div class="logout" onclick="logoutUser()">
-Log Out
-</div>
+<div class="logout" onclick="logoutUser()">Log Out</div>
 
 </div>
 
@@ -193,12 +184,11 @@ Log Out
 <script>
 const supabaseClient = window.supabase.createClient(
 "https://dbcthtjmtlumidpbucrc.supabase.co",
-"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC11dJ"
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
 async function loadProfile() {
 const userId = localStorage.getItem("taskmintUserId");
-const savedEmail = localStorage.getItem("taskmintEmail");
 
 if (!userId) {
 window.location.href = "login.html";
@@ -207,27 +197,71 @@ return;
 
 const { data: profile, error } = await supabaseClient
 .from("profiles")
-.select("first_name, last_name, email")
+.select("first_name, last_name, email, profile_photo_url")
 .eq("id", userId)
 .single();
 
-if (error || !profile) {
-document.getElementById("profileName").innerText = "User";
-document.getElementById("profileEmail").innerText = savedEmail || "No email found";
+if (error || !profile) return;
+
+document.getElementById("profileName").innerText =
+`${profile.first_name || ""} ${profile.last_name || ""}`;
+
+document.getElementById("profileEmail").innerText =
+profile.email || "No email found";
+
+if (profile.profile_photo_url) {
+document.getElementById("avatarPlaceholder").style.display = "none";
+document.getElementById("profilePhoto").src = profile.profile_photo_url;
+document.getElementById("profilePhoto").style.display = "block";
+}
+}
+
+async function uploadProfilePhoto() {
+const userId = localStorage.getItem("taskmintUserId");
+const file = document.getElementById("photoInput").files[0];
+const status = document.getElementById("status");
+
+if (!file) return;
+
+status.innerText = "Uploading photo...";
+
+const fileExt = file.name.split(".").pop();
+const filePath = `${userId}/profile.${fileExt}`;
+
+const { error: uploadError } = await supabaseClient.storage
+.from("profile-photos")
+.upload(filePath, file, {
+upsert: true
+});
+
+if (uploadError) {
+status.innerText = uploadError.message;
 return;
 }
 
-const firstName = profile.first_name || "";
-const lastName = profile.last_name || "";
-const email = profile.email || savedEmail || "No email found";
+const { data } = supabaseClient.storage
+.from("profile-photos")
+.getPublicUrl(filePath);
 
-const firstInitial = firstName.charAt(0).toUpperCase();
-const lastInitial = lastName.charAt(0).toUpperCase();
+const photoUrl = data.publicUrl;
 
-document.getElementById("profileName").innerText =
-`${firstInitial} ${lastInitial}.`;
+const { error: updateError } = await supabaseClient
+.from("profiles")
+.update({
+profile_photo_url: photoUrl
+})
+.eq("id", userId);
 
-document.getElementById("profileEmail").innerText = email;
+if (updateError) {
+status.innerText = updateError.message;
+return;
+}
+
+document.getElementById("avatarPlaceholder").style.display = "none";
+document.getElementById("profilePhoto").src = photoUrl + "?t=" + Date.now();
+document.getElementById("profilePhoto").style.display = "block";
+
+status.innerText = "Photo updated.";
 }
 
 function goToPage(page) {
@@ -244,3 +278,4 @@ loadProfile();
 
 </body>
 </html>
+
