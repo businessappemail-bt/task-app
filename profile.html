@@ -223,6 +223,16 @@ const status = document.getElementById("status");
 
 if (!file) return;
 
+if (!file.type.startsWith("image/")) {
+  status.innerText = "Only image files allowed";
+  return;
+}
+
+if (file.size > 2 * 1024 * 1024) {
+  status.innerText = "Max file size is 2MB";
+  return;
+}
+  
 status.innerText = "Uploading photo...";
 
 const fileExt = file.name.split(".").pop();
