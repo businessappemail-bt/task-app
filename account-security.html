@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Account Security - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f4f4f4;
+padding-bottom: 80px;
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+background: white;
+min-height: 100vh;
+}
+
+.header {
+display: flex;
+align-items: center;
+gap: 15px;
+padding: 18px 20px;
+border-bottom: 1px solid #ddd;
+font-size: 22px;
+font-weight: bold;
+}
+
+.back {
+font-size: 28px;
+cursor: pointer;
+color: green;
+}
+
+.section {
+padding: 20px;
+border-bottom: 1px solid #eee;
+}
+
+.section h3 {
+margin: 0 0 8px;
+}
+
+.section p {
+color: #555;
+margin: 0 0 15px;
+line-height: 1.4;
+}
+
+input {
+width: 100%;
+padding: 14px;
+margin-bottom: 12px;
+border: 1px solid #ccc;
+border-radius: 10px;
+font-size: 16px;
+box-sizing: border-box;
+}
+
+button {
+width: 100%;
+padding: 14px;
+border: none;
+border-radius: 10px;
+background: green;
+color: white;
+font-size: 16px;
+cursor: pointer;
+margin-top: 8px;
+}
+
+.secondary {
+background: white;
+color: #111;
+border: 1px solid #ccc;
+}
+
+#status {
+text-align: center;
+padding: 15px;
+color: #333;
+font-weight: bold;
+}
+
+.nav {
+position: fixed;
+bottom: 0;
+left: 0;
+width: 100%;
+background: white;
+border-top: 1px solid #ddd;
+display: flex;
+justify-content: center;
+}
+
+.nav-inner {
+max-width: 420px;
+width: 100%;
+display: flex;
+justify-content: space-around;
+padding: 10px 0;
+}
+
+.nav a {
+text-decoration: none;
+color: #888;
+font-size: 14px;
+}
+
+.nav a.active {
+color: green;
+font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<span class="back" onclick="window.location.href='profile.html'">‹</span>
+Account Security
+</div>
+
+<div class="section">
+<h3>2-Step Verification</h3>
+<p>Add phone verification to help protect your TaskMint account.</p>
+
+<input id="phone" type="text" placeholder="Phone number">
+<button onclick="sendCode()">Send Code</button>
+</div>
+
+<div class="section">
+<h3>Enter Verification Code</h3>
+<p>Enter the code sent to your phone.</p>
+
+<input id="code" type="text" placeholder="Verification code">
+<button onclick="verifyCode()">Verify Code</button>
+<button class="secondary" onclick="disableTwoStep()">Turn Off 2-Step Verification</button>
+</div>
+
+<div id="status"></div>
+
+</div>
+
+<div class="nav">
+<div class="nav-inner">
+<a href="customer-home.html">Home</a>
+<a href="my-jobs.html">My Jobs</a>
+<a href="messages.html">Messages</a>
+<a href="profile.html" class="active">Profile</a>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+"https://dbcthtjmtlumidpbucrc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC11dJ"
+);
+
+async function sendCode() {
+const phone = document.getElementById("phone").value;
+const status = document.getElementById("status");
+
+if (!phone) {
+status.innerText = "Enter your phone number.";
+return;
+}
+
+/*
+Real text-code sending needs Supabase phone auth or a service like Twilio.
+For now, this saves the phone and simulates sending a code.
+*/
+
+localStorage.setItem("taskmintTwoStepPhone", phone);
+localStorage.setItem("taskmintTestCode", "123456");
+
+status.innerText = "Code sent. Use 123456 for testing.";
+}
+
+function verifyCode() {
+const code = document.getElementById("code").value;
+const status = document.getElementById("status");
+const testCode = localStorage.getItem("taskmintTestCode");
+
+if (!code) {
+status.innerText = "Enter the verification code.";
+return;
+}
+
+if (code !== testCode) {
+status.innerText = "Incorrect code.";
+return;
+}
+
+localStorage.setItem("taskmintTwoStepEnabled", "true");
+status.innerText = "2-Step Verification is now turned on.";
+}
+
+function disableTwoStep() {
+localStorage.removeItem("taskmintTwoStepEnabled");
+localStorage.removeItem("taskmintTwoStepPhone");
+localStorage.removeItem("taskmintTestCode");
+
+document.getElementById("status").innerText =
+"2-Step Verification is turned off.";
+}
+</script>
+
+</body>
+</html>
