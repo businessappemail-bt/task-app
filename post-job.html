@@ -222,11 +222,15 @@ async function postJob() {
   const unit = document.getElementById("unit").value;
   const zip_code = document.getElementById("zip_code").value;
   const schedule = document.getElementById("schedule").value;
-  const status = document.getElementById("status");
+  let status = document.getElementById("status");
 
-  
-  status.innerText = "";
+if (!status) {
+  status = document.createElement("p");
+  status.id = "status";
+  document.getElementById("step5").appendChild(status);
+}
 
+status.innerText = "";
   if (!title || !description || !category || !budget || !city || !state || !street_address || !zip_code || !schedule) {
     status.innerText = "Please fill out all fields.";
     return;
