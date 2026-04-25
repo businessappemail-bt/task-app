@@ -226,13 +226,12 @@ if (!file) return;
 status.innerText = "Uploading photo...";
 
 const fileExt = file.name.split(".").pop();
-const filePath = `${userId}/profile.${fileExt}`;
+const safeFileName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+const filePath = `customers/${Date.now()}_${safeFileName}`;
 
 const { error: uploadError } = await supabaseClient.storage
 .from("profile-photos")
-.upload(filePath, file, {
-upsert: true
-});
+.upload(filePath, file);
 
 if (uploadError) {
 status.innerText = uploadError.message;
