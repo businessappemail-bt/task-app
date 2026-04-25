@@ -1,150 +1,274 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My Jobs - TaskMint</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post Job - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #111;
-      padding-bottom: 80px;
-    }
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f5f5f5;
+color: #111;
+padding-bottom: 80px;
+}
 
-    .container {
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 30px 20px;
-    }
+.container {
+max-width: 420px;
+margin: 0 auto;
+padding: 30px 20px 100px;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 8px;
-    }
+h1 {
+text-align: center;
+margin-bottom: 10px;
+}
 
-    p {
-      text-align: center;
-      color: #555;
-    }
+.subtext {
+text-align: center;
+color: #666;
+margin-bottom: 25px;
+}
 
-    .job-card {
-      background: white;
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
+.card {
+background: white;
+border-radius: 12px;
+padding: 20px;
+box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
 
-    .job-card h3 {
-      margin: 0 0 8px;
-    }
+input, textarea, select {
+width: 100%;
+padding: 14px;
+margin-bottom: 14px;
+border: 1px solid #ccc;
+border-radius: 10px;
+font-size: 16px;
+box-sizing: border-box;
+}
 
-    .job-card p {
-      text-align: left;
-      margin: 5px 0;
-    }
+textarea {
+min-height: 120px;
+resize: vertical;
+}
 
-    .status {
-      font-weight: bold;
-      color: green;
-    }
+button {
+width: 100%;
+padding: 14px;
+border: none;
+border-radius: 10px;
+font-size: 16px;
+cursor: pointer;
+margin-top: 8px;
+}
 
-    .empty {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      color: #555;
-    }
+.primary {
+background: green;
+color: white;
+}
 
-    .nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      border-top: 1px solid #ddd;
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-    }
+.secondary {
+background: white;
+color: #111;
+border: 1px solid #ccc;
+}
 
-    .nav a {
-      text-decoration: none;
-      color: #555;
-      font-size: 14px;
-    }
+.option-btn {
+background: #e5e5e5;
+color: #111;
+margin-bottom: 10px;
+}
 
-    .nav a.active {
-      color: green;
-      font-weight: bold;
-    }
-  </style>
+#status {
+text-align: center;
+margin-top: 16px;
+color: #333;
+font-weight: bold;
+}
+
+.nav {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+background: white;
+border-top: 1px solid #ddd;
+display: flex;
+justify-content: space-around;
+padding: 12px 0;
+}
+
+.nav a {
+text-decoration: none;
+color: #555;
+font-size: 14px;
+}
+
+.nav a.active {
+color: green;
+font-weight: bold;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>My Jobs</h1>
-    <p>View jobs you have posted.</p>
 
-    <div id="jobsList">
-      Loading jobs...
-    </div>
-  </div>
+<div class="container">
+<h1>Post a Job</h1>
+<p class="subtext">Tell people what you need help with.</p>
 
-  <div class="nav">
-    <a href="customer-home.html">Home</a>
-    <a href="my-jobs.html" class="active">My Jobs</a>
-    <a href="messages.html">Messages</a>
-    <a href="profile.html">Profile</a>
-  </div>
+<div class="card" id="step1">
+<h3>What is the task location?</h3>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<input id="street_address" type="text" placeholder="Street address">
+<input id="unit" type="text" placeholder="Optional unit or apt #">
+<input id="city" type="text" placeholder="City">
+<input id="state" type="text" placeholder="State">
+<input id="zip_code" type="text" placeholder="Zip code">
 
-  <script>
-    const supabaseClient = window.supabase.createClient(
-      "https://dbcthtjmtlumidpbucrc.supabase.co",
-      "sb_publishable_3h7c02Z8CDxZyEKDLRzvtg_1UJC1ldJ"
-    );
+<button type="button" class="primary" onclick="goToStep2()">Continue</button>
+</div>
 
-    async function protectPage() {
-      const { data, error } = await supabaseClient.auth.getSession();
+<div class="card" id="step2" style="display:none;">
+<h3>What do you need help with?</h3>
 
-      if (error || !data.session) {
-        window.location.href = "login.html";
-        return null;
-      }
+<button type="button" class="option-btn" onclick="selectCategory('Moving Help')">Moving Help</button>
+<button type="button" class="option-btn" onclick="selectCategory('Furniture Assembly')">Furniture Assembly</button>
+<button type="button" class="option-btn" onclick="selectCategory('Cleaning')">Cleaning</button>
+<button type="button" class="option-btn" onclick="selectCategory('Yard Work')">Yard Work</button>
+<button type="button" class="option-btn" onclick="selectCategory('Handyman Help')">Handyman Help</button>
+<button type="button" class="option-btn" onclick="selectCategory('Errands')">Errands</button>
+<button type="button" class="option-btn" onclick="selectCategory('Other')">Other</button>
+</div>
 
-      return data.session.user;
-    }
+<div class="card" id="step3" style="display:none;">
+<h3>Describe your task</h3>
 
-    async function loadMyJobs() {
-      const user = await protectPage();
+<input id="title" type="text" placeholder="Job title">
+<textarea id="description" placeholder="Describe the job"></textarea>
 
-      if (!user) return;
+<button type="button" class="primary" onclick="goToStep4()">Continue</button>
+</div>
 
-      const jobsList = document.getElementById("jobsList");
+<div class="card" id="step4" style="display:none;">
+<h3>What is your budget?</h3>
 
-      const { data: jobs, error } = await supabaseClient
-        .from("tasks")
-        .select("*")
-        .eq("customer_id", user.id)
-        .order("created_at", { ascending: false });
+<input id="budget" type="number" placeholder="Budget">
 
-      if (error) {
-        jobsList.innerHTML = "Error loading jobs: " + error.message;
-        return;
-      }
+<button type="button" class="primary" onclick="goToStep5()">Continue</button>
+</div>
 
-      if (!jobs || jobs.length === 0) {
-        jobsList.innerHTML = `
-          <div class="empty">
-            You have not posted any jobs yet.
-          </div>
-        `;
-        return;
-      }
+<div class="card" id="step5" style="display:none;">
+<h3>When do you need this done?</h3>
 
-      jobsList.innerHTML 
+<select id="schedule">
+<option value="">Select</option>
+<option value="Today">Today</option>
+<option value="Within 3 days">Within 3 days</option>
+<option value="Within a week">Within a week</option>
+<option value="Flexible">Flexible</option>
+</select>
+
+<button type="button" class="primary" onclick="postJob()">Post Task</button>
+</div>
+
+<p id="status"></p>
+</div>
+
+<div class="nav">
+<a href="customer-home.html">Home</a>
+<a href="my-jobs.html">My Jobs</a>
+<a href="messages.html">Messages</a>
+<a href="profile.html">Profile</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+"https://dbcthtjmtlumidpbucrc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC11dJ"
+);
+
+function goToStep2() {
+document.getElementById("step1").style.display = "none";
+document.getElementById("step2").style.display = "block";
+}
+
+function selectCategory(value) {
+window.selectedCategory = value;
+document.getElementById("step2").style.display = "none";
+document.getElementById("step3").style.display = "block";
+}
+
+function goToStep4() {
+document.getElementById("step3").style.display = "none";
+document.getElementById("step4").style.display = "block";
+}
+
+function goToStep5() {
+document.getElementById("step4").style.display = "none";
+document.getElementById("step5").style.display = "block";
+}
+
+async function postJob() {
+const title = document.getElementById("title").value;
+const description = document.getElementById("description").value;
+const category = window.selectedCategory;
+const budget = document.getElementById("budget").value;
+const city = document.getElementById("city").value;
+const state = document.getElementById("state").value;
+const street_address = document.getElementById("street_address").value;
+const unit = document.getElementById("unit").value;
+const zip_code = document.getElementById("zip_code").value;
+const schedule = document.getElementById("schedule").value;
+const status = document.getElementById("status");
+
+status.innerText = "";
+
+if (!street_address || !city || !state || !zip_code || !category || !title || !description || !budget || !schedule) {
+status.innerText = "Please fill out all fields.";
+return;
+}
+
+const customerId = localStorage.getItem("taskmintUserId");
+
+if (!customerId) {
+status.innerText = "You must be logged in.";
+return;
+}
+
+const { error } = await supabaseClient
+.from("tasks")
+.insert([
+{
+title: title,
+description: description,
+category: category,
+price: budget,
+city: city,
+state: state,
+street_address: street_address,
+unit: unit,
+zip_code: zip_code,
+schedule_preferer: schedule,
+status: "open",
+customer_id: customerId
+}
+]);
+
+if (error) {
+status.innerText = error.message;
+return;
+}
+
+status.innerText = "Task posted successfully.";
+
+setTimeout(() => {
+window.location.href = "my-jobs.html";
+}, 1000);
+}
+</script>
+
+</body>
+</html>
