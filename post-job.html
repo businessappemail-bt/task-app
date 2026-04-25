@@ -237,23 +237,23 @@ const customerId = localStorage.getItem("taskmintUserId");
     }
 
     const { error } = await supabaseClient
-      .from("tasks")
-     .insert([
-  {
-    title: title,
-    description: description,
-    category: category,
-    price: budget,
-    city: city,
-    state: state,
-    street_address: street_address,
-    unit: unit,
-    zipcode: zipcode,
-    schedule_preference: schedule,
-    status: "open",
-    customer_id: customerId
-  }
-])
+  .from("tasks")
+  .insert([
+    {
+      title: title,
+      description: description,
+      category: category,
+      price: budget,
+      city: city,
+      state: state,
+      street_address: street_address,
+      unit: unit,
+      zipcode: zipcode,
+      schedule_preference: schedule,
+      status: "open",
+      customer_id: customerId
+    }
+  ]);
 
     if (error) {
       status.innerText = error.message;
