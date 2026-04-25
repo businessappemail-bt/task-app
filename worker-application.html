@@ -1,30 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>I want to accept task!</title>
+<title>Worker Application - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { margin:0; font-family:Arial; background:#f4f4f4; padding-bottom:80px; }
+body { margin:0; font-family:Arial, sans-serif; background:#f4f4f4; padding-bottom:80px; }
 .container { max-width:420px; margin:0 auto; background:white; min-height:100vh; }
-.header { position:relative; text-align:center; padding:18px; font-size:20px; font-weight:bold; border-bottom:1px solid #ddd; }
-.back { position:absolute; left:15px; top:14px; font-size:26px; cursor:pointer; color:green; }
-
+.header { position:relative; text-align:center; padding:18px; font-size:22px; font-weight:bold; border-bottom:1px solid #ddd; }
+.back { position:absolute; left:15px; top:14px; font-size:28px; color:green; cursor:pointer; }
 .form { padding:20px; }
-.input { margin-bottom:15px; }
-.input label { display:block; font-size:14px; margin-bottom:5px; }
-.input input, .input textarea, .input select {
-width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;
+input, textarea, select {
+width:100%; padding:14px; margin-bottom:12px; border:1px solid #ccc;
+border-radius:10px; font-size:16px; box-sizing:border-box;
 }
-
-.checkbox { margin-bottom:10px; }
-
-.btn {
-width:100%; padding:14px; background:green; color:white;
-border:none; border-radius:8px; font-size:16px; cursor:pointer;
+textarea { min-height:90px; resize:vertical; }
+label { font-weight:bold; display:block; margin:10px 0 6px; }
+select[multiple] { height:150px; }
+button {
+width:100%; padding:15px; background:green; color:white; border:none;
+border-radius:10px; font-size:16px; cursor:pointer; margin-top:12px;
 }
+.note { font-size:14px; color:#666; line-height:1.4; margin-bottom:15px; }
+#statusMsg { text-align:center; margin-top:15px; font-weight:bold; color:green; }
 
-.success { color:green; text-align:center; margin-top:15px; }
+.status-box { margin:20px; padding:18px; background:#f8f8f8; border-radius:12px; }
+.status-step { display:flex; gap:10px; align-items:center; margin:12px 0; color:#777; font-size:14px; }
+.dot { width:16px; height:16px; border-radius:50%; background:#ccc; }
+.active { color:#111; font-weight:bold; }
+.active .dot { background:green; }
+
+.nav { position:fixed; bottom:0; width:100%; background:white; border-top:1px solid #ddd; display:flex; justify-content:center; }
+.nav-inner { max-width:420px; width:100%; display:flex; justify-content:space-around; padding:10px 0; }
+.nav a { text-decoration:none; color:#777; font-size:14px; }
+.nav a.active { color:green; font-weight:bold; }
 </style>
 </head>
 
@@ -34,100 +43,207 @@ border:none; border-radius:8px; font-size:16px; cursor:pointer;
 
 <div class="header">
 <span class="back" onclick="window.location.href='profile.html'">‹</span>
-I want to accept task!
+Worker Application
 </div>
 
 <div class="form">
 
-<div class="input">
-<label>Full Name</label>
-<input id="full_name">
+<input id="full_name" type="text" placeholder="Full name">
+<input id="email" type="email" placeholder="Email">
+<input id="phone_number" type="text" placeholder="Phone number">
+<input id="address" type="text" placeholder="Address">
+<input id="city" type="text" placeholder="City">
+
+<div style="display:flex; gap:10px;">
+<input id="state" type="text" placeholder="State">
+<input id="zip_code" type="text" placeholder="Zip code">
 </div>
 
-<div class="input">
-<label>Email</label>
-<input id="email">
+<label>Fields of Experience</label>
+<select id="experience" multiple>
+<option value="Painting">Painting</option>
+<option value="Yard Work">Yard Work</option>
+<option value="Gardening">Gardening</option>
+<option value="Installations">Installations</option>
+<option value="TV Mounting">TV Mounting</option>
+<option value="Cleaning">Cleaning</option>
+<option value="Furniture Assembly">Furniture Assembly</option>
+<option value="Moving Help">Moving Help</option>
+<option value="Handyman Help">Handyman Help</option>
+<option value="Errands">Errands</option>
+<option value="Packing">Packing</option>
+<option value="Unpacking">Unpacking</option>
+<option value="Mounting Shelves">Mounting Shelves</option>
+<option value="Minor Repairs">Minor Repairs</option>
+</select>
+
+<textarea id="details" placeholder="Tell us about your experience"></textarea>
+
+<label>Background Check</label>
+<div class="note">
+After you submit this application, TaskMint will send you a Checkr background check invite. Complete the Checkr steps to move your application forward.
 </div>
 
-<div class="input">
-<label>Phone Number</label>
-<input id="phone">
+<button onclick="submitApplication()">Submit Application</button>
+
+<div id="statusMsg"></div>
 </div>
 
-<div class="input">
-<label>City</label>
-<input id="city">
+<div class="status-box">
+<h3>Background Check Status</h3>
+
+<div id="stepSubmitted" class="status-step">
+<div class="dot"></div>
+<div>Submitted</div>
 </div>
 
-<div class="input">
-<label>State</label>
-<input id="state">
+<div id="stepProcessing" class="status-step">
+<div class="dot"></div>
+<div>Processing — estimated completion: <span id="estimatedDate"></span></div>
 </div>
 
-<div class="input">
-<label>Experience</label>
-<textarea id="experience"></textarea>
+<div id="stepCompleted" class="status-step">
+<div class="dot"></div>
+<div>Completed</div>
 </div>
 
-<div class="checkbox">
-<input type="checkbox" id="transport"> Has transportation
+<div id="stepDecision" class="status-step">
+<div class="dot"></div>
+<div>Approved / Declined — reviewed by TaskMint</div>
 </div>
-
-<div class="checkbox">
-<input type="checkbox" id="enterHomes"> Can enter homes
-</div>
-
-<div class="checkbox">
-<input type="checkbox" id="lift"> Can lift heavy items
-</div>
-
-<button class="btn" onclick="submitApplication()">Submit Application</button>
-
-<div class="success" id="statusMsg"></div>
-
 </div>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<div class="nav">
+<div class="nav-inner">
+<a href="customer-home.html">Home</a>
+<a href="my-jobs.html">My Jobs</a>
+<a href="messages.html">Messages</a>
+<a href="profile.html" class="active">Profile</a>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabaseClient = supabase.createClient(
+const supabaseClient = window.supabase.createClient(
 "https://dbcthtjmtlumidpbucrc.supabase.co",
 "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
-async function submitApplication() {
-const user = (await supabaseClient.auth.getUser()).data.user;
+function getSelectedExperience() {
+return Array.from(document.getElementById("experience").selectedOptions)
+.map(option => option.value)
+.join(", ");
+}
 
-if (!user) {
-alert("You must be logged in");
+function getTwoWeeksOut() {
+const date = new Date();
+date.setDate(date.getDate() + 14);
+return date.toLocaleDateString();
+}
+
+function updateStatusBar(status) {
+document.getElementById("estimatedDate").innerText = getTwoWeeksOut();
+
+["stepSubmitted", "stepProcessing", "stepCompleted", "stepDecision"].forEach(id => {
+document.getElementById(id).classList.remove("active");
+});
+
+if (status === "submitted") {
+document.getElementById("stepSubmitted").classList.add("active");
+}
+
+if (status === "processing") {
+document.getElementById("stepSubmitted").classList.add("active");
+document.getElementById("stepProcessing").classList.add("active");
+}
+
+if (status === "completed") {
+document.getElementById("stepSubmitted").classList.add("active");
+document.getElementById("stepProcessing").classList.add("active");
+document.getElementById("stepCompleted").classList.add("active");
+}
+
+if (status === "approved" || status === "declined") {
+document.getElementById("stepSubmitted").classList.add("active");
+document.getElementById("stepProcessing").classList.add("active");
+document.getElementById("stepCompleted").classList.add("active");
+document.getElementById("stepDecision").classList.add("active");
+}
+}
+
+async function submitApplication() {
+const statusMsg = document.getElementById("statusMsg");
+const userId = localStorage.getItem("taskmintUserId");
+
+if (!userId) {
+window.location.href = "login.html";
 return;
 }
+
+const fullName = document.getElementById("full_name").value;
+const email = document.getElementById("email").value;
+const phone = document.getElementById("phone_number").value;
+const address = document.getElementById("address").value;
+const city = document.getElementById("city").value;
+const state = document.getElementById("state").value;
+const zip = document.getElementById("zip_code").value;
+const experience = getSelectedExperience();
+const details = document.getElementById("details").value;
+
+if (!fullName || !email || !phone || !address || !city || !state || !zip || !experience) {
+statusMsg.innerText = "Please complete all required fields.";
+return;
+}
+
+statusMsg.innerText = "Submitting application...";
 
 const { error } = await supabaseClient
 .from("worker_applications")
 .insert([{
-user_id: user.id,
-full_name: document.getElementById("full_name").value,
-email: document.getElementById("email").value,
-phone_number: document.getElementById("phone").value,
-city: document.getElementById("city").value,
-state: document.getElementById("state").value,
-task_experience: document.getElementById("experience").value,
-has_transportation: document.getElementById("transport").checked,
-can_enter_homes: document.getElementById("enterHomes").checked,
-can_lift_heavy_items: document.getElementById("lift").checked,
-application_status: "pending"
+worker_id: userId,
+full_name: fullName,
+email: email,
+phone_number: phone,
+address: address,
+city: city,
+state: state,
+zip_code: zip,
+task_experience: experience,
+message: details,
+background_check: "submitted",
+background_check_status: "submitted",
+application_status: "pending",
+is_approved: false
 }]);
 
 if (error) {
-document.getElementById("statusMsg").innerText = "Error submitting application";
-} else {
-document.getElementById("statusMsg").innerText = "Application submitted!";
+statusMsg.innerText = error.message;
+return;
 }
+
+await fetch("/api/send-checkr-invite", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+fullName,
+email,
+phone,
+userId
+})
+});
+
+localStorage.setItem("taskmintBackgroundStatus", "submitted");
+updateStatusBar("submitted");
+
+window.location.href = "application-submitted.html";
 }
+
+updateStatusBar(localStorage.getItem("taskmintBackgroundStatus") || "submitted");
 </script>
 
 </body>
 </html>
+
