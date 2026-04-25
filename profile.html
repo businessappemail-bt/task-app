@@ -1,380 +1,174 @@
+<!DOCTYPE html>
 <html>
-
 <head>
-
-  <title>Profile - TaskMint</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-
-    body {
-
-      margin: 0;
-
-      font-family: Arial, sans-serif;
-
-      background: #f5f5f5;
-
-      color: #111;
-
-      padding-bottom: 80px;
-
-    }
-
-    .container {
-
-      max-width: 420px;
-
-      margin: 0 auto;
-
-      padding: 30px 20px;
-
-    }
-
-    .logo-wrap {
-
-      text-align: center;
-
-      margin-bottom: 20px;
-
-    }
-
-    .logo-img {
-
-      width: 120px;
-
-    }
-
-    h1 {
-
-      text-align: center;
-
-      margin-bottom: 8px;
-
-    }
-
-    .subtext {
-
-      text-align: center;
-
-      color: #555;
-
-      margin-bottom: 25px;
-
-    }
-
-    .card {
-
-      background: white;
-
-      padding: 20px;
-
-      border-radius: 12px;
-
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-
-    }
-
-    .row {
-
-      margin-bottom: 14px;
-
-    }
-
-    .label {
-
-      font-weight: bold;
-
-      color: #333;
-
-      margin-bottom: 4px;
-
-    }
-
-    .value {
-
-      color: #555;
-
-    }
-
-    .btn {
-
-      width: 100%;
-
-      padding: 14px;
-
-      margin-top: 15px;
-
-      border: 1px solid #ccc;
-
-      border-radius: 8px;
-
-      background: white;
-
-      font-size: 16px;
-
-      cursor: pointer;
-
-    }
-
-    .status {
-
-      text-align: center;
-
-      margin-top: 15px;
-
-      color: #555;
-
-    }
-
-    .nav {
-
-      position: fixed;
-
-      bottom: 0;
-
-      left: 0;
-
-      width: 100%;
-
-      background: white;
-
-      border-top: 1px solid #ddd;
-
-      display: flex;
-
-      justify-content: space-around;
-
-      padding: 12px 0;
-
-    }
-
-    .nav a {
-
-      text-decoration: none;
-
-      color: #555;
-
-      font-size: 14px;
-
-    }
-
-    .nav a.active {
-
-      color: green;
-
-      font-weight: bold;
-
-    }
-
-  </style>
-
+<title>Profile - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f7f7f7;
+color: #111;
+padding-bottom: 85px;
+}
+
+.header {
+background: white;
+text-align: center;
+padding: 22px 0;
+font-size: 26px;
+font-weight: bold;
+border-bottom: 1px solid #ddd;
+}
+
+.profile-top {
+background: white;
+text-align: center;
+padding: 35px 20px 30px;
+border-bottom: 1px solid #ddd;
+}
+
+.avatar {
+width: 130px;
+height: 130px;
+border-radius: 50%;
+background: #ddd;
+margin: 0 auto 20px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 60px;
+color: #aaa;
+}
+
+.name {
+font-size: 28px;
+font-weight: bold;
+}
+
+.menu {
+background: white;
+margin-top: 20px;
+}
+
+.row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 20px 25px;
+border-bottom: 1px solid #ddd;
+font-size: 20px;
+font-weight: bold;
+}
+
+.row span {
+font-weight: normal;
+color: #222;
+font-size: 18px;
+}
+
+.arrow {
+color: green;
+font-size: 28px;
+}
+
+.center-row {
+text-align: center;
+padding: 20px;
+border-bottom: 1px solid #ddd;
+font-size: 20px;
+background: white;
+}
+
+.logout {
+text-align: center;
+padding: 20px;
+font-size: 20px;
+background: white;
+cursor: pointer;
+}
+
+.nav {
+position: fixed;
+bottom: 0;
+left: 0;
+width: 100%;
+background: white;
+border-top: 1px solid #ddd;
+display: flex;
+justify-content: space-around;
+padding: 10px 0;
+}
+
+.nav a {
+text-decoration: none;
+color: #888;
+font-size: 14px;
+text-align: center;
+}
+
+.nav a.active {
+color: green;
+font-weight: bold;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="container">
-
-    <div class="logo-wrap">
-
-      <img src="taskmintlogo.png" class="logo-img" alt="TaskMint Logo">
-
-    </div>
-
-    <h1>Profile</h1>
-
-    <p class="subtext">View your account information.</p>
-
-    <div class="card" id="profileCard">
-
-      Loading profile...
-
-    </div>
-
-    <p class="status" id="status"></p>
-
-    <button class="btn" onclick="logout()">Log Out</button>
-
-  </div>
-
-  <div class="nav">
-
-    <a href="customer-home.html">Home</a>
-
-    <a href="my-jobs.html">My Jobs</a>
-
-    <a href="messages.html">Messages</a>
-
-    <a href="profile.html" class="active">Profile</a>
-
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
-
-    const supabaseClient = window.supabase.createClient(
-  "https://dbcthtjmtlumidpbucrc.supabase.co",
-  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
-      
-);
-
-    async function loadProfile() {
-
-      const profileCard = document.getElementById("profileCard");
-
-      const status = document.getElementById("status");
-
-      const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-
-      if (sessionError || !sessionData.session) {
-
-        window.location.href = "login.html";
-
-        return;
-
-      }
-
-      const user = sessionData.session.user;
-
-      const { data: profile, error } = await supabaseClient
-
-        .from("profiles")
-
-        .select("*")
-
-        .eq("id", user.id)
-
-        .maybeSingle();
-
-      if (error) {
-
-        profileCard.innerHTML = "Profile could not load.";
-
-        status.innerText = error.message;
-
-        return;
-
-      }
-
-      if (!profile) {
-
-        profileCard.innerHTML = `
-
-          <div class="row">
-
-            <div class="label">Email</div>
-
-            <div class="value">${user.email}</div>
-
-          </div>
-
-          <div class="row">
-
-            <div class="label">Profile Status</div>
-
-            <div class="value">No profile row found.</div>
-
-          </div>
-
-        `;
-
-        return;
-
-      }
-
-      profileCard.innerHTML = `
-
-        <div class="row">
-
-          <div class="label">First Name</div>
-
-          <div class="value">${profile.first_name || ""}</div>
-
-        </div>
-
-        <div class="row">
-
-          <div class="label">Last Name</div>
-
-          <div class="value">${profile.last_name || ""}</div>
-
-        </div>
-
-        <div class="row">
-
-          <div class="label">Email</div>
-
-          <div class="value">${profile.email || user.email || ""}</div>
-
-        </div>
-
-        <div class="row">
-
-          <div class="label">Phone</div>
-
-          <div class="value">${profile.phone || ""}</div>
-
-        </div>
-
-        <div class="row">
-
-          <div class="label">Street Address</div>
-
-          <div class="value">${profile.street_address || ""}</div>
-
-        </div>
-
-        <div class="row">
-
-          <div class="label">City</div>
-
-          <div class="value">${profile.city || ""}</div>
-
-        </div>
-
-        <div class="row">
-
-          <div class="label">State</div>
-
-          <div class="value">${profile.state || ""}</div>
-
-        </div>
-
-        <div class="row">
-
-          <div class="label">Zipcode</div>
-
-          <div class="value">${profile.zipcode || ""}</div>
-
-        </div>
-
-        <div class="row">
-
-          <div class="label">Account Type</div>
-
-          <div class="value">${profile.account_type || ""}</div>
-
-        </div>
-
-      `;
-
-    }
-
-    async function logout() {
-
-      await supabaseClient.auth.signOut();
-
-      localStorage.clear();
-
-      window.location.href = "login.html";
-
-    }
-
-    loadProfile();
-
-  </script>
+<div class="header">Profile</div>
+
+<div class="profile-top">
+<div class="avatar">👤</div>
+<div class="name" id="profileName">B T.</div>
+</div>
+
+<div class="menu">
+<div class="row">
+Account
+<span id="profileEmail">Loading...</span>
+</div>
+
+<div class="row">Account Security <span class="arrow">›</span></div>
+<div class="row">Change Password <span class="arrow">›</span></div>
+<div class="row">Payment <span class="arrow">›</span></div>
+<div class="row">Promos <span class="arrow">›</span></div>
+<div class="row">Notifications <span class="arrow">›</span></div>
+<div class="row">Support <span class="arrow">›</span></div>
+<div class="row">About <span class="arrow">›</span></div>
+</div>
+
+<div class="center-row" onclick="window.location.href='worker-signup.html'">
+Become a Worker
+</div>
+
+<div class="logout" onclick="logoutUser()">
+Log Out
+</div>
+
+<div class="nav">
+<a href="customer-home.html">Home</a>
+<a href="my-jobs.html">My Jobs</a>
+<a href="messages.html">Messages</a>
+<a href="profile.html" class="active">Profile</a>
+</div>
+
+<script>
+const firstName = localStorage.getItem("taskmintFirstName") || "B";
+const lastName = localStorage.getItem("taskmintLastName") || "T";
+const email = localStorage.getItem("taskmintEmail") || "No email found";
+
+document.getElementById("profileName").innerText =
+firstName.charAt(0).toUpperCase() + " " + lastName.charAt(0).toUpperCase() + ".";
+
+document.getElementById("profileEmail").innerText = email;
+
+function logoutUser() {
+localStorage.clear();
+window.location.href = "login.html";
+}
+</script>
 
 </body>
-
 </html>
