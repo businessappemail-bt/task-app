@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Payment - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f4f4f4;
+padding-bottom: 80px;
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+background: white;
+min-height: 100vh;
+}
+
+.header {
+position: relative;
+text-align: center;
+padding: 18px 20px;
+font-size: 22px;
+font-weight: bold;
+border-bottom: 1px solid #ddd;
+}
+
+.back {
+position: absolute;
+left: 18px;
+top: 15px;
+font-size: 28px;
+color: green;
+cursor: pointer;
+}
+
+.section-title {
+padding: 30px 20px 12px;
+font-size: 14px;
+font-weight: bold;
+color: #555;
+text-transform: uppercase;
+background: #f7f7f7;
+border-bottom: 1px solid #eee;
+}
+
+.payment-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 20px;
+border-bottom: 1px solid #eee;
+cursor: pointer;
+background: white;
+}
+
+.payment-left {
+display: flex;
+align-items: center;
+gap: 14px;
+font-size: 18px;
+font-weight: bold;
+}
+
+.logo {
+width: 34px;
+height: 34px;
+object-fit: contain;
+}
+
+.arrow {
+font-size: 26px;
+color: green;
+}
+
+.note {
+padding: 20px;
+color: #777;
+font-size: 15px;
+line-height: 1.4;
+}
+
+.nav {
+position: fixed;
+bottom: 0;
+left: 0;
+width: 100%;
+background: white;
+border-top: 1px solid #ddd;
+display: flex;
+justify-content: center;
+}
+
+.nav-inner {
+max-width: 420px;
+width: 100%;
+display: flex;
+justify-content: space-around;
+padding: 10px 0;
+}
+
+.nav a {
+text-decoration: none;
+color: #888;
+font-size: 14px;
+}
+
+.nav a.active {
+color: green;
+font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<span class="back" onclick="window.location.href='profile.html'">‹</span>
+Payment
+</div>
+
+<div class="section-title">Add Payment Method</div>
+
+<div class="payment-row" onclick="goToCreditCard()">
+<div class="payment-left">
+<img class="logo" src="https://img.icons8.com/color/48/bank-card-back-side.png" alt="Credit Card">
+Credit Card
+</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="payment-row" onclick="startApplePay()">
+<div class="payment-left">
+<img class="logo" src="https://img.icons8.com/ios-filled/50/mac-os.png" alt="Apple Pay">
+Apple Pay
+</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="payment-row" onclick="startPayPal()">
+<div class="payment-left">
+<img class="logo" src="https://img.icons8.com/color/48/paypal.png" alt="PayPal">
+PayPal
+</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="payment-row" onclick="startCashApp()">
+<div class="payment-left">
+<img class="logo" src="https://img.icons8.com/color/48/cash-app.png" alt="Cash App">
+Cash App
+</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="payment-row" onclick="goToZelleInfo()">
+<div class="payment-left">
+<img class="logo" src="https://img.icons8.com/color/48/money-transfer.png" alt="Zelle">
+Zelle
+</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="note">
+Payment methods will be used for accepted jobs and future task payments. Card and digital wallet processing should be connected through a secure payment provider before taking real payments.
+</div>
+
+</div>
+
+<div class="nav">
+<div class="nav-inner">
+<a href="customer-home.html">Home</a>
+<a href="my-jobs.html">My Jobs</a>
+<a href="messages.html">Messages</a>
+<a href="profile.html" class="active">Profile</a>
+</div>
+</div>
+
+<script>
+function goToCreditCard() {
+window.location.href = "credit-card.html";
+}
+
+function startApplePay() {
+alert("Apple Pay will be connected later through Stripe or Apple Pay integration.");
+}
+
+function startPayPal() {
+alert("PayPal checkout will be connected later through the PayPal SDK.");
+}
+
+function startCashApp() {
+alert("Cash App Pay will be connected later through Stripe or Square.");
+}
+
+function goToZelleInfo() {
+window.location.href = "zelle.html";
+}
+</script>
+
+</body>
+</html>
+
