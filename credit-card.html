@@ -173,7 +173,7 @@ button.disabled = true;
 button.innerText = "Processing...";
 
 try {
-const response = await fetch("/create-payment-intent", {
+const response = await fetch("/api/create-payment-intent", {
 method: "POST",
 headers: {
 "Content-Type": "application/json"
