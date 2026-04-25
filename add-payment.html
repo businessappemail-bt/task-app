@@ -143,6 +143,15 @@ Apple Pay
 <div class="arrow">›</div>
 </div>
 
+<!-- GOOGLE PAY -->
+<div class="row" onclick="googlePay()">
+<div class="left">
+<img class="logo" src="https://img.icons8.com/color/48/google-pay.png">
+Google Pay
+</div>
+<div class="arrow">›</div>
+</div>
+  
 <!-- PAYPAL -->
 <div class="row" onclick="paypal()">
 <div class="left">
@@ -207,6 +216,10 @@ function cashapp() {
 alert("Cash App Pay will be connected.");
 }
 
+function googlePay() {
+alert("Google Pay will be connected using Stripe.");
+}
+  
 function zelle() {
 window.location.href = "zelle.html";
 }
