@@ -124,11 +124,12 @@ font-weight: bold;
 Payment
 </div>
 
-<div class="section-title">Add Payment Method</div>
+<!-- UPDATED TITLE -->
+<div class="section-title">Add Payment</div>
 
 <div class="payment-row" onclick="goToCreditCard()">
 <div class="payment-left">
-<img class="logo" src="https://img.icons8.com/color/48/bank-card-back-side.png" alt="Credit Card">
+<img class="logo" src="https://img.icons8.com/color/48/bank-card-back-side.png">
 Credit Card
 </div>
 <div class="arrow">›</div>
@@ -136,7 +137,7 @@ Credit Card
 
 <div class="payment-row" onclick="startApplePay()">
 <div class="payment-left">
-<img class="logo" src="https://img.icons8.com/ios-filled/50/mac-os.png" alt="Apple Pay">
+<img class="logo" src="https://img.icons8.com/ios-filled/50/mac-os.png">
 Apple Pay
 </div>
 <div class="arrow">›</div>
@@ -144,7 +145,7 @@ Apple Pay
 
 <div class="payment-row" onclick="startPayPal()">
 <div class="payment-left">
-<img class="logo" src="https://img.icons8.com/color/48/paypal.png" alt="PayPal">
+<img class="logo" src="https://img.icons8.com/color/48/paypal.png">
 PayPal
 </div>
 <div class="arrow">›</div>
@@ -152,7 +153,7 @@ PayPal
 
 <div class="payment-row" onclick="startCashApp()">
 <div class="payment-left">
-<img class="logo" src="https://img.icons8.com/color/48/cash-app.png" alt="Cash App">
+<img class="logo" src="https://img.icons8.com/color/48/cash-app.png">
 Cash App
 </div>
 <div class="arrow">›</div>
@@ -160,14 +161,14 @@ Cash App
 
 <div class="payment-row" onclick="goToZelleInfo()">
 <div class="payment-left">
-<img class="logo" src="https://img.icons8.com/color/48/money-transfer.png" alt="Zelle">
+<img class="logo" src="https://img.icons8.com/color/48/money-transfer.png">
 Zelle
 </div>
 <div class="arrow">›</div>
 </div>
 
 <div class="note">
-Payment methods will be used for accepted jobs and future task payments. Card and digital wallet processing should be connected through a secure payment provider before taking real payments.
+Payment methods will be used for accepted jobs and future task payments. Secure processing should be connected before handling real payments.
 </div>
 
 </div>
@@ -187,15 +188,15 @@ window.location.href = "credit-card.html";
 }
 
 function startApplePay() {
-alert("Apple Pay will be connected later through Stripe or Apple Pay integration.");
+alert("Apple Pay integration coming soon.");
 }
 
 function startPayPal() {
-alert("PayPal checkout will be connected later through the PayPal SDK.");
+alert("PayPal integration coming soon.");
 }
 
 function startCashApp() {
-alert("Cash App Pay will be connected later through Stripe or Square.");
+alert("Cash App integration coming soon.");
 }
 
 function goToZelleInfo() {
@@ -205,4 +206,3 @@ window.location.href = "zelle.html";
 
 </body>
 </html>
-
