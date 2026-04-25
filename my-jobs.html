@@ -144,7 +144,7 @@ return;
 }
 
 jobsList.innerHTML = jobs.map(job => `
-147 <div class="job-card" onclick="openJob('${job.id}')" style="cursor:pointer;"><h3>${job.title || "Untitled Job"}</h3>
+<div class="job-card" onclick="openJob('${job.id}')" style="cursor:pointer;"><h3>${job.title || "Untitled Job"}</h3>
 <p>${job.description || ""}</p>
 <p><strong>Category:</strong> ${job.category || ""}</p>
 <p><strong>Budget:</strong> $${job.price || ""}</p>
