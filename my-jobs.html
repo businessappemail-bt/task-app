@@ -144,17 +144,17 @@ return;
 }
 
 jobsList.innerHTML = jobs.map(job => `
-147 <div class="job-card" onclick="openJob('${job.id}')" style="cursor:pointer;">
-148 <h3>${job.title || "Untitled Job"}</h3>
-149 <p>${job.description || ""}</p>
-150 <p><strong>Category:</strong> ${job.category || ""}</p>
-151 <p><strong>Budget:</strong> $${job.price || ""}</p>
-152 <p><strong>Address:</strong> ${job.street_address || ""}</p>
-153 <p><strong>Unit:</strong> ${job.unit || "N/A"}</p>
-154 <p><strong>Location:</strong> ${job.city || ""}, ${job.state || ""} ${job.zip_code || ""}</p>
-155 <p><strong>Schedule:</strong> ${job.schedule_preferer || ""}</p>
-156 <p class="status">${job.status || "open"}</p>
-157 </div>
+<div class="job-card" onclick="openJob('${job.id}')" style="cursor:pointer;">
+<h3>${job.title || "Untitled Job"}</h3>
+<p>${job.description || ""}</p>
+<p><strong>Category:</strong> ${job.category || ""}</p>
+<p><strong>Budget:</strong> $${job.price || ""}</p>
+<p><strong>Address:</strong> ${job.street_address || ""}</p>
+<p><strong>Unit:</strong> ${job.unit || "N/A"}</p>
+<p><strong>Location:</strong> ${job.city || ""}, ${job.state || ""} ${job.zip_code || ""}</p>
+<p><strong>Schedule:</strong> ${job.schedule_preferer || ""}</p>
+<p class="status">${job.status || "open"}</p>
+</div>
 
 `).join("");
 }
