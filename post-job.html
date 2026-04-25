@@ -120,7 +120,7 @@
 
   <input id="state" type="text" placeholder="State">
 
-  <input id="zipcode" type="text" placeholder="Zipcode">
+  <input id="zipcode" type="text" placeholder="Zip_code">
 
   <button class="primary" onclick="goToStep2()">Continue</button>
 
@@ -216,15 +216,15 @@ function goToStep5() {
     const budget = document.getElementById("budget").value;
     const city = document.getElementById("city").value;
     const state = document.getElementById("state").value;
-    const status = document.getElementById("status");
+const status = document.getElementById("status");
     const street_address = document.getElementById("street_address").value;
-const unit = document.getElementById("unit").value;
-const zipcode = document.getElementById("zipcode").value;
+    const unit = document.getElementById("unit").value;
+const zip_code = document.getElementById("zip_code").value;
 const schedule = document.getElementById("schedule").value;
 
     status.innerText = "";
 
-    if (!title || !description || !category || !budget || !city || !state || !street_address || !zipcode || !schedule)
+    if (!title || !description || !category || !budget || !city || !state || !street_address || !zip_code || !schedule)
       status.innerText = "Please fill out all fields.";
       return;
     }
@@ -248,7 +248,7 @@ const customerId = localStorage.getItem("taskmintUserId");
       state: state,
       street_address: street_address,
       unit: unit,
-      zipcode: zipcode,
+      zip_code: zipcode,
       schedule_preference: schedule,
       status: "open",
       customer_id: customerId
