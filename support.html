@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support - TaskMint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body { margin:0; font-family:Arial, sans-serif; background:#f4f4f4; padding-bottom:80px; }
+    .container { max-width:420px; margin:0 auto; background:white; min-height:100vh; }
+    .header { position:relative; text-align:center; padding:18px; font-size:22px; font-weight:bold; border-bottom:1px solid #ddd; }
+    .back { position:absolute; left:15px; top:14px; font-size:28px; color:green; cursor:pointer; }
+    .row { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid #eee; cursor:pointer; background:white; }
+    .left { display:flex; align-items:center; gap:14px; font-size:17px; font-weight:bold; }
+    .icon { width:30px; height:30px; object-fit:contain; }
+    .arrow { font-size:24px; color:green; }
+    .danger { color:#b00020; }
+
+    .nav { position:fixed; bottom:0; width:100%; background:white; border-top:1px solid #ddd; display:flex; justify-content:center; }
+    .nav-inner { max-width:420px; width:100%; display:flex; justify-content:space-around; padding:10px 0; }
+    .nav a { text-decoration:none; color:#777; font-size:14px; }
+    .nav a.active { color:green; font-weight:bold; }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <span class="back" onclick="window.location.href='profile.html'">‹</span>
+    Support
+  </div>
+
+  <div class="row" onclick="goToPage('support-center.html')">
+    <div class="left">
+      <img class="icon" src="https://img.icons8.com/color/48/customer-support.png">
+      Support Center
+    </div>
+    <div class="arrow">›</div>
+  </div>
+
+  <div class="row" onclick="goToPage('faq.html')">
+    <div class="left">
+      <img class="icon" src="https://img.icons8.com/color/48/faq.png">
+      FAQ
+    </div>
+    <div class="arrow">›</div>
+  </div>
+
+  <div class="row" onclick="goToPage('contact-us.html')">
+    <div class="left">
+      <img class="icon" src="https://img.icons8.com/color/48/new-post.png">
+      Contact Us
+    </div>
+    <div class="arrow">›</div>
+  </div>
+
+  <div class="row" onclick="goToPage('delete-account.html')">
+    <div class=
