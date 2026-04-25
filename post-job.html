@@ -181,12 +181,14 @@
     <a href="profile.html">Profile</a>
   </div>
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  const supabaseClient = supabase.createClient(
-    "https://dbcthtjmtlumidpbcurc.supabase.co",
-    "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
-  );
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC11dJ"
+);
+
 function goToStep2() {
   document.getElementById("step1").style.display = "none";
   document.getElementById("step2").style.display = "block";
@@ -208,33 +210,64 @@ function goToStep5() {
   document.getElementById("step5").style.display = "block";
 }
 
-  
-  async function postJob() {
-    const title = document.getElementById("title").value;
-    const description = document.getElementById("description").value;
-    const category = window.selectedCategory;
-    const budget = document.getElementById("budget").value;
-    const city = document.getElementById("city").value;
-    const state = document.getElementById("state").value;
-const status = document.getElementById("status");
-    const street_address = document.getElementById("street_address").value;
-    const unit = document.getElementById("unit").value;
-const zip_code = document.getElementById("zip_code").value;
-const schedule = document.getElementById("schedule").value;
+async function postJob() {
+  const title = document.getElementById("title").value;
+  const description = document.getElementById("description").value;
+  const category = window.selectedCategory;
+  const budget = document.getElementById("budget").value;
+  const city = document.getElementById("city").value;
+  const state = document.getElementById("state").value;
+  const street_address = document.getElementById("street_address").value;
+  const unit = document.getElementById("unit").value;
+  const zip_code = document.getElementById("zip_code").value;
+  const schedule = document.getElementById("schedule").value;
+  const status = document.getElementById("status");
 
-    status.innerText = "";
+  status.innerText = "";
 
-    if (!title || !description || !category || !budget || !city || !state || !street_address || !zip_code || !schedule)
-      status.innerText = "Please fill out all fields.";
-      return;
-    }
+  if (!title || !description || !category || !budget || !city || !state || !street_address || !zip_code || !schedule) {
+    status.innerText = "Please fill out all fields.";
+    return;
+  }
 
-const customerId = localStorage.getItem("taskmintUserId");
+  const customerId = localStorage.getItem("taskmintUserId");
 
-    if (!customerid) {
-      status.innerText = "You must be logged in.";
-      return;
-    }
+  if (!customerId) {
+    status.innerText = "You must be logged in.";
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("tasks")
+    .insert([
+      {
+        title: title,
+        description: description,
+        category: category,
+        price: budget,
+        city: city,
+        state: state,
+        street_address: street_address,
+        unit: unit,
+        zip_code: zip_code,
+        schedule_preference: schedule,
+        status: "open",
+        customer_id: customerId
+      }
+    ]);
+
+  if (error) {
+    status.innerText = error.message;
+    return;
+  }
+
+  status.innerText = "Task posted successfully.";
+
+  setTimeout(() => {
+    window.location.href = "my-jobs.html";
+  }, 1000);
+}
+</script>
 
     const { error } = await supabaseClient
   .from("tasks")
