@@ -8,84 +8,80 @@
 body {
 margin: 0;
 font-family: Arial, sans-serif;
-background: #f7f7f7;
-color: #111;
-padding-bottom: 85px;
+background: #f4f4f4;
+}
+
+/* ✅ THIS FIXES THE WIDTH */
+.container {
+max-width: 420px;
+margin: 0 auto;
+background: white;
+min-height: 100vh;
 }
 
 .header {
-background: white;
 text-align: center;
-padding: 22px 0;
-font-size: 26px;
+padding: 20px;
+font-size: 22px;
 font-weight: bold;
 border-bottom: 1px solid #ddd;
 }
 
 .profile-top {
-background: white;
 text-align: center;
-padding: 35px 20px 30px;
+padding: 30px 20px;
 border-bottom: 1px solid #ddd;
 }
 
 .avatar {
-width: 130px;
-height: 130px;
+width: 110px;
+height: 110px;
 border-radius: 50%;
 background: #ddd;
-margin: 0 auto 20px;
+margin: 0 auto 15px;
 display: flex;
 align-items: center;
 justify-content: center;
-font-size: 60px;
-color: #aaa;
+font-size: 40px;
 }
 
 .name {
-font-size: 28px;
+font-size: 22px;
 font-weight: bold;
 }
 
 .menu {
-background: white;
-margin-top: 20px;
+width: 100%;
 }
 
 .row {
 display: flex;
 justify-content: space-between;
 align-items: center;
-padding: 20px 25px;
-border-bottom: 1px solid #ddd;
-font-size: 20px;
-font-weight: bold;
+padding: 18px 20px;
+border-bottom: 1px solid #eee;
+font-size: 16px;
 }
 
 .row span {
+color: #333;
 font-weight: normal;
-color: #222;
-font-size: 18px;
 }
 
 .arrow {
-color: green;
-font-size: 28px;
+color: #999;
 }
 
 .center-row {
 text-align: center;
-padding: 20px;
-border-bottom: 1px solid #ddd;
-font-size: 20px;
-background: white;
+padding: 18px;
+border-bottom: 1px solid #eee;
+cursor: pointer;
 }
 
 .logout {
 text-align: center;
-padding: 20px;
-font-size: 20px;
-background: white;
+padding: 18px;
 cursor: pointer;
 }
 
@@ -97,6 +93,13 @@ width: 100%;
 background: white;
 border-top: 1px solid #ddd;
 display: flex;
+justify-content: center;
+}
+
+.nav-inner {
+max-width: 420px;
+width: 100%;
+display: flex;
 justify-content: space-around;
 padding: 10px 0;
 }
@@ -105,7 +108,6 @@ padding: 10px 0;
 text-decoration: none;
 color: #888;
 font-size: 14px;
-text-align: center;
 }
 
 .nav a.active {
@@ -117,6 +119,8 @@ font-weight: bold;
 
 <body>
 
+<div class="container">
+
 <div class="header">Profile</div>
 
 <div class="profile-top">
@@ -125,6 +129,7 @@ font-weight: bold;
 </div>
 
 <div class="menu">
+
 <div class="row">
 Account
 <span id="profileEmail">Loading...</span>
@@ -137,7 +142,6 @@ Account
 <div class="row">Notifications <span class="arrow">›</span></div>
 <div class="row">Support <span class="arrow">›</span></div>
 <div class="row">About <span class="arrow">›</span></div>
-</div>
 
 <div class="center-row" onclick="window.location.href='worker-signup.html'">
 Become a Worker
@@ -147,11 +151,18 @@ Become a Worker
 Log Out
 </div>
 
+</div>
+
+</div>
+
+<!-- NAV -->
 <div class="nav">
+<div class="nav-inner">
 <a href="customer-home.html">Home</a>
 <a href="my-jobs.html">My Jobs</a>
 <a href="messages.html">Messages</a>
 <a href="profile.html" class="active">Profile</a>
+</div>
 </div>
 
 <script>
@@ -160,7 +171,7 @@ const lastName = localStorage.getItem("taskmintLastName") || "T";
 const email = localStorage.getItem("taskmintEmail") || "No email found";
 
 document.getElementById("profileName").innerText =
-firstName.charAt(0).toUpperCase() + " " + lastName.charAt(0).toUpperCase() + ".";
+firstName.charAt(0) + " " + lastName.charAt(0) + ".";
 
 document.getElementById("profileEmail").innerText = email;
 
