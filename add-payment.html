@@ -8,7 +8,7 @@
 body {
 margin: 0;
 font-family: Arial, sans-serif;
-background: #f4f4f4;
+background: #f5f5f5;
 padding-bottom: 80px;
 }
 
@@ -22,7 +22,7 @@ min-height: 100vh;
 .header {
 position: relative;
 text-align: center;
-padding: 18px 20px;
+padding: 18px;
 font-size: 22px;
 font-weight: bold;
 border-bottom: 1px solid #ddd;
@@ -30,63 +30,61 @@ border-bottom: 1px solid #ddd;
 
 .back {
 position: absolute;
-left: 18px;
-top: 15px;
+left: 15px;
+top: 14px;
 font-size: 28px;
 color: green;
 cursor: pointer;
 }
 
-.section-title {
-padding: 30px 20px 12px;
-font-size: 14px;
-font-weight: bold;
-color: #555;
+.section {
+padding: 20px;
+font-size: 13px;
+color: #666;
 text-transform: uppercase;
-background: #f7f7f7;
+font-weight: bold;
+background: #f8f8f8;
 border-bottom: 1px solid #eee;
 }
 
-.payment-row {
+.row {
 display: flex;
-align-items: center;
 justify-content: space-between;
-padding: 20px;
+align-items: center;
+padding: 18px 20px;
 border-bottom: 1px solid #eee;
 cursor: pointer;
 background: white;
 }
 
-.payment-left {
+.left {
 display: flex;
 align-items: center;
-gap: 14px;
+gap: 12px;
 font-size: 18px;
-font-weight: bold;
+font-weight: 600;
 }
 
 .logo {
-width: 34px;
-height: 34px;
+width: 30px;
+height: 30px;
 object-fit: contain;
 }
 
 .arrow {
-font-size: 26px;
+font-size: 22px;
 color: green;
 }
 
 .note {
-padding: 20px;
+padding: 18px;
+font-size: 14px;
 color: #777;
-font-size: 15px;
-line-height: 1.4;
 }
 
 .nav {
 position: fixed;
 bottom: 0;
-left: 0;
 width: 100%;
 background: white;
 border-top: 1px solid #ddd;
@@ -104,7 +102,7 @@ padding: 10px 0;
 
 .nav a {
 text-decoration: none;
-color: #888;
+color: #777;
 font-size: 14px;
 }
 
@@ -120,47 +118,51 @@ font-weight: bold;
 <div class="container">
 
 <div class="header">
-<span class="back" onclick="window.location.href='profile.html'">‹</span>
-Payment
+<span class="back" onclick="goBack()">‹</span>
+Add Payment
 </div>
 
-<!-- UPDATED TITLE -->
-<div class="section-title">Add Payment</div>
+<div class="section">Choose Payment Method</div>
 
-<div class="payment-row" onclick="goToCreditCard()">
-<div class="payment-left">
+<!-- CREDIT CARD -->
+<div class="row" onclick="goToCard()">
+<div class="left">
 <img class="logo" src="https://img.icons8.com/color/48/bank-card-back-side.png">
 Credit Card
 </div>
 <div class="arrow">›</div>
 </div>
 
-<div class="payment-row" onclick="startApplePay()">
-<div class="payment-left">
+<!-- APPLE PAY -->
+<div class="row" onclick="applePay()">
+<div class="left">
 <img class="logo" src="https://img.icons8.com/ios-filled/50/mac-os.png">
 Apple Pay
 </div>
 <div class="arrow">›</div>
 </div>
 
-<div class="payment-row" onclick="startPayPal()">
-<div class="payment-left">
+<!-- PAYPAL -->
+<div class="row" onclick="paypal()">
+<div class="left">
 <img class="logo" src="https://img.icons8.com/color/48/paypal.png">
 PayPal
 </div>
 <div class="arrow">›</div>
 </div>
 
-<div class="payment-row" onclick="startCashApp()">
-<div class="payment-left">
+<!-- CASH APP -->
+<div class="row" onclick="cashapp()">
+<div class="left">
 <img class="logo" src="https://img.icons8.com/color/48/cash-app.png">
 Cash App
 </div>
 <div class="arrow">›</div>
 </div>
 
-<div class="payment-row" onclick="goToZelleInfo()">
-<div class="payment-left">
+<!-- ZELLE -->
+<div class="row" onclick="zelle()">
+<div class="left">
 <img class="logo" src="https://img.icons8.com/color/48/money-transfer.png">
 Zelle
 </div>
@@ -168,11 +170,12 @@ Zelle
 </div>
 
 <div class="note">
-Payment methods will be used for accepted jobs and future task payments. Secure processing should be connected before handling real payments.
+Your payment method will be used when a job is accepted. Secure payment processing will be connected before live transactions.
 </div>
 
 </div>
 
+<!-- NAV -->
 <div class="nav">
 <div class="nav-inner">
 <a href="customer-home.html">Home</a>
@@ -183,23 +186,27 @@ Payment methods will be used for accepted jobs and future task payments. Secure 
 </div>
 
 <script>
-function goToCreditCard() {
+function goBack() {
+window.location.href = "profile.html";
+}
+
+function goToCard() {
 window.location.href = "credit-card.html";
 }
 
-function startApplePay() {
-alert("Apple Pay integration coming soon.");
+function applePay() {
+alert("Apple Pay will be connected using Stripe.");
 }
 
-function startPayPal() {
-alert("PayPal integration coming soon.");
+function paypal() {
+alert("PayPal checkout will be connected.");
 }
 
-function startCashApp() {
-alert("Cash App integration coming soon.");
+function cashapp() {
+alert("Cash App Pay will be connected.");
 }
 
-function goToZelleInfo() {
+function zelle() {
 window.location.href = "zelle.html";
 }
 </script>
