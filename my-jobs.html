@@ -144,8 +144,7 @@ return;
 }
 
 jobsList.innerHTML = jobs.map(job => `
-<div class="job-card">
-<h3>${job.title || "Untitled Job"}</h3>
+147 <div class="job-card" onclick="openJob('${job.id}')" style="cursor:pointer;"><h3>${job.title || "Untitled Job"}</h3>
 <p>${job.description || ""}</p>
 <p><strong>Category:</strong> ${job.category || ""}</p>
 <p><strong>Budget:</strong> $${job.price || ""}</p>
@@ -155,8 +154,11 @@ jobsList.innerHTML = jobs.map(job => `
 </div>
 `).join("");
 }
-
-loadMyJobs();
+function openJob(jobId) {
+  localStorage.setItem("selectedJobId", jobId);
+  window.location.href = "job-details.html";
+}
+  loadMyJobs();
 </script>
 
 </body>
