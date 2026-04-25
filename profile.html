@@ -9,9 +9,9 @@ body {
 margin: 0;
 font-family: Arial, sans-serif;
 background: #f4f4f4;
+padding-bottom: 80px;
 }
 
-/* ✅ THIS FIXES THE WIDTH */
 .container {
 max-width: 420px;
 margin: 0 auto;
@@ -42,16 +42,13 @@ margin: 0 auto 15px;
 display: flex;
 align-items: center;
 justify-content: center;
-font-size: 40px;
+font-size: 42px;
+color: green;
 }
 
 .name {
 font-size: 22px;
 font-weight: bold;
-}
-
-.menu {
-width: 100%;
 }
 
 .row {
@@ -61,15 +58,22 @@ align-items: center;
 padding: 18px 20px;
 border-bottom: 1px solid #eee;
 font-size: 16px;
+cursor: pointer;
 }
 
-.row span {
+.row-title {
+font-weight: bold;
+}
+
+.row-value {
 color: #333;
-font-weight: normal;
+font-size: 15px;
+text-align: right;
 }
 
 .arrow {
-color: #999;
+color: green;
+font-size: 22px;
 }
 
 .center-row {
@@ -77,12 +81,14 @@ text-align: center;
 padding: 18px;
 border-bottom: 1px solid #eee;
 cursor: pointer;
+font-size: 16px;
 }
 
 .logout {
 text-align: center;
 padding: 18px;
 cursor: pointer;
+font-size: 16px;
 }
 
 .nav {
@@ -125,25 +131,50 @@ font-weight: bold;
 
 <div class="profile-top">
 <div class="avatar">👤</div>
-<div class="name" id="profileName">B T.</div>
+<div class="name" id="profileName">Loading...</div>
 </div>
 
-<div class="menu">
-
-<div class="row">
-Account
-<span id="profileEmail">Loading...</span>
+<div class="row" onclick="goToPage('account.html')">
+<div class="row-title">Account</div>
+<div class="row-value" id="profileEmail">Loading...</div>
 </div>
 
-<div class="row">Account Security <span class="arrow">›</span></div>
-<div class="row">Change Password <span class="arrow">›</span></div>
-<div class="row">Payment <span class="arrow">›</span></div>
-<div class="row">Promos <span class="arrow">›</span></div>
-<div class="row">Notifications <span class="arrow">›</span></div>
-<div class="row">Support <span class="arrow">›</span></div>
-<div class="row">About <span class="arrow">›</span></div>
+<div class="row" onclick="goToPage('account-security.html')">
+<div class="row-title">Account Security</div>
+<div class="arrow">›</div>
+</div>
 
-<div class="center-row" onclick="window.location.href='worker-signup.html'">
+<div class="row" onclick="goToPage('change-password.html')">
+<div class="row-title">Change Password</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="row" onclick="goToPage('payment.html')">
+<div class="row-title">Payment</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="row" onclick="goToPage('promos.html')">
+<div class="row-title">Promos</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="row" onclick="goToPage('notifications.html')">
+<div class="row-title">Notifications</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="row" onclick="goToPage('support.html')">
+<div class="row-title">Support</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="row" onclick="goToPage('about.html')">
+<div class="row-title">About</div>
+<div class="arrow">›</div>
+</div>
+
+<div class="center-row" onclick="goToPage('worker-signup.html')">
 Become a Worker
 </div>
 
@@ -153,9 +184,6 @@ Log Out
 
 </div>
 
-</div>
-
-<!-- NAV -->
 <div class="nav">
 <div class="nav-inner">
 <a href="customer-home.html">Home</a>
@@ -165,20 +193,58 @@ Log Out
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-const firstName = localStorage.getItem("taskmintFirstName") || "B";
-const lastName = localStorage.getItem("taskmintLastName") || "T";
-const email = localStorage.getItem("taskmintEmail") || "No email found";
+const supabaseClient = window.supabase.createClient(
+"https://dbcthtjmtlumidpbucrc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC11dJ"
+);
+
+async function loadProfile() {
+const userId = localStorage.getItem("taskmintUserId");
+const savedEmail = localStorage.getItem("taskmintEmail");
+
+if (!userId) {
+window.location.href = "login.html";
+return;
+}
+
+const { data: profile, error } = await supabaseClient
+.from("profiles")
+.select("first_name, last_name, email")
+.eq("id", userId)
+.single();
+
+if (error || !profile) {
+document.getElementById("profileName").innerText = "User";
+document.getElementById("profileEmail").innerText = savedEmail || "No email found";
+return;
+}
+
+const firstName = profile.first_name || "";
+const lastName = profile.last_name || "";
+const email = profile.email || savedEmail || "No email found";
+
+const firstInitial = firstName.charAt(0).toUpperCase();
+const lastInitial = lastName.charAt(0).toUpperCase();
 
 document.getElementById("profileName").innerText =
-firstName.charAt(0) + " " + lastName.charAt(0) + ".";
+`${firstInitial} ${lastInitial}.`;
 
 document.getElementById("profileEmail").innerText = email;
+}
+
+function goToPage(page) {
+window.location.href = page;
+}
 
 function logoutUser() {
 localStorage.clear();
 window.location.href = "login.html";
 }
+
+loadProfile();
 </script>
 
 </body>
