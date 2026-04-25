@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Credit Card - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f4f4f4;
+padding-bottom: 80px;
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+background: white;
+min-height: 100vh;
+}
+
+.header {
+position: relative;
+text-align: center;
+padding: 18px;
+font-size: 22px;
+font-weight: bold;
+border-bottom: 1px solid #ddd;
+}
+
+.back {
+position: absolute;
+left: 15px;
+top: 14px;
+font-size: 28px;
+color: green;
+cursor: pointer;
+}
+
+.form {
+padding: 20px;
+}
+
+input {
+width: 100%;
+padding: 14px;
+margin-bottom: 12px;
+border: 1px solid #ccc;
+border-radius: 10px;
+font-size: 16px;
+box-sizing: border-box;
+}
+
+.row {
+display: flex;
+gap: 10px;
+}
+
+.row input {
+flex: 1;
+}
+
+#card-element {
+padding: 14px;
+border: 1px solid #ccc;
+border-radius: 10px;
+margin-bottom: 12px;
+}
+
+button {
+width: 100%;
+padding: 15px;
+background: green;
+color: white;
+border: none;
+border-radius: 30px;
+font-size: 17px;
+cursor: pointer;
+margin-top: 15px;
+}
+
+button:disabled {
+background: #ccc;
+cursor: not-allowed;
+}
+
+.note {
+color: #666;
+font-size: 14px;
+line-height: 1.4;
+margin-top: 18px;
+}
+
+#status {
+margin-top: 15px;
+text-align: center;
+font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<span class="back" onclick="window.location.href='add-payment.html'">‹</span>
+Credit Card
+</div>
+
+<div class="form">
+
+<input id="cardName" type="text" placeholder="Name on card">
+
+<input id="email" type="email" placeholder="Email for receipt">
+
+<input id="address" type="text" placeholder="Billing address">
+
+<input id="city" type="text" placeholder="City">
+
+<div class="row">
+<input id="state" type="text" placeholder="State">
+<input id="zip" type="text" placeholder="Zip code">
+</div>
+
+<!-- Stripe secure card field -->
+<div id="card-element"></div>
+
+<button id="submitButton" onclick="submitPayment()">Submit Payment</button>
+
+<div class="note">
+Your card details are handled securely through Stripe. TaskMint does not store your full card number, CVV, or expiration date.
+</div>
+
+<div id="status"></div>
+
+</div>
+
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+const stripe = Stripe("pk_test_51TMdWsKR6374VX54Bn7ZJOIvBbceCArZXunbZdyOk56oEpKp2lZnbt3tc1OOv6GZetOXGh5wD0OCTfBJoN7zdBHK00v128yi0E");
+
+const elements = stripe.elements();
+
+const cardElement = elements.create("card", {
+hidePostalCode: true
+});
+
+cardElement.mount("#card-element");
+
+async function submitPayment() {
+const status = document.getElementById("status");
+const button = document.getElementById("submitButton");
+
+const cardName = document.getElementById("cardName").value;
+const email = document.getElementById("email").value;
+const address = document.getElementById("address").value;
+const city = document.getElementById("city").value;
+const state = document.getElementById("state").value;
+const zip = document.getElementById("zip").value;
+
+status.innerText = "";
+
+if (!cardName || !email || !address || !city || !state || !zip) {
+status.innerText = "Please fill out all fields.";
+return;
+}
+
+button.disabled = true;
+button.innerText = "Processing...";
+
+try {
+const response = await fetch("/create-payment-intent", {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+email: email,
+name: cardName,
+address: address,
+city: city,
+state: state,
+zip: zip
+})
+});
+
+const data = await response.json();
+
+if (!data.clientSecret) {
+status.innerText = "Unable to start payment.";
+button.disabled = false;
+button.innerText = "Submit Payment";
+return;
+}
+
+const result = await stripe.confirmCardPayment(data.clientSecret, {
+payment_method: {
+card: cardElement,
+billing_details: {
+name: cardName,
+email: email,
+address: {
+line1: address,
+city: city,
+state: state,
+postal_code: zip,
+country: "US"
+}
+}
+},
+receipt_email: email
+});
+
+if (result.error) {
+status.innerText = result.error.message;
+button.disabled = false;
+button.innerText = "Submit Payment";
+return;
+}
+
+if (result.paymentIntent.status === "succeeded") {
+status.innerText = "Payment successful. Receipt will be sent to your email.";
+
+setTimeout(() => {
+window.location.href = "profile.html";
+}, 1500);
+}
+
+} catch (error) {
+status.innerText = "Payment error. Try again.";
+button.disabled = false;
+button.innerText = "Submit Payment";
+}
+}
+</script>
+
+</body>
+</html>
