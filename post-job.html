@@ -171,7 +171,25 @@
     <option value="Flexible">Flexible</option>
   </select>
 
-  <button class="primary" onclick="postJob()">Post Task</button>
+<button class="primary" onclick="goToStep6()">Continue</button>
+  
+</div>
+ <div class="card" id="step6" style="display:none;">
+    
+    <h3>Review Payment</h3>
+
+    <p><strong>Task price:</strong> $<span id="review_price"></span></p>
+    <p><strong>TaskMint service fee (15%):</strong> $<span id="review_fee"></span></p>
+    <p><strong>Total charged today:</strong> $<span id="review_total"></span></p>
+
+    <p style="font-size:14px; color:#555; margin-top:15px;">
+        Your payment will be charged when you post this task. 
+        The payment will be held until the job is marked complete. 
+        Once completed, the worker will be paid and TaskMint will deduct its service fee.
+    </p>
+
+    <button class="primary" onclick="postJob()">Pay & Post Task</button>
+    <button class="secondary" onclick="goBackToStep5()">Back</button>
 
 </div>
 <p id="status"></p>
@@ -211,6 +229,31 @@ function goToStep5() {
   document.getElementById("step4").style.display = "none";
   document.getElementById("step5").style.display = "block";
 }
+
+function goToStep6() {
+    const budget = document.getElementById("budget").value;
+
+    if (!budget) {
+        alert("Please enter a budget");
+        return;
+    }
+
+    const price = Number(budget);
+    const fee = price * 0.15;
+
+    document.getElementById("review_price").innerText = price.toFixed(2);
+    document.getElementById("review_fee").innerText = fee.toFixed(2);
+    document.getElementById("review_total").innerText = price.toFixed(2);
+
+    document.getElementById("step5").style.display = "none";
+    document.getElementById("step6").style.display = "block";
+}
+
+function goBackToStep5() {
+    document.getElementById("step6").style.display = "none";
+    document.getElementById("step5").style.display = "block";
+}
+  
 
 async function postJob() {
   const title = document.getElementById("title").value;
@@ -258,7 +301,9 @@ status.innerText = "";
         unit: unit,
         zip_code: zip_code,
         schedule_preference: schedule,
-        status: "open",
+        status: "paid_pending",
+platform_fee_percent: 15,
+payment_status: "pending",
         customer_id: customerId
       }
     ]);
