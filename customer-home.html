@@ -177,28 +177,28 @@
 
     <div class="card">
       <h2>Your Activity</h2>
-      <p>Check your active jobs, past jobs, and updates.</p>
-<button class="btn primary" onclick="window.location.href='post-job.html'">Post a Job</button>
-     <button class="btn secondary" onclick="window.location.href='my-jobs.html'">View My Jobs</button>
-<button class="btn secondary" onclick="window.location.href='messages.html'">Messages</button>
-      <button class="btn secondary" onclick="window.location.href='profile.html'">Profile</button>
+      <p>Manage your task, messages, disputes, and profile.</p>
+<button class="btn primary" onclick="window.location.href='post-job.html'">Post a Task</button>
+
+<button class="btn secondary" onclick="window.location.href='open-tasks.html'">View Open Tasks</button>
+
+<button class="btn secondary" onclick="window.location.href='past-tasks.html'">View Past Tasks</button>
+
+<button class="btn secondary" onclick="window.location.href='messages.html'">Message Center</button>
+
+<button class="btn secondary" onclick="window.location.href='dispute-center.html'">Dispute Center</button>
+
+<button class="btn secondary" onclick="window.location.href='profile.html'">Profile</button>
 <div class="mode-toggle" onclick="toggleMode()">
-<span id="modeLabel">Customer Mode</span>
+<span id="modeLabel">Worker Dashboard</span>
 <div id="toggleSwitch" class="toggle-switch">
   <div class="toggle-circle"></div>
   </div>
 </div>
     </div>
 
-    <div class="spacer"></div>
-  </div>
 
-  <div class="nav">
-    <a href="customer-home.html" class="active">Home</a>
-    <a href="my-jobs.html">My Jobs</a>
-    <a href="messages.html">Messages</a>
-    <a href="profile.html">Profile</a>
-  </div>
+
 
   <script>
     function goToPostJob() {
