@@ -204,7 +204,6 @@ const card = document.createElement("div");
 card.className = "task-card";
 
 card.innerHTML = `
-<h2>${task.title || "Untitled Task"}</h2>
 
 <p><span class="label">Order #:</span> TM-${task.id.slice(0, 8).toUpperCase()}</p>
 <p><span class="label">Description:</span> ${task.description || ""}</p>
