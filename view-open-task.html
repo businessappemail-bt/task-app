@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>View Open Tasks - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f5f5f5;
+color: #111;
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.back {
+font-size: 16px;
+margin-bottom: 20px;
+cursor: pointer;
+color: green;
+font-weight: bold;
+}
+
+h1 {
+margin-bottom: 8px;
+}
+
+.subtext {
+color: #666;
+margin-bottom: 20px;
+}
+
+.task-card, .worker-card {
+background: white;
+border-radius: 14px;
+padding: 16px;
+margin-bottom: 16px;
+box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+}
+
+.task-card {
+cursor: pointer;
+}
+
+.label {
+font-weight: bold;
+}
+
+.status-bar {
+display: flex;
+justify-content: space-between;
+margin: 18px 0 8px;
+font-size: 11px;
+color: #777;
+}
+
+.step {
+text-align: center;
+flex: 1;
+}
+
+.dot {
+width: 12px;
+height: 12px;
+border-radius: 50%;
+background: #ccc;
+margin: 0 auto 6px;
+}
+
+.active .dot {
+background: green;
+}
+
+.active {
+color: green;
+font-weight: bold;
+}
+
+.applicants {
+display: none;
+margin-top: 14px;
+border-top: 1px solid #eee;
+padding-top: 14px;
+}
+
+.worker-card {
+background: #f9f9f9;
+}
+
+.message-btn {
+width: 100%;
+padding: 12px;
+background: green;
+color: white;
+border: none;
+border-radius: 10px;
+margin-top: 10px;
+font-size: 15px;
+cursor: pointer;
+}
+
+.empty {
+background: white;
+padding: 20px;
+border-radius: 12px;
+color: #666;
+text-align: center;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
+
+<h1>Open Tasks</h1>
+<p class="subtext">View your open tasks and workers interested in helping.</p>
+
+<div id="tasksList"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const supabaseClient = supabase.createClient(
+"https://dbcthtjmtlumidpbcurc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
+);
+
+function getStatusStep(status) {
+if (status === "open") return "created";
+if (status === "accepted") return "accepted";
+if (status === "in_progress") return "in_progress";
+if (status === "completed") return "completed";
+if (status === "paid") return "paid";
+return "created";
+}
+
+function statusBar(status) {
+const current = getStatusStep(status);
+
+const steps = [
+{ key: "created", label: "Created" },
+{ key: "accepted", label: "Accepted" },
+{ key: "in_progress", label: "In Progress" },
+{ key: "completed", label: "Completed" },
+{ key: "paid", label: "Paid" }
+];
+
+const currentIndex = steps.findIndex(step => step.key === current);
+
+return `
+<div class="status-bar">
+${steps.map((step, index) => `
+<div class="step ${index <= currentIndex ? "active" : ""}">
+<div class="dot"></div>
+${step.label}
+</div>
+`).join("")}
+</div>
+`;
+}
+
+async function loadOpenTasks() {
+const customerId = localStorage.getItem("taskmintUserId");
+const tasksList = document.getElementById("tasksList");
+
+if (!customerId) {
+tasksList.innerHTML = `<div class="empty">You must be logged in.</div>`;
+return;
+}
+
+const { data: tasks, error } = await supabaseClient
+.from("tasks")
+.select("*")
+.eq("customer_id", customerId)
+.in("status", ["open", "accepted", "in_progress"])
+.order("created_at", { ascending: false });
+
+if (error) {
+tasksList.innerHTML = `<div class="empty">${error.message}</div>`;
+return;
+}
+
+if (!tasks || tasks.length === 0) {
+tasksList.innerHTML = `<div class="empty">No open tasks yet.</div>`;
+return;
+}
+
+tasksList.innerHTML = "";
+
+for (const task of tasks) {
+const { count } = await supabaseClient
+.from("worker_applications")
+.select("*", { count: "exact", head: true })
+.eq("task_id", task.id);
+
+const card = document.createElement("div");
+card.className = "task-card";
+
+card.innerHTML = `
+<h2>${task.title || "Untitled Task"}</h2>
+
+<p><span class="label">Description:</span> ${task.description || ""}</p>
+<p><span class="label">Category:</span> ${task.category || ""}</p>
+<p><span class="label">Offer:</span> $${task.price || 0}</p>
+<p><span class="label">City:</span> ${task.city || ""}</p>
+<p><span class="label">State:</span> ${task.state || ""}</p>
+<p><span class="label">Status:</span> ${task.status || "open"}</p>
+<p><span class="label">Interested Workers:</span> ${count || 0}</p>
+
+${statusBar(task.status)}
+
+<div class="applicants" id="applicants-${task.id}">
+Loading applicants...
+</div>
+`;
+
+card.onclick = function () {
+toggleApplicants(task.id);
+};
+
+tasksList.appendChild(card);
+}
+}
+
+async function toggleApplicants(taskId) {
+const box = document.getElementById(`applicants-${taskId}`);
+
+if (box.style.display === "block") {
+box.style.display = "none";
+return;
+}
+
+box.style.display = "block";
+box.innerHTML = "Loading applicants...";
+
+const { data: applications, error } = await supabaseClient
+.from("worker_applications")
+.select("*")
+.eq("task_id", taskId);
+
+if (error) {
+box.innerHTML = `<p>${error.message}</p>`;
+return;
+}
+
+if (!applications || applications.length === 0) {
+box.innerHTML = `<p>No workers have shown interest yet.</p>`;
+return;
+}
+
+box.innerHTML = "";
+
+for (const app of applications) {
+const workerId = app.worker_id || app.user_id || app.worker_user_id;
+
+const { data: worker } = await supabaseClient
+.from("worker_profiles")
+.select("*")
+.eq("id", workerId)
+.maybeSingle();
+
+const { data: reviews } = await supabaseClient
+.from("reviews")
+.select("*")
+.eq("reviewee_user_id", workerId);
+
+let rating = "No rating yet";
+
+if (reviews && reviews.length > 0) {
+const total = reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0);
+rating = (total / reviews.length).toFixed(1);
+}
+
+const workerCard = document.createElement("div");
+workerCard.className = "worker-card";
+
+workerCard.innerHTML = `
+<h3>${worker?.full_name || "Worker"}</h3>
+<p><span class="label">Bio:</span> ${worker?.bio || "No bio added yet."}</p>
+<p><span class="label">Rating:</span> ${rating}</p>
+<p><span class="label">Reviews:</span> ${reviews ? reviews.length : 0}</p>
+<p><span class="label">Jobs completed:</span> ${worker?.total_jobs || 0}</p>
+<p><span class="label">Message from worker:</span> ${app.message || "No message provided."}</p>
+
+<button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}')">
+Message Worker
+</button>
+`;
+
+box.appendChild(workerCard);
+}
+}
+
+function messageWorker(workerId, taskId) {
+window.location.href = `messages.html?worker_id=${workerId}&task_id=${taskId}`;
+}
+
+loadOpenTasks();
+</script>
+</body>
+</html>
