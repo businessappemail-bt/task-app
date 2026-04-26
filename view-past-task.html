@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Past Tasks - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f5f5f5;
+color: #111;
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.back {
+color: green;
+font-weight: bold;
+cursor: pointer;
+margin-bottom: 20px;
+}
+
+.task-card {
+background: white;
+border-radius: 14px;
+padding: 16px;
+margin-bottom: 16px;
+box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+}
+
+.label {
+font-weight: bold;
+}
+
+.paid {
+color: green;
+font-weight: bold;
+}
+
+.empty {
+background: white;
+padding: 20px;
+border-radius: 12px;
+text-align: center;
+color: #666;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
+
+<h1>Past Tasks</h1>
+<p>Completed and paid tasks.</p>
+
+<div id="tasksList"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const supabaseClient = supabase.createClient(
+"https://dbcthtjmtlumidpbcurc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
+);
+
+async function loadPastTasks() {
+const customerId = localStorage.getItem("taskmintUserId");
+const tasksList = document.getElementById("tasksList");
+
+if (!customerId) {
+tasksList.innerHTML = `<div class="empty">You must be logged in.</div>`;
+return;
+}
+
+const { data: tasks, error } = await supabaseClient
+.from("tasks")
+.select("*")
+.eq("customer_id", customerId)
+.eq("status", "paid")
+.order("created_at", { ascending: false });
+
+if (error) {
+tasksList.innerHTML = `<div class="empty">${error.message}</div>`;
+return;
+}
+
+if (!tasks || tasks.length === 0) {
+tasksList.innerHTML = `<div class="empty">No past tasks yet.</div>`;
+return;
+}
+
+tasksList.innerHTML = "";
+
+tasks.forEach(task => {
+const card = document.createElement("div");
+card.className = "task-card";
+
+card.innerHTML = `
+<p><span class="label">Order #:</span> TM-${task.id.slice(0, 8).toUpperCase()}</p>
+<p><span class="label">Created:</span> ${new Date(task.created_at).toLocaleDateString()}</p>
+
+<p><span class="label">Description:</span> ${task.description || ""}</p>
+<p><span class="label">Category:</span> ${task.category || ""}</p>
+<p><span class="label">Offer:</span> $${task.price || 0}</p>
+
+<p><span class="label">Address:</span> ${task.location_address || task.address || "No address listed"}</p>
+<p><span class="label">Unit:</span> ${task.unit || "N/A"}</p>
+<p><span class="label">City:</span> ${task.city || ""}</p>
+<p><span class="label">State:</span> ${task.state || ""}</p>
+<p><span class="label">Zip Code:</span> ${task.zip_code || ""}</p>
+
+<p><span class="label">Status:</span> <span class="paid">Paid</span></p>
+`;
+
+tasksList.appendChild(card);
+});
+}
+
+loadPastTasks();
+</script>
+</body>
+</html>
