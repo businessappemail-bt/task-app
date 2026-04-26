@@ -149,14 +149,21 @@ return blockedWords.some(word => lowerText.includes(word));
 }
 
 async function getCurrentUser() {
-const { data } = await supabaseClient.auth.getSession();
+  const { data } = await supabaseClient.auth.getSession();
 
-if (!data.session) {
-window.location.href = "login.html";
-return null;
-}
+  if (data.session && data.session.user) {
+    localStorage.setItem("taskmintUserId", data.session.user.id);
+    return data.session.user;
+  }
 
-return data.session.user;
+  const savedUserId = localStorage.getItem("taskmintUserId");
+
+  if (savedUserId) {
+    return { id: savedUserId };
+  }
+
+  window.location.href = "login.html";
+  return null;
 }
 
 async function loadMessages() {
