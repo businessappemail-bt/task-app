@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Message Center - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f5f5f5;
+color: #111;
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.back {
+color: green;
+font-weight: bold;
+cursor: pointer;
+margin-bottom: 20px;
+}
+
+.notice, .card {
+background: white;
+border-radius: 12px;
+padding: 14px;
+margin-bottom: 12px;
+box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+}
+
+.notice {
+border-left: 4px solid green;
+color: #444;
+font-size: 14px;
+}
+
+textarea, input {
+width: 100%;
+box-sizing: border-box;
+padding: 12px;
+margin-top: 10px;
+border: 1px solid #ccc;
+border-radius: 10px;
+font-size: 15px;
+}
+
+button {
+width: 100%;
+padding: 13px;
+margin-top: 10px;
+border: none;
+border-radius: 10px;
+font-size: 15px;
+cursor: pointer;
+}
+
+.send { background: green; color: white; }
+.report { background: #b00020; color: white; }
+.block { background: #333; color: white; }
+
+.message {
+background: white;
+padding: 12px;
+border-radius: 10px;
+margin-bottom: 10px;
+}
+
+.small {
+color: #777;
+font-size: 12px;
+margin-top: 5px;
+}
+
+.error {
+color: #b00020;
+font-weight: bold;
+}
+
+img {
+max-width: 100%;
+border-radius: 10px;
+margin-top: 8px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
+
+<h1>Message Center</h1>
+
+<div class="notice">
+Messages are monitored for safety. Do not share payment details, personal threats, or inappropriate content.
+</div>
+
+<div id="messagesList" class="card">Loading messages...</div>
+
+<div class="card">
+<textarea id="messageInput" placeholder="Type your message..."></textarea>
+
+<input id="imageInput" type="file" accept="image/*">
+
+<button class="send" onclick="sendMessage()">Send Message</button>
+<button class="report" onclick="reportUser()">Report User</button>
+<button class="block" onclick="blockUser()">Block User</button>
+
+<p id="status"></p>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const supabaseClient = supabase.createClient(
+"https://dbcthtjmtlumidpbcurc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+const params = new URLSearchParams(window.location.search);
+const receiverId = params.get("worker_id") || params.get("receiver_id");
+const taskId = params.get("task_id");
+
+const blockedWords = [
+"fuck",
+"shit",
+"bitch",
+"asshole",
+"damn",
+"nigga",
+"nigger",
+"motherfucker",
+"motherfucka",
+"retard",
+"hoe",
+"cunt",
+"dick",
+"pussy"
+];
+
+function containsBlockedWords(text) {
+const lowerText = text.toLowerCase();
+return blockedWords.some(word => lowerText.includes(word));
+}
+
+async function getCurrentUser() {
+const { data } = await supabaseClient.auth.getSession();
+
+if (!data.session) {
+window.location.href = "login.html";
+return null;
+}
+
+return data.session.user;
+}
+
+async function loadMessages() {
+const user = await getCurrentUser();
+if (!user) return;
+
+const box = document.getElementById("messagesList");
+
+let query = supabaseClient
+.from("messages")
+.select("*")
+.or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+.order("created_at", { ascending: false });
+
+if (taskId) {
+query = query.eq("task_id", taskId);
+}
+
+const { data: messages, error } = await query;
+
+if (error) {
+box.innerHTML = `<p class="error">${error.message}</p>`;
+return;
+}
+
+if (!messages || messages.length === 0) {
+box.innerHTML = "No messages yet.";
+return;
+}
+
+box.innerHTML = "";
+
+messages.forEach(msg => {
+const div = document.createElement("div");
+div.className = "message";
+
+div.innerHTML = `
+<div>${msg.message || ""}</div>
+${msg.image_url ? `<img src="${msg.image_url}">` : ""}
+<div class="small">${new Date(msg.created_at).toLocaleString()}</div>
+`;
+
+box.appendChild(div);
+});
+}
+
+async function uploadImage(file, userId) {
+const fileName = `${userId}-${Date.now()}-${file.name}`;
+
+const { error } = await supabaseClient.storage
+.from("message-images")
+.upload(fileName, file);
+
+if (error) throw error;
+
+const { data } = supabaseClient.storage
+.from("message-images")
+.getPublicUrl(fileName);
+
+return data.publicUrl;
+}
+
+async function sendMessage() {
+const status = document.getElementById("status");
+const message = document.getElementById("messageInput").value.trim();
+const imageFile = document.getElementById("imageInput").files[0];
+
+status.innerText = "";
+
+const user = await getCurrentUser();
+if (!user) return;
+
+if (!receiverId) {
+status.innerHTML = `<span class="error">No receiver selected.</span>`;
+return;
+}
+
+if (!message && !imageFile) {
+status.innerHTML = `<span class="error">Enter a message or attach a job-related image.</span>`;
+return;
+}
+
+if (containsBlockedWords(message)) {
+status.innerHTML = `<span class="error">Message contains prohibited language. Please revise before sending.</span>`;
+return;
+}
+
+let imageUrl = null;
+
+try {
+if (imageFile) {
+imageUrl = await uploadImage(imageFile, user.id);
+}
+
+const { error } = await supabaseClient
+.from("messages")
+.insert([{
+sender_id: user.id,
+receiver_id: receiverId,
+task_id: taskId || null,
+message: message,
+image_url: imageUrl,
+is_read: false,
+is_reported: false,
+is_blocked: false
+}]);
+
+if (error) {
+status.innerHTML = `<span class="error">${error.message}</span>`;
+return;
+}
+
+document.getElementById("messageInput").value = "";
+document.getElementById("imageInput").value = "";
+status.innerText = "Message sent.";
+loadMessages();
+
+} catch (err) {
+status.innerHTML = `<span class="error">${err.message}</span>`;
+}
+}
+
+async function reportUser() {
+const status = document.getElementById("status");
+const user = await getCurrentUser();
+if (!user) return;
+
+if (!receiverId) {
+status.innerHTML = `<span class="error">No user selected to report.</span>`;
+return;
+}
+
+const { error } = await supabaseClient
+.from("messages")
+.update({ is_reported: true })
+.or(`sender_id.eq.${receiverId},receiver_id.eq.${receiverId}`);
+
+if (error) {
+status.innerHTML = `<span class="error">${error.message}</span>`;
+return;
+}
+
+status.innerText = "User reported.";
+}
+
+async function blockUser() {
+const status = document.getElementById("status");
+const user = await getCurrentUser();
+if (!user) return;
+
+if (!receiverId) {
+status.innerHTML = `<span class="error">No user selected to block.</span>`;
+return;
+}
+
+const { error } = await supabaseClient
+.from("messages")
+.update({ is_blocked: true })
+.or(`sender_id.eq.${receiverId},receiver_id.eq.${receiverId}`);
+
+if (error) {
+status.innerHTML = `<span class="error">${error.message}</span>`;
+return;
+}
+
+status.innerText = "User blocked.";
+}
+
+loadMessages();
+</script>
+</body>
+</html>
