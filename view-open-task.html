@@ -34,7 +34,12 @@ margin-bottom: 8px;
 color: #666;
 margin-bottom: 20px;
 }
-
+<style>
+.hidden {
+  display: none;
+}
+</style>
+  
 .task-card, .worker-card {
 background: white;
 border-radius: 14px;
@@ -286,19 +291,42 @@ const workerCard = document.createElement("div");
 workerCard.className = "worker-card";
 
 workerCard.innerHTML = `
-<h3>${worker?.full_name || "Worker"}</h3>
-<p><span class="label">Bio:</span> ${worker?.bio || "No bio added yet."}</p>
-<p><span class="label">Rating:</span> ${rating}</p>
-<p><span class="label">Reviews:</span> ${reviews ? reviews.length : 0}</p>
-<p><span class="label">Jobs completed:</span> ${worker?.total_jobs || 0}</p>
-<p><span class="label">Message from worker:</span> ${app.message || "No message provided."}</p>
+<div class="worker-header">
+  <img src="${worker?.avatar_url || 'https://via.placeholder.com/50'}" class="worker-avatar" />
+  <div>
+    <h3>${worker?.full_name || "Worker"}</h3>
+    <p class="rating">⭐ ${rating}</p>
+  </div>
+</div>
+
+<p><strong>Bio:</strong> ${worker?.bio || "No bio added yet."}</p>
+<p><strong>Jobs Completed:</strong> ${worker?.total_jobs || 0}</p>
+<p><strong>Reviews:</strong> ${reviews ? reviews.length : 0}</p>
+<p><strong>Message:</strong> ${app.message || "No message provided."}</p>
 
 <button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}')">
-Message Worker
+Message
 </button>
+
+<div class="reviews hidden" id="reviews-${workerId}">
+  ${
+    reviews && reviews.length
+      ? reviews.map(r => `
+        <div class="review">
+          <p>⭐ ${r.rating}</p>
+          <p>${r.comment || "No comment"}</p>
+        </div>
+      `).join("")
+      : "<p>No reviews yet.</p>"
+  }
+</div>
 `;
 
 box.appendChild(workerCard);
+  workerCard.onclick = () => {
+  const reviewBox = document.getElementById(`reviews-${workerId}`);
+  reviewBox.classList.toggle("hidden");
+};
 }
 }
 
