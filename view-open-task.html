@@ -206,9 +206,14 @@ card.className = "task-card";
 card.innerHTML = `
 <h2>${task.title || "Untitled Task"}</h2>
 
+<p><span class="label">Order #:</span> TM-${task.id.slice(0, 8).toUpperCase()}</p>
 <p><span class="label">Description:</span> ${task.description || ""}</p>
+<p><span class="label">Created:</span> ${new Date(task.created_at).toLocaleDateString()}</p>
 <p><span class="label">Category:</span> ${task.category || ""}</p>
 <p><span class="label">Offer:</span> $${task.price || 0}</p>
+<p><span class="label">Address:</span> ${task.location_address || task.address || "No address listed"}</p>
+<p><span class="label">Unit:</span> ${task.unit || "N/A"}</p>
+<p><span class="label">Zip Code:</span> ${task.zip_code || ""}</p>
 <p><span class="label">City:</span> ${task.city || ""}</p>
 <p><span class="label">State:</span> ${task.state || ""}</p>
 <p><span class="label">Status:</span> ${task.status || "open"}</p>
