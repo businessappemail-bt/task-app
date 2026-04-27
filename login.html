@@ -58,7 +58,10 @@
 
     <input id="email" placeholder="Email" />
     <input id="password" type="password" placeholder="Password" />
-
+<label style="display:block;margin-top:10px;">
+  <input type="checkbox" id="stayLoggedIn">
+  Stay logged in
+</label>
     <button onclick="login()">Log In</button>
 
     <p id="status"></p>
@@ -74,7 +77,28 @@
       "https://dbcthtjmtlumidpbucrc.supabase.co",
       "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
     );
+    document.addEventListener("DOMContentLoaded", async () => {
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (data.session && data.session.user) {
+    const user = data.session.user;
+
+    // get account type
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("account_type")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.account_type === "customer") {
+      window.location.href = "customer-home.html";
+    } else {
+      window.location.href = "tasks.html";
+    }
+  }
+});
     async function login() {
+      
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const status = document.getElementById("status");
@@ -94,6 +118,14 @@
   const user = data.user;
       localStorage.setItem("taskmintUserId", user.id);
       
+      const email = document.getElementById("email").value;
+
+if (document.getElementById("stayLoggedIn").checked) {
+  localStorage.setItem("taskmintEmail", email);
+} else {
+  localStorage.removeItem("taskmintEmail");
+}
+      
       const { data: profile, error: profileError } = await supabaseClient
   .from("profiles")
   .select("*")
@@ -112,6 +144,14 @@ if (profile.account_type === "customer") {
 }
 
     }
+    window.onload = () => {
+  const savedEmail = localStorage.getItem("taskmintEmail");
+
+  if (savedEmail) {
+    document.getElementById("email").value = savedEmail;
+    document.getElementById("stayLoggedIn").checked = true;
+  }
+};
   </script>
   
 </body>
