@@ -516,7 +516,78 @@ document.getElementById("pageSubtext").innerText = "Choose what you need help wi
 document.getElementById("categoryStep").classList.remove("hidden");
 }
 </script>
+  <script>
+let pickupLat = null;
+let pickupLng = null;
+let dropoffLat = null;
+let dropoffLng = null;
 
-<script> async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=weekly"></script>
+document.addEventListener("DOMContentLoaded", () => {
+  waitForGoogle();
+});
+
+function waitForGoogle() {
+  if (window.google && google.maps && google.maps.places) {
+    setupAutocomplete("pickupAddress", "pickup");
+    setupAutocomplete("dropoffAddress", "dropoff");
+  } else {
+    setTimeout(waitForGoogle, 300);
+  }
+}
+
+function setupAutocomplete(inputId, type) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    types: ["address"],
+    componentRestrictions: { country: "us" }
+  });
+
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) return;
+
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+
+    if (type === "pickup") {
+      pickupLat = lat;
+      pickupLng = lng;
+    }
+
+    if (type === "dropoff") {
+      dropoffLat = lat;
+      dropoffLng = lng;
+    }
+
+    fillAddress(place, type);
+  });
+}
+
+function fillAddress(place, type) {
+  let city = "", state = "", zip = "";
+
+  place.address_components.forEach(c => {
+    if (c.types.includes("locality")) city = c.long_name;
+    if (c.types.includes("administrative_area_level_1")) state = c.short_name;
+    if (c.types.includes("postal_code")) zip = c.long_name;
+  });
+
+  if (type === "pickup") {
+    document.getElementById("pickupCity").value = city;
+    document.getElementById("pickupState").value = state;
+    document.getElementById("pickupZip").value = zip;
+  }
+
+  if (type === "dropoff") {
+    document.getElementById("dropoffCity").value = city;
+    document.getElementById("dropoffState").value = state;
+    document.getElementById("dropoffZip").value = zip;
+  }
+}
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=weekly"></script>
 </body>
 </html>
