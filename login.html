@@ -120,8 +120,6 @@
   const user = data.user;
       localStorage.setItem("taskmintUserId", user.id);
       
-      const email = document.getElementById("email").value;
-
 if (document.getElementById("stayLoggedIn").checked) {
   localStorage.setItem("taskmintEmail", email);
 } else {
