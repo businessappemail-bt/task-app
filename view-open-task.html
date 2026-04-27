@@ -19,11 +19,10 @@ padding: 20px;
 }
 
 .back {
-font-size: 16px;
-margin-bottom: 20px;
-cursor: pointer;
 color: green;
 font-weight: bold;
+cursor: pointer;
+margin-bottom: 20px;
 }
 
 h1 {
@@ -34,7 +33,7 @@ margin-bottom: 8px;
 color: #666;
 margin-bottom: 20px;
 }
-  
+
 .task-card, .worker-card {
 background: white;
 border-radius: 14px;
@@ -49,6 +48,14 @@ cursor: pointer;
 
 .label {
 font-weight: bold;
+}
+
+.empty {
+background: white;
+padding: 20px;
+border-radius: 12px;
+text-align: center;
+color: #666;
 }
 
 .status-bar {
@@ -81,6 +88,23 @@ color: green;
 font-weight: bold;
 }
 
+.dispute-btn {
+width: 100%;
+padding: 12px;
+margin-top: 12px;
+border: none;
+border-radius: 10px;
+background: #b00020;
+color: white;
+font-size: 15px;
+cursor: pointer;
+}
+
+.dispute-btn:disabled {
+background: #ccc;
+cursor: not-allowed;
+}
+
 .applicants {
 display: none;
 margin-top: 14px;
@@ -88,8 +112,18 @@ border-top: 1px solid #eee;
 padding-top: 14px;
 }
 
-.worker-card {
-background: #f9f9f9;
+.worker-header {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.worker-avatar {
+width: 50px;
+height: 50px;
+border-radius: 50%;
+object-fit: cover;
+background: #ddd;
 }
 
 .message-btn {
@@ -104,24 +138,15 @@ font-size: 15px;
 cursor: pointer;
 }
 
-.empty {
-background: white;
-padding: 20px;
-border-radius: 12px;
-color: #666;
-text-align: center;
+.review {
+background: #f5f5f5;
+padding: 8px;
+border-radius: 8px;
+margin-top: 6px;
 }
 
-  .dispute-btn {
-  width: 100%;
-  padding: 12px;
-  margin-top: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #b00020;
-  color: white;
-  font-size: 15px;
-  cursor: pointer;
+.hidden {
+display: none;
 }
 </style>
 </head>
@@ -131,7 +156,7 @@ text-align: center;
 <div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
 
 <h1>Task Dashboard</h1>
-<p class="subtext"></p>
+<p class="subtext">View your open tasks and interested workers.</p>
 
 <div id="tasksList"></div>
 </div>
@@ -145,7 +170,6 @@ const supabaseClient = supabase.createClient(
 );
 
 function getStatusStep(status) {
-if (status === "open") return "created";
 if (status === "accepted") return "accepted";
 if (status === "in_progress") return "in_progress";
 if (status === "completed") return "completed";
@@ -178,8 +202,19 @@ ${step.label}
 `;
 }
 
+async function getCustomerId() {
+const { data } = await supabaseClient.auth.getSession();
+
+if (data.session && data.session.user) {
+localStorage.setItem("taskmintUserId", data.session.user.id);
+return data.session.user.id;
+}
+
+return localStorage.getItem("taskmintUserId");
+}
+
 async function loadOpenTasks() {
-const customerId = localStorage.getItem("taskmintUserId");
+const customerId = await getCustomerId();
 const tasksList = document.getElementById("tasksList");
 
 if (!customerId) {
@@ -212,14 +247,15 @@ const { count } = await supabaseClient
 .select("*", { count: "exact", head: true })
 .eq("task_id", task.id);
 
+const assignedWorkerId = task.assigned_worker_id || task.assigned_worker_j || "";
+
 const card = document.createElement("div");
 card.className = "task-card";
 
 card.innerHTML = `
-
 <p><span class="label">Order #:</span> TM-${task.id.slice(0, 8).toUpperCase()}</p>
 <p><span class="label">Description:</span> ${task.description || ""}</p>
-<p><span class="label">Created:</span> ${new Date(task.created_at).toLocaleDateString()}</p>
+<p><span class="label">Created:</span> ${task.created_at ? new Date(task.created_at).toLocaleDateString() : ""}</p>
 <p><span class="label">Category:</span> ${task.category || ""}</p>
 <p><span class="label">Offer:</span> $${task.price || 0}</p>
 <p><span class="label">Address:</span> ${task.location_address || task.address || "No address listed"}</p>
@@ -229,21 +265,18 @@ card.innerHTML = `
 <p><span class="label">State:</span> ${task.state || ""}</p>
 <p><span class="label">Status:</span> ${task.status || "open"}</p>
 <p><span class="label">Interested Workers:</span> ${count || 0}</p>
-${task.assigned_worker_id ? `
-  <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${task.assigned_worker_id}')">
-    Open Dispute
-  </button>
-`}
-  <button class="dispute-btn" disabled style="background:#ccc; cursor:not-allowed;">
-    Dispute available after worker is assigned
-  </button>
-`}
+
 ${statusBar(task.status)}
-${task.assigned_worker_id ? `
-  <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${task.assigned_worker_id}')">
-    Open Dispute
-  </button>
+
+${assignedWorkerId ? `
+<button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${assignedWorkerId}')">
+Open Dispute
+</button>
 ` : `
+<button class="dispute-btn" disabled onclick="event.stopPropagation();">
+Dispute available after worker is assigned
+</button>
+`}
 
 <div class="applicants" id="applicants-${task.id}">
 Loading applicants...
@@ -312,50 +345,55 @@ workerCard.className = "worker-card";
 
 workerCard.innerHTML = `
 <div class="worker-header">
-  <img src="${worker?.avatar_url || 'https://via.placeholder.com/50'}" class="worker-avatar" />
-  <div>
-    <h3>${worker?.full_name || "Worker"}</h3>
-    <p class="rating">⭐ ${rating}</p>
-  </div>
+<img src="${worker?.avatar_url || 'https://via.placeholder.com/50'}" class="worker-avatar">
+<div>
+<h3>${worker?.full_name || "Worker"}</h3>
+<p>⭐ ${rating}</p>
+</div>
 </div>
 
-<p><strong>Bio:</strong> ${worker?.bio || "No bio added yet."}</p>
-<p><strong>Jobs Completed:</strong> ${worker?.total_jobs || 0}</p>
-<p><strong>Reviews:</strong> ${reviews ? reviews.length : 0}</p>
-<p><strong>Message:</strong> ${app.message || "No message provided."}</p>
+<p><span class="label">Bio:</span> ${worker?.bio || "No bio added yet."}</p>
+<p><span class="label">Jobs Completed:</span> ${worker?.total_jobs || 0}</p>
+<p><span class="label">Reviews:</span> ${reviews ? reviews.length : 0}</p>
+<p><span class="label">Message:</span> ${app.message || "No message provided."}</p>
 
 <button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}')">
-Message
+Message Worker
 </button>
 
 <div class="reviews hidden" id="reviews-${workerId}">
-  ${
-    reviews && reviews.length
-      ? reviews.map(r => `
-        <div class="review">
-          <p>⭐ ${r.rating}</p>
-          <p>${r.comment || "No comment"}</p>
-        </div>
-      `).join("")
-      : "<p>No reviews yet.</p>"
-  }
+${
+reviews && reviews.length
+? reviews.map(r => `
+<div class="review">
+<p>⭐ ${r.rating || ""}</p>
+<p>${r.comment || "No comment"}</p>
+</div>
+`).join("")
+: "<p>No reviews yet.</p>"
+}
 </div>
 `;
 
-box.appendChild(workerCard);
-  workerCard.onclick = () => {
-  const reviewBox = document.getElementById(`reviews-${workerId}`);
-  reviewBox.classList.toggle("hidden");
+workerCard.onclick = () => {
+const reviewBox = document.getElementById(`reviews-${workerId}`);
+if (reviewBox) {
+reviewBox.classList.toggle("hidden");
+}
 };
+
+box.appendChild(workerCard);
 }
 }
 
 function messageWorker(workerId, taskId) {
-window.location.href = `messages.html?worker_id=${workerId}&task_id=${taskId}`;
+window.location.href = `message-center.html?worker_id=${workerId}&task_id=${taskId}`;
 }
+
 function openDispute(taskId, workerId) {
-  window.location.href = `dispute-center.html?task_id=${taskId}&worker_id=${workerId || ""}`;
+window.location.href = `dispute-center.html?task_id=${taskId}&worker_id=${workerId || ""}`;
 }
+
 loadOpenTasks();
 </script>
 </body>
