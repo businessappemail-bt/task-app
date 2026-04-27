@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dispute Center - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f5f5f5;
+color: #111;
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.back {
+color: green;
+font-weight: bold;
+cursor: pointer;
+margin-bottom: 20px;
+}
+
+.card {
+background: white;
+border-radius: 14px;
+padding: 18px;
+box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+}
+
+input, select, textarea, button {
+width: 100%;
+box-sizing: border-box;
+padding: 13px;
+margin-top: 12px;
+border-radius: 10px;
+border: 1px solid #ccc;
+font-size: 15px;
+}
+
+textarea {
+min-height: 120px;
+}
+
+button {
+background: green;
+color: white;
+border: none;
+cursor: pointer;
+}
+
+.notice {
+background: #fff8e1;
+border-left: 4px solid #d6a100;
+padding: 12px;
+border-radius: 10px;
+margin-bottom: 16px;
+font-size: 14px;
+}
+
+#status {
+margin-top: 14px;
+text-align: center;
+font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
+
+<h1>Dispute Center</h1>
+
+<div class="notice">
+Use this form if there is an issue with a task, payment, no-show, damage, or job completion.
+</div>
+
+<div class="card">
+<select id="reason">
+<option value="">Select dispute reason</option>
+<option value="Work not completed">Work not completed</option>
+<option value="Poor quality work">Poor quality work</option>
+<option value="No-show">No-show</option>
+<option value="Damage to property">Damage to property</option>
+<option value="Payment issue">Payment issue</option>
+<option value="Miscommunication">Miscommunication</option>
+<option value="Other">Other</option>
+</select>
+
+<textarea id="description" placeholder="Explain what happened"></textarea>
+
+<textarea id="additionalNotes" placeholder="Additional notes, if any"></textarea>
+
+<input id="evidenceUrl" type="text" placeholder="Evidence link or photo URL">
+
+<button onclick="submitDispute()">Submit Dispute</button>
+
+<p id="status"></p>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const supabaseClient = supabase.createClient(
+"https://dbcthtjmtlumidpbcurc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
+);
+
+async function submitDispute() {
+const status = document.getElementById("status");
+const reason = document.getElementById("reason").value;
+const description = document.getElementById("description").value;
+const additionalNotes = document.getElementById("additionalNotes").value;
+const evidenceUrl = document.getElementById("evidenceUrl").value;
+
+status.innerText = "";
+
+if (!reason || !description) {
+status.innerText = "Please select a reason and explain what happened.";
+return;
+}
+
+const customerId = localStorage.getItem("taskmintUserId");
+
+if (!customerId) {
+status.innerText = "You must be logged in.";
+return;
+}
+
+const params = new URLSearchParams(window.location.search);
+const taskId = params.get("task_id");
+const workerId = params.get("worker_id");
+
+const { error } = await supabaseClient
+.from("disputes")
+.insert([
+{
+task_id: taskId || null,
+customer_id: customerId,
+worker_id: workerId || null,
+opened_by: customerId,
+reason: reason,
+description: description,
+status: "open",
+evidence_url: evidenceUrl || null,
+additional_notes: additionalNotes || null
+}
+]);
+
+if (error) {
+status.innerText = error.message;
+return;
+}
+
+status.innerText = "Dispute submitted successfully.";
+
+document.getElementById("reason").value = "";
+document.getElementById("description").value = "";
+document.getElementById("additionalNotes").value = "";
+document.getElementById("evidenceUrl").value = "";
+}
+</script>
+</body>
+</html>
