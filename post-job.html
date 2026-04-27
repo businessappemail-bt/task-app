@@ -11,8 +11,13 @@ body { margin:0; font-family:Arial,sans-serif; background:#f5f5f5; color:#111; }
 .card { background:white; border-radius:14px; padding:18px; box-shadow:0 1px 5px rgba(0,0,0,0.08); }
 .subtext { color:#666; margin-bottom:20px; }
 button, input, select, textarea {
-width:100%; box-sizing:border-box; padding:13px; margin-top:12px;
-border-radius:10px; border:1px solid #ccc; font-size:15px;
+width:100%;
+box-sizing:border-box;
+padding:13px;
+margin-top:12px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:15px;
 }
 button { background:green; color:white; border:none; cursor:pointer; }
 .secondary { background:white; color:#111; border:1px solid #ccc; }
@@ -21,9 +26,13 @@ textarea { min-height:110px; }
 .hidden { display:none; }
 .checkbox-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
 .checkbox-row input { width:auto; margin:0; }
-#status { margin-top:14px; text-align:center; font-weight:bold; }
+#status { margin-top:14px; text-align:center; font-weight:bold; color:#b00020; }
 .review-box { background:#f7f7f7; border-radius:10px; padding:12px; margin-top:10px; }
+.selected-address { background:#eef7ee; padding:10px; border-radius:10px; margin-top:10px; font-size:14px; }
+gmp-place-autocomplete { width:100%; display:block; margin-top:12px; }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 
 <body>
@@ -51,9 +60,11 @@ textarea { min-height:110px; }
 
 <div id="pickupAddressStep" class="hidden">
 <h3>Task Address</h3>
-<p class="subtext">Start typing and select the address from Google suggestions.</p>
+<p class="subtext">Start typing and select the address from Google.</p>
 
-<input id="pickupAddress" placeholder="Task address">
+<div id="pickupGoogleBox"></div>
+<div id="pickupSelected" class="selected-address hidden"></div>
+
 <input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
 <input id="pickupCity" placeholder="City">
 <input id="pickupState" placeholder="State">
@@ -64,9 +75,11 @@ textarea { min-height:110px; }
 
 <div id="dropoffAddressStep" class="hidden">
 <h3>Drop-Off Address</h3>
-<p class="subtext">Start typing and select the drop-off address from Google suggestions.</p>
+<p class="subtext">Start typing and select the drop-off address from Google.</p>
 
-<input id="dropoffAddress" placeholder="Drop-off address">
+<div id="dropoffGoogleBox"></div>
+<div id="dropoffSelected" class="selected-address hidden"></div>
+
 <input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
 <input id="dropoffCity" placeholder="Drop-off city">
 <input id="dropoffState" placeholder="Drop-off state">
@@ -88,11 +101,9 @@ textarea { min-height:110px; }
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
 <script>
 const supabaseClient = supabase.createClient(
-"https://https://dbcthtjmtlumidpbucrc.supabase.co",
+"https://dbcthtjmtlumidpbucrc.supabase.co",
 "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
@@ -106,6 +117,7 @@ let pickupLat = null;
 let pickupLng = null;
 let dropoffLat = null;
 let dropoffLng = null;
+let googleReady = false;
 
 const questionBank = {
 "Moving": [
@@ -159,62 +171,81 @@ const questionBank = {
 ]
 };
 
-function setupAutocomplete(inputId, type) {
-  const input = document.getElementById(inputId);
-
-  const autocomplete = new google.maps.places.PlaceAutocompleteElement({
-    input: input,
-  });
-
-  autocomplete.addEventListener("placechange", () => {
-    const place = autocomplete.getPlace();
-
-    if (!place || !place.location) return;
-
-    const lat = place.location.lat();
-    const lng = place.location.lng();
-
-    if (type === "pickup") {
-      pickupLat = lat;
-      pickupLng = lng;
-      document.getElementById("pickupAddress").value = place.formattedAddress || "";
-    }
-
-    if (type === "dropoff") {
-      dropoffLat = lat;
-      dropoffLng = lng;
-      document.getElementById("dropoffAddress").value = place.formattedAddress || "";
-    }
-  });
+window.initGoogleMaps = async function () {
+try {
+await google.maps.importLibrary("places");
+googleReady = true;
+setupPlaceAutocomplete("pickupGoogleBox", "pickup");
+setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
+} catch (error) {
+document.getElementById("status").innerText = "Google address search failed to load.";
 }
+};
 
+function setupPlaceAutocomplete(containerId, type) {
+const container = document.getElementById(containerId);
+if (!container || container.dataset.loaded === "true" || !googleReady) return;
 
-place.address_components.forEach(component => {
-if (component.types.includes("street_number")) streetNumber = component.long_name;
-if (component.types.includes("route")) route = component.long_name;
-if (component.types.includes("locality")) city = component.long_name;
-if (component.types.includes("administrative_area_level_1")) state = component.short_name;
-if (component.types.includes("postal_code")) zip = component.long_name;
+container.innerHTML = "";
+
+const autocomplete = new google.maps.places.PlaceAutocompleteElement();
+autocomplete.setAttribute("included-region-codes", "us");
+
+autocomplete.addEventListener("gmp-select", async (event) => {
+const place = event.placePrediction.toPlace();
+
+await place.fetchFields({
+fields: ["formattedAddress", "location", "addressComponents"]
 });
 
-const fullAddress = `${streetNumber} ${route}`.trim() || place.formatted_address;
+handleSelectedPlace(place, type);
+});
+
+container.appendChild(autocomplete);
+container.dataset.loaded = "true";
+}
+
+function handleSelectedPlace(place, type) {
+let city = "";
+let state = "";
+let zip = "";
+
+if (place.addressComponents) {
+place.addressComponents.forEach(component => {
+const types = component.types || [];
+if (types.includes("locality")) city = component.longText || "";
+if (types.includes("administrative_area_level_1")) state = component.shortText || "";
+if (types.includes("postal_code")) zip = component.longText || "";
+});
+}
+
+const formattedAddress = place.formattedAddress || "";
+const lat = place.location ? place.location.lat() : null;
+const lng = place.location ? place.location.lng() : null;
 
 if (type === "pickup") {
-document.getElementById("pickupAddress").value = fullAddress;
+pickupAddress.address = formattedAddress;
+pickupLat = lat;
+pickupLng = lng;
+
+document.getElementById("pickupSelected").innerText = formattedAddress;
+document.getElementById("pickupSelected").classList.remove("hidden");
 document.getElementById("pickupCity").value = city;
 document.getElementById("pickupState").value = state;
 document.getElementById("pickupZip").value = zip;
-pickupLat = place.geometry.location.lat();
-pickupLng = place.geometry.location.lng();
 }
 
 if (type === "dropoff") {
-document.getElementById("dropoffAddress").value = fullAddress;
+dropoffAddress.address = formattedAddress;
+dropoffLat = lat;
+dropoffLng = lng;
+
+document.getElementById("dropoffSelected").innerText = formattedAddress;
+document.getElementById("dropoffSelected").classList.remove("hidden");
 document.getElementById("dropoffCity").value = city;
 document.getElementById("dropoffState").value = state;
 document.getElementById("dropoffZip").value = zip;
-dropoffLat = place.geometry.location.lat();
-dropoffLng = place.geometry.location.lng();
+}
 }
 
 function hideAllSteps() {
@@ -234,6 +265,7 @@ pickupLat = null;
 pickupLng = null;
 dropoffLat = null;
 dropoffLng = null;
+
 document.getElementById("status").innerText = "";
 showQuestion();
 }
@@ -313,23 +345,27 @@ showPickupAddress();
 function showPickupAddress() {
 hideAllSteps();
 document.getElementById("pageTitle").innerText = "Task Address";
-document.getElementById("pageSubtext").innerText = "Start typing and select the address from Google suggestions.";
+document.getElementById("pageSubtext").innerText = "Start typing and select the address from Google.";
 document.getElementById("pickupAddressStep").classList.remove("hidden");
+setupPlaceAutocomplete("pickupGoogleBox", "pickup");
 }
 
 function savePickupAddress() {
-const address = document.getElementById("pickupAddress").value.trim();
 const unit = document.getElementById("pickupUnit").value.trim();
 const city = document.getElementById("pickupCity").value.trim();
 const state = document.getElementById("pickupState").value.trim();
 const zip = document.getElementById("pickupZip").value.trim();
 
-if (!address || !city || !state || !zip) {
-document.getElementById("status").innerText = "Please enter the full task address.";
+if (!pickupAddress.address || !city || !state || !zip || !pickupLat || !pickupLng) {
+document.getElementById("status").innerText = "Please select the task address from Google suggestions.";
 return;
 }
 
-pickupAddress = { address, unit, city, state, zip };
+pickupAddress.unit = unit;
+pickupAddress.city = city;
+pickupAddress.state = state;
+pickupAddress.zip = zip;
+
 document.getElementById("status").innerText = "";
 
 if (selectedCategory === "Moving" || selectedCategory === "Errands") {
@@ -342,23 +378,27 @@ showReview();
 function showDropoffAddress() {
 hideAllSteps();
 document.getElementById("pageTitle").innerText = "Drop-Off Address";
-document.getElementById("pageSubtext").innerText = "Start typing and select the drop-off address from Google suggestions.";
+document.getElementById("pageSubtext").innerText = "Start typing and select the drop-off address from Google.";
 document.getElementById("dropoffAddressStep").classList.remove("hidden");
+setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
 }
 
 function saveDropoffAddress() {
-const address = document.getElementById("dropoffAddress").value.trim();
 const unit = document.getElementById("dropoffUnit").value.trim();
 const city = document.getElementById("dropoffCity").value.trim();
 const state = document.getElementById("dropoffState").value.trim();
 const zip = document.getElementById("dropoffZip").value.trim();
 
-if (!address || !city || !state || !zip) {
-document.getElementById("status").innerText = "Please enter the full drop-off address.";
+if (!dropoffAddress.address || !city || !state || !zip || !dropoffLat || !dropoffLng) {
+document.getElementById("status").innerText = "Please select the drop-off address from Google suggestions.";
 return;
 }
 
-dropoffAddress = { address, unit, city, state, zip };
+dropoffAddress.unit = unit;
+dropoffAddress.city = city;
+dropoffAddress.state = state;
+dropoffAddress.zip = zip;
+
 document.getElementById("status").innerText = "";
 showReview();
 }
@@ -515,78 +555,9 @@ document.getElementById("pageTitle").innerText = "Post a Task";
 document.getElementById("pageSubtext").innerText = "Choose what you need help with. Workers will send you quotes.";
 document.getElementById("categoryStep").classList.remove("hidden");
 }
-  
-let pickupLat = null;
-let pickupLng = null;
-let dropoffLat = null;
-let dropoffLng = null;
-
-document.addEventListener("DOMContentLoaded", () => {
-  waitForGoogle();
-});
-
-function waitForGoogle() {
-  if (window.google && google.maps && google.maps.places) {
-    setupAutocomplete("pickupAddress", "pickup");
-    setupAutocomplete("dropoffAddress", "dropoff");
-  } else {
-    setTimeout(waitForGoogle, 300);
-  }
-}
-
-function setupAutocomplete(inputId, type) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-
-  const autocomplete = new google.maps.places.Autocomplete(input, {
-    types: ["address"],
-    componentRestrictions: { country: "us" }
-  });
-
-  autocomplete.addListener("place_changed", () => {
-    const place = autocomplete.getPlace();
-    if (!place.geometry) return;
-
-    const lat = place.geometry.location.lat();
-    const lng = place.geometry.location.lng();
-
-    if (type === "pickup") {
-      pickupLat = lat;
-      pickupLng = lng;
-    }
-
-    if (type === "dropoff") {
-      dropoffLat = lat;
-      dropoffLng = lng;
-    }
-
-    fillAddress(place, type);
-  });
-}
-
-function fillAddress(place, type) {
-  let city = "", state = "", zip = "";
-
-  place.address_components.forEach(c => {
-    if (c.types.includes("locality")) city = c.long_name;
-    if (c.types.includes("administrative_area_level_1")) state = c.short_name;
-    if (c.types.includes("postal_code")) zip = c.long_name;
-  });
-
-  if (type === "pickup") {
-    document.getElementById("pickupCity").value = city;
-    document.getElementById("pickupState").value = state;
-    document.getElementById("pickupZip").value = zip;
-  }
-
-  if (type === "dropoff") {
-    document.getElementById("dropoffCity").value = city;
-    document.getElementById("dropoffState").value = state;
-    document.getElementById("dropoffZip").value = zip;
-  }
-}
 </script>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=weekly"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=beta&callback=initGoogleMaps"></script>
+
 </body>
 </html>
