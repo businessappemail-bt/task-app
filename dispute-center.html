@@ -5,68 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: #f5f5f5;
-color: #111;
-}
-
-.container {
-max-width: 420px;
-margin: 0 auto;
-padding: 20px;
-}
-
-.back {
-color: green;
-font-weight: bold;
-cursor: pointer;
-margin-bottom: 20px;
-}
-
-.card {
-background: white;
-border-radius: 14px;
-padding: 18px;
-box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-}
-
-input, select, textarea, button {
-width: 100%;
-box-sizing: border-box;
-padding: 13px;
-margin-top: 12px;
-border-radius: 10px;
-border: 1px solid #ccc;
-font-size: 15px;
-}
-
-textarea {
-min-height: 120px;
-}
-
-button {
-background: green;
-color: white;
-border: none;
-cursor: pointer;
-}
-
-.notice {
-background: #fff8e1;
-border-left: 4px solid #d6a100;
-padding: 12px;
-border-radius: 10px;
-margin-bottom: 16px;
-font-size: 14px;
-}
-
-#status {
-margin-top: 14px;
-text-align: center;
-font-weight: bold;
-}
+body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; color: #111; }
+.container { max-width: 420px; margin: 0 auto; padding: 20px; }
+.back { color: green; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+.card, .notice { background: white; border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 5px rgba(0,0,0,0.08); }
+.notice { background: #fff8e1; border-left: 4px solid #d6a100; font-size: 14px; }
+.status-pill { display: inline-block; background: #e8f5e9; color: green; padding: 6px 10px; border-radius: 20px; font-weight: bold; }
+label { display: block; font-weight: bold; margin-top: 12px; }
+input, select, textarea, button { width: 100%; box-sizing: border-box; padding: 13px; margin-top: 8px; border-radius: 10px; border: 1px solid #ccc; font-size: 15px; }
+textarea { min-height: 110px; }
+button { background: green; color: white; border: none; cursor: pointer; margin-top: 16px; }
+.small { color: #666; font-size: 13px; }
+#status { margin-top: 14px; text-align: center; font-weight: bold; }
 </style>
 </head>
 
@@ -77,10 +27,25 @@ font-weight: bold;
 <h1>Dispute Center</h1>
 
 <div class="notice">
-Use this form if there is an issue with a task, payment, no-show, damage, or job completion.
+Disputes are reviewed for safety and fairness. Submit clear details and job-related evidence only.
 </div>
 
 <div class="card">
+<p><strong>Dispute Status:</strong> <span class="status-pill">Open</span></p>
+<p class="small">A dispute will remain open until reviewed and resolved.</p>
+</div>
+
+<div class="card" id="taskInfo">
+<h3>Task Information</h3>
+<p class="small">Task details will appear here when opened from a task card.</p>
+<p><strong>Task ID:</strong> <span id="taskIdText">Not linked</span></p>
+<p><strong>Worker ID:</strong> <span id="workerIdText">Not linked</span></p>
+</div>
+
+<div class="card">
+<h3>Open a Dispute</h3>
+
+<label for="reason">Reason</label>
 <select id="reason">
 <option value="">Select dispute reason</option>
 <option value="Work not completed">Work not completed</option>
@@ -92,15 +57,25 @@ Use this form if there is an issue with a task, payment, no-show, damage, or job
 <option value="Other">Other</option>
 </select>
 
-<textarea id="description" placeholder="Explain what happened"></textarea>
+<label for="description">What happened?</label>
+<textarea id="description" placeholder="Explain the issue clearly"></textarea>
 
-<textarea id="additionalNotes" placeholder="Additional notes, if any"></textarea>
+<label for="additionalNotes">Additional Notes</label>
+<textarea id="additionalNotes" placeholder="Anything else we should know?"></textarea>
 
-<input id="evidenceUrl" type="text" placeholder="Evidence link or photo URL">
+<label for="evidenceFile">Upload Evidence</label>
+<input id="evidenceFile" type="file" accept="image/*">
+
+<p class="small">Photos may include damaged property, incomplete work, screenshots, or job-related proof.</p>
 
 <button onclick="submitDispute()">Submit Dispute</button>
 
 <p id="status"></p>
+</div>
+
+<div class="notice">
+<strong>What happens next:</strong><br>
+TaskMint will review the dispute details, evidence, messages, task status, and payment records before making a decision.
 </div>
 </div>
 
@@ -112,12 +87,35 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCL1dJ"
 );
 
+const params = new URLSearchParams(window.location.search);
+const taskId = params.get("task_id");
+const workerId = params.get("worker_id");
+
+document.getElementById("taskIdText").innerText = taskId || "Not linked";
+document.getElementById("workerIdText").innerText = workerId || "Not linked";
+
+async function uploadEvidence(file, userId) {
+const fileName = `${userId}-${Date.now()}-${file.name}`;
+
+const { error } = await supabaseClient.storage
+.from("dispute-evidence")
+.upload(fileName, file);
+
+if (error) throw error;
+
+const { data } = supabaseClient.storage
+.from("dispute-evidence")
+.getPublicUrl(fileName);
+
+return data.publicUrl;
+}
+
 async function submitDispute() {
 const status = document.getElementById("status");
 const reason = document.getElementById("reason").value;
-const description = document.getElementById("description").value;
-const additionalNotes = document.getElementById("additionalNotes").value;
-const evidenceUrl = document.getElementById("evidenceUrl").value;
+const description = document.getElementById("description").value.trim();
+const additionalNotes = document.getElementById("additionalNotes").value.trim();
+const evidenceFile = document.getElementById("evidenceFile").files[0];
 
 status.innerText = "";
 
@@ -133,14 +131,16 @@ status.innerText = "You must be logged in.";
 return;
 }
 
-const params = new URLSearchParams(window.location.search);
-const taskId = params.get("task_id");
-const workerId = params.get("worker_id");
+let evidenceUrl = null;
+
+try {
+if (evidenceFile) {
+evidenceUrl = await uploadEvidence(evidenceFile, customerId);
+}
 
 const { error } = await supabaseClient
 .from("disputes")
-.insert([
-{
+.insert([{
 task_id: taskId || null,
 customer_id: customerId,
 worker_id: workerId || null,
@@ -148,10 +148,9 @@ opened_by: customerId,
 reason: reason,
 description: description,
 status: "open",
-evidence_url: evidenceUrl || null,
+evidence_url: evidenceUrl,
 additional_notes: additionalNotes || null
-}
-]);
+}]);
 
 if (error) {
 status.innerText = error.message;
@@ -163,7 +162,11 @@ status.innerText = "Dispute submitted successfully.";
 document.getElementById("reason").value = "";
 document.getElementById("description").value = "";
 document.getElementById("additionalNotes").value = "";
-document.getElementById("evidenceUrl").value = "";
+document.getElementById("evidenceFile").value = "";
+
+} catch (err) {
+status.innerText = err.message;
+}
 }
 </script>
 </body>
