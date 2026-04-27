@@ -17,6 +17,7 @@ textarea { min-height: 110px; }
 button { background: green; color: white; border: none; cursor: pointer; margin-top: 16px; }
 .small { color: #666; font-size: 13px; }
 #status { margin-top: 14px; text-align: center; font-weight: bold; }
+.hidden { display: none; }
 </style>
 </head>
 
@@ -26,6 +27,19 @@ button { background: green; color: white; border: none; cursor: pointer; margin-
 
 <h1>Dispute Center</h1>
 
+<div id="dashboardSection">
+<div class="notice">
+To open a new dispute, go to View Open Task, select the task, and tap Open Dispute.
+</div>
+
+<h2>Open Disputes</h2>
+<div id="openDisputesList" class="card">Loading open disputes...</div>
+
+<h2>Past Disputes</h2>
+<div id="pastDisputesList" class="card">Loading past disputes...</div>
+</div>
+
+<div id="formSection" class="hidden">
 <div class="notice">
 Disputes are reviewed for safety and fairness. Submit clear details and job-related evidence only.
 </div>
@@ -35,9 +49,8 @@ Disputes are reviewed for safety and fairness. Submit clear details and job-rela
 <p class="small">A dispute will remain open until reviewed and resolved.</p>
 </div>
 
-<div class="card" id="taskInfo">
+<div class="card">
 <h3>Task Information</h3>
-<p class="small">Task details will appear here when opened from a task card.</p>
 <p><strong>Task ID:</strong> <span id="taskIdText">Not linked</span></p>
 <p><strong>Worker ID:</strong> <span id="workerIdText">Not linked</span></p>
 </div>
@@ -58,12 +71,15 @@ Disputes are reviewed for safety and fairness. Submit clear details and job-rela
 </select>
 
 <label for="description">What happened?</label>
-<textarea id="description" placeholder="Please explain the issue clearly. Please note we will only take inconsideration what you provide."></textarea>
+<textarea id="description" placeholder="Explain the issue clearly"></textarea>
+
+<label for="additionalNotes">Additional Notes</label>
+<textarea id="additionalNotes" placeholder="Anything else we should know?"></textarea>
 
 <label for="evidenceFile">Upload Evidence</label>
 <input id="evidenceFile" type="file" accept="image/*">
 
-<p class="small">Photos may include damaged property, incomplete work, screenshots, or job-related proof. Please allow up to 7 business days for a resolution.</p>
+<p class="small">Photos may include damaged property, incomplete work, screenshots, or job-related proof.</p>
 
 <button onclick="submitDispute()">Submit Dispute</button>
 
@@ -72,7 +88,8 @@ Disputes are reviewed for safety and fairness. Submit clear details and job-rela
 
 <div class="notice">
 <strong>What happens next:</strong><br>
-TaskMint will review the dispute details, evidence, messages, task status, and payment records before making a decision. All payments are held until the end of the dispute.
+TaskMint will review the dispute details, evidence, messages, task status, and payment records before making a decision.
+</div>
 </div>
 </div>
 
@@ -88,8 +105,71 @@ const params = new URLSearchParams(window.location.search);
 const taskId = params.get("task_id");
 const workerId = params.get("worker_id");
 
-document.getElementById("taskIdText").innerText = taskId || "Not linked";
-document.getElementById("workerIdText").innerText = workerId || "Not linked";
+const customerId = localStorage.getItem("taskmintUserId");
+
+if (taskId) {
+document.getElementById("dashboardSection").classList.add("hidden");
+document.getElementById("formSection").classList.remove("hidden");
+document.getElementById("taskIdText").innerText = taskId;
+document.getElementById("workerIdText").innerText = workerId || "Not assigned yet";
+} else {
+document.getElementById("dashboardSection").classList.remove("hidden");
+document.getElementById("formSection").classList.add("hidden");
+loadDisputes();
+}
+
+async function loadDisputes() {
+const openList = document.getElementById("openDisputesList");
+const pastList = document.getElementById("pastDisputesList");
+
+if (!customerId) {
+openList.innerHTML = "You must be logged in.";
+pastList.innerHTML = "";
+return;
+}
+
+const { data: disputes, error } = await supabaseClient
+.from("disputes")
+.select("*")
+.eq("customer_id", customerId)
+.order("created_at", { ascending: false });
+
+if (error) {
+openList.innerHTML = error.message;
+pastList.innerHTML = "";
+return;
+}
+
+const openDisputes = disputes.filter(d => d.status === "open" || d.status === "reviewing");
+const pastDisputes = disputes.filter(d => d.status === "resolved" || d.status === "rejected");
+
+openList.innerHTML = openDisputes.length ? "" : "No open disputes.";
+pastList.innerHTML = pastDisputes.length ? "" : "No past disputes.";
+
+openDisputes.forEach(dispute => {
+openList.appendChild(createDisputeCard(dispute));
+});
+
+pastDisputes.forEach(dispute => {
+pastList.appendChild(createDisputeCard(dispute));
+});
+}
+
+function createDisputeCard(dispute) {
+const div = document.createElement("div");
+div.style.borderBottom = "1px solid #eee";
+div.style.padding = "12px 0";
+
+div.innerHTML = `
+<p><strong>Reason:</strong> ${dispute.reason || "N/A"}</p>
+<p><strong>Status:</strong> ${dispute.status || "open"}</p>
+<p><strong>Description:</strong> ${dispute.description || ""}</p>
+<p><strong>Opened:</strong> ${new Date(dispute.created_at).toLocaleDateString()}</p>
+<p><strong>Task ID:</strong> ${dispute.task_id || "Not linked"}</p>
+`;
+
+return div;
+}
 
 async function uploadEvidence(file, userId) {
 const fileName = `${userId}-${Date.now()}-${file.name}`;
@@ -111,6 +191,7 @@ async function submitDispute() {
 const status = document.getElementById("status");
 const reason = document.getElementById("reason").value;
 const description = document.getElementById("description").value.trim();
+const additionalNotes = document.getElementById("additionalNotes").value.trim();
 const evidenceFile = document.getElementById("evidenceFile").files[0];
 
 status.innerText = "";
@@ -119,8 +200,6 @@ if (!reason || !description) {
 status.innerText = "Please select a reason and explain what happened.";
 return;
 }
-
-const customerId = localStorage.getItem("taskmintUserId");
 
 if (!customerId) {
 status.innerText = "You must be logged in.";
@@ -167,3 +246,4 @@ status.innerText = err.message;
 </script>
 </body>
 </html>
+
