@@ -159,34 +159,35 @@ const questionBank = {
 ]
 };
 
-function initAutocomplete() {
-setupAutocomplete("pickupAddress", "pickup");
-setupAutocomplete("dropoffAddress", "dropoff");
-}
-
 function setupAutocomplete(inputId, type) {
-const input = document.getElementById(inputId);
-if (!input || !window.google) return;
+  const input = document.getElementById(inputId);
 
-const autocomplete = new google.maps.places.Autocomplete(input, {
-types: ["address"],
-componentRestrictions: { country: "us" }
-});
+  const autocomplete = new google.maps.places.PlaceAutocompleteElement({
+    input: input,
+  });
 
-autocomplete.addListener("place_changed", () => {
-const place = autocomplete.getPlace();
-if (!place.geometry) return;
+  autocomplete.addEventListener("placechange", () => {
+    const place = autocomplete.getPlace();
 
-fillAddressFields(place, type);
-});
+    if (!place || !place.location) return;
+
+    const lat = place.location.lat();
+    const lng = place.location.lng();
+
+    if (type === "pickup") {
+      pickupLat = lat;
+      pickupLng = lng;
+      document.getElementById("pickupAddress").value = place.formattedAddress || "";
+    }
+
+    if (type === "dropoff") {
+      dropoffLat = lat;
+      dropoffLng = lng;
+      document.getElementById("dropoffAddress").value = place.formattedAddress || "";
+    }
+  });
 }
 
-function fillAddressFields(place, type) {
-let streetNumber = "";
-let route = "";
-let city = "";
-let state = "";
-let zip = "";
 
 place.address_components.forEach(component => {
 if (component.types.includes("street_number")) streetNumber = component.long_name;
@@ -517,6 +518,6 @@ document.getElementById("categoryStep").classList.remove("hidden");
 }
 </script>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&callback=initAutocomplete"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&"></script>
 </body>
 </html>
