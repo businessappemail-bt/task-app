@@ -5,104 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: #f5f5f5;
-color: #111;
-}
-
-.container {
-max-width: 420px;
-margin: 0 auto;
-padding: 20px;
-}
-
-.back {
-color: green;
-font-weight: bold;
-cursor: pointer;
-margin-bottom: 20px;
-}
-
-.card {
-background: white;
-border-radius: 14px;
-padding: 18px;
-box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-}
-
-h1 {
-margin-bottom: 8px;
-}
-
-.subtext {
-color: #666;
-margin-bottom: 20px;
-}
-
+body { margin:0; font-family:Arial,sans-serif; background:#f5f5f5; color:#111; }
+.container { max-width:420px; margin:0 auto; padding:20px; }
+.back { color:green; font-weight:bold; cursor:pointer; margin-bottom:20px; }
+.card { background:white; border-radius:14px; padding:18px; box-shadow:0 1px 5px rgba(0,0,0,0.08); }
+.subtext { color:#666; margin-bottom:20px; }
 button, input, select, textarea {
-width: 100%;
-box-sizing: border-box;
-padding: 13px;
-margin-top: 12px;
-border-radius: 10px;
-border: 1px solid #ccc;
-font-size: 15px;
+width:100%; box-sizing:border-box; padding:13px; margin-top:12px;
+border-radius:10px; border:1px solid #ccc; font-size:15px;
 }
-
-button {
-background: green;
-color: white;
-border: none;
-cursor: pointer;
-}
-
-.secondary {
-background: white;
-color: #111;
-border: 1px solid #ccc;
-}
-
-.option {
-background: white;
-color: #111;
-border: 1px solid #ccc;
-text-align: left;
-}
-
-textarea {
-min-height: 110px;
-}
-
-.hidden {
-display: none;
-}
-
-.checkbox-row {
-display: flex;
-align-items: center;
-gap: 8px;
-margin-top: 10px;
-}
-
-.checkbox-row input {
-width: auto;
-margin: 0;
-}
-
-#status {
-margin-top: 14px;
-text-align: center;
-font-weight: bold;
-}
-
-.review-box {
-background: #f7f7f7;
-border-radius: 10px;
-padding: 12px;
-margin-top: 10px;
-}
+button { background:green; color:white; border:none; cursor:pointer; }
+.secondary { background:white; color:#111; border:1px solid #ccc; }
+.option { background:white; color:#111; border:1px solid #ccc; text-align:left; }
+textarea { min-height:110px; }
+.hidden { display:none; }
+.checkbox-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+.checkbox-row input { width:auto; margin:0; }
+#status { margin-top:14px; text-align:center; font-weight:bold; }
+.review-box { background:#f7f7f7; border-radius:10px; padding:12px; margin-top:10px; }
 </style>
 </head>
 
@@ -131,7 +51,7 @@ margin-top: 10px;
 
 <div id="pickupAddressStep" class="hidden">
 <h3>Task Address</h3>
-<p class="subtext">Enter where the task will take place.</p>
+<p class="subtext">Start typing and select the address from Google suggestions.</p>
 
 <input id="pickupAddress" placeholder="Task address">
 <input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
@@ -144,7 +64,7 @@ margin-top: 10px;
 
 <div id="dropoffAddressStep" class="hidden">
 <h3>Drop-Off Address</h3>
-<p class="subtext">Enter the drop-off address for this task.</p>
+<p class="subtext">Start typing and select the drop-off address from Google suggestions.</p>
 
 <input id="dropoffAddress" placeholder="Drop-off address">
 <input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
@@ -157,7 +77,7 @@ margin-top: 10px;
 
 <div id="reviewStep" class="hidden">
 <h3>Review Task</h3>
-<p class="subtext">Workers will review this information and send quotes.</p>
+<p class="subtext">Workers will review your task and send quotes.</p>
 <div id="reviewBox" class="review-box"></div>
 
 <button onclick="submitTask()">Post Task</button>
@@ -172,7 +92,7 @@ margin-top: 10px;
 
 <script>
 const supabaseClient = supabase.createClient(
-"https://dbcthtjmtlumidpbucrc.supabase.co",
+"https://https://dbcthtjmtlumidpbucrc.supabase.co",
 "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
@@ -182,74 +102,125 @@ let questionIndex = 0;
 let answers = {};
 let pickupAddress = {};
 let dropoffAddress = {};
+let pickupLat = null;
+let pickupLng = null;
+let dropoffLat = null;
+let dropoffLng = null;
 
 const questionBank = {
 "Moving": [
-{ id: "truck_needed", label: "Truck needed?", type: "select", options: ["Yes", "No", "Not sure"] },
-{ id: "stairs", label: "Are there stairs?", type: "select", options: ["No stairs", "1 flight", "2 flights", "3+ flights"] },
-{ id: "rooms", label: "How many rooms?", type: "checkbox", options: ["Full house", "1 room", "2 rooms", "3 rooms", "Multiple rooms"] },
-{ id: "details", label: "Give more detail about what needs to be moved.", type: "textarea" }
+{ id:"truck_needed", label:"Truck needed?", type:"select", options:["Yes","No","Not sure"] },
+{ id:"stairs", label:"Are there stairs?", type:"select", options:["No stairs","1 flight","2 flights","3+ flights"] },
+{ id:"rooms", label:"How many rooms?", type:"checkbox", options:["Full house","1 room","2 rooms","3 rooms","Multiple rooms"] },
+{ id:"details", label:"Give more detail about what needs to be moved.", type:"textarea" }
 ],
-
 "TV Mounting": [
-{ id: "tv_count", label: "How many TVs?", type: "text" },
-{ id: "tv_size", label: "What size TV(s)?", type: "text" },
-{ id: "assistance_available", label: "Will assistance be available if the TV is 50 inches or more?", type: "select", options: ["Yes", "No", "Not applicable"] },
-{ id: "mount_type", label: "What type of mount?", type: "select", options: ["Fixed mount", "Tilting mount", "Full-motion mount", "Not sure"] },
-{ id: "wall_type", label: "What type of wall?", type: "select", options: ["Drywall", "Brick", "Concrete", "Stone", "Not sure"] },
-{ id: "extras", label: "Need wires hidden, speakers mounted, or anything else?", type: "textarea" }
+{ id:"tv_count", label:"How many TVs?", type:"text" },
+{ id:"tv_size", label:"What size TV(s)?", type:"text" },
+{ id:"assistance_available", label:"Will assistance be available if the TV is 50 inches or more?", type:"select", options:["Yes","No","Not applicable"] },
+{ id:"mount_type", label:"What type of mount?", type:"select", options:["Fixed mount","Tilting mount","Full-motion mount","Not sure"] },
+{ id:"wall_type", label:"What type of wall?", type:"select", options:["Drywall","Brick","Concrete","Stone","Not sure"] },
+{ id:"extras", label:"Need wires hidden, speakers, or anything else?", type:"textarea" }
 ],
-
 "Furniture Assembly": [
-{ id: "item_count", label: "How many items need assembly?", type: "text" },
-{ id: "more_than_one_person", label: "Is more than 1 person needed?", type: "select", options: ["Yes", "No", "Not sure"] },
-{ id: "tools_available", label: "Are tools available?", type: "select", options: ["Yes", "No", "Not sure"] },
-{ id: "details", label: "Describe the specific item(s).", type: "textarea" }
+{ id:"item_count", label:"How many items need assembly?", type:"text" },
+{ id:"more_than_one_person", label:"Is more than 1 person needed?", type:"select", options:["Yes","No","Not sure"] },
+{ id:"tools_available", label:"Are tools available?", type:"select", options:["Yes","No","Not sure"] },
+{ id:"details", label:"Describe the specific item(s).", type:"textarea" }
 ],
-
 "Cleaning": [
-{ id: "cleaning_type", label: "What type of cleaning?", type: "select", options: ["Deep cleaning", "Move-out cleaning", "Partial cleaning"] },
-{ id: "square_feet", label: "Square footage of home? If not move-out cleaning, type N/A.", type: "text" },
-{ id: "rooms", label: "How many rooms?", type: "text" },
-{ id: "bathrooms", label: "How many bathrooms?", type: "text" },
-{ id: "details", label: "Give more detail about what needs cleaning.", type: "textarea" }
+{ id:"cleaning_type", label:"What type of cleaning?", type:"select", options:["Deep cleaning","Move-out cleaning","Partial cleaning"] },
+{ id:"square_feet", label:"Square footage of home? If not move-out cleaning, type N/A.", type:"text" },
+{ id:"rooms", label:"How many rooms?", type:"text" },
+{ id:"bathrooms", label:"How many bathrooms?", type:"text" },
+{ id:"details", label:"Give more detail about what needs cleaning.", type:"textarea" }
 ],
-
 "Trash Removal": [
-{ id: "item_estimate", label: "Estimate how many items or bags need removal.", type: "text" },
-{ id: "details", label: "Describe what needs to be removed.", type: "textarea" }
+{ id:"item_estimate", label:"Estimate how many items or bags need removal.", type:"text" },
+{ id:"details", label:"Describe what needs to be removed.", type:"textarea" }
 ],
-
 "Errands": [
-{ id: "details", label: "Describe the errand.", type: "textarea" }
+{ id:"details", label:"Describe the errand.", type:"textarea" }
 ],
-
 "Handywork": [
-{ id: "tools_provided", label: "Are tools provided?", type: "select", options: ["Yes", "No", "Not sure"] },
-{ id: "details", label: "Describe the handywork needed.", type: "textarea" }
+{ id:"tools_provided", label:"Are tools provided?", type:"select", options:["Yes","No","Not sure"] },
+{ id:"details", label:"Describe the handywork needed.", type:"textarea" }
 ],
-
 "Yard Work": [
-{ id: "yard_work_type", label: "What type of yard work is needed?", type: "checkbox", options: ["Cutting grass", "Weed treatment", "Edging", "Bush trimming", "Flower bed treatment", "Other"] },
-{ id: "flower_bed_supplies", label: "If flower bed treatment is needed, will supplies be there?", type: "select", options: ["Yes", "No", "Not applicable"] },
-{ id: "details", label: "Explain what needs to be done.", type: "textarea" }
+{ id:"yard_work_type", label:"What type of yard work is needed?", type:"checkbox", options:["Cutting grass","Weed treatment","Edging","Bush trimming","Flower bed treatment","Other"] },
+{ id:"flower_bed_supplies", label:"If flower bed treatment is needed, will supplies be there?", type:"select", options:["Yes","No","Not applicable"] },
+{ id:"details", label:"Explain what needs to be done.", type:"textarea" }
 ],
-
 "Repairs": [
-{ id: "details", label: "Explain what repairs are needed and what issues you are having.", type: "textarea" }
+{ id:"details", label:"Explain what repairs are needed and what issues you are having.", type:"textarea" }
 ],
-
 "Other": [
-{ id: "details", label: "Describe the miscellaneous task.", type: "textarea" }
+{ id:"details", label:"Describe the miscellaneous task.", type:"textarea" }
 ]
 };
 
+function initAutocomplete() {
+setupAutocomplete("pickupAddress", "pickup");
+setupAutocomplete("dropoffAddress", "dropoff");
+}
+
+function setupAutocomplete(inputId, type) {
+const input = document.getElementById(inputId);
+if (!input || !window.google) return;
+
+const autocomplete = new google.maps.places.Autocomplete(input, {
+types: ["address"],
+componentRestrictions: { country: "us" }
+});
+
+autocomplete.addListener("place_changed", () => {
+const place = autocomplete.getPlace();
+if (!place.geometry) return;
+
+fillAddressFields(place, type);
+});
+}
+
+function fillAddressFields(place, type) {
+let streetNumber = "";
+let route = "";
+let city = "";
+let state = "";
+let zip = "";
+
+place.address_components.forEach(component => {
+if (component.types.includes("street_number")) streetNumber = component.long_name;
+if (component.types.includes("route")) route = component.long_name;
+if (component.types.includes("locality")) city = component.long_name;
+if (component.types.includes("administrative_area_level_1")) state = component.short_name;
+if (component.types.includes("postal_code")) zip = component.long_name;
+});
+
+const fullAddress = `${streetNumber} ${route}`.trim() || place.formatted_address;
+
+if (type === "pickup") {
+document.getElementById("pickupAddress").value = fullAddress;
+document.getElementById("pickupCity").value = city;
+document.getElementById("pickupState").value = state;
+document.getElementById("pickupZip").value = zip;
+pickupLat = place.geometry.location.lat();
+pickupLng = place.geometry.location.lng();
+}
+
+if (type === "dropoff") {
+document.getElementById("dropoffAddress").value = fullAddress;
+document.getElementById("dropoffCity").value = city;
+document.getElementById("dropoffState").value = state;
+document.getElementById("dropoffZip").value = zip;
+dropoffLat = place.geometry.location.lat();
+dropoffLng = place.geometry.location.lng();
+}
+}
+
 function hideAllSteps() {
-document.getElementById("categoryStep").classList.add("hidden");
-document.getElementById("questionStep").classList.add("hidden");
-document.getElementById("pickupAddressStep").classList.add("hidden");
-document.getElementById("dropoffAddressStep").classList.add("hidden");
-document.getElementById("reviewStep").classList.add("hidden");
+["categoryStep","questionStep","pickupAddressStep","dropoffAddressStep","reviewStep"].forEach(id => {
+document.getElementById(id).classList.add("hidden");
+});
 }
 
 function selectCategory(category) {
@@ -259,7 +230,10 @@ questionIndex = 0;
 answers = {};
 pickupAddress = {};
 dropoffAddress = {};
-
+pickupLat = null;
+pickupLng = null;
+dropoffLat = null;
+dropoffLng = null;
 document.getElementById("status").innerText = "";
 showQuestion();
 }
@@ -277,9 +251,7 @@ let html = `<h3>${question.label}</h3>`;
 
 if (question.type === "select") {
 html += `<select id="answerInput"><option value="">Select one</option>`;
-question.options.forEach(option => {
-html += `<option value="${option}">${option}</option>`;
-});
+question.options.forEach(option => html += `<option value="${option}">${option}</option>`);
 html += `</select>`;
 }
 
@@ -341,7 +313,7 @@ showPickupAddress();
 function showPickupAddress() {
 hideAllSteps();
 document.getElementById("pageTitle").innerText = "Task Address";
-document.getElementById("pageSubtext").innerText = "Enter where the task starts or takes place.";
+document.getElementById("pageSubtext").innerText = "Start typing and select the address from Google suggestions.";
 document.getElementById("pickupAddressStep").classList.remove("hidden");
 }
 
@@ -357,15 +329,8 @@ document.getElementById("status").innerText = "Please enter the full task addres
 return;
 }
 
+pickupAddress = { address, unit, city, state, zip };
 document.getElementById("status").innerText = "";
-
-pickupAddress = {
-address,
-unit,
-city,
-state,
-zip
-};
 
 if (selectedCategory === "Moving" || selectedCategory === "Errands") {
 showDropoffAddress();
@@ -377,7 +342,7 @@ showReview();
 function showDropoffAddress() {
 hideAllSteps();
 document.getElementById("pageTitle").innerText = "Drop-Off Address";
-document.getElementById("pageSubtext").innerText = "Enter where the item, person, or errand should be delivered.";
+document.getElementById("pageSubtext").innerText = "Start typing and select the drop-off address from Google suggestions.";
 document.getElementById("dropoffAddressStep").classList.remove("hidden");
 }
 
@@ -393,16 +358,8 @@ document.getElementById("status").innerText = "Please enter the full drop-off ad
 return;
 }
 
+dropoffAddress = { address, unit, city, state, zip };
 document.getElementById("status").innerText = "";
-
-dropoffAddress = {
-address,
-unit,
-city,
-state,
-zip
-};
-
 showReview();
 }
 
@@ -443,9 +400,7 @@ document.getElementById("reviewStep").classList.remove("hidden");
 }
 
 function formatLabel(key) {
-return key
-.replaceAll("_", " ")
-.replace(/\b\w/g, char => char.toUpperCase());
+return key.replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase());
 }
 
 function buildDescription() {
@@ -462,9 +417,20 @@ description += `\nDrop-Off Address: ${dropoffAddress.address}, ${dropoffAddress.
 return description;
 }
 
+async function getCustomerId() {
+const { data } = await supabaseClient.auth.getSession();
+
+if (data.session && data.session.user) {
+localStorage.setItem("taskmintUserId", data.session.user.id);
+return data.session.user.id;
+}
+
+return localStorage.getItem("taskmintUserId");
+}
+
 async function submitTask() {
 const status = document.getElementById("status");
-const customerId = localStorage.getItem("taskmintUserId");
+const customerId = await getCustomerId();
 
 if (!customerId) {
 status.innerText = "You must be logged in.";
@@ -473,20 +439,29 @@ return;
 
 const { error } = await supabaseClient
 .from("tasks")
-.insert([
-{
+.insert([{
 customer_id: customerId,
 title: selectedCategory,
 category: selectedCategory,
 description: buildDescription(),
+task_details: answers,
 location_address: pickupAddress.address,
+unit: pickupAddress.unit || null,
 city: pickupAddress.city,
 state: pickupAddress.state,
 zip_code: pickupAddress.zip,
+pickup_lat: pickupLat,
+pickup_lng: pickupLng,
+dropoff_address: dropoffAddress.address || null,
+dropoff_unit: dropoffAddress.unit || null,
+dropoff_city: dropoffAddress.city || null,
+dropoff_state: dropoffAddress.state || null,
+dropoff_zip_code: dropoffAddress.zip || null,
+dropoff_lat: dropoffLat,
+dropoff_lng: dropoffLng,
 status: "open",
 price: null
-}
-]);
+}]);
 
 if (error) {
 status.innerText = error.message;
@@ -541,6 +516,7 @@ document.getElementById("pageSubtext").innerText = "Choose what you need help wi
 document.getElementById("categoryStep").classList.remove("hidden");
 }
 </script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&callback=initAutocomplete"></script>
 </body>
 </html>
-
