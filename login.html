@@ -58,17 +58,10 @@
 
     <input id="email" placeholder="Email" />
     <input id="password" type="password" placeholder="Password" />
-    
-<button type="button" id="stayBtn" onclick="toggleStayLoggedIn()" style="
-  width: 100%;
-  padding: 12px;
-  margin-top: 12px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background: white;
-  color: #111;
-  font-size: 15px;
-  cursor: pointer;
+<div style="display:flex; align-items:center; margin-top:12px;">
+  <input type="checkbox" id="stayLoggedIn" style="margin-right:8px;">
+  <label for="stayLoggedIn" style="margin:0;">Stay logged in</label>
+</div>
 ">
   Stay logged in: OFF
 </button>
