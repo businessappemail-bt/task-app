@@ -233,6 +233,15 @@ card.innerHTML = `
   Open Dispute
 </button>
 ${statusBar(task.status)}
+${task.assigned_worker_id ? `
+  <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${task.assigned_worker_id}')">
+    Open Dispute
+  </button>
+` : `
+  <button class="dispute-btn" disabled style="background:#ccc; cursor:not-allowed;">
+    Dispute available after worker is assigned
+  </button>
+`}
 
 <div class="applicants" id="applicants-${task.id}">
 Loading applicants...
