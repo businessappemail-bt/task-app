@@ -111,6 +111,18 @@ border-radius: 12px;
 color: #666;
 text-align: center;
 }
+
+  .dispute-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #b00020;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
 </style>
 </head>
 
@@ -217,7 +229,9 @@ card.innerHTML = `
 <p><span class="label">State:</span> ${task.state || ""}</p>
 <p><span class="label">Status:</span> ${task.status || "open"}</p>
 <p><span class="label">Interested Workers:</span> ${count || 0}</p>
-
+<button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${task.assigned_worker_id || ""}')">
+  Open Dispute
+</button>
 ${statusBar(task.status)}
 
 <div class="applicants" id="applicants-${task.id}">
@@ -328,7 +342,9 @@ box.appendChild(workerCard);
 function messageWorker(workerId, taskId) {
 window.location.href = `messages.html?worker_id=${workerId}&task_id=${taskId}`;
 }
-
+function openDispute(taskId, workerId) {
+  window.location.href = `dispute-center.html?task_id=${taskId}&worker_id=${workerId || ""}`;
+}
 loadOpenTasks();
 </script>
 </body>
