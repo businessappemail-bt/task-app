@@ -109,7 +109,11 @@ margin-top:8px;
 
 <div class="container">
 
-<div class="header">Profile</div>
+
+<div class="header">Profile
+<span class="back" onclick="goBack()">‹</span>
+Profile
+</div>
 
 
 <div class="profile-top">
@@ -188,6 +192,11 @@ I want to accept task
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+function goBack() {
+window.location.href = "customer-home.html";
+}
+
+
 const supabaseClient = window.supabase.createClient(
 "https://dbcthtjmtlumidpbucrc.supabase.co",
 "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
