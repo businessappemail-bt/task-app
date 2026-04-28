@@ -303,7 +303,7 @@ box.style.display = "block";
 box.innerHTML = "Loading applicants...";
 
 const { data: applications, error } = await supabaseClient
-.from("worker_applications")
+.from("worker_quotes")
 .select("*")
 .eq("task_id", taskId);
 
