@@ -243,7 +243,7 @@ tasksList.innerHTML = "";
 
 for (const task of tasks) {
 const { count } = await supabaseClient
-.from("worker_applications")
+.from("worker_quotes")
 .select("*", { count: "exact", head: true })
 .eq("task_id", task.id);
 
