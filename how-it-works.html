@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How It Works</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+box-sizing: border-box;
+}
+
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #ffffff;
+color: #111;
+}
+
+.container {
+min-height: 100vh;
+padding: 30px 22px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+text-align: center;
+}
+
+.slide {
+display: none;
+}
+
+.slide.active {
+display: block;
+}
+
+.icon {
+width: 90px;
+height: 90px;
+margin: 0 auto 30px;
+border-radius: 50%;
+background: #111;
+color: white;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 34px;
+font-weight: bold;
+}
+
+h1 {
+font-size: 28px;
+margin-bottom: 14px;
+}
+
+p {
+font-size: 17px;
+line-height: 1.5;
+color: #555;
+}
+
+.dots {
+display: flex;
+justify-content: center;
+margin: 35px 0 25px;
+gap: 8px;
+}
+
+.dot {
+width: 9px;
+height: 9px;
+border-radius: 50%;
+background: #ccc;
+}
+
+.dot.active {
+width: 24px;
+border-radius: 10px;
+background: #111;
+}
+
+.buttons {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+button {
+border: none;
+font-size: 16px;
+cursor: pointer;
+}
+
+.skip {
+background: transparent;
+color: #777;
+}
+
+.next {
+background: #111;
+color: white;
+padding: 13px 22px;
+border-radius: 10px;
+font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="slide active">
+<div class="icon">1</div>
+<h1>Get Tasks Done Fast</h1>
+<p>Post a task and connect with trusted workers in minutes.</p>
+</div>
+
+<div class="slide">
+<div class="icon">2</div>
+<h1>Tell Us What You Need</h1>
+<p>Describe your task and when you need it done.</p>
+</div>
+
+<div class="slide">
+<div class="icon">3</div>
+<h1>Receive Offers</h1>
+<p>Workers send quotes and offers. Choose the one that works best for you.</p>
+</div>
+
+<div class="slide">
+<div class="icon">4</div>
+<h1>Secure Payment</h1>
+<p>Payment is held securely and released after the job is complete.</p>
+</div>
+
+<div class="slide">
+<div class="icon">5</div>
+<h1>Job Completed</h1>
+<p>Review your worker and move on with your day.</p>
+</div>
+
+<div class="dots"></div>
+
+<div class="buttons">
+<button class="skip" onclick="finishOnboarding()">Skip</button>
+<button class="next" onclick="nextSlide()">Next</button>
+</div>
+
+</div>
+
+<script>
+let currentSlide = 0;
+const slides = document.querySelectorAll(".slide");
+const dotsContainer = document.querySelector(".dots");
+const nextButton = document.querySelector(".next");
+
+slides.forEach((_, index) => {
+const dot = document.createElement("div");
+dot.classList.add("dot");
+if (index === 0) dot.classList.add("active");
+dotsContainer.appendChild(dot);
+});
+
+const dots = document.querySelectorAll(".dot");
+
+function showSlide(index) {
+slides.forEach(slide => slide.classList.remove("active"));
+dots.forEach(dot => dot.classList.remove("active"));
+
+slides[index].classList.add("active");
+dots[index].classList.add("active");
+
+nextButton.textContent = index === slides.length - 1 ? "Get Started" : "Next";
+}
+
+function nextSlide() {
+if (currentSlide < slides.length - 1) {
+currentSlide++;
+showSlide(currentSlide);
+} else {
+finishOnboarding();
+}
+}
+
+function finishOnboarding() {
+localStorage.setItem("seenHowItWorks", "true");
+window.location.href = "signup.html";
+}
+</script>
+
+</body>
+</html>
+
