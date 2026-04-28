@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
+  .back {
+color: #287a32;
+font-size: 15px;
+margin-bottom: 20px;
+cursor: pointer;
+font-weight: bold;
+}
 body { margin:0; font-family:Arial; background:#f4f4f4; padding-bottom:80px; }
 .container { max-width:420px; margin:0 auto; background:white; min-height:100vh; }
 .header { text-align:center; padding:20px; font-size:22px; font-weight:bold; border-bottom:1px solid #ddd; }
@@ -120,6 +128,8 @@ margin-top:8px;
 
 <body>
 
+<div class="back" onclick="goBack()">← Back to Homepage</div>
+  
 <div class="container">
 
 
@@ -307,6 +317,10 @@ window.location.href = page;
 function logoutUser() {
 localStorage.clear();
 window.location.href = "login.html";
+}
+
+  function goBack() {
+window.location.href = "profile.html";
 }
 
 loadProfile();
