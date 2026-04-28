@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How Info - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f7f7f7;
+color: #111;
+}
+
+.container {
+max-width: 520px;
+margin: 0 auto;
+min-height: 100vh;
+background: #fff;
+padding: 20px;
+}
+
+.back {
+color: #287a32;
+font-size: 15px;
+margin-bottom: 20px;
+cursor: pointer;
+font-weight: bold;
+}
+
+h1 {
+font-size: 26px;
+margin-bottom: 8px;
+}
+
+.intro {
+color: #555;
+font-size: 15px;
+line-height: 1.5;
+margin-bottom: 24px;
+}
+
+.faq-item {
+border-bottom: 1px solid #e5e5e5;
+padding: 14px 0;
+}
+
+.faq-question {
+width: 100%;
+background: none;
+border: none;
+padding: 0;
+font-size: 17px;
+font-weight: bold;
+color: #111;
+display: flex;
+justify-content: space-between;
+align-items: center;
+text-align: left;
+cursor: pointer;
+}
+
+.arrow {
+font-size: 22px;
+color: #287a32;
+transition: transform 0.2s ease;
+}
+
+.faq-answer {
+display: none;
+margin-top: 12px;
+color: #444;
+font-size: 15px;
+line-height: 1.6;
+}
+
+.faq-answer ul {
+padding-left: 20px;
+margin-top: 8px;
+}
+
+.faq-item.active .faq-answer {
+display: block;
+}
+
+.faq-item.active .arrow {
+transform: rotate(90deg);
+}
+
+.note-box {
+background: #f0f8f1;
+border-left: 4px solid #287a32;
+padding: 12px;
+margin-top: 14px;
+font-size: 14px;
+color: #333;
+border-radius: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="back" onclick="goBack()">← Back to Profile</div>
+
+<h1>How TaskMint Works</h1>
+
+<p class="intro">
+Find answers about posting tasks, accepting work, fees, payments, disputes,
+and other important information.
+</p>
+
+<div class="faq-item">
+<button class="faq-question" onclick="toggleFAQ(this)">
+How do I post a task?
+<span class="arrow">›</span>
+</button>
+<div class="faq-answer">
+<p>
+Add your answer here. Explain how customers post a task.
+</p>
+<ul>
+<li>Example: Choose the task type.</li>
+<li>Example: Add details, photos, location, and date needed.</li>
+<li>Example: Review the post before submitting.</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item">
+<button class="faq-question" onclick="toggleFAQ(this)">
+How do workers accept a task?
+<span class="arrow">›</span>
+</button>
+<div class="faq-answer">
+<p>
+Add your answer here. Explain how workers view tasks and send offers.
+</p>
+<ul>
+<li>Example: Workers browse available tasks.</li>
+<li>Example: Workers send a quote or offer.</li>
+<li>Example: The customer chooses the worker they want to hire.</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item">
+<button class="faq-question" onclick="toggleFAQ(this)">
+What is the fee breakdown?
+<span class="arrow">›</span>
+</button>
+<div class="faq-answer">
+<p>
+Add your fee breakdown here.
+</p>
+<ul>
+<li>Customer payment: $____</li>
+<li>Worker payout: $____</li>
+<li>TaskMint service fee: ____%</li>
+<li>Processing fee: $____ or ____%</li>
+</ul>
+
+<div class="note-box">
+Add any important payment notice here.
+</div>
+</div>
+</div>
+
+<div class="faq-item">
+<button class="faq-question" onclick="toggleFAQ(this)">
+How does payment work?
+<span class="arrow">›</span>
+</button>
+<div class="faq-answer">
+<p>
+Add your payment process here. Example: payment is collected when the customer
+hires a worker and held until the task is completed.
+</p>
+</div>
+</div>
+
+<div class="faq-item">
+<button class="faq-question" onclick="toggleFAQ(this)">
+What happens if there is a dispute?
+<span class="arrow">›</span>
+</button>
+<div class="faq-answer">
+<p>
+Add your dispute process here.
+</p>
+<ul>
+<li>Customer or worker reports the issue.</li>
+<li>TaskMint reviews details, messages, photos, and task history.</li>
+<li>A decision is made based on the information provided.</li>
+<li>Payment may be released, refunded, or adjusted depending on the issue.</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item">
+<button class="faq-question" onclick="toggleFAQ(this)">
+What should customers know before hiring?
+<span class="arrow">›</span>
+</button>
+<div class="faq-answer">
+<p>
+Add your customer rules, reminders, or safety information here.
+</p>
+</div>
+</div>
+
+<div class="faq-item">
+<button class="faq-question" onclick="toggleFAQ(this)">
+What should workers know before accepting?
+<span class="arrow">›</span>
+</button>
+<div class="faq-answer">
+<p>
+Add your worker rules, reminders, or expectations here.
+</p>
+</div>
+</div>
+
+<div class="faq-item">
+<button class="faq-question" onclick="toggleFAQ(this)">
+Add another question here
+<span class="arrow">›</span>
+</button>
+<div class="faq-answer">
+<p>
+Add any extra information you want here.
+</p>
+</div>
+</div>
+
+</div>
+
+<script>
+function toggleFAQ(button) {
+const item = button.parentElement;
+item.classList.toggle("active");
+}
+
+function goBack() {
+window.location.href = "profile.html";
+}
+</script>
+
+</body>
+</html>
+
