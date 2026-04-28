@@ -127,8 +127,43 @@ async function loadJobDetails() {
     <p class="status">${job.status || "open"}</p>
   `;
 }
+async function loadApplicants() {
+  const jobId = localStorage.getItem("selectedJobId");
+  const container = document.getElementById("applicantsList");
 
+  if (!jobId) return;
+
+  const { data: quotes, error } = await supabaseClient
+    .from("worker_quotes")
+    .select("*")
+    .eq("task_id", jobId);
+
+  if (error || !quotes || quotes.length === 0) {
+    container.innerHTML = "No applicants yet.";
+    return;
+  }
+
+  container.innerHTML = "";
+
+  quotes.forEach(q => {
+    const div = document.createElement("div");
+
+    div.innerHTML = `
+      <p><strong>Quote:</strong> $${q.quote_amount}</p>
+      <p>${q.message || ""}</p>
+      <button onclick="acceptQuote('${q.id}', '${q.worker_id}')">
+        Accept Worker
+      </button>
+      <hr/>
+    `;
+
+    container.appendChild(div);
+  });
+  async function acceptQuote(quoteId, workerId) {
+  alert("Accept quote button is connected.");
+}
 loadJobDetails();
+loadApplicants();
 </script>
 
 </body>
