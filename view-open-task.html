@@ -257,7 +257,6 @@ card.innerHTML = `
 <p><span class="label">Description:</span> ${task.description || ""}</p>
 <p><span class="label">Created:</span> ${task.created_at ? new Date(task.created_at).toLocaleDateString() : ""}</p>
 <p><span class="label">Category:</span> ${task.category || ""}</p>
-<p><span class="label">Offer:</span> $${task.price || 0}</p>
 <p><span class="label">Address:</span> ${task.location_address || task.address || "No address listed"}</p>
 <p><span class="label">Unit:</span> ${task.unit || "N/A"}</p>
 <p><span class="label">Zip Code:</span> ${task.zip_code || ""}</p>
