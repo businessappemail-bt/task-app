@@ -130,13 +130,15 @@ const area = document.getElementById("serviceArea").value;
 const userId = localStorage.getItem("userId");
 
 const { error } = await supabaseClient
-.from("profiles")
-.update({
-experience: experience,
-skills: services,
-service_area: area
-})
-.eq("id", userId);
+  .from("profiles")
+  .upsert({
+    id: userId,
+    experience: experience,
+    skills: services,
+    service_area: area,
+    account_type: "worker",
+    is_worker_approved: false
+  });
 
 if (error) {
 alert("Error saving profile");
