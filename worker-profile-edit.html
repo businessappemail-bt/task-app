@@ -86,6 +86,12 @@ font-size: 13px;
 color: #666;
 margin-top: 4px;
 }
+
+#statusMessage {
+margin-top: 12px;
+font-weight: bold;
+text-align: center;
+}
 </style>
 </head>
 
@@ -111,53 +117,88 @@ margin-top: 4px;
 <button class="secondary" onclick="window.location.href='worker-dashboard.html'">
 Back to Dashboard
 </button>
+
+<p id="statusMessage"></p>
 </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
-  const { data: { session } } = await supabaseClient.auth.getSession();
-
-if (!session) {
-  alert("You must log in first");
-  window.location.href = "login.html";
-}
 const supabaseClient = window.supabase.createClient(
 "https://dbcthtjmtlumidpbucrc.supabase.co",
-"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC1dJ"
 );
 
-async function saveProfile() {
-const experience = document.getElementById("experienceDescription").value;
-const services = document.getElementById("servicesOffered").value;
-const area = document.getElementById("serviceArea").value;
+let currentUser = null;
 
-const userId = localStorage.getItem("userId");
-  if (!userId) {
-  alert("You are not logged in. Please log in first.");
-  return;
-}
+async function checkLogin() {
+const { data, error } = await supabaseClient.auth.getUser();
 
-const { error } = await supabaseClient
-  .from("profiles")
-  .upsert({
-    id: userId,
-    experience: experience,
-    skills: services,
-    service_area: area,
-    account_type: "worker",
-    is_worker_approved: false
-  });
-
-if (error) {
-alert("Error saving profile");
+if (error || !data || !data.user) {
+alert("You must log in first.");
+window.location.href = "login.html";
 return;
 }
 
-alert("Profile saved successfully");
+currentUser = data.user;
+loadProfile();
 }
+
+async function loadProfile() {
+const { data, error } = await supabaseClient
+.from("profiles")
+.select("experience, skills, service_area")
+.eq("id", currentUser.id)
+.single();
+
+if (error) {
+return;
+}
+
+document.getElementById("experienceDescription").value = data.experience || "";
+document.getElementById("servicesOffered").value = data.skills || "";
+document.getElementById("serviceArea").value = data.service_area || "";
+}
+
+async function saveProfile() {
+const status = document.getElementById("statusMessage");
+
+if (!currentUser) {
+alert("You must log in first.");
+window.location.href = "login.html";
+return;
+}
+
+const experience = document.getElementById("experienceDescription").value.trim();
+const services = document.getElementById("servicesOffered").value.trim();
+const area = document.getElementById("serviceArea").value.trim();
+
+const { error } = await supabaseClient
+.from("profiles")
+.upsert({
+id: currentUser.id,
+email: currentUser.email,
+experience: experience,
+skills: services,
+service_area: area,
+account_type: "worker",
+is_worker_approved: false
+});
+
+if (error) {
+console.error(error);
+status.style.color = "red";
+status.innerText = "Error saving profile.";
+return;
+}
+
+status.style.color = "green";
+status.innerText = "Profile saved successfully.";
+}
+
+checkLogin();
 </script>
 </body>
 </html>
+
