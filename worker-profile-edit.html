@@ -1,34 +1,150 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Edit Worker Profile - TaskMint</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Worker Profile - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #f5f5f5;
+color: #111;
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.back {
+color: #0b7a28;
+font-weight: bold;
+text-decoration: none;
+display: inline-block;
+margin-bottom: 15px;
+}
+
+h1 {
+text-align: center;
+font-size: 26px;
+margin-bottom: 20px;
+}
+
+.card {
+background: white;
+border-radius: 14px;
+padding: 18px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+label {
+display: block;
+font-weight: bold;
+margin-top: 14px;
+margin-bottom: 6px;
+}
+
+textarea,
+input {
+width: 100%;
+box-sizing: border-box;
+padding: 12px;
+border: 1px solid #ccc;
+border-radius: 10px;
+font-size: 15px;
+font-family: Arial, sans-serif;
+}
+
+textarea {
+min-height: 130px;
+resize: vertical;
+}
+
+button {
+width: 100%;
+padding: 14px;
+margin-top: 16px;
+border: none;
+border-radius: 10px;
+background: #0b7a28;
+color: white;
+font-size: 15px;
+font-weight: bold;
+cursor: pointer;
+}
+
+.secondary {
+background: white;
+color: #111;
+border: 1px solid #ddd;
+}
+
+.help-text {
+font-size: 13px;
+color: #666;
+margin-top: 4px;
+}
+</style>
 </head>
 
 <body>
-  <h1>Edit Public Worker Profile</h1>
+<div class="container">
+<a class="back" href="worker-dashboard.html">← Back</a>
 
-  <label>Experience Description</label><br>
-  <textarea id="experienceDescription" rows="6" placeholder="Describe your experience, skills, and the type of work you do."></textarea>
+<h1>Edit Public Worker Profile</h1>
 
-  <br><br>
+<div class="card">
+<label for="experienceDescription">Experience Description</label>
+<textarea id="experienceDescription" placeholder="Tell customers what type of work you have experience with, how long you’ve been doing it, and what makes you reliable."></textarea>
+<div class="help-text">This is what customers will see on your public worker profile.</div>
 
-  <label>Services Offered</label><br>
-  <input id="servicesOffered" type="text" placeholder="Cleaning, moving, yard work, painting">
+<label for="servicesOffered">Services Offered</label>
+<input id="servicesOffered" type="text" placeholder="Cleaning, moving, yard work, painting">
 
-  <br><br>
+<label for="serviceArea">Service Area</label>
+<input id="serviceArea" type="text" placeholder="Villa Rica, Douglasville, Atlanta">
 
-  <label>Service Area</label><br>
-  <input id="serviceArea" type="text" placeholder="Villa Rica, Douglasville, Atlanta">
+<button onclick="saveProfile()">Save Profile</button>
 
-  <br><br>
+<button class="secondary" onclick="window.location.href='worker-dashboard.html'">
+Back to Dashboard
+</button>
+</div>
+</div>
 
-  <button>Save Profile</button>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <br><br>
+<script>
+const supabaseClient = window.supabase.createClient(
+"https://dbcthtjmtlumidpbucrc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC1dJ"
+);
 
-  <button onclick="window.location.href='worker-dashboard.html'">
-    Back to Dashboard
-  </button>
+async function saveProfile() {
+const experience = document.getElementById("experienceDescription").value;
+const services = document.getElementById("servicesOffered").value;
+const area = document.getElementById("serviceArea").value;
+
+const userId = localStorage.getItem("userId");
+
+const { error } = await supabaseClient
+.from("profiles")
+.update({
+experience: experience,
+skills: services,
+service_area: area
+})
+.eq("id", userId);
+
+if (error) {
+alert("Error saving profile");
+return;
+}
+
+alert("Profile saved successfully");
+}
+</script>
 </body>
 </html>
