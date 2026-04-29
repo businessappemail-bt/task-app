@@ -158,8 +158,10 @@ async function loadApplicants() {
 
     container.appendChild(div);
   });
-  async function acceptQuote(quoteId, workerId) {
-  alert("Accept quote button is connected.");
+ async function acceptQuote(quoteId, workerId) {
+  const jobId = localStorage.getItem("selectedJobId");
+
+  alert("Accept clicked for quote: " + quoteId);
 }
 loadJobDetails();
 loadApplicants();
