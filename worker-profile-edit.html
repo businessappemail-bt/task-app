@@ -117,6 +117,13 @@ Back to Dashboard
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+if (!session) {
+  alert("You must log in first");
+  window.location.href = "login.html";
+}
 const supabaseClient = window.supabase.createClient(
 "https://dbcthtjmtlumidpbucrc.supabase.co",
 "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
