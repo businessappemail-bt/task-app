@@ -1,0 +1,52 @@
+<h1>Worker Dashboard</h1>
+
+<!-- Profile Section -->
+<div>
+  <p><strong>Profile</strong></p>
+  <img src="" alt="Profile Picture" style="width:80px;height:80px;border-radius:50%;">
+  <br><br>
+  <button onclick="window.location.href='worker-settings.html'">
+    Settings
+  </button>
+</div>
+
+<hr>
+
+<!-- Main Actions -->
+<h2>Main</h2>
+
+<button onclick="window.location.href='worker-open-tasks.html'">
+  View Open Tasks
+</button>
+
+<button onclick="window.location.href='worker-completed-tasks.html'">
+  View Completed Tasks
+</button>
+
+<button onclick="window.location.href='worker-reviews.html'">
+  Ratings & Reviews
+</button>
+
+<button onclick="window.location.href='worker-disputes.html'">
+  Dispute Center
+</button>
+
+<button onclick="window.location.href='worker-earnings.html'">
+  Earnings
+</button>
+
+<hr>
+
+<!-- Account -->
+<h2>Account</h2>
+
+<button onclick="logout()">
+  Log Out
+</button>
+
+<script>
+function logout() {
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+</script>
