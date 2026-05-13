@@ -195,7 +195,7 @@ Add / Change Photo
 <div class="arrow">›</div>
 </div>
 
-<div class="center-row" onclick="goToPage('worker-application.html')">
+<div class="center-row" onclick="goToWorkerApp()">
 I want to accept task
 </div>
 
@@ -322,6 +322,23 @@ window.location.href = "login.html";
 
   function goBack() {
 window.location.href = "profile.html";
+}
+
+  function goToWorkerApp() {
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+
+  if (isIOS) {
+    window.location.href = "https://apps.apple.com/";
+    return;
+  }
+
+  if (isAndroid) {
+    window.location.href = "https://play.google.com/store";
+    return;
+  }
+
+  alert("Please download the TaskMint Worker app on a mobile device.");
 }
 
 loadProfile();
