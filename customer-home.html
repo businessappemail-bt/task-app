@@ -123,47 +123,7 @@
   margin-bottom: 8px;
   background: transparent;
 }
-   .mode-toggle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #f5f5f5;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.toggle-switch {
-  width: 42px;
-  height: 24px;
-  background: #ccc;
-  border-radius: 20px;
-  position: relative;
-  transition: 0.3s;
-}
-
-.toggle-circle {
-  width: 20px;
-  height: 20px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  transition: 0.3s;
-}
-
-/* ACTIVE (Worker Mode) */
-.toggle-switch.active {
-  background: #16a34a;
-}
-
-.toggle-switch.active .toggle-circle {
-  left: 20px;
-
-}
+  
   </style>
 </head>
 <body>
@@ -203,15 +163,6 @@
 <button class="btn secondary" onclick="window.location.href='profile.html'">
   Profile
 </button>
-<div class="mode-toggle" onclick="toggleMode()">
-<span id="modeLabel">Worker Dashboard</span>
-<div id="toggleSwitch" class="toggle-switch">
-  <div class="toggle-circle"></div>
-  </div>
-</div>
-    </div>
-
-
 
 
   <script>
