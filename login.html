@@ -92,10 +92,8 @@
       .eq("id", user.id)
       .single();
 
-    if (profile?.account_type === "customer") {
-      window.location.href = "customer-home.html";
-
-  }
+ window.location.href = "customer-home.html";
+    
 });
     async function login() {
       
