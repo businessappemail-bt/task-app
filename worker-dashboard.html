@@ -4,6 +4,8 @@
   <title>Worker Dashboard - TaskMint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     body {
       margin: 0;
@@ -52,6 +54,12 @@
       margin-bottom: 12px;
     }
 
+    .small-text {
+      color: #666;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
     button {
       width: 100%;
       padding: 14px;
@@ -74,40 +82,50 @@
     button.logout {
       background: #b00020;
     }
+
+    .loading {
+      text-align: center;
+      margin-top: 80px;
+      color: #555;
+    }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <div class="container" id="dashboard" style="display:none;">
     <h1>Worker Dashboard</h1>
 
     <div class="card">
       <div class="profile-row">
-        <img class="profile-pic" src="" alt="Profile Picture">
+        <img class="profile-pic" id="profilePic" src="" alt="Profile Picture">
         <div>
-          <strong>Worker Profile</strong>
-<p>Manage the profile customers see before hiring you.</p>
+          <strong id="workerName">Worker Profile</strong>
+          <p class="small-text">Manage the profile customers see before hiring you.</p>
         </div>
       </div>
 
-     <button class="secondary" onclick="window.location.href='worker-profile-edit.html'">
-  Edit Public Worker Profile
-</button>
+      <button class="secondary" onclick="window.location.href='worker-profile-edit.html'">
+        Edit Public Worker Profile
+      </button>
 
-<button class="secondary" onclick="window.location.href='worker-settings.html'">
-  Account Settings
-</button>
+      <button class="secondary" onclick="window.location.href='worker-settings.html'">
+        Account Settings
+      </button>
     </div>
 
     <div class="card">
       <div class="section-title">Main</div>
 
-      <button onclick="window.location.href='worker-open-tasks.html'">
+      <button onclick="window.location.href='worker-open-task.html'">
         View Open Tasks
       </button>
 
-      <button onclick="window.location.href='worker-completed-tasks.html'">
-        View Completed Tasks
+      <button onclick="window.location.href='my-jobs.html'">
+        My Jobs
+      </button>
+
+      <button onclick="window.location.href='message-center.html'">
+        Messages
       </button>
 
       <button onclick="window.location.href='worker-reviews.html'">
@@ -132,11 +150,73 @@
     </div>
   </div>
 
+  <div class="loading" id="loading">Checking worker access...</div>
+
   <script>
-    function logout() {
+    const SUPABASE_URL = "PASTE YOUR SUPABASE URL HERE";
+    const SUPABASE_ANON_KEY = "PASTE YOUR SUPABASE ANON KEY HERE";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function checkWorkerAccess() {
+      const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+
+      if (sessionError || !sessionData.session) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const user = sessionData.session.user;
+
+      const { data: application, error: appError } = await supabaseClient
+        .from("worker_applications")
+        .select("*")
+        .eq("worker_id", user.id)
+        .maybeSingle();
+
+      if (appError) {
+        alert("Error checking worker application.");
+        console.log(appError);
+        return;
+      }
+
+      if (!application) {
+        window.location.href = "worker-application.html";
+        return;
+      }
+
+      if (application.is_approved !== true) {
+        window.location.href = "application-submitted.html";
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from("worker_profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!profileError && profile) {
+        document.getElementById("workerName").innerText = profile.full_name || application.full_name || "Worker Profile";
+
+        if (profile.profile_photo_url) {
+          document.getElementById("profilePic").src = profile.profile_photo_url;
+        }
+      } else {
+        document.getElementById("workerName").innerText = application.full_name || "Worker Profile";
+      }
+
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+    }
+
+    async function logout() {
+      await supabaseClient.auth.signOut();
       localStorage.clear();
       window.location.href = "index.html";
     }
+
+    checkWorkerAccess();
   </script>
 </body>
 </html>
