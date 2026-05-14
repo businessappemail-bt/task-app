@@ -1,4 +1,120 @@
-<div class="header">
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support - TaskMint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding-bottom: 80px;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+    }
+
+    .header {
+      position: relative;
+      text-align: center;
+      padding: 18px;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .back {
+      position: absolute;
+      left: 15px;
+      top: 12px;
+      font-size: 30px;
+      color: green;
+      cursor: pointer;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid #eee;
+      background: white;
+    }
+
+    .faq-question {
+      width: 100%;
+      background: white;
+      border: none;
+      padding: 20px;
+      font-size: 17px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .arrow {
+      font-size: 24px;
+      color: green;
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 20px 20px;
+      font-size: 15px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .faq-answer a {
+      color: green;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .danger {
+      color: #b00020;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav-inner {
+      max-width: 420px;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .nav a.active {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
     <span class="back" onclick="window.location.href='profile.html'">‹</span>
     Support
   </div>
@@ -50,20 +166,3 @@ function toggleFAQ(id) {
 
 </body>
 </html>
-does this code still have the back arrow on it?
-
-Yes.
-
-This part is the back arrow:
-
-<span class="back" onclick="window.location.href='profile.html'">‹</span>
-
-And this CSS styles it:
-
-.back {
-  position: absolute;
-  left: 15px;
-  top: 12px;
-  font-size: 30px;
-  color: green;
-  cursor: pointer;
