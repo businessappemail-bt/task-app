@@ -75,22 +75,29 @@
 
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  const supabaseClient = supabase.createClient(
-    "https://dbcthtjmtlumidpbucrc.supabase.co",
-    "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
-  );
+  const SUPABASE_URL = "https://dbcthtjmtlumidpbucrc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function login() {
-    const email = document.getElementById("email").value;
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
     const status = document.getElementById("status");
 
     status.innerText = "";
 
+    if (!email || !password) {
+      status.innerText = "Enter your email and password.";
+      return;
+    }
+
     const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
+      email: email,
+      password: password
     });
 
     if (error) {
@@ -98,26 +105,14 @@
       return;
     }
 
-    const user = data.user;
-    localStorage.setItem("taskmintUserId", user.id);
-
-    if (document.getElementById("stayLoggedIn").checked) {
-      localStorage.setItem("taskmintEmail", email);
-    } else {
-      localStorage.removeItem("taskmintEmail");
-    }
-
     window.location.href = "customer-home.html";
   }
 
-  window.onload = () => {
-    const savedEmail = localStorage.getItem("taskmintEmail");
+  async function logoutOldSession() {
+    await supabaseClient.auth.signOut();
+  }
 
-    if (savedEmail) {
-      document.getElementById("email").value = savedEmail;
-      document.getElementById("stayLoggedIn").checked = true;
-    }
-  };
+  logoutOldSession();
 </script>
   
 </body>
