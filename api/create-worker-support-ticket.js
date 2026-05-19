@@ -5,6 +5,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const ZOHO_WEBHOOK_URL =
+  "https://flow.zoho.com/924935735/flow/webhook/incoming?zapikey=1001.8b0b1ebd31894b805e61e4a73d8680a2.f9cb646e4ea37c45ca73a6cdc92d3237&isdebug=false";
+
 module.exports = async (req, res) => {
 
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -78,6 +81,25 @@ module.exports = async (req, res) => {
       });
 
     }
+
+    await fetch(ZOHO_WEBHOOK_URL, {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        ticket_id: data.id,
+        worker_id: workerId,
+        worker_email: workerEmail,
+        category: category,
+        subject: subject,
+        message: message,
+        status: "open",
+        created_at: data.created_at
+      })
+    });
 
     return res.status(200).json({
       success: true,
