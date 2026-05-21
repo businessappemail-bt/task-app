@@ -32,13 +32,7 @@ body {
   margin-bottom: 14px;
 }
 
-.back {
-  color: #0b7a28;
-  font-weight: 900;
-  cursor: pointer;
-  font-size: 14px;
-}
-
+.back,
 .refresh {
   color: #0b7a28;
   font-weight: 900;
@@ -132,7 +126,8 @@ body {
   animation: fadeUp 0.45s ease;
 }
 
-.task-top {
+.task-top,
+.worker-summary {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -159,6 +154,16 @@ body {
   font-size: 11px;
   font-weight: 900;
   text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.quote-pill {
+  background: #111;
+  color: white;
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 900;
   white-space: nowrap;
 }
 
@@ -200,7 +205,8 @@ body {
   cursor: pointer;
 }
 
-.details-box {
+.details-box,
+.worker-details {
   display: none;
   margin-top: 12px;
   background: #f7faf8;
@@ -261,8 +267,14 @@ button:hover {
 }
 
 .message-btn,
-.primary-btn {
+.primary-btn,
+.accept-btn {
   background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.public-profile-btn {
+  background: #111;
   color: white;
 }
 
@@ -273,6 +285,7 @@ button:hover {
 }
 
 .cancel-btn,
+.decline-btn,
 .dispute-btn {
   background: #b00020;
   color: white;
@@ -334,32 +347,50 @@ button:hover {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .worker-avatar {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   border-radius: 18px;
   object-fit: cover;
   background: #ddd;
+  flex-shrink: 0;
 }
 
-.worker-card h3 {
-  margin: 0 0 4px;
-  font-size: 16px;
+.worker-name {
+  font-size: 15px;
+  font-weight: 900;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.worker-rating {
+  font-size: 13px;
+  color: #555;
+  font-weight: 800;
+}
+
+.worker-card {
+  cursor: pointer;
 }
 
 .worker-card p {
   font-size: 13px;
   color: #444;
   line-height: 1.4;
+  margin: 8px 0;
 }
 
 .review {
-  background: #f7faf8;
+  background: white;
   padding: 8px;
   border-radius: 12px;
   margin-top: 6px;
+  border: 1px solid #e3eee6;
 }
 
 .hidden {
@@ -410,7 +441,7 @@ button:hover {
 
   <div class="hero">
     <h1>Open Tasks</h1>
-    <p>Track active tasks, review worker interest, and manage edits or cancellations.</p>
+    <p>Review worker quotes, accept the right worker, or decline offers that do not fit.</p>
   </div>
 
   <div class="summary-row">
@@ -475,6 +506,33 @@ function formatStatus(status) {
   }
 
   return String(status).replaceAll("_", " ");
+}
+
+function formatMoney(value) {
+  if (value === null || value === undefined || value === "") {
+    return "No quote";
+  }
+
+  const numberValue = Number(value);
+
+  if (isNaN(numberValue)) {
+    return String(value);
+  }
+
+  return "$" + numberValue.toFixed(2);
+}
+
+function getQuoteAmount(app) {
+  return (
+    app.quote_amount ??
+    app.amount ??
+    app.price ??
+    app.quote_price ??
+    app.offer_amount ??
+    app.total_amount ??
+    app.quote ??
+    ""
+  );
 }
 
 function getStatusStep(status) {
@@ -733,6 +791,18 @@ function toggleDetails(detailsId) {
     box.style.display === "block" ? "none" : "block";
 }
 
+function toggleWorkerDetails(detailsId) {
+  const box =
+    document.getElementById(detailsId);
+
+  if (!box) {
+    return;
+  }
+
+  box.style.display =
+    box.style.display === "block" ? "none" : "block";
+}
+
 async function toggleApplicants(taskId) {
   const box =
     document.getElementById(`applicants-${taskId}`);
@@ -775,12 +845,22 @@ async function toggleApplicants(taskId) {
       app.user_id ||
       app.worker_user_id;
 
-    const { data: worker } =
+    const { data: workerProfile } =
       await supabaseClient
         .from("worker_profiles")
         .select("*")
         .eq("id", workerId)
         .maybeSingle();
+
+    const { data: profile } =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", workerId)
+        .maybeSingle();
+
+    const worker =
+      Object.assign({}, profile || {}, workerProfile || {});
 
     const { data: reviews } =
       await supabaseClient
@@ -799,60 +879,111 @@ async function toggleApplicants(taskId) {
         (total / reviews.length).toFixed(1);
     }
 
+    const quoteAmount =
+      getQuoteAmount(app);
+
+    const quoteStatus =
+      app.status || "pending";
+
+    const workerName =
+      worker.full_name ||
+      worker.display_name ||
+      `${worker.first_name || ""} ${worker.last_name || ""}`.trim() ||
+      "Worker";
+
+    const workerPhoto =
+      worker.profile_photo_url ||
+      worker.photo_url ||
+      worker.avatar_url ||
+      worker.image_url ||
+      "taskmintlogo.png";
+
     const workerCard =
       document.createElement("div");
+
+    const workerDetailsId =
+      `worker-details-${taskId}-${workerId}`;
 
     workerCard.className =
       "worker-card";
 
     workerCard.innerHTML = `
-      <div class="worker-header">
-        <img
-          src="${escapeHTML(worker?.profile_photo_url || worker?.avatar_url || "https://via.placeholder.com/50")}"
-          class="worker-avatar"
-        >
+      <div class="worker-summary" onclick="event.stopPropagation(); toggleWorkerDetails('${workerDetailsId}')">
+        <div class="worker-header">
+          <img
+            src="${escapeHTML(workerPhoto)}"
+            class="worker-avatar"
+            onerror="this.src='taskmintlogo.png'"
+          >
 
-        <div>
-          <h3>${escapeHTML(worker?.full_name || worker?.display_name || "Worker")}</h3>
-          <p>⭐ ${escapeHTML(rating)}</p>
+          <div>
+            <div class="worker-name">
+              ${escapeHTML(workerName)}
+            </div>
+
+            <div class="worker-rating">
+              ⭐ ${escapeHTML(rating)}
+            </div>
+          </div>
+        </div>
+
+        <div class="quote-pill">
+          ${escapeHTML(formatMoney(quoteAmount))}
         </div>
       </div>
 
-      <p><span class="label">Bio:</span> ${escapeHTML(worker?.bio || worker?.experience || "No bio added yet.")}</p>
-      <p><span class="label">Jobs Completed:</span> ${escapeHTML(worker?.total_jobs || 0)}</p>
-      <p><span class="label">Reviews:</span> ${reviews ? reviews.length : 0}</p>
-      <p><span class="label">Message:</span> ${escapeHTML(app.message || "No message provided.")}</p>
+      <div class="worker-details" id="${workerDetailsId}">
+        <p><strong>Quote Status:</strong> ${escapeHTML(quoteStatus)}</p>
+        <p><strong>Jobs Completed:</strong> ${escapeHTML(worker.total_jobs || 0)}</p>
+        <p><strong>Reviews:</strong> ${reviews ? reviews.length : 0}</p>
+        <p><strong>Worker Message:</strong> ${escapeHTML(app.message || "No message provided.")}</p>
 
-      <button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}')">
-        Message Worker
-      </button>
+        <button class="public-profile-btn" onclick="event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
+          View Worker Public Profile
+        </button>
 
-      <div class="reviews hidden" id="reviews-${workerId}">
-        ${
-          reviews && reviews.length
-            ? reviews.map(r => `
-              <div class="review">
-                <p>⭐ ${escapeHTML(r.rating || "")}</p>
-                <p>${escapeHTML(r.comment || "No comment")}</p>
-              </div>
-            `).join("")
-            : "<p>No reviews yet.</p>"
-        }
+        <button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}')">
+          Message Worker
+        </button>
+
+        <div class="action-row">
+          <button class="accept-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}')">
+            Accept Quote
+          </button>
+
+          <button class="decline-btn" onclick="event.stopPropagation(); declineQuote('${app.id || ""}')">
+            Decline Quote
+          </button>
+        </div>
+
+        <div class="reviews hidden" id="reviews-${workerId}">
+          ${
+            reviews && reviews.length
+              ? reviews.map(r => `
+                <div class="review">
+                  <p>⭐ ${escapeHTML(r.rating || "")}</p>
+                  <p>${escapeHTML(r.comment || "No comment")}</p>
+                </div>
+              `).join("")
+              : "<p>No reviews yet.</p>"
+          }
+        </div>
+
+        <div class="details-toggle" onclick="event.stopPropagation(); toggleDetails('reviews-${workerId}')">
+          View reviews
+        </div>
       </div>
     `;
 
-    workerCard.onclick =
-      function () {
-        const reviewBox =
-          document.getElementById(`reviews-${workerId}`);
-
-        if (reviewBox) {
-          reviewBox.classList.toggle("hidden");
-        }
-      };
-
     box.appendChild(workerCard);
   }
+}
+
+function viewWorkerPublicProfile(workerId) {
+  localStorage.setItem("selectedWorkerId", workerId);
+  localStorage.setItem("selectedWorkerProfileId", workerId);
+  window.location.href =
+    `worker-public-profile.html?workerId=${encodeURIComponent(workerId)}`;
 }
 
 function messageWorker(workerId, taskId) {
@@ -868,6 +999,89 @@ function openDispute(taskId, workerId) {
 function editTask(taskId) {
   window.location.href =
     `edit-task.html?task_id=${taskId}`;
+}
+
+async function acceptQuote(taskId, workerId, quoteId) {
+  const confirmAccept =
+    confirm("Accept this worker's quote? This will assign the worker to the task.");
+
+  if (!confirmAccept) {
+    return;
+  }
+
+  const status =
+    document.getElementById("status");
+
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  const { error: taskError } =
+    await supabaseClient
+      .from("tasks")
+      .update({
+        status: "accepted",
+        assigned_worker_id: workerId
+      })
+      .eq("id", taskId);
+
+  if (taskError) {
+    status.innerText = taskError.message;
+    return;
+  }
+
+  if (quoteId) {
+    await supabaseClient
+      .from("worker_quotes")
+      .update({ status: "accepted" })
+      .eq("id", quoteId);
+
+    await supabaseClient
+      .from("worker_quotes")
+      .update({ status: "declined" })
+      .eq("task_id", taskId)
+      .neq("id", quoteId);
+  }
+
+  status.style.color = "#0b7a28";
+  status.innerText = "Quote accepted.";
+
+  await loadOpenTasks();
+}
+
+async function declineQuote(quoteId) {
+  if (!quoteId) {
+    alert("This quote could not be found.");
+    return;
+  }
+
+  const confirmDecline =
+    confirm("Decline this quote?");
+
+  if (!confirmDecline) {
+    return;
+  }
+
+  const status =
+    document.getElementById("status");
+
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  const { error } =
+    await supabaseClient
+      .from("worker_quotes")
+      .update({ status: "declined" })
+      .eq("id", quoteId);
+
+  if (error) {
+    status.innerText = error.message;
+    return;
+  }
+
+  status.style.color = "#0b7a28";
+  status.innerText = "Quote declined.";
+
+  await loadOpenTasks();
 }
 
 async function cancelTask(taskId) {
