@@ -783,15 +783,15 @@ async function loadOpenTasks() {
         </button>
       </div>
 
-      ${task.status === "in_progress" || task.status === "completed" || task.status === "paid" ? `
-  <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${assignedWorkerId}')">
-    Open Dispute
-  </button>
-` : `
-  <button class="dispute-btn" disabled onclick="event.stopPropagation();">
-    Disputes unlock once work begins
-  </button>
-`}
+      ${assignedWorkerId ? `
+        <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${assignedWorkerId}')">
+          Open Dispute
+        </button>
+      ` : `
+        <button class="dispute-btn" disabled onclick="event.stopPropagation();">
+          Dispute available after worker is assigned
+        </button>
+      `}
 
       <button class="primary-btn" onclick="event.stopPropagation(); toggleApplicants('${task.id}')">
         View Interested Workers
@@ -1020,18 +1020,52 @@ function editTask(taskId) {
   window.location.href =
     `edit-task.html?task_id=${taskId}`;
 }
-function acceptQuote(taskId, workerId, quoteId) {
+
+async function acceptQuote(taskId, workerId, quoteId) {
   const confirmAccept =
-    confirm(
-      "Continue to payment and assign this worker if payment succeeds?"
-    );
+    confirm("Accept this worker's quote? This will assign the worker to the task.");
 
   if (!confirmAccept) {
     return;
   }
 
-  window.location.href =
-    `customer-pay-quote.html?task_id=${taskId}&worker_id=${workerId}&quote_id=${quoteId}`;
+  const status =
+    document.getElementById("status");
+
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  const { error: taskError } =
+    await supabaseClient
+      .from("tasks")
+      .update({
+        status: "accepted",
+        assigned_worker_id: workerId
+      })
+      .eq("id", taskId);
+
+  if (taskError) {
+    status.innerText = taskError.message;
+    return;
+  }
+
+  if (quoteId) {
+    await supabaseClient
+      .from("worker_quotes")
+      .update({ status: "accepted" })
+      .eq("id", quoteId);
+
+    await supabaseClient
+      .from("worker_quotes")
+      .update({ status: "declined" })
+      .eq("task_id", taskId)
+      .neq("id", quoteId);
+  }
+
+  status.style.color = "#0b7a28";
+  status.innerText = "Quote accepted.";
+
+  await loadOpenTasks();
 }
 
 async function declineQuote(quoteId, taskId) {
