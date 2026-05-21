@@ -560,7 +560,8 @@ async function login() {
     await supabaseClient.auth.signOut();
 
     status.innerText =
-      "Please use the worker login.";
+      status.innerText =
+  "Please use your customer login or create a customer account.";
 
     loginButton.disabled = false;
     loginButton.innerText = "Log In";
