@@ -142,6 +142,29 @@ button:hover {
   box-shadow: 0 6px 16px rgba(0,0,0,0.10);
 }
 
+.cancel-btn {
+  background: #b00020;
+  color: white;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.code-note {
+  background: #fff8e6;
+  border: 1px solid #ffe0a3;
+  color: #6f4b00;
+  border-radius: 16px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
 .secondary {
   background: white;
   color: #111;
@@ -399,6 +422,25 @@ gmp-place-autocomplete::part(input) {
       </div>
     </div>
 
+    <div id="dateStep" class="hidden">
+      <h3>When do you need this done?</h3>
+      <p class="subtext">Select a date or choose flexible if you are open to worker availability.</p>
+
+      <input id="dateNeeded" type="date">
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="dateFlexible">
+        My date is flexible
+      </label>
+
+      <div class="help-box">
+        Flexible dates may help you receive more quotes from workers.
+      </div>
+
+      <button onclick="saveDateNeeded()">Next</button>
+      <button class="secondary" onclick="goBack()">Back</button>
+    </div>
+
     <div id="pickupAddressStep" class="hidden">
       <h3>Task Address</h3>
       <p class="subtext">Start typing and select the address from Google. The city, state, and zip will fill in automatically.</p>
@@ -445,6 +487,12 @@ gmp-place-autocomplete::part(input) {
       <div id="reviewBox" class="review-box"></div>
 
       <button onclick="submitTask()">Post Task</button>
+
+      <div class="action-row">
+        <button class="secondary" onclick="editTaskDetails()">Edit Task</button>
+        <button class="cancel-btn" onclick="cancelTask()">Cancel</button>
+      </div>
+
       <button class="secondary" onclick="goBack()">Back</button>
     </div>
 
@@ -689,6 +737,7 @@ function hideAllSteps() {
   [
     "categoryStep",
     "questionStep",
+    "dateStep",
     "pickupAddressStep",
     "dropoffAddressStep",
     "reviewStep"
@@ -824,8 +873,55 @@ function saveAnswer() {
     questionIndex++;
     showQuestion();
   } else {
-    showPickupAddress();
+    showDateNeeded();
   }
+}
+
+function showDateNeeded() {
+  hideAllSteps();
+
+  document.getElementById("pageTitle").innerText =
+    "Date Needed";
+
+  document.getElementById("pageSubtext").innerText =
+    "Tell workers when you need the task completed.";
+
+  setStepPill("Date");
+
+  const dateInput = document.getElementById("dateNeeded");
+
+  if (dateInput && !dateInput.min) {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.min = today;
+  }
+
+  document
+    .getElementById("dateStep")
+    .classList
+    .remove("hidden");
+}
+
+function saveDateNeeded() {
+  const dateNeeded =
+    document.getElementById("dateNeeded").value;
+
+  const flexible =
+    document.getElementById("dateFlexible").checked;
+
+  if (!dateNeeded && !flexible) {
+    document.getElementById("status").innerText =
+      "Select a date or choose flexible.";
+    return;
+  }
+
+  answers.date_needed =
+    flexible ? "Flexible" : dateNeeded;
+
+  answers.date_flexible =
+    flexible ? "Yes" : "No";
+
+  document.getElementById("status").innerText = "";
+  showPickupAddress();
 }
 
 function showPickupAddress() {
@@ -955,8 +1051,16 @@ function showReview() {
 
   setStepPill("Review");
 
+  const previewArrivalCode = generateArrivalCode();
+
   let html = `
+    <div class="code-note">
+      Arrival Code: ${previewArrivalCode}<br>
+      Only give this code to the worker after they have arrived for the job.
+    </div>
     <p><strong>Category:</strong> ${selectedCategory}</p>
+    <p><strong>Date Needed:</strong> ${answers.date_needed || "Not listed"}</p>
+    <p><strong>Flexible Date:</strong> ${answers.date_flexible || "No"}</p>
     <p><strong>Task Address:</strong> ${pickupAddress.address}</p>
     <p><strong>Unit:</strong> ${pickupAddress.unit || "N/A"}</p>
     <p><strong>City:</strong> ${pickupAddress.city}</p>
@@ -978,6 +1082,10 @@ function showReview() {
   html += `<hr>`;
 
   Object.keys(answers).forEach(key => {
+    if (key === "date_needed" || key === "date_flexible") {
+      return;
+    }
+
     html += `<p><strong>${formatLabel(key)}:</strong> ${answers[key]}</p>`;
   });
 
@@ -1038,6 +1146,46 @@ function getPriceGuidance() {
   return "Quote tip: add clear details so workers can send accurate offers.";
 }
 
+function generateArrivalCode() {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+function calculateDistanceMiles(lat1, lng1, lat2, lng2) {
+  if (!lat1 || !lng1 || !lat2 || !lng2) {
+    return null;
+  }
+
+  const earthRadiusMiles = 3958.8;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
+
+  const c =
+    2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Number((earthRadiusMiles * c).toFixed(2));
+}
+
+function editTaskDetails() {
+  questionIndex = 0;
+  showQuestion();
+}
+
+function cancelTask() {
+  const confirmCancel =
+    confirm("Cancel this task post and return home?");
+
+  if (confirmCancel) {
+    window.location.href = "customer-home.html";
+  }
+}
+
 function formatLabel(key) {
   return key
     .replaceAll("_", " ")
@@ -1046,9 +1194,13 @@ function formatLabel(key) {
 
 function buildDescription() {
   let description =
-    `Category: ${selectedCategory}\n\n`;
+    `Category: ${selectedCategory}\nDate Needed: ${answers.date_needed || "Not listed"}\nFlexible Date: ${answers.date_flexible || "No"}\n\n`;
 
   Object.keys(answers).forEach(key => {
+    if (key === "date_needed" || key === "date_flexible") {
+      return;
+    }
+
     description += `${formatLabel(key)}: ${answers[key]}\n`;
   });
 
@@ -1127,6 +1279,11 @@ async function submitTask() {
           category: selectedCategory,
           description: buildDescription(),
           task_details: answers,
+          arrival_code: generateArrivalCode(),
+          task_date: answers.date_needed === "Flexible" ? null : answers.date_needed,
+          date_needed: answers.date_needed || null,
+          date_flexible: answers.date_flexible === "Yes",
+          distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),
           location_address: pickupAddress.address,
           unit: pickupAddress.unit || null,
           city: pickupAddress.city,
@@ -1154,7 +1311,7 @@ async function submitTask() {
 
   status.style.color = "#0b7a28";
   status.innerText =
-    "Task posted. Workers can now send quotes.";
+    "Task posted. Workers can now send quotes. Only give the arrival code to the worker after they arrive.";
 
   setTimeout(() => {
     window.location.href = "view-open-task.html";
@@ -1193,6 +1350,16 @@ function goBack() {
   if (
     !document
       .getElementById("pickupAddressStep")
+      .classList
+      .contains("hidden")
+  ) {
+    showDateNeeded();
+    return;
+  }
+
+  if (
+    !document
+      .getElementById("dateStep")
       .classList
       .contains("hidden")
   ) {
