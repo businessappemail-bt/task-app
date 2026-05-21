@@ -620,7 +620,7 @@ function getTaskDetails(task) {
 
         return `${label}: ${task.task_details[key]}`;
       })
-      .join("\\n");
+      .join("\n")
   }
 
   return task.description || "No details listed.";
