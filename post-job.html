@@ -1275,11 +1275,15 @@ async function submitTask() {
   postButton.disabled = true;
   postButton.innerText = "Posting Task...";
 
-  const { error } =
+  let error;
+
+if (editTaskId) {
+
+  const updateResult =
     await supabaseClient
       .from("tasks")
-      .insert([
-        {
+      .update({
+        
           customer_id: profile.id,
           title: selectedCategory,
           category: selectedCategory,
@@ -1305,8 +1309,49 @@ async function submitTask() {
           dropoff_lat: dropoffLat,
           dropoff_lng: dropoffLng,
           status: "open"
+             })
+      .eq("id", editTaskId)
+      .eq("customer_id", profile.id);
+
+  error = updateResult.error;
+
+} else {
+
+  const insertResult =
+    await supabaseClient
+      .from("tasks")
+      .insert([
+        {
+
+               customer_id: profile.id,
+          title: selectedCategory,
+          category: selectedCategory,
+          description: buildDescription(),
+          task_details: answers,
+          arrival_code: generateArrivalCode(),
+
+          task_date:
+            answers.date_needed === "Flexible"
+              ? null
+              : answers.date_needed,
+
+          flexible_date:
+            answers.date_needed === "Flexible",
+
+          distance_miles: distanceMiles,
+
+          location:
+            answers.city && answers.state
+              ? `${answers.city}, ${answers.state}`
+              : "",
+
+          city: answers.city || "",
+          state: answers.state || "",
+          zipcode: answers.zipcode || "",
+
+            status: "open"
         }
-      ]);
+      ]);  
 
   if (error) {
     status.innerText = error.message;
@@ -1317,7 +1362,9 @@ async function submitTask() {
 
   status.style.color = "#0b7a28";
   status.innerText =
-    "Task posted. Workers can now send quotes. Only give the arrival code to the worker after they arrive.";
+  editTaskId
+    ? "Task updated successfully."
+    : "Task posted. Workers can now send quotes. Only give the arrival code to the worker once they arrive.";
 
   setTimeout(() => {
     window.location.href = "view-open-task.html";
