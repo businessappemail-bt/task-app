@@ -1,53 +1,278 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sign Up - TaskMint</title>
+  <title>Create Account - TaskMint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial;
-      background: #f5f5f5;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(11,122,40,0.18), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(25,182,76,0.18), transparent 36%),
+        #f5f7f5;
+      color: #111;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .container {
-      max-width: 400px;
-      margin: 40px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
+    .page {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 18px;
+      position: relative;
     }
 
-    h2 {
+    .top-visual {
+      background: #111;
+      color: white;
+      border-radius: 28px;
+      padding: 22px;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 32px rgba(0,0,0,0.18);
+      animation: slideDown 0.55s ease;
+    }
+
+    .top-visual::before {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: #19b64c;
+      right: -65px;
+      top: -55px;
+      opacity: 0.45;
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    .top-visual::after {
+      content: "";
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.08);
+      left: -25px;
+      bottom: -25px;
+      transform: rotate(20deg);
+      animation: tiltBox 5s ease-in-out infinite;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-title {
+      font-size: 29px;
+      line-height: 1.08;
+      font-weight: 900;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.88);
+      position: relative;
+      z-index: 2;
+    }
+
+    .mini-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .mini-step {
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 16px;
+      padding: 10px 8px;
       text-align: center;
-      margin-bottom: 20px;
+      animation: popIn 0.7s ease both;
     }
 
-    input, select, button {
+    .mini-step:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .mini-step:nth-child(3) {
+      animation-delay: 0.24s;
+    }
+
+    .mini-icon {
+      font-size: 23px;
+      margin-bottom: 5px;
+    }
+
+    .mini-text {
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+      border: 1px solid #e9eee9;
+      animation: fadeUp 0.65s ease;
+    }
+
+    .form-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .form-sub {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 900;
+      color: #0b7a28;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 16px 0 2px;
+    }
+
+    .two-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    input,
+    select {
       width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      padding: 13px;
+      margin-top: 10px;
+      border-radius: 15px;
+      border: 1px solid #dfe5e0;
       box-sizing: border-box;
-      font-size: 16px;
+      font-size: 15px;
+      outline: none;
+      background: #fbfbfb;
+      transition: 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #0b7a28;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+    }
+
+    .phone-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
     button {
-      background: green;
-      color: white;
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 16px;
       border: none;
+      font-size: 15px;
+      font-weight: 900;
       cursor: pointer;
+      transition: 0.2s;
     }
 
-    .link {
-      text-align: center;
-      margin-top: 16px;
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.10);
     }
 
-    .link a {
-      color: green;
+    .secondary-btn {
+      background: white;
+      color: #111;
+      border: 1px solid #dfe5e0;
+      font-size: 13px;
+      padding: 12px;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #0b7a28, #19b64c);
+      color: white;
+      box-shadow: 0 12px 22px rgba(11,122,40,0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .primary-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.18);
+      transform: skewX(-25deg);
+      transition: 0.45s;
+    }
+
+    .primary-btn:hover::before {
+      left: 120%;
+    }
+
+    .terms-row {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      align-items: center;
+      column-gap: 8px;
+      margin: 14px 0 4px;
+      font-size: 13px;
+      text-align: left;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .terms-row input {
+      margin: 0;
+      width: 17px;
+      height: 17px;
+      accent-color: #0b7a28;
+    }
+
+    .terms-row a {
+      color: #0b7a28;
+      font-weight: 800;
       text-decoration: none;
     }
 
@@ -55,159 +280,457 @@
       margin-top: 14px;
       text-align: center;
       color: #333;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.4;
+      min-height: 18px;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    .link a {
+      color: #0b7a28;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes breathe {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.12);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes tiltBox {
+      0% {
+        transform: rotate(20deg) translateY(0);
+      }
+
+      50% {
+        transform: rotate(28deg) translateY(-8px);
+      }
+
+      100% {
+        transform: rotate(20deg) translateY(0);
+      }
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <h2>Create Account</h2>
 
-<input id="firstName" type="text" placeholder="First Name" />
-<input id="lastName" type="text" placeholder="Last Name" />
-<input id="email" type="email" placeholder="Email" />
-<input id="password" type="password" placeholder="Password" />
-<input id="streetAddress" type="text" placeholder="Street Address" />
-<input id="city" type="text" placeholder="City" />
-<input id="state" type="text" placeholder="State" />
-<input id="zipcode" type="text" placeholder="Zip code" />
-    <input id="phone" type="text" placeholder="Phone Number" /> 
-     <input id="phoneCode" type="text" placeholder="Enter verification code" />
-    <button type="button" onclick="sendPhoneCode()">Send Code</button>
-    <button type="button" onclick="verifyPhoneCode()">Verify Code</button>
+<div class="page">
 
+  <div class="top-visual">
+    <div class="badge">
+      TaskMint
+    </div>
 
-    <select id="role">
-      <option value="customer">Customer</option>
-      <option value="worker">Worker</option>
-    </select>
+    <div class="hero-title">
+      Create your account in minutes.
+    </div>
 
-<div style="display:grid; grid-template-columns:24px 1fr; align-items:center; column-gap:8px; margin:12px 0; font-size:14px; text-align:left;">
-  <input type="checkbox" id="termsCheck" style="margin:0; width:16px; height:16px;">
-  <span style="line-height:1.4;">
-    I agree to the <a href="terms.html" target="_blank">Terms</a> and
-    <a href="privacy.html" target="_blank">Privacy Policy</a>
-  </span>
-</div>
-    
-   <button id="signupBtn">Create Account</button>
+    <div class="hero-sub">
+      Post tasks, get quotes, message workers, and manage your jobs from one simple dashboard.
+    </div>
 
-    <p id="status"></p>
+    <div class="mini-steps">
+      <div class="mini-step">
+        <div class="mini-icon">📝</div>
+        <div class="mini-text">Post Tasks</div>
+      </div>
 
-    <div class="link">
-      <a href="index.html">Back to Home</a>
+      <div class="mini-step">
+        <div class="mini-icon">💬</div>
+        <div class="mini-text">Compare Quotes</div>
+      </div>
+
+      <div class="mini-step">
+        <div class="mini-icon">✅</div>
+        <div class="mini-text">Get Help</div>
+      </div>
     </div>
   </div>
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <div class="form-card">
+    <div class="form-title">
+      Create Account
+    </div>
+
+    <div class="form-sub">
+      Set up your TaskMint profile so workers can send accurate quotes.
+    </div>
+
+    <div class="section-label">
+      Personal Info
+    </div>
+
+    <div class="two-grid">
+      <input id="firstName" type="text" placeholder="First Name">
+      <input id="lastName" type="text" placeholder="Last Name">
+    </div>
+
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+
+    <div class="section-label">
+      Address
+    </div>
+
+    <input id="streetAddress" type="text" placeholder="Street Address">
+
+    <div class="two-grid">
+      <input id="city" type="text" placeholder="City">
+      <input id="state" type="text" placeholder="State">
+    </div>
+
+    <input id="zipcode" type="text" placeholder="Zip Code">
+
+    <div class="section-label">
+      Phone Verification
+    </div>
+
+    <input id="phone" type="text" placeholder="Phone Number">
+    <input id="phoneCode" type="text" placeholder="Enter Verification Code">
+
+    <div class="phone-actions">
+      <button type="button" class="secondary-btn" onclick="sendPhoneCode()">
+        Send Code
+      </button>
+
+      <button type="button" class="secondary-btn" onclick="verifyPhoneCode()">
+        Verify Code
+      </button>
+    </div>
+
+    <select id="role" style="display:none;">
+      <option value="customer" selected>Customer</option>
+    </select>
+
+    <div class="terms-row">
+      <input type="checkbox" id="termsCheck">
+
+      <span>
+        I agree to the
+        <a href="terms.html" target="_blank">Terms</a>
+        and
+        <a href="privacy.html" target="_blank">Privacy Policy</a>
+      </span>
+    </div>
+
+    <button id="signupBtn" class="primary-btn">
+      Create Account
+    </button>
+
+    <p id="status"></p>
+  </div>
+
+  <div class="link">
+    <a href="login.html">Back to Login</a>
+  </div>
+
+</div>
+
 <script>
-  const supabaseClient = window.supabase.createClient(
+const supabaseClient =
+  window.supabase.createClient(
     "https://dbcthtjmtlumidpbucrc.supabase.co",
     "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
   );
 
 document.getElementById("signupBtn").addEventListener("click", async () => {
 
-const termsCheck = document.getElementById("termsCheck");
+  const status =
+    document.getElementById("status");
 
-if (!termsCheck.checked) {
-  document.getElementById("status").innerText = "You must accept the terms.";
-  return;
-}
-  
-  const firstName = document.getElementById("firstName").value;
-  const lastName = document.getElementById("lastName").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const phone = document.getElementById("phone").value;
-  const streetAddress = document.getElementById("streetAddress").value;
-  const city = document.getElementById("city").value;
-  const state = document.getElementById("state").value;
-  const zipcode = document.getElementById("zipcode").value;
-const accountType = document.getElementById("role").value;
-  
-  const status = document.getElementById("status");
+  const signupBtn =
+    document.getElementById("signupBtn");
 
-  // Step 1: Create auth user
-const { data, error } = await supabaseClient.auth.signUp({
-  email,
-  password
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  const termsCheck =
+    document.getElementById("termsCheck");
+
+  if (!termsCheck.checked) {
+    status.innerText =
+      "You must accept the terms.";
+    return;
+  }
+
+  const firstName =
+    document.getElementById("firstName").value.trim();
+
+  const lastName =
+    document.getElementById("lastName").value.trim();
+
+  const email =
+    document.getElementById("email").value.trim().toLowerCase();
+
+  const password =
+    document.getElementById("password").value;
+
+  const phone =
+    document.getElementById("phone").value.trim();
+
+  const streetAddress =
+    document.getElementById("streetAddress").value.trim();
+
+  const city =
+    document.getElementById("city").value.trim();
+
+  const state =
+    document.getElementById("state").value.trim();
+
+  const zipcode =
+    document.getElementById("zipcode").value.trim();
+
+  const accountType =
+    "customer";
+
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !password ||
+    !streetAddress ||
+    !city ||
+    !state ||
+    !zipcode ||
+    !phone
+  ) {
+    status.innerText =
+      "Complete all required fields.";
+    return;
+  }
+
+  signupBtn.disabled = true;
+  signupBtn.innerText = "Creating Account...";
+
+  const { data: existingProfile, error: existingError } =
+    await supabaseClient
+      .from("profiles")
+      .select("id, account_type")
+      .eq("email", email)
+      .maybeSingle();
+
+  if (existingError) {
+    status.innerText = existingError.message;
+    signupBtn.disabled = false;
+    signupBtn.innerText = "Create Account";
+    return;
+  }
+
+  if (
+    existingProfile &&
+    existingProfile.account_type &&
+    existingProfile.account_type !== "customer"
+  ) {
+    status.innerText =
+      "This email is already connected to a worker account. Use a different email for a customer account.";
+
+    signupBtn.disabled = false;
+    signupBtn.innerText = "Create Account";
+
+    return;
+  }
+
+  if (existingProfile) {
+    status.innerText =
+      "An account with this email already exists. Log in instead.";
+
+    signupBtn.disabled = false;
+    signupBtn.innerText = "Create Account";
+
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient.auth.signUp({
+      email,
+      password
+    });
+
+  if (error) {
+    status.innerText = error.message;
+
+    signupBtn.disabled = false;
+    signupBtn.innerText = "Create Account";
+
+    return;
+  }
+
+  const user =
+    data.user || data.session?.user;
+
+  if (!user) {
+    status.innerText =
+      "User not returned.";
+
+    signupBtn.disabled = false;
+    signupBtn.innerText = "Create Account";
+
+    return;
+  }
+
+  const { error: profileError } =
+    await supabaseClient
+      .from("profiles")
+      .insert([
+        {
+          id: user.id,
+          first_name: firstName,
+          last_name: lastName,
+          full_name: firstName + " " + lastName,
+          email: email,
+          phone: phone,
+          street_address: streetAddress,
+          address: streetAddress,
+          city: city,
+          state: state,
+          zipcode: zipcode,
+          zip_code: zipcode,
+          account_type: accountType,
+          terms_accepted: true,
+          privacy_policy_accepted: true,
+          terms_accepted_at: new Date().toISOString()
+        }
+      ]);
+
+  if (profileError) {
+    status.innerText =
+      profileError.message;
+
+    signupBtn.disabled = false;
+    signupBtn.innerText = "Create Account";
+
+    return;
+  }
+
+  status.style.color = "#0b7a28";
+  status.innerText =
+    "Account created successfully.";
+
+  setTimeout(() => {
+    window.location.href = "login.html";
+  }, 1200);
+
 });
+
+async function sendPhoneCode() {
+  const phone =
+    document.getElementById("phone").value.trim();
+
+  const status =
+    document.getElementById("status");
+
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  if (!phone) {
+    status.innerText =
+      "Enter your phone number first.";
+    return;
+  }
+
+  const { error } =
+    await supabaseClient.auth.signInWithOtp({
+      phone: phone
+    });
 
   if (error) {
     status.innerText = error.message;
     return;
   }
 
-const user = data.user || data.session?.user;
-  
-  if (!user) {
-    status.innerText = "User not returned";
-    return;
-  }
-
-  // Step 2: Save profile data
-  const { error: profileError } = await supabaseClient.from("profiles").insert([
-    {
-      id: user.id,
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-      phone: phone,
-      street_address: streetAddress,
-      city: city,
-      state: state,
-      zipcode: zipcode,
-      account_type: accountType
-    }
-  ]);
-
-   console.log("PROFILE ERROR:", profileError);
-
-  if (profileError) {
-    status.innerText = profileError.message;
-    return;
-  }
-
- status.innerText = "Account created successfully";
-
-setTimeout(() => {
-  window.location.href = "login.html";
-}, 1500);
-  
-});
-  async function sendPhoneCode() {
-  const phone = document.getElementById("phone").value;
-
-  const { error } = await supabaseClient.auth.signInWithOtp({
-    phone: phone
-  });
-
-  if (error) {
-    document.getElementById("status").innerText = error.message;
-    return;
-  }
-
-  document.getElementById("status").innerText = "Code sent.";
+  status.style.color = "#0b7a28";
+  status.innerText = "Code sent.";
 }
 
 async function verifyPhoneCode() {
-  const phone = document.getElementById("phone").value;
-  const code = document.getElementById("phoneCode").value;
+  const phone =
+    document.getElementById("phone").value.trim();
 
-  const { error } = await supabaseClient.auth.verifyOtp({
-    phone: phone,
-    token: code,
-    type: "sms"
-  });
+  const code =
+    document.getElementById("phoneCode").value.trim();
 
-  if (error) {
-    document.getElementById("status").innerText = error.message;
+  const status =
+    document.getElementById("status");
+
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  if (!phone || !code) {
+    status.innerText =
+      "Enter your phone number and verification code.";
     return;
   }
 
-  document.getElementById("status").innerText = "Phone verified.";
+  const { error } =
+    await supabaseClient.auth.verifyOtp({
+      phone: phone,
+      token: code,
+      type: "sms"
+    });
+
+  if (error) {
+    status.innerText = error.message;
+    return;
+  }
+
+  status.style.color = "#0b7a28";
+  status.innerText = "Phone verified.";
+
   window.phoneVerified = true;
 }
 </script>
+
 </body>
 </html>
