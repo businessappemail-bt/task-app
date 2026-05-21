@@ -1,1 +1,735 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Pay Quote - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 40px;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.secure-pill {
+  background: white;
+  border: 1px solid #e3eee6;
+  color: #0b7a28;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border: 1px solid #edf1ee;
+  animation: fadeUp 0.55s ease;
+  margin-bottom: 14px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.info-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  padding: 11px;
+}
+
+.info-label {
+  color: #0b7a28;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 5px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.amount-box {
+  background: #111;
+  color: white;
+  border-radius: 20px;
+  padding: 18px;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.amount-label {
+  font-size: 12px;
+  opacity: 0.78;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 900;
+}
+
+.amount-value {
+  font-size: 34px;
+  font-weight: 900;
+  margin-top: 5px;
+}
+
+.notice {
+  background: #fff8e6;
+  border: 1px solid #ffe0a3;
+  color: #6f4b00;
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.payment-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  margin-top: 10px;
+  border: 1px solid #edf1ee;
+  border-radius: 18px;
+  background: #f7faf8;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.payment-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.08);
+}
+
+.option-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.arrow {
+  color: #0b7a28;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+#cardSection {
+  margin-top: 14px;
+}
+
+#card-element {
+  padding: 14px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  background: white;
+  margin-top: 12px;
+}
+
+button {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 12px;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.secondary-btn {
+  background: white;
+  color: #111;
+  border: 1px solid #d9dfda;
+}
+
+#status {
+  text-align: center;
+  color: #b00020;
+  font-size: 13px;
+  font-weight: 900;
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div class="back" onclick="goBack()">← Back</div>
+    <div class="secure-pill">Secure Checkout</div>
+  </div>
+
+  <div class="hero">
+    <h1>Pay Quote</h1>
+    <p>Review the worker quote, choose a payment method, and assign the worker after payment succeeds.</p>
+  </div>
+
+  <div class="card">
+    <div class="summary-grid">
+      <div class="info-box">
+        <div class="info-label">Task</div>
+        <div class="info-value" id="taskName">Loading...</div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-label">Worker</div>
+        <div class="info-value" id="workerName">Loading...</div>
+      </div>
+    </div>
+
+    <div class="amount-box">
+      <div class="amount-label">Quote Amount</div>
+      <div class="amount-value" id="quoteAmount">$0.00</div>
+    </div>
+
+    <div class="notice">
+      Payment should be collected before the task is assigned. After payment succeeds, this worker will be assigned and all other quotes will be closed.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Choose Payment Method</h3>
+
+    <div class="payment-option" onclick="showCardPayment()">
+      <div class="option-left">
+        <img class="logo" src="https://img.icons8.com/color/48/bank-card-back-side.png">
+        Credit / Debit Card
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="payment-option" onclick="showCardPayment()">
+      <div class="option-left">
+        <img class="logo" src="https://img.icons8.com/ios-filled/50/mac-os.png">
+        Apple Pay through Stripe
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="payment-option" onclick="showCardPayment()">
+      <div class="option-left">
+        <img class="logo" src="https://img.icons8.com/color/48/google-pay.png">
+        Google Pay through Stripe
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div id="cardSection" class="hidden">
+      <div id="card-element"></div>
+
+      <button id="payBtn" class="primary-btn" onclick="payAndAssignWorker()">
+        Pay and Assign Worker
+      </button>
+
+      <button class="secondary-btn" onclick="hideCardPayment()">
+        Cancel Payment
+      </button>
+    </div>
+
+    <p id="status"></p>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL =
+  "https://dbcthtjmtlumidpbucrc.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+/*
+  Replace this with your real Stripe publishable key.
+  It starts with pk_test_ or pk_live_.
+*/
+const STRIPE_PUBLISHABLE_KEY =
+  "pk_test_REPLACE_WITH_YOUR_STRIPE_PUBLISHABLE_KEY";
+
+const stripe =
+  Stripe(STRIPE_PUBLISHABLE_KEY);
+
+let elements = null;
+let cardElement = null;
+
+let taskId = "";
+let workerId = "";
+let quoteId = "";
+
+let taskData = null;
+let quoteData = null;
+let workerData = null;
+let customerId = null;
+
+function getParam(name) {
+  const params =
+    new URLSearchParams(window.location.search);
+
+  return params.get(name) || "";
+}
+
+function formatMoney(value) {
+  const numberValue =
+    Number(value || 0);
+
+  if (isNaN(numberValue)) {
+    return "$0.00";
+  }
+
+  return "$" + numberValue.toFixed(2);
+}
+
+function getQuoteAmount(app) {
+  return (
+    app.quote_amount ??
+    app.amount ??
+    app.price ??
+    app.quote_price ??
+    app.offer_amount ??
+    app.total_amount ??
+    app.quote ??
+    0
+  );
+}
+
+function goBack() {
+  window.location.href =
+    "view-open-task.html";
+}
+
+async function loadCheckout() {
+  const status =
+    document.getElementById("status");
+
+  status.innerText = "";
+
+  taskId = getParam("task_id");
+  workerId = getParam("worker_id");
+  quoteId = getParam("quote_id");
+
+  if (!taskId || !workerId || !quoteId) {
+    status.innerText =
+      "Missing payment information. Go back and choose a quote again.";
+    return;
+  }
+
+  const { data: sessionData } =
+    await supabaseClient.auth.getSession();
+
+  if (!sessionData.session || !sessionData.session.user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  customerId =
+    sessionData.session.user.id;
+
+  const { data: task, error: taskError } =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("id", taskId)
+      .eq("customer_id", customerId)
+      .maybeSingle();
+
+  if (taskError || !task) {
+    status.innerText =
+      taskError?.message || "Task not found.";
+    return;
+  }
+
+  taskData = task;
+
+  if (task.status !== "open") {
+    status.innerText =
+      "This task is no longer open for quote acceptance.";
+    return;
+  }
+
+  const { data: quote, error: quoteError } =
+    await supabaseClient
+      .from("worker_quotes")
+      .select("*")
+      .eq("id", quoteId)
+      .eq("task_id", taskId)
+      .maybeSingle();
+
+  if (quoteError || !quote) {
+    status.innerText =
+      quoteError?.message || "Quote not found.";
+    return;
+  }
+
+  quoteData = quote;
+
+  const { data: workerProfile } =
+    await supabaseClient
+      .from("worker_profiles")
+      .select("*")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  workerData =
+    Object.assign({}, profile || {}, workerProfile || {});
+
+  const workerName =
+    workerData.full_name ||
+    workerData.display_name ||
+    `${workerData.first_name || ""} ${workerData.last_name || ""}`.trim() ||
+    "Worker";
+
+  document.getElementById("taskName").innerText =
+    task.category || task.title || "Task";
+
+  document.getElementById("workerName").innerText =
+    workerName;
+
+  document.getElementById("quoteAmount").innerText =
+    formatMoney(getQuoteAmount(quote));
+}
+
+function showCardPayment() {
+  const section =
+    document.getElementById("cardSection");
+
+  section.classList.remove("hidden");
+
+  if (!elements) {
+    elements = stripe.elements();
+
+    cardElement =
+      elements.create("card", {
+        style: {
+          base: {
+            fontSize: "16px",
+            color: "#111",
+            "::placeholder": {
+              color: "#777"
+            }
+          }
+        }
+      });
+
+    cardElement.mount("#card-element");
+  }
+}
+
+function hideCardPayment() {
+  document
+    .getElementById("cardSection")
+    .classList
+    .add("hidden");
+}
+
+/*
+  IMPORTANT:
+  Real Stripe payments require a server-side PaymentIntent.
+  This function expects a Supabase Edge Function named:
+  create-payment-intent
+
+  That Edge Function should:
+  1. verify the logged-in customer
+  2. verify the quote amount
+  3. create the Stripe PaymentIntent using your Stripe secret key
+  4. return { clientSecret: "..." }
+
+  Do not put your Stripe secret key in this HTML file.
+*/
+async function createPaymentIntent() {
+  const amount =
+    Number(getQuoteAmount(quoteData));
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "create-payment-intent",
+      {
+        body: {
+          task_id: taskId,
+          worker_id: workerId,
+          quote_id: quoteId,
+          amount: amount
+        }
+      }
+    );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data || !data.clientSecret) {
+    throw new Error("Payment setup failed. Missing Stripe client secret.");
+  }
+
+  return data.clientSecret;
+}
+
+async function payAndAssignWorker() {
+  const status =
+    document.getElementById("status");
+
+  const payBtn =
+    document.getElementById("payBtn");
+
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  if (!quoteData || !taskData) {
+    status.innerText =
+      "Payment information is still loading.";
+    return;
+  }
+
+  if (!cardElement) {
+    status.innerText =
+      "Choose a payment method first.";
+    return;
+  }
+
+  payBtn.disabled = true;
+  payBtn.innerText = "Processing Payment...";
+
+  try {
+    const clientSecret =
+      await createPaymentIntent();
+
+    const result =
+      await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardElement
+          }
+        }
+      );
+
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+
+    if (
+      !result.paymentIntent ||
+      result.paymentIntent.status !== "succeeded"
+    ) {
+      throw new Error("Payment did not complete.");
+    }
+
+    await finalizeAcceptedQuote(result.paymentIntent.id);
+
+  } catch (error) {
+    status.innerText = error.message;
+    payBtn.disabled = false;
+    payBtn.innerText = "Pay and Assign Worker";
+  }
+}
+
+async function finalizeAcceptedQuote(paymentIntentId) {
+  const status =
+    document.getElementById("status");
+
+  const { error: taskError } =
+    await supabaseClient
+      .from("tasks")
+      .update({
+        status: "accepted",
+        assigned_worker_id: workerId,
+        accepted_quote_id: quoteId,
+        payment_intent_id: paymentIntentId,
+        payment_status: "paid"
+      })
+      .eq("id", taskId)
+      .eq("customer_id", customerId)
+      .eq("status", "open");
+
+  if (taskError) {
+    throw new Error(taskError.message);
+  }
+
+  await supabaseClient
+    .from("worker_quotes")
+    .update({
+      status: "accepted"
+    })
+    .eq("id", quoteId);
+
+  await supabaseClient
+    .from("worker_quotes")
+    .update({
+      status: "closed"
+    })
+    .eq("task_id", taskId)
+    .neq("id", quoteId);
+
+  /*
+    Optional: If you have a payments table, uncomment and match your table columns.
+
+    await supabaseClient
+      .from("payments")
+      .insert([
+        {
+          task_id: taskId,
+          customer_id: customerId,
+          worker_id: workerId,
+          quote_id: quoteId,
+          amount: Number(getQuoteAmount(quoteData)),
+          stripe_payment_intent_id: paymentIntentId,
+          status: "paid"
+        }
+      ]);
+  */
+
+  status.style.color = "#0b7a28";
+  status.innerText =
+    "Payment complete. Worker assigned.";
+
+  setTimeout(() => {
+    window.location.href =
+      "view-open-task.html";
+  }, 1200);
+}
+
+loadCheckout();
+</script>
+
+</body>
+</html>
