@@ -394,6 +394,7 @@ let taskData = null;
 let quoteData = null;
 let workerData = null;
 let customerId = null;
+let quoteAmountFromUrl = 0;
 
 function getParam(name) {
   const params =
@@ -414,6 +415,10 @@ function formatMoney(value) {
 }
 
 function getQuoteAmount(app) {
+  if (!app) {
+    return 0;
+  }
+
   return (
     app.quote_amount ??
     app.amount ??
@@ -440,6 +445,7 @@ async function loadCheckout() {
   taskId = getParam("task_id");
   workerId = getParam("worker_id");
   quoteId = getParam("quote_id");
+  quoteAmountFromUrl = Number(getParam("quote_amount") || 0);
 
   if (!taskId || !workerId || !quoteId) {
     status.innerText =
@@ -525,8 +531,11 @@ async function loadCheckout() {
   document.getElementById("workerName").innerText =
     workerName;
 
+  const quoteAmount =
+    getQuoteAmount(quote) || quoteAmountFromUrl || 0;
+
   document.getElementById("quoteAmount").innerText =
-    formatMoney(getQuoteAmount(quote));
+    formatMoney(quoteAmount);
 }
 
 function showCardPayment() {
@@ -578,7 +587,7 @@ function hideCardPayment() {
 */
 async function createPaymentIntent() {
   const amount =
-    Number(getQuoteAmount(quoteData));
+    Number(getQuoteAmount(quoteData) || quoteAmountFromUrl || 0);
 
   const { data, error } =
     await supabaseClient.functions.invoke(
@@ -711,7 +720,7 @@ async function finalizeAcceptedQuote(paymentIntentId) {
           customer_id: customerId,
           worker_id: workerId,
           quote_id: quoteId,
-          amount: Number(getQuoteAmount(quoteData)),
+          amount: Number(getQuoteAmount(quoteData) || quoteAmountFromUrl || 0),
           stripe_payment_intent_id: paymentIntentId,
           status: "paid"
         }
