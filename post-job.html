@@ -5,34 +5,281 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { margin:0; font-family:Arial,sans-serif; background:#f5f5f5; color:#111; }
-.container { max-width:420px; margin:0 auto; padding:20px; }
-.back { color:green; font-weight:bold; cursor:pointer; margin-bottom:20px; }
-.card { background:white; border-radius:14px; padding:18px; box-shadow:0 1px 5px rgba(0,0,0,0.08); }
-.subtext { color:#666; margin-bottom:20px; }
-button, input, select, textarea {
-width:100%;
-box-sizing:border-box;
-padding:13px;
-margin-top:12px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:15px;
+* {
+  box-sizing: border-box;
 }
-button { background:green; color:white; border:none; cursor:pointer; }
-.secondary { background:white; color:#111; border:1px solid #ccc; }
-.option { background:white; color:#111; border:1px solid #ccc; text-align:left; }
-textarea { min-height:110px; }
-.hidden { display:none; }
-.checkbox-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
-.checkbox-row input { width:auto; margin:0; }
-#status { margin-top:14px; text-align:center; font-weight:bold; color:#b00020; }
-.review-box { background:#f7f7f7; border-radius:10px; padding:12px; margin-top:10px; }
-.selected-address { background:#eef7ee; padding:10px; border-radius:10px; margin-top:10px; font-size:14px; }
-gmp-place-autocomplete { width:100%; display:block; margin-top:12px; }
 
-  gmp-place-autocomplete {
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 40px;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.step-pill {
+  background: white;
+  border: 1px solid #e3eee6;
+  color: #0b7a28;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border: 1px solid #edf1ee;
+  animation: fadeUp 0.55s ease;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+button,
+input,
+select,
+textarea {
   width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  margin-top: 12px;
+  border-radius: 14px;
+  border: 1px solid #d9dfda;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+}
+
+button {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 900;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+.secondary {
+  background: white;
+  color: #111;
+  border: 1px solid #d9dfda;
+}
+
+.option {
+  background: white;
+  color: #111;
+  border: 1px solid #e3eee6;
+  text-align: left;
+  min-height: 92px;
+  box-shadow: 0 5px 14px rgba(0,0,0,0.06);
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.option:nth-child(2n) {
+  animation-delay: 0.5s;
+}
+
+.option-title {
+  display: block;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.option-sub {
+  display: block;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.hidden {
+  display: none;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 10px;
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  padding: 11px;
+  border-radius: 14px;
+  font-size: 14px;
+}
+
+.checkbox-row input {
+  width: auto;
+  margin: 0;
+  accent-color: #0b7a28;
+}
+
+#status {
+  margin-top: 14px;
+  text-align: center;
+  font-weight: 900;
+  color: #b00020;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.review-box {
+  background: #f7faf8;
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 10px;
+  border: 1px solid #e3eee6;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.selected-address {
+  background: #eef7ee;
+  border: 1px solid #d7ecdb;
+  padding: 11px;
+  border-radius: 14px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #0b7a28;
+  font-weight: 800;
+}
+
+.help-box {
+  background: #fff8e6;
+  border: 1px solid #ffe0a3;
+  color: #6f4b00;
+  border-radius: 16px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.price-box {
+  background: #e7f7ec;
+  border: 1px solid #cdebd5;
+  color: #0b7a28;
+  border-radius: 16px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.progress {
+  height: 8px;
+  background: #e7f7ec;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #0b7a28;
+  transition: 0.25s;
+}
+
+gmp-place-autocomplete {
+  width: 100%;
+  display: block;
+  margin-top: 12px;
 }
 
 gmp-place-autocomplete input {
@@ -47,81 +294,168 @@ gmp-place-autocomplete::part(input) {
   background: white !important;
   color: #111 !important;
 }
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
+
 <div class="container">
-<div class="back" onclick="goBack()">← Back</div>
 
-<h1 id="pageTitle">Post a Task</h1>
-<p class="subtext" id="pageSubtext">Choose what you need help with. Workers will send you quotes.</p>
+  <div class="top-bar">
+    <div class="back" onclick="goBack()">← Back</div>
+    <div id="stepPill" class="step-pill">Choose task</div>
+  </div>
 
-<div class="card">
-<div id="categoryStep">
-<button class="option" onclick="selectCategory('Moving')">Moving</button>
-<button class="option" onclick="selectCategory('TV Mounting')">TV Mounting</button>
-<button class="option" onclick="selectCategory('Furniture Assembly')">Furniture Assembly</button>
-<button class="option" onclick="selectCategory('Cleaning')">Cleaning</button>
-<button class="option" onclick="selectCategory('Trash Removal')">Trash Removal</button>
-<button class="option" onclick="selectCategory('Errands')">Errands</button>
-<button class="option" onclick="selectCategory('Handywork')">Handywork</button>
-<button class="option" onclick="selectCategory('Yard Work')">Yard Work</button>
-<button class="option" onclick="selectCategory('Repairs')">Repairs</button>
-<button class="option" onclick="selectCategory('Other')">Other / Misc Task</button>
-</div>
+  <div class="hero">
+    <h1 id="pageTitle">Post a Task</h1>
+    <p id="pageSubtext">Choose what you need help with. Workers will review the details and send quotes.</p>
+  </div>
 
-<div id="questionStep" class="hidden"></div>
+  <div class="card">
 
-<div id="pickupAddressStep" class="hidden">
-<h3>Task Address</h3>
-<p class="subtext">Start typing and select the address from Google.</p>
+    <div id="categoryStep">
+      <div class="category-grid">
+        <button class="option" onclick="selectCategory('Moving')">
+          <span class="option-title">🚚 Moving</span>
+          <span class="option-sub">Furniture, rooms, drop-off, stairs.</span>
+        </button>
 
-<div id="pickupGoogleBox"></div>
-<div id="pickupSelected" class="selected-address hidden"></div>
+        <button class="option" onclick="selectCategory('TV Mounting')">
+          <span class="option-title">📺 TV Mounting</span>
+          <span class="option-sub">Mount type, wall type, wire hiding.</span>
+        </button>
 
-<input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
-<input id="pickupCity" placeholder="City">
-<input id="pickupState" placeholder="State">
-<input id="pickupZip" placeholder="Zip Code">
+        <button class="option" onclick="selectCategory('Furniture Assembly')">
+          <span class="option-title">🪑 Assembly</span>
+          <span class="option-sub">Furniture, tools, number of items.</span>
+        </button>
 
-<button onclick="savePickupAddress()">Next</button>
-</div>
+        <button class="option" onclick="selectCategory('Cleaning')">
+          <span class="option-title">🧽 Cleaning</span>
+          <span class="option-sub">Deep, move-out, rooms, bathrooms.</span>
+        </button>
 
-<div id="dropoffAddressStep" class="hidden">
-<h3>Drop-Off Address</h3>
-<p class="subtext">Start typing and select the drop-off address from Google.</p>
+        <button class="option" onclick="selectCategory('Trash Removal')">
+          <span class="option-title">🗑️ Trash Removal</span>
+          <span class="option-sub">Bags, bulky items, junk removal.</span>
+        </button>
 
-<div id="dropoffGoogleBox"></div>
-<div id="dropoffSelected" class="selected-address hidden"></div>
+        <button class="option" onclick="selectCategory('Errands')">
+          <span class="option-title">🛍️ Errands</span>
+          <span class="option-sub">Pickup, drop-off, local errands.</span>
+        </button>
 
-<input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
-<input id="dropoffCity" placeholder="Drop-off city">
-<input id="dropoffState" placeholder="Drop-off state">
-<input id="dropoffZip" placeholder="Drop-off zip code">
+        <button class="option" onclick="selectCategory('Handywork')">
+          <span class="option-title">🔧 Handywork</span>
+          <span class="option-sub">Small installs, fixes, household help.</span>
+        </button>
 
-<button onclick="saveDropoffAddress()">Next</button>
-</div>
+        <button class="option" onclick="selectCategory('Yard Work')">
+          <span class="option-title">🌿 Yard Work</span>
+          <span class="option-sub">Grass, trimming, edging, flower beds.</span>
+        </button>
 
-<div id="reviewStep" class="hidden">
-<h3>Review Task</h3>
-<p class="subtext">Workers will review your task and send quotes.</p>
-<div id="reviewBox" class="review-box"></div>
+        <button class="option" onclick="selectCategory('Repairs')">
+          <span class="option-title">🛠️ Repairs</span>
+          <span class="option-sub">Describe the issue and repair needed.</span>
+        </button>
 
-<button onclick="submitTask()">Post Task</button>
-<button class="secondary" onclick="goBack()">Back</button>
-</div>
+        <button class="option" onclick="selectCategory('Other')">
+          <span class="option-title">✨ Other</span>
+          <span class="option-sub">Anything else you need help with.</span>
+        </button>
+      </div>
+    </div>
 
-<p id="status"></p>
-</div>
+    <div id="questionStep" class="hidden">
+      <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <div id="pickupAddressStep" class="hidden">
+      <h3>Task Address</h3>
+      <p class="subtext">Start typing and select the address from Google. The city, state, and zip will fill in automatically.</p>
+
+      <div id="pickupGoogleBox"></div>
+      <div id="pickupSelected" class="selected-address hidden"></div>
+
+      <input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
+
+      <div class="field-grid">
+        <input id="pickupCity" placeholder="City">
+        <input id="pickupState" placeholder="State">
+      </div>
+
+      <input id="pickupZip" placeholder="Zip Code">
+
+      <button onclick="savePickupAddress()">Next</button>
+    </div>
+
+    <div id="dropoffAddressStep" class="hidden">
+      <h3>Drop-Off Address</h3>
+      <p class="subtext">Start typing and select the drop-off address from Google. The city, state, and zip will fill in automatically.</p>
+
+      <div id="dropoffGoogleBox"></div>
+      <div id="dropoffSelected" class="selected-address hidden"></div>
+
+      <input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
+
+      <div class="field-grid">
+        <input id="dropoffCity" placeholder="Drop-off city">
+        <input id="dropoffState" placeholder="Drop-off state">
+      </div>
+
+      <input id="dropoffZip" placeholder="Drop-off zip code">
+
+      <button onclick="saveDropoffAddress()">Next</button>
+    </div>
+
+    <div id="reviewStep" class="hidden">
+      <h3>Review Task</h3>
+      <p class="subtext">Workers will review your task and send quotes. You can compare offers before accepting.</p>
+
+      <div id="priceGuidance" class="price-box hidden"></div>
+      <div id="reviewBox" class="review-box"></div>
+
+      <button onclick="submitTask()">Post Task</button>
+      <button class="secondary" onclick="goBack()">Back</button>
+    </div>
+
+    <p id="status"></p>
+  </div>
 </div>
 
 <script>
-const supabaseClient = supabase.createClient(
-"https://dbcthtjmtlumidpbucrc.supabase.co",
-"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
 let selectedCategory = "";
@@ -135,441 +469,772 @@ let pickupLng = null;
 let dropoffLat = null;
 let dropoffLng = null;
 let googleReady = false;
+let currentUser = null;
+let currentProfile = null;
 
 const questionBank = {
-"Moving": [
-{ id:"truck_needed", label:"Truck needed?", type:"select", options:["Yes","No","Not sure"] },
-{ id:"stairs", label:"Are there stairs?", type:"select", options:["No stairs","1 flight","2 flights","3+ flights"] },
-{ id:"rooms", label:"How many rooms?", type:"checkbox", options:["Full house","1 room","2 rooms","3 rooms","Multiple rooms"] },
-{ id:"details", label:"Give more detail about what needs to be moved.", type:"textarea" }
-],
-"TV Mounting": [
-{ id:"tv_count", label:"How many TVs?", type:"text" },
-{ id:"tv_size", label:"What size TV(s)?", type:"text" },
-{ id:"assistance_available", label:"Will assistance be available if the TV is 50 inches or more?", type:"select", options:["Yes","No","Not applicable"] },
-{ id:"mount_type", label:"What type of mount?", type:"select", options:["Fixed mount","Tilting mount","Full-motion mount","Not sure"] },
-{ id:"wall_type", label:"What type of wall?", type:"select", options:["Drywall","Brick","Concrete","Stone","Not sure"] },
-{ id:"extras", label:"Need wires hidden, speakers, or anything else?", type:"textarea" }
-],
-"Furniture Assembly": [
-{ id:"item_count", label:"How many items need assembly?", type:"text" },
-{ id:"more_than_one_person", label:"Is more than 1 person needed?", type:"select", options:["Yes","No","Not sure"] },
-{ id:"tools_available", label:"Are tools available?", type:"select", options:["Yes","No","Not sure"] },
-{ id:"details", label:"Describe the specific item(s).", type:"textarea" }
-],
-"Cleaning": [
-{ id:"cleaning_type", label:"What type of cleaning?", type:"select", options:["Deep cleaning","Move-out cleaning","Partial cleaning"] },
-{ id:"square_feet", label:"Square footage of home? If not move-out cleaning, type N/A.", type:"text" },
-{ id:"rooms", label:"How many rooms?", type:"text" },
-{ id:"bathrooms", label:"How many bathrooms?", type:"text" },
-{ id:"details", label:"Give more detail about what needs cleaning.", type:"textarea" }
-],
-"Trash Removal": [
-{ id:"item_estimate", label:"Estimate how many items or bags need removal.", type:"text" },
-{ id:"details", label:"Describe what needs to be removed.", type:"textarea" }
-],
-"Errands": [
-{ id:"details", label:"Describe the errand.", type:"textarea" }
-],
-"Handywork": [
-{ id:"tools_provided", label:"Are tools provided?", type:"select", options:["Yes","No","Not sure"] },
-{ id:"details", label:"Describe the handywork needed.", type:"textarea" }
-],
-"Yard Work": [
-{ id:"yard_work_type", label:"What type of yard work is needed?", type:"checkbox", options:["Cutting grass","Weed treatment","Edging","Bush trimming","Flower bed treatment","Other"] },
-{ id:"flower_bed_supplies", label:"If flower bed treatment is needed, will supplies be there?", type:"select", options:["Yes","No","Not applicable"] },
-{ id:"details", label:"Explain what needs to be done.", type:"textarea" }
-],
-"Repairs": [
-{ id:"details", label:"Explain what repairs are needed and what issues you are having.", type:"textarea" }
-],
-"Other": [
-{ id:"details", label:"Describe the miscellaneous task.", type:"textarea" }
-]
+  "Moving": [
+    { id:"truck_needed", label:"Will the worker need to bring a truck?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"stairs", label:"Are there stairs at the pickup or drop-off location?", type:"select", options:["No stairs","1 flight","2 flights","3+ flights"] },
+    { id:"rooms", label:"How much is being moved?", type:"checkbox", options:["One item","1 room","2 rooms","3 rooms","Full house","Multiple rooms"] },
+    { id:"heavy_items", label:"Are there heavy items like appliances, safes, treadmills, or large furniture?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"worker_count", label:"How many workers do you think are needed?", type:"select", options:["1 worker","2 workers","3+ workers","Not sure"] },
+    { id:"details", label:"Give more detail about what needs to be moved.", type:"textarea" }
+  ],
+
+  "TV Mounting": [
+    { id:"tv_count", label:"How many TVs need mounting?", type:"text" },
+    { id:"tv_size", label:"What size TV(s)?", type:"text" },
+    { id:"mount_provided", label:"Do you already have the TV mount?", type:"select", options:["Yes","No","Need worker to bring one","Not sure"] },
+    { id:"assistance_available", label:"Will someone be there to help lift if the TV is 50 inches or more?", type:"select", options:["Yes","No","Not applicable"] },
+    { id:"mount_type", label:"What type of mount?", type:"select", options:["Fixed mount","Tilting mount","Full-motion mount","Not sure"] },
+    { id:"wall_type", label:"What type of wall?", type:"select", options:["Drywall","Brick","Concrete","Stone","Not sure"] },
+    { id:"extras", label:"Need wires hidden, speakers installed, or anything else?", type:"textarea" }
+  ],
+
+  "Furniture Assembly": [
+    { id:"item_count", label:"How many items need assembly?", type:"text" },
+    { id:"item_type", label:"What type of item is it?", type:"select", options:["Bed frame","Dresser","Desk","Table/chairs","Outdoor furniture","Multiple items","Other"] },
+    { id:"more_than_one_person", label:"Is more than 1 person needed?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"tools_available", label:"Are tools available?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"instructions_available", label:"Do you have the assembly instructions?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"details", label:"Describe the specific item(s).", type:"textarea" }
+  ],
+
+  "Cleaning": [
+    { id:"cleaning_type", label:"What type of cleaning?", type:"select", options:["Standard cleaning","Deep cleaning","Move-out cleaning","Partial cleaning"] },
+    { id:"square_feet", label:"Approximate square footage? If not sure, type N/A.", type:"text" },
+    { id:"rooms", label:"How many bedrooms/rooms?", type:"text" },
+    { id:"bathrooms", label:"How many bathrooms?", type:"text" },
+    { id:"supplies_provided", label:"Will cleaning supplies be provided?", type:"select", options:["Yes","No","Some supplies","Not sure"] },
+    { id:"pets", label:"Are pets in the home?", type:"select", options:["Yes","No"] },
+    { id:"details", label:"Give more detail about what needs cleaning.", type:"textarea" }
+  ],
+
+  "Trash Removal": [
+    { id:"item_estimate", label:"Estimate how many items or bags need removal.", type:"text" },
+    { id:"large_items", label:"Are there bulky items like furniture, appliances, or mattresses?", type:"select", options:["Yes","No"] },
+    { id:"stairs", label:"Will items need to be carried down stairs?", type:"select", options:["No stairs","1 flight","2+ flights"] },
+    { id:"details", label:"Describe what needs to be removed.", type:"textarea" }
+  ],
+
+  "Errands": [
+    { id:"errand_type", label:"What type of errand is this?", type:"select", options:["Pickup and drop-off","Shopping","Delivery","Waiting in line","Other"] },
+    { id:"paid_items", label:"Will the worker need to purchase anything upfront?", type:"select", options:["No","Yes","Not sure"] },
+    { id:"details", label:"Describe the errand.", type:"textarea" }
+  ],
+
+  "Handywork": [
+    { id:"task_type", label:"What kind of handywork is needed?", type:"select", options:["Install","Repair","Hang/mount item","Replace item","Other"] },
+    { id:"tools_provided", label:"Are tools provided?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"parts_provided", label:"Are parts or materials already purchased?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"details", label:"Describe the handywork needed.", type:"textarea" }
+  ],
+
+  "Yard Work": [
+    { id:"yard_work_type", label:"What type of yard work is needed?", type:"checkbox", options:["Cutting grass","Weed treatment","Edging","Bush trimming","Flower bed treatment","Leaf cleanup","Other"] },
+    { id:"yard_size", label:"What size is the yard?", type:"select", options:["Small","Medium","Large","Not sure"] },
+    { id:"equipment_provided", label:"Will equipment be provided?", type:"select", options:["Yes","No","Some equipment"] },
+    { id:"flower_bed_supplies", label:"If flower bed treatment is needed, will supplies be there?", type:"select", options:["Yes","No","Not applicable"] },
+    { id:"details", label:"Explain what needs to be done.", type:"textarea" }
+  ],
+
+  "Repairs": [
+    { id:"repair_type", label:"What kind of repair is needed?", type:"select", options:["Plumbing-related","Electrical-related","Door/window","Furniture","Appliance","Other"] },
+    { id:"urgent", label:"Is this urgent?", type:"select", options:["Yes","No","Soon but not emergency"] },
+    { id:"parts_provided", label:"Do you already have parts/materials?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"details", label:"Explain what repairs are needed and what issues you are having.", type:"textarea" }
+  ],
+
+  "Other": [
+    { id:"task_type", label:"What type of task is this?", type:"text" },
+    { id:"worker_count", label:"How many workers do you think are needed?", type:"select", options:["1 worker","2 workers","3+ workers","Not sure"] },
+    { id:"details", label:"Describe the miscellaneous task.", type:"textarea" }
+  ]
 };
 
 window.initGoogleMaps = async function () {
-try {
-await google.maps.importLibrary("places");
-googleReady = true;
-setupPlaceAutocomplete("pickupGoogleBox", "pickup");
-setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
-} catch (error) {
-document.getElementById("status").innerText = "Google address search failed to load.";
-}
+  try {
+    await google.maps.importLibrary("places");
+    googleReady = true;
+    setupPlaceAutocomplete("pickupGoogleBox", "pickup");
+    setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
+  } catch (error) {
+    document.getElementById("status").innerText =
+      "Google address search failed to load.";
+  }
 };
 
 function setupPlaceAutocomplete(containerId, type) {
-const container = document.getElementById(containerId);
-if (!container || container.dataset.loaded === "true" || !googleReady) return;
+  const container = document.getElementById(containerId);
 
-container.innerHTML = "";
+  if (!container || container.dataset.loaded === "true" || !googleReady) {
+    return;
+  }
 
-const autocomplete = new google.maps.places.PlaceAutocompleteElement();
-autocomplete.setAttribute("included-region-codes", "us");
+  container.innerHTML = "";
 
-autocomplete.addEventListener("gmp-select", async (event) => {
-const place = event.placePrediction.toPlace();
+  const autocomplete =
+    new google.maps.places.PlaceAutocompleteElement();
 
-await place.fetchFields({
-fields: ["formattedAddress", "location", "addressComponents"]
-});
+  autocomplete.setAttribute("included-region-codes", "us");
 
-handleSelectedPlace(place, type);
-});
+  autocomplete.addEventListener("gmp-select", async (event) => {
+    const place = event.placePrediction.toPlace();
 
-container.appendChild(autocomplete);
-container.dataset.loaded = "true";
+    await place.fetchFields({
+      fields: [
+        "formattedAddress",
+        "location",
+        "addressComponents"
+      ]
+    });
+
+    handleSelectedPlace(place, type);
+  });
+
+  container.appendChild(autocomplete);
+  container.dataset.loaded = "true";
 }
 
 function handleSelectedPlace(place, type) {
-let city = "";
-let state = "";
-let zip = "";
+  let streetNumber = "";
+  let route = "";
+  let city = "";
+  let state = "";
+  let zip = "";
 
-if (place.addressComponents) {
-place.addressComponents.forEach(component => {
-const types = component.types || [];
-if (types.includes("locality")) city = component.longText || "";
-if (types.includes("administrative_area_level_1")) state = component.shortText || "";
-if (types.includes("postal_code")) zip = component.longText || "";
-});
-}
+  if (place.addressComponents) {
+    place.addressComponents.forEach(component => {
+      const types = component.types || [];
 
-const formattedAddress = place.formattedAddress || "";
-const lat = place.location ? place.location.lat() : null;
-const lng = place.location ? place.location.lng() : null;
+      if (types.includes("street_number")) {
+        streetNumber = component.longText || "";
+      }
 
-if (type === "pickup") {
-pickupAddress.address = formattedAddress;
-pickupLat = lat;
-pickupLng = lng;
+      if (types.includes("route")) {
+        route = component.longText || "";
+      }
 
-document.getElementById("pickupSelected").innerText = formattedAddress;
-document.getElementById("pickupSelected").classList.remove("hidden");
-document.getElementById("pickupCity").value = city;
-document.getElementById("pickupState").value = state;
-document.getElementById("pickupZip").value = zip;
-}
+      if (types.includes("locality")) {
+        city = component.longText || "";
+      }
 
-if (type === "dropoff") {
-dropoffAddress.address = formattedAddress;
-dropoffLat = lat;
-dropoffLng = lng;
+      if (!city && types.includes("sublocality")) {
+        city = component.longText || "";
+      }
 
-document.getElementById("dropoffSelected").innerText = formattedAddress;
-document.getElementById("dropoffSelected").classList.remove("hidden");
-document.getElementById("dropoffCity").value = city;
-document.getElementById("dropoffState").value = state;
-document.getElementById("dropoffZip").value = zip;
-}
+      if (!city && types.includes("administrative_area_level_2")) {
+        city = component.longText || "";
+      }
+
+      if (types.includes("administrative_area_level_1")) {
+        state = component.shortText || "";
+      }
+
+      if (types.includes("postal_code")) {
+        zip = component.longText || "";
+      }
+    });
+  }
+
+  const formattedAddress =
+    place.formattedAddress ||
+    `${streetNumber} ${route}`.trim();
+
+  const lat =
+    place.location ? place.location.lat() : null;
+
+  const lng =
+    place.location ? place.location.lng() : null;
+
+  if (type === "pickup") {
+    pickupAddress.address = formattedAddress;
+    pickupLat = lat;
+    pickupLng = lng;
+
+    document.getElementById("pickupSelected").innerText =
+      formattedAddress;
+
+    document
+      .getElementById("pickupSelected")
+      .classList
+      .remove("hidden");
+
+    document.getElementById("pickupCity").value = city;
+    document.getElementById("pickupState").value = state;
+    document.getElementById("pickupZip").value = zip;
+  }
+
+  if (type === "dropoff") {
+    dropoffAddress.address = formattedAddress;
+    dropoffLat = lat;
+    dropoffLng = lng;
+
+    document.getElementById("dropoffSelected").innerText =
+      formattedAddress;
+
+    document
+      .getElementById("dropoffSelected")
+      .classList
+      .remove("hidden");
+
+    document.getElementById("dropoffCity").value = city;
+    document.getElementById("dropoffState").value = state;
+    document.getElementById("dropoffZip").value = zip;
+  }
 }
 
 function hideAllSteps() {
-["categoryStep","questionStep","pickupAddressStep","dropoffAddressStep","reviewStep"].forEach(id => {
-document.getElementById(id).classList.add("hidden");
-});
+  [
+    "categoryStep",
+    "questionStep",
+    "pickupAddressStep",
+    "dropoffAddressStep",
+    "reviewStep"
+  ].forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
+}
+
+function setStepPill(text) {
+  document.getElementById("stepPill").innerText = text;
 }
 
 function selectCategory(category) {
-selectedCategory = category;
-questions = questionBank[category];
-questionIndex = 0;
-answers = {};
-pickupAddress = {};
-dropoffAddress = {};
-pickupLat = null;
-pickupLng = null;
-dropoffLat = null;
-dropoffLng = null;
+  selectedCategory = category;
+  questions = questionBank[category];
+  questionIndex = 0;
+  answers = {};
+  pickupAddress = {};
+  dropoffAddress = {};
+  pickupLat = null;
+  pickupLng = null;
+  dropoffLat = null;
+  dropoffLng = null;
 
-document.getElementById("status").innerText = "";
-showQuestion();
+  document.getElementById("status").innerText = "";
+  showQuestion();
 }
 
 function showQuestion() {
-hideAllSteps();
+  hideAllSteps();
 
-const question = questions[questionIndex];
-const box = document.getElementById("questionStep");
+  const question = questions[questionIndex];
+  const box = document.getElementById("questionStep");
+  const progressPercent =
+    Math.round(((questionIndex + 1) / questions.length) * 100);
 
-document.getElementById("pageTitle").innerText = selectedCategory;
-document.getElementById("pageSubtext").innerText = `Question ${questionIndex + 1} of ${questions.length}`;
+  document.getElementById("pageTitle").innerText =
+    selectedCategory;
 
-let html = `<h3>${question.label}</h3>`;
+  document.getElementById("pageSubtext").innerText =
+    `Question ${questionIndex + 1} of ${questions.length}`;
 
-if (question.type === "select") {
-html += `<select id="answerInput"><option value="">Select one</option>`;
-question.options.forEach(option => html += `<option value="${option}">${option}</option>`);
-html += `</select>`;
+  setStepPill(`${progressPercent}% done`);
+
+  let html = `
+    <div class="progress">
+      <div class="progress-bar" style="width:${progressPercent}%"></div>
+    </div>
+
+    <h3>${question.label}</h3>
+    ${getQuestionHelp(question.id)}
+  `;
+
+  if (question.type === "select") {
+    html += `<select id="answerInput"><option value="">Select one</option>`;
+    question.options.forEach(option => {
+      html += `<option value="${option}">${option}</option>`;
+    });
+    html += `</select>`;
+  }
+
+  if (question.type === "text") {
+    html += `<input id="answerInput" placeholder="Type your answer">`;
+  }
+
+  if (question.type === "textarea") {
+    html += `<textarea id="answerInput" placeholder="Add clear details so workers can quote accurately."></textarea>`;
+  }
+
+  if (question.type === "checkbox") {
+    question.options.forEach(option => {
+      html += `
+        <label class="checkbox-row">
+          <input type="checkbox" name="answerCheckbox" value="${option}">
+          ${option}
+        </label>
+      `;
+    });
+  }
+
+  html += `
+    <button onclick="saveAnswer()">Next</button>
+    <button class="secondary" onclick="goBack()">Back</button>
+  `;
+
+  box.innerHTML = html;
+  box.classList.remove("hidden");
 }
 
-if (question.type === "text") {
-html += `<input id="answerInput" placeholder="Type your answer">`;
-}
+function getQuestionHelp(questionId) {
+  const helpfulMessages = {
+    "truck_needed": "This helps workers know if they need to bring a truck or only labor.",
+    "stairs": "Stairs can affect time, effort, and the quotes workers send.",
+    "heavy_items": "Heavy items may require multiple workers or special equipment.",
+    "mount_provided": "If you need the worker to bring a mount, mention the TV size and mount preference.",
+    "wall_type": "Wall type matters because brick, concrete, and stone may require different tools.",
+    "supplies_provided": "Workers may quote differently if they need to bring cleaning supplies.",
+    "paid_items": "Avoid paying outside the app. Use messages to clarify purchase details before accepting a quote."
+  };
 
-if (question.type === "textarea") {
-html += `<textarea id="answerInput" placeholder="Type details here"></textarea>`;
-}
+  if (!helpfulMessages[questionId]) {
+    return "";
+  }
 
-if (question.type === "checkbox") {
-question.options.forEach(option => {
-html += `
-<label class="checkbox-row">
-<input type="checkbox" name="answerCheckbox" value="${option}">
-${option}
-</label>
-`;
-});
-}
-
-html += `
-<button onclick="saveAnswer()">Next</button>
-<button class="secondary" onclick="goBack()">Back</button>
-`;
-
-box.innerHTML = html;
-box.classList.remove("hidden");
+  return `<div class="help-box">${helpfulMessages[questionId]}</div>`;
 }
 
 function saveAnswer() {
-const question = questions[questionIndex];
-let value = "";
+  const question = questions[questionIndex];
+  let value = "";
 
-if (question.type === "checkbox") {
-const checked = Array.from(document.querySelectorAll("input[name='answerCheckbox']:checked"));
-value = checked.map(item => item.value).join(", ");
-} else {
-value = document.getElementById("answerInput").value.trim();
-}
+  if (question.type === "checkbox") {
+    const checked =
+      Array.from(document.querySelectorAll("input[name='answerCheckbox']:checked"));
 
-if (!value) {
-document.getElementById("status").innerText = "Please answer this question.";
-return;
-}
+    value =
+      checked.map(item => item.value).join(", ");
+  } else {
+    value =
+      document.getElementById("answerInput").value.trim();
+  }
 
-document.getElementById("status").innerText = "";
-answers[question.id] = value;
+  if (!value) {
+    document.getElementById("status").innerText =
+      "Please answer this question.";
+    return;
+  }
 
-if (questionIndex < questions.length - 1) {
-questionIndex++;
-showQuestion();
-} else {
-showPickupAddress();
-}
+  document.getElementById("status").innerText = "";
+  answers[question.id] = value;
+
+  if (questionIndex < questions.length - 1) {
+    questionIndex++;
+    showQuestion();
+  } else {
+    showPickupAddress();
+  }
 }
 
 function showPickupAddress() {
-hideAllSteps();
-document.getElementById("pageTitle").innerText = "Task Address";
-document.getElementById("pageSubtext").innerText = "Start typing and select the address from Google.";
-document.getElementById("pickupAddressStep").classList.remove("hidden");
-setupPlaceAutocomplete("pickupGoogleBox", "pickup");
+  hideAllSteps();
+
+  document.getElementById("pageTitle").innerText =
+    "Task Address";
+
+  document.getElementById("pageSubtext").innerText =
+    "Select the address where the task starts.";
+
+  setStepPill("Address");
+
+  document
+    .getElementById("pickupAddressStep")
+    .classList
+    .remove("hidden");
+
+  setupPlaceAutocomplete("pickupGoogleBox", "pickup");
 }
 
 function savePickupAddress() {
-const unit = document.getElementById("pickupUnit").value.trim();
-const city = document.getElementById("pickupCity").value.trim();
-const state = document.getElementById("pickupState").value.trim();
-const zip = document.getElementById("pickupZip").value.trim();
+  const unit =
+    document.getElementById("pickupUnit").value.trim();
 
-if (!pickupAddress.address || !city || !state || !zip || !pickupLat || !pickupLng) {
-document.getElementById("status").innerText = "Please select the task address from Google suggestions.";
-return;
-}
+  const city =
+    document.getElementById("pickupCity").value.trim();
 
-pickupAddress.unit = unit;
-pickupAddress.city = city;
-pickupAddress.state = state;
-pickupAddress.zip = zip;
+  const state =
+    document.getElementById("pickupState").value.trim();
 
-document.getElementById("status").innerText = "";
+  const zip =
+    document.getElementById("pickupZip").value.trim();
 
-if (selectedCategory === "Moving" || selectedCategory === "Errands") {
-showDropoffAddress();
-} else {
-showReview();
-}
+  if (
+    !pickupAddress.address ||
+    !city ||
+    !state ||
+    !zip ||
+    !pickupLat ||
+    !pickupLng
+  ) {
+    document.getElementById("status").innerText =
+      "Please select the task address from Google suggestions.";
+    return;
+  }
+
+  pickupAddress.unit = unit;
+  pickupAddress.city = city;
+  pickupAddress.state = state;
+  pickupAddress.zip = zip;
+
+  document.getElementById("status").innerText = "";
+
+  if (
+    selectedCategory === "Moving" ||
+    selectedCategory === "Errands"
+  ) {
+    showDropoffAddress();
+  } else {
+    showReview();
+  }
 }
 
 function showDropoffAddress() {
-hideAllSteps();
-document.getElementById("pageTitle").innerText = "Drop-Off Address";
-document.getElementById("pageSubtext").innerText = "Start typing and select the drop-off address from Google.";
-document.getElementById("dropoffAddressStep").classList.remove("hidden");
-setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
+  hideAllSteps();
+
+  document.getElementById("pageTitle").innerText =
+    "Drop-Off Address";
+
+  document.getElementById("pageSubtext").innerText =
+    "Select where the item or errand should be dropped off.";
+
+  setStepPill("Drop-off");
+
+  document
+    .getElementById("dropoffAddressStep")
+    .classList
+    .remove("hidden");
+
+  setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
 }
 
 function saveDropoffAddress() {
-const unit = document.getElementById("dropoffUnit").value.trim();
-const city = document.getElementById("dropoffCity").value.trim();
-const state = document.getElementById("dropoffState").value.trim();
-const zip = document.getElementById("dropoffZip").value.trim();
+  const unit =
+    document.getElementById("dropoffUnit").value.trim();
 
-if (!dropoffAddress.address || !city || !state || !zip || !dropoffLat || !dropoffLng) {
-document.getElementById("status").innerText = "Please select the drop-off address from Google suggestions.";
-return;
-}
+  const city =
+    document.getElementById("dropoffCity").value.trim();
 
-dropoffAddress.unit = unit;
-dropoffAddress.city = city;
-dropoffAddress.state = state;
-dropoffAddress.zip = zip;
+  const state =
+    document.getElementById("dropoffState").value.trim();
 
-document.getElementById("status").innerText = "";
-showReview();
+  const zip =
+    document.getElementById("dropoffZip").value.trim();
+
+  if (
+    !dropoffAddress.address ||
+    !city ||
+    !state ||
+    !zip ||
+    !dropoffLat ||
+    !dropoffLng
+  ) {
+    document.getElementById("status").innerText =
+      "Please select the drop-off address from Google suggestions.";
+    return;
+  }
+
+  dropoffAddress.unit = unit;
+  dropoffAddress.city = city;
+  dropoffAddress.state = state;
+  dropoffAddress.zip = zip;
+
+  document.getElementById("status").innerText = "";
+  showReview();
 }
 
 function showReview() {
-hideAllSteps();
+  hideAllSteps();
 
-document.getElementById("pageTitle").innerText = "Review Task";
-document.getElementById("pageSubtext").innerText = "Workers will review your task and send quotes.";
+  document.getElementById("pageTitle").innerText =
+    "Review Task";
 
-let html = `
-<p><strong>Category:</strong> ${selectedCategory}</p>
-<p><strong>Task Address:</strong> ${pickupAddress.address}</p>
-<p><strong>Unit:</strong> ${pickupAddress.unit || "N/A"}</p>
-<p><strong>City:</strong> ${pickupAddress.city}</p>
-<p><strong>State:</strong> ${pickupAddress.state}</p>
-<p><strong>Zip:</strong> ${pickupAddress.zip}</p>
-`;
+  document.getElementById("pageSubtext").innerText =
+    "Confirm the details before posting.";
 
-if (dropoffAddress.address) {
-html += `
-<hr>
-<p><strong>Drop-Off Address:</strong> ${dropoffAddress.address}</p>
-<p><strong>Unit:</strong> ${dropoffAddress.unit || "N/A"}</p>
-<p><strong>City:</strong> ${dropoffAddress.city}</p>
-<p><strong>State:</strong> ${dropoffAddress.state}</p>
-<p><strong>Zip:</strong> ${dropoffAddress.zip}</p>
-`;
+  setStepPill("Review");
+
+  let html = `
+    <p><strong>Category:</strong> ${selectedCategory}</p>
+    <p><strong>Task Address:</strong> ${pickupAddress.address}</p>
+    <p><strong>Unit:</strong> ${pickupAddress.unit || "N/A"}</p>
+    <p><strong>City:</strong> ${pickupAddress.city}</p>
+    <p><strong>State:</strong> ${pickupAddress.state}</p>
+    <p><strong>Zip:</strong> ${pickupAddress.zip}</p>
+  `;
+
+  if (dropoffAddress.address) {
+    html += `
+      <hr>
+      <p><strong>Drop-Off Address:</strong> ${dropoffAddress.address}</p>
+      <p><strong>Unit:</strong> ${dropoffAddress.unit || "N/A"}</p>
+      <p><strong>City:</strong> ${dropoffAddress.city}</p>
+      <p><strong>State:</strong> ${dropoffAddress.state}</p>
+      <p><strong>Zip:</strong> ${dropoffAddress.zip}</p>
+    `;
+  }
+
+  html += `<hr>`;
+
+  Object.keys(answers).forEach(key => {
+    html += `<p><strong>${formatLabel(key)}:</strong> ${answers[key]}</p>`;
+  });
+
+  document.getElementById("reviewBox").innerHTML = html;
+
+  const guidance = getPriceGuidance();
+  const priceBox = document.getElementById("priceGuidance");
+
+  if (guidance) {
+    priceBox.innerHTML = guidance;
+    priceBox.classList.remove("hidden");
+  } else {
+    priceBox.classList.add("hidden");
+  }
+
+  document
+    .getElementById("reviewStep")
+    .classList
+    .remove("hidden");
 }
 
-html += `<hr>`;
+function getPriceGuidance() {
+  if (selectedCategory === "Moving") {
+    let extra = "";
 
-Object.keys(answers).forEach(key => {
-html += `<p><strong>${formatLabel(key)}:</strong> ${answers[key]}</p>`;
-});
+    if (
+      answers.heavy_items === "Yes" ||
+      answers.stairs === "2 flights" ||
+      answers.stairs === "3+ flights"
+    ) {
+      extra =
+        " Larger moves, heavy items, or stairs may increase worker quotes.";
+    }
 
-document.getElementById("reviewBox").innerHTML = html;
-document.getElementById("reviewStep").classList.remove("hidden");
+    return "Quote tip: small moving jobs are often quoted based on time, truck needs, stairs, and number of workers." + extra;
+  }
+
+  if (selectedCategory === "TV Mounting") {
+    return "Quote tip: TV mounting quotes may change based on wall type, TV size, mount type, and whether wires need to be hidden.";
+  }
+
+  if (selectedCategory === "Furniture Assembly") {
+    return "Quote tip: assembly quotes usually depend on number of items, complexity, tools, and whether two workers are needed.";
+  }
+
+  if (selectedCategory === "Cleaning") {
+    return "Quote tip: cleaning quotes usually depend on square footage, bathrooms, depth of cleaning, and whether supplies are provided.";
+  }
+
+  if (selectedCategory === "Trash Removal") {
+    return "Quote tip: trash removal quotes often depend on item size, number of bags, stairs, and disposal effort.";
+  }
+
+  if (selectedCategory === "Yard Work") {
+    return "Quote tip: yard work quotes usually depend on yard size, equipment needs, and whether trimming or cleanup is included.";
+  }
+
+  return "Quote tip: add clear details so workers can send accurate offers.";
 }
 
 function formatLabel(key) {
-return key.replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase());
+  return key
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, char => char.toUpperCase());
 }
 
 function buildDescription() {
-let description = `Category: ${selectedCategory}\n\n`;
+  let description =
+    `Category: ${selectedCategory}\n\n`;
 
-Object.keys(answers).forEach(key => {
-description += `${formatLabel(key)}: ${answers[key]}\n`;
-});
+  Object.keys(answers).forEach(key => {
+    description += `${formatLabel(key)}: ${answers[key]}\n`;
+  });
 
-if (dropoffAddress.address) {
-description += `\nDrop-Off Address: ${dropoffAddress.address}, ${dropoffAddress.unit || ""}, ${dropoffAddress.city}, ${dropoffAddress.state} ${dropoffAddress.zip}`;
+  if (dropoffAddress.address) {
+    description +=
+      `\nDrop-Off Address: ${dropoffAddress.address}, ${dropoffAddress.unit || ""}, ${dropoffAddress.city}, ${dropoffAddress.state} ${dropoffAddress.zip}`;
+  }
+
+  return description;
 }
 
-return description;
-}
+async function getCustomerProfile() {
+  const { data, error } =
+    await supabaseClient.auth.getSession();
 
-async function getCustomerId() {
-const { data } = await supabaseClient.auth.getSession();
+  if (error || !data.session || !data.session.user) {
+    return null;
+  }
 
-if (data.session && data.session.user) {
-localStorage.setItem("taskmintUserId", data.session.user.id);
-return data.session.user.id;
-}
+  currentUser = data.session.user;
 
-return localStorage.getItem("taskmintUserId");
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("id, email, account_type")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+
+  if (profile) {
+    currentProfile = profile;
+    localStorage.setItem("taskmintUserId", profile.id);
+    return profile;
+  }
+
+  return null;
 }
 
 async function submitTask() {
-const status = document.getElementById("status");
-const customerId = await getCustomerId();
+  const status =
+    document.getElementById("status");
 
-if (!customerId) {
-status.innerText = "You must be logged in.";
-return;
-}
+  status.style.color = "#b00020";
+  status.innerText = "";
 
-const { error } = await supabaseClient
-.from("tasks")
-.insert([{
-customer_id: customerId,
-title: selectedCategory,
-category: selectedCategory,
-description: buildDescription(),
-task_details: answers,
-location_address: pickupAddress.address,
-unit: pickupAddress.unit || null,
-city: pickupAddress.city,
-state: pickupAddress.state,
-zip_code: pickupAddress.zip,
-pickup_lat: pickupLat,
-pickup_lng: pickupLng,
-dropoff_address: dropoffAddress.address || null,
-dropoff_unit: dropoffAddress.unit || null,
-dropoff_city: dropoffAddress.city || null,
-dropoff_state: dropoffAddress.state || null,
-dropoff_zip_code: dropoffAddress.zip || null,
-dropoff_lat: dropoffLat,
-dropoff_lng: dropoffLng,
-status: "open",
-}]);
+  const profile =
+    await getCustomerProfile();
 
-if (error) {
-status.innerText = error.message;
-return;
-}
+  if (!profile) {
+    status.innerText =
+      "Could not find your customer profile. Log out and log back in, then try again.";
+    return;
+  }
 
-status.innerText = "Task posted. Workers can now send quotes.";
+  if (
+    profile.account_type &&
+    profile.account_type !== "customer"
+  ) {
+    status.innerText =
+      "Only customer accounts can post tasks.";
+    return;
+  }
 
-setTimeout(() => {
-window.location.href = "view-open-task.html";
-}, 1000);
+  const postButton =
+    document.querySelector("#reviewStep button");
+
+  postButton.disabled = true;
+  postButton.innerText = "Posting Task...";
+
+  const { error } =
+    await supabaseClient
+      .from("tasks")
+      .insert([
+        {
+          customer_id: profile.id,
+          title: selectedCategory,
+          category: selectedCategory,
+          description: buildDescription(),
+          task_details: answers,
+          location_address: pickupAddress.address,
+          unit: pickupAddress.unit || null,
+          city: pickupAddress.city,
+          state: pickupAddress.state,
+          zip_code: pickupAddress.zip,
+          pickup_lat: pickupLat,
+          pickup_lng: pickupLng,
+          dropoff_address: dropoffAddress.address || null,
+          dropoff_unit: dropoffAddress.unit || null,
+          dropoff_city: dropoffAddress.city || null,
+          dropoff_state: dropoffAddress.state || null,
+          dropoff_zip_code: dropoffAddress.zip || null,
+          dropoff_lat: dropoffLat,
+          dropoff_lng: dropoffLng,
+          status: "open"
+        }
+      ]);
+
+  if (error) {
+    status.innerText = error.message;
+    postButton.disabled = false;
+    postButton.innerText = "Post Task";
+    return;
+  }
+
+  status.style.color = "#0b7a28";
+  status.innerText =
+    "Task posted. Workers can now send quotes.";
+
+  setTimeout(() => {
+    window.location.href = "view-open-task.html";
+  }, 1000);
 }
 
 function goBack() {
-if (!document.getElementById("reviewStep").classList.contains("hidden")) {
-if (selectedCategory === "Moving" || selectedCategory === "Errands") {
-showDropoffAddress();
-} else {
-showPickupAddress();
-}
-return;
-}
+  if (
+    !document
+      .getElementById("reviewStep")
+      .classList
+      .contains("hidden")
+  ) {
+    if (
+      selectedCategory === "Moving" ||
+      selectedCategory === "Errands"
+    ) {
+      showDropoffAddress();
+    } else {
+      showPickupAddress();
+    }
 
-if (!document.getElementById("dropoffAddressStep").classList.contains("hidden")) {
-showPickupAddress();
-return;
-}
+    return;
+  }
 
-if (!document.getElementById("pickupAddressStep").classList.contains("hidden")) {
-questionIndex = questions.length - 1;
-showQuestion();
-return;
-}
+  if (
+    !document
+      .getElementById("dropoffAddressStep")
+      .classList
+      .contains("hidden")
+  ) {
+    showPickupAddress();
+    return;
+  }
 
-if (!document.getElementById("questionStep").classList.contains("hidden")) {
-if (questionIndex > 0) {
-questionIndex--;
-showQuestion();
-} else {
-resetToCategories();
-}
-return;
-}
+  if (
+    !document
+      .getElementById("pickupAddressStep")
+      .classList
+      .contains("hidden")
+  ) {
+    questionIndex = questions.length - 1;
+    showQuestion();
+    return;
+  }
 
-window.location.href = "customer-home.html";
+  if (
+    !document
+      .getElementById("questionStep")
+      .classList
+      .contains("hidden")
+  ) {
+    if (questionIndex > 0) {
+      questionIndex--;
+      showQuestion();
+    } else {
+      resetToCategories();
+    }
+
+    return;
+  }
+
+  window.location.href = "customer-home.html";
 }
 
 function resetToCategories() {
-hideAllSteps();
-document.getElementById("pageTitle").innerText = "Post a Task";
-document.getElementById("pageSubtext").innerText = "Choose what you need help with. Workers will send you quotes.";
-document.getElementById("categoryStep").classList.remove("hidden");
+  hideAllSteps();
+
+  document.getElementById("pageTitle").innerText =
+    "Post a Task";
+
+  document.getElementById("pageSubtext").innerText =
+    "Choose what you need help with. Workers will send you quotes.";
+
+  setStepPill("Choose task");
+
+  document
+    .getElementById("categoryStep")
+    .classList
+    .remove("hidden");
 }
 </script>
 
