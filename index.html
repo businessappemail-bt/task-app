@@ -1,97 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+
   <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#111111">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="TaskMint">
-  <title></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #f5f5f5;
-      text-align: center;
-    }
+  <meta name="theme-color" content="#111111">
 
-    .container {
-      padding: 60px 20px;
-    }
-    h1 {
-      font-size: 36px;
-      margin-bottom: 10px;
-    }
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
-    p {
-      color: #555;
-      margin-bottom: 30px;
-    }
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black"
+  >
 
-    .btn {
-      display: block;
-      width: 80%;
-      max-width: 300px;
-      margin: 10px auto;
-      padding: 15px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    }
+  <meta
+    name="apple-mobile-web-app-title"
+    content="TaskMint"
+  >
 
-    .primary {
-      background: green;
-      color: white;
-    }
+  <meta
+    http-equiv="refresh"
+    content="0; url=login.html"
+  >
 
-    .secondary {
-      background: white;
-      border: 1px solid #ccc;
-    }
-    .logo-img {
-  width: 380px;
-  margin-bottom: 20px;
-      object-fit: cover;
-      object-position: left center;
-      background: transparent;
-      mix-blend-mode: multiply;
-    }
-  </style>
+  <title>TaskMint</title>
 </head>
 
 <body>
-  <script>
-  if (!localStorage.getItem("seenHowItWorks")) {
-    window.location.href = "how-it-works.html";
-  }
+
+<script>
+
+window.location.replace("login.html");
+
 </script>
-  <div class="container">
-    
-        <img src="taskmintlogo.png" class="logo-img">   
-    <p>Post jobs. Get help. Earn money.
-    All in one place.</p>
 
-    <button class="btn primary" onclick="goToSignup()">Create Account</button>
-    <button class="btn secondary" onclick="goToLogin()">Log In</button>
-  </div>
-
-  <script>
-  function goToSignup() {
-  window.location.href = "signup.html";
-}
-
-  function goToLogin() {
-    window.location.href = "login.html";
-}
-    
-  </script>
-  <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js");
-  }
-</script>
 </body>
 </html>
