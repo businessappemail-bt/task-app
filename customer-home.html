@@ -37,10 +37,6 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 20px;
-      font-weight: 900;
-      color: #0b7a28;
     }
 
     .notification-wrap {
@@ -195,51 +191,6 @@
       font-weight: 900;
     }
 
-    .worker-card {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      background: #f7faf8;
-      border-radius: 18px;
-      padding: 12px;
-      margin-top: 10px;
-      cursor: pointer;
-      border: 1px solid #e3eee6;
-    }
-
-    .worker-photo {
-      width: 56px;
-      height: 56px;
-      border-radius: 18px;
-      object-fit: cover;
-      background: white;
-    }
-
-    .worker-info {
-      flex: 1;
-    }
-
-    .worker-name {
-      font-size: 15px;
-      font-weight: 900;
-      margin-bottom: 4px;
-    }
-
-    .worker-meta {
-      font-size: 12px;
-      color: #666;
-      line-height: 1.4;
-    }
-
-    .view-pill {
-      background: #e7f7ec;
-      color: #0b7a28;
-      padding: 6px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
     .nav {
       position: fixed;
       bottom: 0;
@@ -322,20 +273,20 @@
 
   <div class="top-bar">
 
-  <div class="brand">
-  <img
-    src="taskmintlogo-transparent.png"
-    style="
-      width: 180px;
-      height: auto;
-      background: transparent;
-      box-shadow: none;
-      border-radius: 0;
-      padding: 0;
-      object-fit: contain;
-    "
-  >
-</div>
+    <div class="brand">
+      <img
+        src="taskmintlogo-transparent.png"
+        style="
+          width: 180px;
+          height: auto;
+          background: transparent;
+          box-shadow: none;
+          border-radius: 0;
+          padding: 0;
+          object-fit: contain;
+        "
+      >
+    </div>
 
     <div class="notification-wrap">
 
@@ -369,6 +320,21 @@
       <div class="sub">Create a task and receive quotes.</div>
     </div>
 
+    <div
+      class="action-card"
+      onclick="window.location.href='browse-workers.html'"
+    >
+      <div class="icon">👷</div>
+
+      <div class="title">
+        Browse Workers
+      </div>
+
+      <div class="sub">
+        View worker profiles, ratings, services, and photos.
+      </div>
+    </div>
+
     <div class="action-card" onclick="window.location.href='view-open-task.html'">
       <div class="icon">📌</div>
       <div class="title">Open Tasks</div>
@@ -387,23 +353,8 @@
       <div class="sub">Review active disputes and updates.</div>
     </div>
 
-<div
-  class="action-card"
-  onclick="window.location.href='browse-workers.html'"
->
-  <div class="icon">👷</div>
-
-  <div class="title">
-    Browse Workers
   </div>
 
-  <div class="sub">
-    View worker profiles, ratings, services, and photos.
-  </div>
-</div>
-    
-  </div>
-  
   <div class="section">
 
     <div class="section-head">
@@ -412,34 +363,45 @@
       </div>
     </div>
 
-    <div
-  class="action-card"
-  onclick="window.location.href='saved-workers.html'"
->
-  <div class="icon">⭐</div>
-
-  <div class="title">
-    Saved Workers
-  </div>
-
-  <div class="sub">
-    Quickly view workers you've saved or hired before.
-  </div>
-</div>
-    
-
     <div class="grid">
+
+      <div
+        class="action-card"
+        onclick="window.location.href='saved-workers.html'"
+      >
+        <div class="icon">⭐</div>
+
+        <div class="title">
+          Saved Workers
+        </div>
+
+        <div class="sub">
+          Quickly view workers you've saved or hired before.
+        </div>
+      </div>
 
       <div class="action-card" onclick="window.location.href='view-past-task.html'">
         <div class="icon">✅</div>
-        <div class="title">Past Tasks</div>
-        <div class="sub">Completed and paid jobs.</div>
+
+        <div class="title">
+          Past Tasks
+        </div>
+
+        <div class="sub">
+          Completed and paid jobs.
+        </div>
       </div>
 
       <div class="action-card" onclick="window.location.href='profile.html'">
         <div class="icon">👤</div>
-        <div class="title">Profile</div>
-        <div class="sub">Manage your account settings.</div>
+
+        <div class="title">
+          Profile
+        </div>
+
+        <div class="sub">
+          Manage your account settings.
+        </div>
       </div>
 
     </div>
