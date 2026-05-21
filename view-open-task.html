@@ -762,8 +762,26 @@ async function loadOpenTasks() {
       </div>
 
       <div class="details-box" id="${detailsId}">
-        ${escapeHTML(getTaskDetails(task))}
-      </div>
+  ${
+    getTaskDetails(task)
+      .split("\n")
+      .map(detail => `
+        <div style="
+          background:#ffffff;
+          border:1px solid #e3eee6;
+          border-radius:12px;
+          padding:10px;
+          margin-bottom:8px;
+          line-height:1.35;
+          font-size:12px;
+          font-weight:700;
+        ">
+          ${escapeHTML(detail)}
+        </div>
+      `)
+      .join("")
+  }
+</div>
 
       <div class="code-note">
         <div>Arrival Code</div>
