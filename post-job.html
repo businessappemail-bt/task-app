@@ -506,6 +506,12 @@ const supabaseClient = window.supabase.createClient(
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
+  const params =
+  new URLSearchParams(window.location.search);
+
+const editTaskId =
+  params.get("edit_task_id");
+
 let selectedCategory = "";
 let questions = [];
 let questionIndex = 0;
