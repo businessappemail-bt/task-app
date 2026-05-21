@@ -1036,7 +1036,7 @@ function openDispute(taskId, workerId) {
 
 function editTask(taskId) {
   window.location.href =
-    `edit-task.html?task_id=${taskId}`;
+    `post-job.html?edit_task_id=${encodeURIComponent(taskId)}`;
 }
 
 function acceptQuote(taskId, workerId, quoteId, quoteAmount) {
