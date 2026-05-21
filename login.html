@@ -1,119 +1,337 @@
+# customer-login.html
+
+```html
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login - TaskMint</title>
+  <title>Customer Login - TaskMint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial;
-      background: #f5f5f5;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #e9f7ee 0%, #f5f5f5 100%);
+      color: #111;
+      min-height: 100vh;
     }
 
     .container {
-      max-width: 400px;
-      margin: 60px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 24px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
-    h2 {
+    .hero {
+      background: linear-gradient(135deg, #0b7a28, #19a447);
+      color: white;
+      border-radius: 26px;
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 10px 28px rgba(11,122,40,0.22);
+    }
+
+    .hero-title {
+      font-size: 30px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      line-height: 1.5;
+      opacity: 0.96;
+    }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border: 1px solid #edf1ee;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 6px;
       text-align: center;
     }
 
-    input, button {
+    .section-sub {
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    input {
       width: 100%;
       padding: 14px;
+      border-radius: 14px;
+      border: 1px solid #d8d8d8;
       margin-top: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+      font-size: 15px;
+      outline: none;
+      background: #fafafa;
+    }
+
+    input:focus {
+      border-color: #0b7a28;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(11,122,40,0.10);
+    }
+
+    .stay-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin: 14px 0 4px;
+    }
+
+    .stay-row input {
+      width: 17px;
+      height: 17px;
+      margin: 0;
+      accent-color: #0b7a28;
+    }
+
+    .stay-row label {
+      font-size: 14px;
+      color: #333;
     }
 
     button {
-      background: green;
-      color: white;
+      width: 100%;
+      padding: 15px;
+      margin-top: 16px;
       border: none;
+      border-radius: 16px;
+      background: #0b7a28;
+      color: white;
+      font-size: 15px;
+      font-weight: 900;
       cursor: pointer;
     }
 
-    #status {
-      margin-top: 10px;
+    .forgot-link {
+      display: block;
       text-align: center;
+      margin-top: 14px;
+      color: #0b7a28;
+      font-weight: 800;
+      text-decoration: none;
+      font-size: 14px;
     }
 
-    .link {
+    .status {
+      min-height: 18px;
+      margin-top: 12px;
       text-align: center;
-      margin-top: 15px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .bottom-links {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 14px;
+    }
+
+    .bottom-links a {
+      color: #0b7a28;
+      font-weight: 800;
+      text-decoration: none;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h2>Login</h2>
 
-    <input id="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
-<div style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px; margin:12px 0;">
-  <input type="checkbox" id="stayLoggedIn" style="width:16px; height:16px; margin:0;">
-  <label for="stayLoggedIn" style="margin:0; font-size:16px; line-height:16px;">Stay logged in</label>
-</div>
+<div class="container">
 
+  <div class="hero">
+    <div class="hero-title">TaskMint</div>
 
-    <button onclick="login()">Log In</button>
-
-    <p id="status"></p>
-
-    <div class="link">
-      <a href="index.html">Back</a>
+    <div class="hero-sub">
+      Log in to post tasks, manage quotes, message workers, and track your jobs in one place.
     </div>
   </div>
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <div class="card">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <div class="section-title">
+      Customer Login
+    </div>
+
+    <div class="section-sub">
+      This login is for customer accounts only.
+    </div>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="Email Address"
+    >
+
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+    >
+
+    <div class="stay-row">
+      <input type="checkbox" id="stayLoggedIn">
+      <label for="stayLoggedIn">Stay logged in</label>
+    </div>
+
+    <button onclick="login()">
+      Log In
+    </button>
+
+    <a
+      class="forgot-link"
+      href="customer-forgot-password.html">
+      Forgot Password?
+    </a>
+
+    <div
+      id="status"
+      class="status">
+    </div>
+
+  </div>
+
+  <div class="bottom-links">
+    <a href="customer-create-account.html">
+      Create Customer Account
+    </a>
+
+    <br><br>
+
+    <a href="index.html">
+      ← Back
+    </a>
+  </div>
+
+</div>
 
 <script>
-  const SUPABASE_URL = "https://dbcthtjmtlumidpbucrc.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ";
+const SUPABASE_URL =
+  "https://dbcthtjmtlumidpbucrc.supabase.co";
 
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY =
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ";
 
-  async function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const status = document.getElementById("status");
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
-    status.innerText = "";
+async function login() {
 
-    if (!email || !password) {
-      status.innerText = "Enter your email and password.";
-      return;
-    }
+  const email =
+    document.getElementById("email").value.trim();
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const password =
+    document.getElementById("password").value;
+
+  const status =
+    document.getElementById("status");
+
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  if (!email || !password) {
+    status.innerText =
+      "Enter your email and password.";
+    return;
+  }
+
+  const loginButton =
+    document.querySelector("button");
+
+  loginButton.disabled = true;
+  loginButton.innerText = "Logging In...";
+
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
       email: email,
       password: password
     });
 
-    if (error) {
-      status.innerText = error.message;
-      return;
-    }
+  if (error) {
+    status.innerText = error.message;
 
-    window.location.href = "customer-home.html";
+    loginButton.disabled = false;
+    loginButton.innerText = "Log In";
+
+    return;
   }
 
-  async function logoutOldSession() {
+  const authUser =
+    data && data.user ? data.user : null;
+
+  if (!authUser) {
+    status.innerText = "Login failed.";
+
+    loginButton.disabled = false;
+    loginButton.innerText = "Log In";
+
+    return;
+  }
+
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("account_type")
+      .eq("id", authUser.id)
+      .maybeSingle();
+
+  if (
+    profile &&
+    profile.account_type &&
+    profile.account_type !== "customer"
+  ) {
+
     await supabaseClient.auth.signOut();
+
+    status.innerText =
+      "Please log in through the worker app.";
+
+    loginButton.disabled = false;
+    loginButton.innerText = "Log In";
+
+    return;
   }
 
-  logoutOldSession();
+  status.style.color = "#0b7a28";
+  status.innerText = "Login successful.";
+
+  window.location.href =
+    "customer-home.html";
+}
+
+async function logoutOldSession() {
+  await supabaseClient.auth.signOut();
+}
+
+logoutOldSession();
 </script>
-  
+
 </body>
 </html>
+```
