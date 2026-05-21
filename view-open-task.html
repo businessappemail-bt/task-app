@@ -208,14 +208,14 @@ body {
 .details-box,
 .worker-details {
   display: none;
-  margin-top: 12px;
+  margin-top: 8px;
   background: #f7faf8;
   border: 1px solid #e3eee6;
-  border-radius: 16px;
-  padding: 12px;
-  font-size: 13px;
-  line-height: 1.45;
-  white-space: pre-wrap;
+  border-radius: 14px;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: normal;
 }
 
 .code-note {
@@ -252,10 +252,10 @@ body {
 
 button {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border: none;
-  border-radius: 14px;
-  font-size: 14px;
+  border-radius: 12px;
+  font-size: 12px;
   font-weight: 900;
   cursor: pointer;
   transition: 0.2s;
@@ -263,7 +263,37 @@ button {
 
 button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.09);
+}
+
+.worker-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.worker-actions button {
+  padding: 9px;
+  font-size: 11px;
+  border-radius: 11px;
+}
+
+.quote-info {
+  margin: 8px 0;
+}
+
+.quote-info p {
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.tap-message {
+  margin-top: 6px;
+  color: #0b7a28;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .message-btn,
@@ -823,7 +853,8 @@ async function toggleApplicants(taskId) {
     await supabaseClient
       .from("worker_quotes")
       .select("*")
-      .eq("task_id", taskId);
+      .eq("task_id", taskId)
+      .neq("status", "declined");
 
   if (error) {
     box.innerHTML =
@@ -932,45 +963,34 @@ async function toggleApplicants(taskId) {
         </div>
       </div>
 
+      <div class="tap-message">
+        Tap worker card to expand
+      </div>
+
       <div class="worker-details" id="${workerDetailsId}">
-        <p><strong>Quote Status:</strong> ${escapeHTML(quoteStatus)}</p>
-        <p><strong>Jobs Completed:</strong> ${escapeHTML(worker.total_jobs || 0)}</p>
-        <p><strong>Reviews:</strong> ${reviews ? reviews.length : 0}</p>
-        <p><strong>Worker Message:</strong> ${escapeHTML(app.message || "No message provided.")}</p>
+        <div class="quote-info">
+          <p><strong>Quote Status:</strong> ${escapeHTML(quoteStatus)}</p>
+          <p><strong>Jobs Completed:</strong> ${escapeHTML(worker.total_jobs || 0)}</p>
+          <p><strong>Reviews:</strong> ${reviews ? reviews.length : 0}</p>
+          <p><strong>Worker Message:</strong> ${escapeHTML(app.message || "No message provided.")}</p>
+        </div>
 
-        <button class="public-profile-btn" onclick="event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
-          View Worker Public Profile
-        </button>
+        <div class="worker-actions">
+          <button class="public-profile-btn" onclick="event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
+            Public Profile
+          </button>
 
-        <button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}')">
-          Message Worker
-        </button>
+          <button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}')">
+            Message
+          </button>
 
-        <div class="action-row">
           <button class="accept-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}')">
             Accept Quote
           </button>
 
-          <button class="decline-btn" onclick="event.stopPropagation(); declineQuote('${app.id || ""}')">
+          <button class="decline-btn" onclick="event.stopPropagation(); declineQuote('${app.id || ""}', '${taskId}')">
             Decline Quote
           </button>
-        </div>
-
-        <div class="reviews hidden" id="reviews-${workerId}">
-          ${
-            reviews && reviews.length
-              ? reviews.map(r => `
-                <div class="review">
-                  <p>⭐ ${escapeHTML(r.rating || "")}</p>
-                  <p>${escapeHTML(r.comment || "No comment")}</p>
-                </div>
-              `).join("")
-              : "<p>No reviews yet.</p>"
-          }
-        </div>
-
-        <div class="details-toggle" onclick="event.stopPropagation(); toggleDetails('reviews-${workerId}')">
-          View reviews
         </div>
       </div>
     `;
@@ -1048,14 +1068,14 @@ async function acceptQuote(taskId, workerId, quoteId) {
   await loadOpenTasks();
 }
 
-async function declineQuote(quoteId) {
+async function declineQuote(quoteId, taskId) {
   if (!quoteId) {
     alert("This quote could not be found.");
     return;
   }
 
   const confirmDecline =
-    confirm("Decline this quote?");
+    confirm("Decline and remove this quote? This will remove it from your view and the worker's quote list.");
 
   if (!confirmDecline) {
     return;
@@ -1070,7 +1090,7 @@ async function declineQuote(quoteId) {
   const { error } =
     await supabaseClient
       .from("worker_quotes")
-      .update({ status: "declined" })
+      .delete()
       .eq("id", quoteId);
 
   if (error) {
@@ -1079,7 +1099,7 @@ async function declineQuote(quoteId) {
   }
 
   status.style.color = "#0b7a28";
-  status.innerText = "Quote declined.";
+  status.innerText = "Quote declined and removed.";
 
   await loadOpenTasks();
 }
