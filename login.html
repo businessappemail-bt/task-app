@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Customer Login - TaskMint</title>
+  <title>TaskMint Customer Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -14,55 +15,160 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #e9f7ee 0%, #f5f5f5 100%);
-      color: #111;
       min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        linear-gradient(180deg, #ebfff0 0%, #f5f5f5 100%);
+      position: relative;
+    }
+
+    .bg-circle {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.18;
+      z-index: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .circle1 {
+      width: 240px;
+      height: 240px;
+      background: #22c55e;
+      top: -60px;
+      left: -80px;
+    }
+
+    .circle2 {
+      width: 220px;
+      height: 220px;
+      background: #16a34a;
+      bottom: -50px;
+      right: -60px;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-15px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
     }
 
     .container {
-      max-width: 420px;
+      position: relative;
+      z-index: 2;
+      max-width: 430px;
       margin: 0 auto;
-      padding: 24px;
       min-height: 100vh;
+      padding: 24px;
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
 
-    .hero {
-      background: linear-gradient(135deg, #0b7a28, #19a447);
-      color: white;
-      border-radius: 26px;
-      padding: 24px;
+    .logo-wrap {
+      text-align: center;
       margin-bottom: 18px;
-      box-shadow: 0 10px 28px rgba(11,122,40,0.22);
+      animation: fadeUp 0.7s ease;
+    }
+
+    .logo {
+      width: 260px;
+      max-width: 100%;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.12));
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-card {
+      background:
+        linear-gradient(135deg, #0b7a28, #1cb74d);
+      border-radius: 28px;
+      padding: 24px;
+      color: white;
+      margin-bottom: 18px;
+      box-shadow:
+        0 18px 35px rgba(11,122,40,0.22);
+      animation: fadeUp 0.9s ease;
     }
 
     .hero-title {
       font-size: 30px;
       font-weight: 900;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      line-height: 1.1;
     }
 
     .hero-sub {
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.55;
       opacity: 0.96;
+    }
+
+    .feature-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .feature-box {
+      flex: 1;
+      background: rgba(255,255,255,0.13);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 12px;
+      border-radius: 18px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .feature-box img {
+      width: 34px;
+      height: 34px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .feature-text {
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
     }
 
     .card {
       background: white;
-      border-radius: 22px;
-      padding: 20px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow:
+        0 8px 24px rgba(0,0,0,0.08);
       border: 1px solid #edf1ee;
+      animation: fadeUp 1s ease;
     }
 
     .section-title {
-      font-size: 22px;
+      text-align: center;
+      font-size: 24px;
       font-weight: 900;
       margin-bottom: 6px;
-      text-align: center;
+      color: #111;
     }
 
     .section-sub {
@@ -75,19 +181,21 @@
 
     input {
       width: 100%;
-      padding: 14px;
-      border-radius: 14px;
+      padding: 15px;
+      border-radius: 16px;
       border: 1px solid #d8d8d8;
       margin-top: 12px;
       font-size: 15px;
       outline: none;
       background: #fafafa;
+      transition: 0.2s;
     }
 
     input:focus {
-      border-color: #0b7a28;
+      border-color: #16a34a;
       background: white;
-      box-shadow: 0 0 0 3px rgba(11,122,40,0.10);
+      box-shadow:
+        0 0 0 4px rgba(22,163,74,0.10);
     }
 
     .stay-row {
@@ -95,32 +203,58 @@
       justify-content: center;
       align-items: center;
       gap: 8px;
-      margin: 14px 0 4px;
+      margin-top: 16px;
     }
 
     .stay-row input {
-      width: 17px;
-      height: 17px;
+      width: 16px;
+      height: 16px;
       margin: 0;
-      accent-color: #0b7a28;
+      accent-color: #16a34a;
     }
 
     .stay-row label {
       font-size: 14px;
-      color: #333;
+      color: #444;
     }
 
-    button {
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, #0b7a28, #19b64c);
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+      margin-top: 18px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow:
+        0 12px 22px rgba(11,122,40,0.20);
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .create-btn {
       width: 100%;
       padding: 15px;
-      margin-top: 16px;
-      border: none;
-      border-radius: 16px;
-      background: #0b7a28;
-      color: white;
+      border-radius: 18px;
+      border: 2px solid #19b64c;
+      background: white;
+      color: #0b7a28;
       font-size: 15px;
       font-weight: 900;
+      margin-top: 14px;
       cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .create-btn:hover {
+      background: #f0fff4;
     }
 
     .forgot-link {
@@ -128,43 +262,83 @@
       text-align: center;
       margin-top: 14px;
       color: #0b7a28;
+      font-size: 14px;
       font-weight: 800;
       text-decoration: none;
-      font-size: 14px;
     }
 
     .status {
-      min-height: 18px;
-      margin-top: 12px;
       text-align: center;
+      margin-top: 14px;
+      min-height: 18px;
       font-size: 13px;
       font-weight: 800;
     }
 
-    .bottom-links {
+    .bottom-link {
       text-align: center;
-      margin-top: 18px;
-      font-size: 14px;
+      margin-top: 20px;
     }
 
-    .bottom-links a {
+    .bottom-link a {
       color: #0b7a28;
       font-weight: 800;
       text-decoration: none;
+      font-size: 14px;
     }
+
   </style>
 </head>
 
 <body>
 
+<div class="bg-circle circle1"></div>
+<div class="bg-circle circle2"></div>
+
 <div class="container">
 
-  <div class="hero">
-    <div class="hero-title">TaskMint</div>
+  <div class="logo-wrap">
+    <img
+      src="taskmintlogo-transparent.png"
+      class="logo"
+    >
+  </div>
+
+  <div class="hero-card">
+
+    <div class="hero-title">
+      Get Tasks Done Faster
+    </div>
 
     <div class="hero-sub">
-      Log in to post tasks, manage quotes, message workers, and track your jobs in one place.
+      Connect with trusted local workers, request quotes, message directly, and manage everything in one place.
     </div>
+
+    <div class="feature-row">
+
+      <div class="feature-box">
+        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=400">
+        <div class="feature-text">
+          Message Workers
+        </div>
+      </div>
+
+      <div class="feature-box">
+        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400">
+        <div class="feature-text">
+          Get Fast Quotes
+        </div>
+      </div>
+
+      <div class="feature-box">
+        <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=400">
+        <div class="feature-text">
+          Track Tasks
+        </div>
+      </div>
+
+    </div>
+
   </div>
 
   <div class="card">
@@ -174,7 +348,7 @@
     </div>
 
     <div class="section-sub">
-      This login is for customer accounts only.
+      Customer accounts only.
     </div>
 
     <input
@@ -194,8 +368,16 @@
       <label for="stayLoggedIn">Stay logged in</label>
     </div>
 
-    <button onclick="login()">
+    <button
+      class="login-btn"
+      onclick="login()">
       Log In
+    </button>
+
+    <button
+      class="create-btn"
+      onclick="window.location.href='customer-create-account.html'">
+      Create Customer Account
     </button>
 
     <a
@@ -211,13 +393,7 @@
 
   </div>
 
-  <div class="bottom-links">
-    <a href="customer-create-account.html">
-      Create Customer Account
-    </a>
-
-    <br><br>
-
+  <div class="bottom-link">
     <a href="index.html">
       ← Back
     </a>
@@ -226,6 +402,7 @@
 </div>
 
 <script>
+
 const SUPABASE_URL =
   "https://dbcthtjmtlumidpbucrc.supabase.co";
 
@@ -249,28 +426,31 @@ async function login() {
   const status =
     document.getElementById("status");
 
+  const loginButton =
+    document.querySelector(".login-btn");
+
   status.style.color = "#b00020";
   status.innerText = "";
 
   if (!email || !password) {
+
     status.innerText =
       "Enter your email and password.";
+
     return;
   }
-
-  const loginButton =
-    document.querySelector("button");
 
   loginButton.disabled = true;
   loginButton.innerText = "Logging In...";
 
   const { data, error } =
     await supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: password
+      email,
+      password
     });
 
   if (error) {
+
     status.innerText = error.message;
 
     loginButton.disabled = false;
@@ -283,6 +463,7 @@ async function login() {
     data && data.user ? data.user : null;
 
   if (!authUser) {
+
     status.innerText = "Login failed.";
 
     loginButton.disabled = false;
@@ -307,7 +488,7 @@ async function login() {
     await supabaseClient.auth.signOut();
 
     status.innerText =
-      "Please log in through the worker app.";
+      "Please use the worker login.";
 
     loginButton.disabled = false;
     loginButton.innerText = "Log In";
@@ -326,4 +507,3 @@ async function login() {
 
 </body>
 </html>
-
