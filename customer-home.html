@@ -43,16 +43,6 @@
       color: #0b7a28;
     }
 
-    .brand img {
-      width: 46px;
-      height: 46px;
-      object-fit: contain;
-      background: white;
-      border-radius: 14px;
-      padding: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
     .notification-wrap {
       position: relative;
     }
@@ -332,10 +322,20 @@
 
   <div class="top-bar">
 
-    <div class="brand">
-      <img src="taskmintlogo.png">
-      <span>TaskMint</span>
-    </div>
+  <div class="brand">
+  <img
+    src="taskmintlogo-transparent.png"
+    style="
+      width: 180px;
+      height: auto;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      object-fit: contain;
+    "
+  >
+</div>
 
     <div class="notification-wrap">
 
