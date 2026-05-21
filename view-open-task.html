@@ -988,7 +988,7 @@ async function toggleApplicants(taskId) {
             Accept Quote
           </button>
 
-          <button class="decline-btn" onclick="event.stopPropagation(); declineQuote('${app.id || ""}', '${taskId}')">
+          <button class="decline-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}', '${quoteAmount}')">
             Decline Quote
           </button>
         </div>
