@@ -3,83 +3,251 @@
 <head>
   <title>Customer Home - TaskMint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      background:
+        linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
       color: #111;
+      padding-bottom: 90px;
     }
 
     .container {
-      max-width: 420px;
+      max-width: 430px;
       margin: 0 auto;
-      padding: 40px 20px 40px;
+      padding: 18px;
     }
 
-    .logo-wrap {
-      text-align: center;
-      margin-bottom: 20px;
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
     }
 
-    .logo-img {
-      width: 120px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #0b7a28;
+    }
+
+    .brand img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      background: white;
+      border-radius: 14px;
+      padding: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .notification-wrap {
+      position: relative;
+    }
+
+    .notification-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      border: none;
+      background: white;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    .notification-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 20px;
+      height: 20px;
+      background: #b00020;
+      color: white;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    .hero {
+      background:
+        linear-gradient(135deg, #0b7a28, #19b64c);
+      border-radius: 28px;
+      padding: 22px;
+      color: white;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 14px 28px rgba(11,122,40,0.20);
+      animation: fadeUp 0.5s ease;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 50%;
+      top: -70px;
+      right: -60px;
+      animation: pulseGlow 5s infinite;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero p {
+      margin: 0;
+      line-height: 1.5;
+      position: relative;
+      z-index: 2;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .action-card {
+      background: white;
+      border-radius: 22px;
+      padding: 16px;
+      border: 1px solid #edf1ee;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+      cursor: pointer;
+      transition: 0.2s;
+      animation: floatCard 4s ease-in-out infinite;
+    }
+
+    .action-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .action-card:nth-child(2) {
+      animation-delay: 0.5s;
+    }
+
+    .action-card:nth-child(3) {
+      animation-delay: 1s;
+    }
+
+    .action-card:nth-child(4) {
+      animation-delay: 1.5s;
+    }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: #e7f7ec;
+      color: #0b7a28;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
       margin-bottom: 10px;
     }
 
-    h1 {
-      font-size: 28px;
-      margin: 8px 0 6px;
-      text-align: center;
+    .title {
+      font-size: 15px;
+      font-weight: 900;
+      margin-bottom: 4px;
     }
 
-    p {
-      text-align: center;
-      color: #555;
-      margin-bottom: 30px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-
-    .card h2 {
-      margin: 0 0 8px;
-      font-size: 20px;
-    }
-
-    .card p {
-      text-align: left;
-      margin: 0 0 14px;
+    .sub {
+      font-size: 12px;
       color: #666;
-      font-size: 14px;
+      line-height: 1.4;
     }
 
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    
-    .primary {
-      background: green;
-      color: white;
-    }
-
-    .secondary {
+    .section {
       background: white;
-      color: #111;
-      border: 1px solid #ccc;
+      border-radius: 24px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #edf1ee;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .worker-card {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #f7faf8;
+      border-radius: 18px;
+      padding: 12px;
+      margin-top: 10px;
+      cursor: pointer;
+      border: 1px solid #e3eee6;
+    }
+
+    .worker-photo {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      object-fit: cover;
+      background: white;
+    }
+
+    .worker-info {
+      flex: 1;
+    }
+
+    .worker-name {
+      font-size: 15px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .worker-meta {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .view-pill {
+      background: #e7f7ec;
+      color: #0b7a28;
+      padding: 6px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: bold;
     }
 
     .nav {
@@ -87,221 +255,289 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: white;
-      border-top: 1px solid #ddd;
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-      max-width: 420px;
+      max-width: 430px;
       margin: 0 auto;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid #ddd;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 10px 6px;
     }
 
     .nav a {
       text-decoration: none;
       color: #555;
-      font-size: 14px;
-    }
-
-    .nav .active {
-      color: green;
+      font-size: 11px;
       font-weight: bold;
+      text-align: center;
     }
 
-    .spacer {
-      height: 80px;
+    .nav-icon {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 3px;
     }
-    .logo-img {
-  width: 160px;
-  margin-bottom: 20px;
-      object-fit: contain;
-      object-position: left center;
-      background: transparent;
-      mix-blend-mode: multiply;
+
+    .active {
+      color: #0b7a28 !important;
     }
-    .logo-wrap {
-  text-align: center;
-  margin-bottom: 8px;
-  background: transparent;
-}
-  
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes floatCard {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    @keyframes pulseGlow {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <div class="logo-wrap">
-      <img src="taskmintlogo.png" class="logo-img" alt="TaskMint Logo">
+
+<div class="container">
+
+  <div class="top-bar">
+
+    <div class="brand">
+      <img src="taskmintlogo.png">
+      <span>TaskMint</span>
     </div>
 
-    <h1>Welcome!</h1>
-    <p>Post a quick job and find someone local to help you.</p>
+    <div class="notification-wrap">
 
+      <button class="notification-btn">
+        🔔
+      </button>
 
-    <div class="card">
-      <h2>Your Activity</h2>
-      <p>Manage your task, messages, disputes, and profile.</p>
+      <div class="notification-count">
+        2
+      </div>
 
-<button class="btn primary" onclick="window.location.href='post-job.html'">
-  Post a Task
-</button>
+    </div>
 
-<button class="btn secondary" onclick="window.location.href='view-open-task.html'">
-  View Open Task
-</button>
+  </div>
 
-<button class="btn secondary" onclick="window.location.href='view-past-task.html'">
-  View Past Task
-</button>
+  <div class="hero">
+    <h1 id="welcomeText">
+      Welcome Back
+    </h1>
 
-<button class="btn secondary" onclick="window.location.href='message-center.html'">
-  Message Center
-</button>
+    <p>
+      Browse workers, compare quotes, manage tasks, and message workers all in one place.
+    </p>
+  </div>
 
-<button class="btn secondary" onclick="window.location.href='dispute-center.html'">
-  Dispute Center
-</button>
+  <div class="grid">
 
-<button class="btn secondary" onclick="window.location.href='profile.html'">
-  Profile
-</button>
+    <div class="action-card" onclick="window.location.href='post-job.html'">
+      <div class="icon">＋</div>
+      <div class="title">Post Task</div>
+      <div class="sub">Create a task and receive quotes.</div>
+    </div>
 
+    <div class="action-card" onclick="window.location.href='view-open-task.html'">
+      <div class="icon">📌</div>
+      <div class="title">Open Tasks</div>
+      <div class="sub">Track active jobs and workers.</div>
+    </div>
 
-  <script>
-    function goToPostJob() {
-      window.location.href = "post-job.html";
-    }
+    <div class="action-card" onclick="window.location.href='message-center.html'">
+      <div class="icon">💬</div>
+      <div class="title">Messages</div>
+      <div class="sub">View quote and worker messages.</div>
+    </div>
 
-    function goToMyJobs() {
-      window.location.href = "my-jobs.html";
-    }
+    <div class="action-card" onclick="window.location.href='dispute-center.html'">
+      <div class="icon">⚠️</div>
+      <div class="title">Disputes</div>
+      <div class="sub">Review active disputes and updates.</div>
+    </div>
 
-    function goToMessageCenter() {
-      window.location.href = "messages-center.html";
-    }
+  </div>
 
-    function goToProfile() {
-      window.location.href = "profile.html";
-    }
-   async function toggleMode() {
-  const { data } = await supabaseClient.auth.getSession();
+  <div class="section">
+
+    <div class="section-head">
+      <div class="section-title">
+        Browse Workers
+      </div>
+    </div>
+
+    <div id="workersList">
+
+      <div class="worker-card">
+
+        <img
+          class="worker-photo"
+          src="taskmintlogo.png"
+        >
+
+        <div class="worker-info">
+
+          <div class="worker-name">
+            Local Worker
+          </div>
+
+          <div class="worker-meta">
+            Home services • Moving • Cleaning<br>
+            Villa Rica, GA
+          </div>
+
+        </div>
+
+        <div class="view-pill">
+          View
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="section">
+
+    <div class="section-head">
+      <div class="section-title">
+        More
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <div class="action-card" onclick="window.location.href='view-past-task.html'">
+        <div class="icon">✅</div>
+        <div class="title">Past Tasks</div>
+        <div class="sub">Completed and paid jobs.</div>
+      </div>
+
+      <div class="action-card" onclick="window.location.href='profile.html'">
+        <div class="icon">👤</div>
+        <div class="title">Profile</div>
+        <div class="sub">Manage your account settings.</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="nav">
+
+  <a href="customer-home.html" class="active">
+    <span class="nav-icon">🏠</span>
+    Home
+  </a>
+
+  <a href="post-job.html">
+    <span class="nav-icon">＋</span>
+    Post
+  </a>
+
+  <a href="view-open-task.html">
+    <span class="nav-icon">📌</span>
+    Open
+  </a>
+
+  <a href="message-center.html">
+    <span class="nav-icon">💬</span>
+    Messages
+  </a>
+
+  <a href="profile.html">
+    <span class="nav-icon">👤</span>
+    Profile
+  </a>
+
+</div>
+
+<script>
+
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+async function loadProfile() {
+
+  const { data } =
+    await supabaseClient.auth.getSession();
 
   if (!data.session) {
     window.location.href = "login.html";
     return;
   }
 
-  const user = data.session.user;
+  const user =
+    data.session.user;
 
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("account_type")
-    .eq("id", user.id)
-    .single();
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
 
-  const newMode = profile.account_type === "customer" ? "worker" : "customer";
-
-  await supabaseClient
-    .from("profiles")
-    .update({ account_type: newMode })
-    .eq("id", user.id);
-
-  if (newMode === "worker") {
-    window.location.href = "tasks.html";
-  } else {
-    window.location.href = "customer-home.html";
+  if (!profile) {
+    return;
   }
-}
 
-  window.location.href = "tasks.html";
-}
-  </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-const supabaseClient = window.supabase.createClient(
-  "https://dbcthtjmtlumidpbucrc.supabase.co",
-  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
-);
-
-async function protectPage() {
-  const { data, error } = await supabaseClient.auth.getSession();
-
-  if (error || !data.session) {
+  if (
+    profile.account_type &&
+    profile.account_type !== "customer"
+  ) {
+    await supabaseClient.auth.signOut();
     window.location.href = "login.html";
-    return null;
-  }
-
-  return data.session.user;
-}
-
-function updateToggleUI(mode) {
-  const label = document.getElementById("modeLabel");
-  const toggle = document.getElementById("toggleSwitch");
-
-  if (mode === "worker") {
-    label.innerText = "Worker Mode";
-    toggle.classList.add("active");
-  } else {
-    label.innerText = "Customer Mode";
-    toggle.classList.remove("active");
-  }
-}
-
-async function loadMode() {
-  const user = await protectPage();
-  if (!user) return;
-
-  const { data: profile, error } = await supabaseClient
-    .from("profiles")
-    .select("account_type")
-    .eq("id", user.id)
-    .single();
-
-  if (error || !profile) {
-    alert("Could not load profile.");
     return;
   }
 
-  updateToggleUI(profile.account_type);
+  if (profile.first_name) {
+
+    document.getElementById(
+      "welcomeText"
+    ).innerText =
+      `Welcome back, ${profile.first_name}`;
+  }
 }
 
-async function toggleMode() {
-  const user = await protectPage();
-  if (!user) return;
+loadProfile();
 
-  const { data: profile, error: profileError } = await supabaseClient
-    .from("profiles")
-    .select("account_type")
-    .eq("id", user.id)
-    .single();
-
-  if (profileError || !profile) {
-    alert("Could not load profile.");
-    return;
-  }
-
-  const newMode = profile.account_type === "customer" ? "worker" : "customer";
-
-  const { error: updateError } = await supabaseClient
-    .from("profiles")
-    .update({ account_type: newMode })
-    .eq("id", user.id);
-
-  if (updateError) {
-    alert(updateError.message);
-    return;
-  }
-
-  updateToggleUI(newMode);
-
-  setTimeout(() => {
-    window.location.href = newMode === "worker"
-      ? "tasks.html"
-      : "customer-home.html";
-  }, 300);
-}
-
-loadMode();
 </script>
-  
+
 </body>
 </html>
