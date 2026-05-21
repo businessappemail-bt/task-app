@@ -1021,13 +1021,17 @@ function editTask(taskId) {
     `edit-task.html?task_id=${taskId}`;
 }
 
-async function acceptQuote(taskId, workerId, quoteId) {
+function acceptQuote(taskId, workerId, quoteId, quoteAmount) {
   const confirmAccept =
-    confirm("Accept this worker's quote? This will assign the worker to the task.");
+    confirm("Continue to payment and assign this worker if payment succeeds?");
 
   if (!confirmAccept) {
     return;
   }
+
+  window.location.href =
+    `customer-pay-quote.html?task_id=${encodeURIComponent(taskId)}&worker_id=${encodeURIComponent(workerId)}&quote_id=${encodeURIComponent(quoteId)}&quote_amount=${encodeURIComponent(quoteAmount || 0)}`;
+}
 
   const status =
     document.getElementById("status");
