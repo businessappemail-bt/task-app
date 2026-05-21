@@ -783,15 +783,15 @@ async function loadOpenTasks() {
         </button>
       </div>
 
-      ${assignedWorkerId ? `
-        <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${assignedWorkerId}')">
-          Open Dispute
-        </button>
-      ` : `
-        <button class="dispute-btn" disabled onclick="event.stopPropagation();">
-          Dispute available after worker is assigned
-        </button>
-      `}
+      ${task.status === "in_progress" || task.status === "completed" || task.status === "paid" ? `
+  <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${assignedWorkerId}')">
+    Open Dispute
+  </button>
+` : `
+  <button class="dispute-btn" disabled onclick="event.stopPropagation();">
+    Disputes unlock once work begins
+  </button>
+`}
 
       <button class="primary-btn" onclick="event.stopPropagation(); toggleApplicants('${task.id}')">
         View Interested Workers
