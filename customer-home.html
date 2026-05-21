@@ -7,16 +7,12 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background:
-        linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+      background: linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
       color: #111;
       padding-bottom: 90px;
     }
@@ -34,14 +30,9 @@
       margin-bottom: 16px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-    }
+    .brand { display: flex; align-items: center; }
 
-    .notification-wrap {
-      position: relative;
-    }
+    .notification-wrap { position: relative; }
 
     .notification-btn {
       width: 48px;
@@ -52,7 +43,6 @@
       font-size: 22px;
       cursor: pointer;
       box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-      position: relative;
     }
 
     .notification-count {
@@ -73,8 +63,7 @@
     }
 
     .hero {
-      background:
-        linear-gradient(135deg, #0b7a28, #19b64c);
+      background: linear-gradient(135deg, #0b7a28, #19b64c);
       border-radius: 28px;
       padding: 22px;
       color: white;
@@ -129,21 +118,7 @@
       animation: floatCard 4s ease-in-out infinite;
     }
 
-    .action-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .action-card:nth-child(2) {
-      animation-delay: 0.5s;
-    }
-
-    .action-card:nth-child(3) {
-      animation-delay: 1s;
-    }
-
-    .action-card:nth-child(4) {
-      animation-delay: 1.5s;
-    }
+    .action-card:hover { transform: translateY(-2px); }
 
     .icon {
       width: 42px;
@@ -179,16 +154,10 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
 
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
     .section-title {
       font-size: 18px;
       font-weight: 900;
+      margin-bottom: 12px;
     }
 
     .nav {
@@ -220,50 +189,24 @@
       margin-bottom: 3px;
     }
 
-    .active {
-      color: #0b7a28 !important;
-    }
+    .active { color: #0b7a28 !important; }
 
     @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes floatCard {
-      0% {
-        transform: translateY(0px);
-      }
-
-      50% {
-        transform: translateY(-5px);
-      }
-
-      100% {
-        transform: translateY(0px);
-      }
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+      100% { transform: translateY(0px); }
     }
 
     @keyframes pulseGlow {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.1);
-      }
-
-      100% {
-        transform: scale(1);
-      }
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
-
   </style>
 </head>
 
@@ -272,44 +215,19 @@
 <div class="container">
 
   <div class="top-bar">
-
     <div class="brand">
-      <img
-        src="taskmintlogo-transparent.png"
-        style="
-          width: 180px;
-          height: auto;
-          background: transparent;
-          box-shadow: none;
-          border-radius: 0;
-          padding: 0;
-          object-fit: contain;
-        "
-      >
+      <img src="taskmintlogo-transparent.png" style="width:180px;height:auto;background:transparent;box-shadow:none;border-radius:0;padding:0;object-fit:contain;">
     </div>
 
     <div class="notification-wrap">
-
-      <button class="notification-btn">
-        🔔
-      </button>
-
-      <div class="notification-count">
-        2
-      </div>
-
+      <button class="notification-btn">🔔</button>
+      <div class="notification-count">2</div>
     </div>
-
   </div>
 
   <div class="hero">
-    <h1 id="welcomeText">
-      Welcome Back
-    </h1>
-
-    <p>
-      Browse workers, compare quotes, manage tasks, and message workers all in one place.
-    </p>
+    <h1 id="welcomeText">Welcome Back</h1>
+    <p>Browse workers, compare quotes, manage tasks, and message workers all in one place.</p>
   </div>
 
   <div class="grid">
@@ -320,19 +238,10 @@
       <div class="sub">Create a task and receive quotes.</div>
     </div>
 
-    <div
-      class="action-card"
-      onclick="window.location.href='browse-workers.html'"
-    >
+    <div class="action-card" onclick="window.location.href='browse-workers.html'">
       <div class="icon">👷</div>
-
-      <div class="title">
-        Browse Workers
-      </div>
-
-      <div class="sub">
-        View worker profiles, ratings, services, and photos.
-      </div>
+      <div class="title">Browse Workers</div>
+      <div class="sub">View worker profiles, ratings, services, and photos.</div>
     </div>
 
     <div class="action-card" onclick="window.location.href='view-open-task.html'">
@@ -353,143 +262,81 @@
       <div class="sub">Review active disputes and updates.</div>
     </div>
 
+    <div class="action-card" onclick="window.location.href='saved-workers.html'">
+      <div class="icon">⭐</div>
+      <div class="title">Saved Workers</div>
+      <div class="sub">Quickly view workers you've saved or hired before.</div>
+    </div>
+
   </div>
 
   <div class="section">
-
-    <div class="section-head">
-      <div class="section-title">
-        More
-      </div>
-    </div>
+    <div class="section-title">More</div>
 
     <div class="grid">
 
-      <div
-        class="action-card"
-        onclick="window.location.href='saved-workers.html'"
-      >
-        <div class="icon">⭐</div>
-
-        <div class="title">
-          Saved Workers
-        </div>
-
-        <div class="sub">
-          Quickly view workers you've saved or hired before.
-        </div>
-      </div>
-
       <div class="action-card" onclick="window.location.href='view-past-task.html'">
         <div class="icon">✅</div>
-
-        <div class="title">
-          Past Tasks
-        </div>
-
-        <div class="sub">
-          Completed and paid jobs.
-        </div>
+        <div class="title">Past Tasks</div>
+        <div class="sub">Completed and paid jobs.</div>
       </div>
 
       <div class="action-card" onclick="window.location.href='profile.html'">
         <div class="icon">👤</div>
-
-        <div class="title">
-          Profile
-        </div>
-
-        <div class="sub">
-          Manage your account settings.
-        </div>
+        <div class="title">Profile</div>
+        <div class="sub">Manage your account settings.</div>
       </div>
 
     </div>
-
   </div>
 
 </div>
 
 <div class="nav">
-
-  <a href="customer-home.html" class="active">
-    <span class="nav-icon">🏠</span>
-    Home
-  </a>
-
-  <a href="post-job.html">
-    <span class="nav-icon">＋</span>
-    Post
-  </a>
-
-  <a href="view-open-task.html">
-    <span class="nav-icon">📌</span>
-    Open
-  </a>
-
-  <a href="message-center.html">
-    <span class="nav-icon">💬</span>
-    Messages
-  </a>
-
-  <a href="profile.html">
-    <span class="nav-icon">👤</span>
-    Profile
-  </a>
-
+  <a href="customer-home.html" class="active"><span class="nav-icon">🏠</span>Home</a>
+  <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Open</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="profile.html"><span class="nav-icon">👤</span>Profile</a>
 </div>
 
 <script>
-
 const supabaseClient = window.supabase.createClient(
   "https://dbcthtjmtlumidpbucrc.supabase.co",
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
 async function loadProfile() {
-
-  const { data } =
-    await supabaseClient.auth.getSession();
+  const { data } = await supabaseClient.auth.getSession();
 
   if (!data.session) {
     window.location.href = "login.html";
     return;
   }
 
-  const user =
-    data.session.user;
+  const user = data.session.user;
 
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .maybeSingle();
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  if (!profile) {
-    return;
-  }
+  if (!profile) return;
 
-  if (
-    profile.account_type &&
-    profile.account_type !== "customer"
-  ) {
+  if (profile.account_type && profile.account_type !== "customer") {
     await supabaseClient.auth.signOut();
     window.location.href = "login.html";
     return;
   }
 
   if (profile.first_name) {
-
-    document.getElementById(
-      "welcomeText"
-    ).innerText =
+    document.getElementById("welcomeText").innerText =
       `Welcome back, ${profile.first_name}`;
   }
 }
 
 loadProfile();
-
 </script>
 
 </body>
