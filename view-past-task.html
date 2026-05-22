@@ -481,6 +481,19 @@ function getAssignedWorkerId(task) {
   );
 }
 
+
+function getTaskType(task) {
+  return (
+    task.category ||
+    task.task_type ||
+    task.service_type ||
+    task.job_type ||
+    task.type ||
+    task.title ||
+    "Task"
+  );
+}
+
 function getTaskDetails(task) {
   if (task.task_details && typeof task.task_details === "object") {
     return Object.keys(task.task_details)
@@ -642,7 +655,7 @@ function populateTaskTypeFilter() {
   const types =
     [...new Set(
       allPastTasks
-        .map(task => task.category || task.title || "")
+        .map(task => getTaskType(task))
         .filter(Boolean)
     )].sort();
 
@@ -756,7 +769,7 @@ async function renderTasks(tasks) {
       <div class="task-top">
         <div>
           <div class="task-title">
-            ${escapeHTML(task.category || task.title || "Task")}
+            ${escapeHTML(getTaskType(task))}
           </div>
 
           <div class="task-sub">
