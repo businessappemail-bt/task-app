@@ -45,27 +45,37 @@ letter-spacing: -0.5px;
 color: #28a745;
 }
 
-.transparent-logo {
-width: 120px;
-opacity: 0.10;
+.logo-watermark {
 position: absolute;
-z-index: 0;
+top: 78px;
+right: 18px;
+font-size: 28px;
+font-weight: 900;
+letter-spacing: -1px;
+opacity: 0.08;
 pointer-events: none;
-}
-
-.logo-top {
-top: 70px;
-right: 10px;
 animation: floatShape 7s ease-in-out infinite;
 }
 
-.logo-bottom {
-bottom: 120px;
-left: 50%;
-transform: translateX(-50%);
-width: 150px;
-opacity: 0.12;
-animation: pulseGlow 6s ease-in-out infinite;
+.logo-watermark span,
+.final-logo span {
+color: #28a745;
+}
+
+.final-logo {
+width: 118px;
+height: 118px;
+border-radius: 34px;
+background: linear-gradient(135deg, #e7f7ec, #ffffff);
+box-shadow: 0 15px 28px rgba(40,167,69,0.16);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 21px;
+font-weight: 900;
+letter-spacing: -0.8px;
+position: relative;
+z-index: 2;
 }
 
 .slide {
@@ -291,11 +301,7 @@ transform: translateY(0) scale(1);
 <div class="floating-shape shape-one"></div>
 <div class="floating-shape shape-two"></div>
 
-<img
-class="transparent-logo logo-top"
-src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
-alt="TaskMint Logo"
->
+<div class="logo-watermark">Task<span>Mint</span></div>
 
 <div class="slide active">
 <div class="icon-wrap">
@@ -355,12 +361,7 @@ alt="TaskMint Logo"
 
 <div class="slide">
 <div class="icon-wrap">
-<img
-class="logo-bottom"
-src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
-alt="TaskMint Logo"
->
-<div class="icon">✅</div>
+<div class="final-logo">Task<span>Mint</span></div>
 </div>
 <div class="step-pill">Step 5</div>
 <h1>Job Completed</h1>
