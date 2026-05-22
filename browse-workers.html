@@ -557,10 +557,11 @@ async function loadWorkers() {
   currentUserId =
     user.id;
 
-  const { data: workers, error } =
-    await supabaseClient
-      .from("worker_profiles")
-      .select("*");
+const { data: workers, error } =
+  await supabaseClient
+    .from("worker_profiles")
+    .select("*")
+    .eq("is_worker_approved", true);
 
   if (error) {
     workersList.innerHTML =
