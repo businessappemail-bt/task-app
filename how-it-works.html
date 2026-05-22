@@ -45,6 +45,29 @@ letter-spacing: -0.5px;
 color: #28a745;
 }
 
+.transparent-logo {
+width: 120px;
+opacity: 0.10;
+position: absolute;
+z-index: 0;
+pointer-events: none;
+}
+
+.logo-top {
+top: 70px;
+right: 10px;
+animation: floatShape 7s ease-in-out infinite;
+}
+
+.logo-bottom {
+bottom: 120px;
+left: 50%;
+transform: translateX(-50%);
+width: 150px;
+opacity: 0.12;
+animation: pulseGlow 6s ease-in-out infinite;
+}
+
 .slide {
 display: none;
 background: rgba(255,255,255,0.88);
@@ -268,6 +291,12 @@ transform: translateY(0) scale(1);
 <div class="floating-shape shape-one"></div>
 <div class="floating-shape shape-two"></div>
 
+<img
+class="transparent-logo logo-top"
+src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
+alt="TaskMint Logo"
+>
+
 <div class="slide active">
 <div class="icon-wrap">
 <div class="icon">📝</div>
@@ -326,6 +355,11 @@ transform: translateY(0) scale(1);
 
 <div class="slide">
 <div class="icon-wrap">
+<img
+class="logo-bottom"
+src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
+alt="TaskMint Logo"
+>
 <div class="icon">✅</div>
 </div>
 <div class="step-pill">Step 5</div>
@@ -397,4 +431,3 @@ window.location.href = "signup.html";
 
 </body>
 </html>
-
