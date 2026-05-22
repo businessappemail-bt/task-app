@@ -1,115 +1,344 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Add Payment - TaskMint</title>
+<title>Edit Payment - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: #f5f5f5;
-padding-bottom: 80px;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 95px;
 }
 
 .container {
-max-width: 420px;
-margin: 0 auto;
-background: white;
-min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
 }
 
-.header {
-position: relative;
-text-align: center;
-padding: 18px;
-font-size: 22px;
-font-weight: bold;
-border-bottom: 1px solid #ddd;
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
-.back {
-position: absolute;
-left: 15px;
-top: 14px;
-font-size: 28px;
-color: green;
-cursor: pointer;
-}
-  
-
-.section {
-padding: 20px;
-font-size: 13px;
-color: #666;
-text-transform: uppercase;
-font-weight: bold;
-background: #f8f8f8;
-border-bottom: 1px solid #eee;
+.back,
+.refresh {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.row {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 18px 20px;
-border-bottom: 1px solid #eee;
-cursor: pointer;
-background: white;
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
 }
 
-.left {
-display: flex;
-align-items: center;
-gap: 12px;
-font-size: 18px;
-font-weight: 600;
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.card,
+.payment-card,
+.notice {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
+}
+
+.payment-card {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.notice {
+  background: #fff8e6;
+  border: 1px solid #ffe0a3;
+  color: #6f4b00;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.saved-top {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.card-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.saved-title {
+  font-size: 17px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.saved-sub {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.35;
+}
+
+.default-pill {
+  display: inline-block;
+  background: #e7f7ec;
+  color: #0b7a28;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  margin-top: 8px;
+}
+
+.method-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf1ee;
+  cursor: pointer;
+}
+
+.method-row:last-child {
+  border-bottom: none;
+}
+
+.method-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .logo {
-width: 30px;
-height: 30px;
-object-fit: contain;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.method-title {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.method-sub {
+  font-size: 12px;
+  color: #666;
+  margin-top: 3px;
+  line-height: 1.35;
 }
 
 .arrow {
-font-size: 22px;
-color: green;
+  font-size: 22px;
+  color: #0b7a28;
+  font-weight: 900;
 }
 
-.note {
-padding: 18px;
-font-size: 14px;
-color: #777;
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  color: #0b7a28;
+  margin: 10px 0 6px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  font-size: 14px;
+  outline: none;
+}
+
+input:focus,
+select:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover,
+.method-row:hover {
+  transform: translateY(-1px);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.secondary-btn {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
+}
+
+.danger-btn {
+  background: #b00020;
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+#status {
+  text-align: center;
+  color: #0b7a28;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.4;
+  margin: 10px 0;
+}
+
+.error {
+  color: #b00020 !important;
 }
 
 .nav {
-position: fixed;
-bottom: 0;
-width: 100%;
-background: white;
-border-top: 1px solid #ddd;
-display: flex;
-justify-content: center;
-}
-
-.nav-inner {
-max-width: 420px;
-width: 100%;
-display: flex;
-justify-content: space-around;
-padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
 }
 
 .nav a {
-text-decoration: none;
-color: #777;
-font-size: 14px;
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
 }
 
-.nav a.active {
-color: green;
-font-weight: bold;
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 </style>
 </head>
@@ -118,111 +347,451 @@ font-weight: bold;
 
 <div class="container">
 
-<div class="header">
-<span class="back" onclick="goBack()">‹</span>
-Edit Payment
+  <div class="top-bar">
+    <div class="back" onclick="goBack()">← Back</div>
+    <div class="refresh" onclick="loadPaymentMethods()">Refresh</div>
+  </div>
+
+  <div class="hero">
+    <h1>Edit Payment</h1>
+    <p>Save a default payment method so accepted quotes can pull your payment details without re-entering everything.</p>
+  </div>
+
+  <div class="payment-card">
+    <div class="saved-top">
+      <div class="card-icon">💳</div>
+      <div>
+        <div class="saved-title" id="savedPaymentTitle">Loading payment method...</div>
+        <div class="saved-sub" id="savedPaymentSub">Checking your saved payment details.</div>
+        <div class="default-pill" id="defaultPill">Default payment</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice">
+    For live payments, Stripe should store the actual card through a SetupIntent/PaymentMethod. This page saves display details like card brand and last 4 so the quote payment page can read the saved method.
+  </div>
+
+  <div class="card">
+    <div class="section-title">Choose Payment Method</div>
+
+    <div class="method-row" onclick="showCardForm()">
+      <div class="method-left">
+        <img class="logo" src="https://img.icons8.com/color/48/bank-card-back-side.png">
+        <div>
+          <div class="method-title">Credit Card</div>
+          <div class="method-sub">Edit saved card details for quote checkout.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="method-row" onclick="setWalletMethod('Apple Pay')">
+      <div class="method-left">
+        <img class="logo" src="https://img.icons8.com/ios-filled/50/mac-os.png">
+        <div>
+          <div class="method-title">Apple Pay</div>
+          <div class="method-sub">Use Apple Pay when Stripe wallet checkout is connected.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="method-row" onclick="setWalletMethod('Google Pay')">
+      <div class="method-left">
+        <img class="logo" src="https://img.icons8.com/color/48/google-pay.png">
+        <div>
+          <div class="method-title">Google Pay</div>
+          <div class="method-sub">Use Google Pay when Stripe wallet checkout is connected.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="method-row" onclick="setWalletMethod('PayPal')">
+      <div class="method-left">
+        <img class="logo" src="https://img.icons8.com/color/48/paypal.png">
+        <div>
+          <div class="method-title">PayPal</div>
+          <div class="method-sub">Save PayPal as a preferred external method.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="method-row" onclick="setWalletMethod('Cash App')">
+      <div class="method-left">
+        <img class="logo" src="https://img.icons8.com/color/48/cash-app.png">
+        <div>
+          <div class="method-title">Cash App</div>
+          <div class="method-sub">Save Cash App as a preferred external method.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="method-row" onclick="setWalletMethod('Zelle')">
+      <div class="method-left">
+        <img class="logo" src="https://img.icons8.com/color/48/money-transfer.png">
+        <div>
+          <div class="method-title">Zelle</div>
+          <div class="method-sub">Save Zelle as a preferred external method.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+
+  <div id="cardForm" class="card hidden">
+    <div class="section-title">Credit Card Details</div>
+
+    <div class="field-grid">
+      <div class="field-full">
+        <label for="cardholderName">Name on Card</label>
+        <input id="cardholderName" placeholder="Name on card">
+      </div>
+
+      <div class="field-full">
+        <label for="cardNumber">Card Number</label>
+        <input id="cardNumber" inputmode="numeric" maxlength="19" placeholder="Card number" oninput="formatCardNumber()">
+      </div>
+
+      <div>
+        <label for="expMonth">Exp Month</label>
+        <input id="expMonth" inputmode="numeric" maxlength="2" placeholder="MM">
+      </div>
+
+      <div>
+        <label for="expYear">Exp Year</label>
+        <input id="expYear" inputmode="numeric" maxlength="4" placeholder="YYYY">
+      </div>
+
+      <div class="field-full">
+        <label for="billingZip">Billing Zip</label>
+        <input id="billingZip" placeholder="Billing zip">
+      </div>
+    </div>
+
+    <button class="primary-btn" onclick="saveCardMethod()">Save Card</button>
+    <button class="secondary-btn" onclick="hideCardForm()">Cancel</button>
+    <button class="danger-btn" onclick="removeDefaultPayment()">Remove Saved Payment</button>
+  </div>
+
+  <p id="status"></p>
+
 </div>
 
-<div class="section">Choose Payment Method</div>
-
-<!-- CREDIT CARD -->
-<div class="row" onclick="goToCard()">
-<div class="left">
-<img class="logo" src="https://img.icons8.com/color/48/bank-card-back-side.png">
-Credit Card
-</div>
-<div class="arrow">›</div>
-</div>
-
-<!-- APPLE PAY -->
-<div class="row" onclick="applePay()">
-<div class="left">
-<img class="logo" src="https://img.icons8.com/ios-filled/50/mac-os.png">
-Apple Pay
-</div>
-<div class="arrow">›</div>
-</div>
-
-<!-- GOOGLE PAY -->
-<div class="row" onclick="googlePay()">
-<div class="left">
-<img class="logo" src="https://img.icons8.com/color/48/google-pay.png">
-Google Pay
-</div>
-<div class="arrow">›</div>
-</div>
-  
-<!-- PAYPAL -->
-<div class="row" onclick="paypal()">
-<div class="left">
-<img class="logo" src="https://img.icons8.com/color/48/paypal.png">
-PayPal
-</div>
-<div class="arrow">›</div>
-</div>
-
-<!-- CASH APP -->
-<div class="row" onclick="cashapp()">
-<div class="left">
-<img class="logo" src="https://img.icons8.com/color/48/cash-app.png">
-Cash App
-</div>
-<div class="arrow">›</div>
-</div>
-
-<!-- ZELLE -->
-<div class="row" onclick="zelle()">
-<div class="left">
-<img class="logo" src="https://img.icons8.com/color/48/money-transfer.png">
-Zelle
-</div>
-<div class="arrow">›</div>
-</div>
-
-<div class="note">
-Your payment method will be used when a job is accepted. Secure payment processing will be connected before live transactions.
-</div>
-
-</div>
-
-<!-- NAV -->
 <div class="nav">
-<div class="nav-inner">
-<a href="customer-home.html">Home</a>
-<a href="my-jobs.html">My Jobs</a>
-<a href="messages.html">Messages</a>
-<a href="profile.html" class="active">Profile</a>
-</div>
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Tasks</a>
+  <a href="browse-workers.html"><span class="nav-icon">👷</span>Workers</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="profile.html" class="active"><span class="nav-icon">👤</span>Profile</a>
 </div>
 
 <script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+let currentUserId = "";
+let savedPaymentId = "";
+
+function setStatus(message, isError = false) {
+  const status =
+    document.getElementById("status");
+
+  status.className =
+    isError ? "error" : "";
+
+  status.innerText =
+    message;
+}
+
+async function getCurrentUser() {
+  const { data } =
+    await supabaseClient.auth.getSession();
+
+  if (data.session && data.session.user) {
+    currentUserId =
+      data.session.user.id;
+
+    localStorage.setItem("taskmintUserId", currentUserId);
+    return data.session.user;
+  }
+
+  const savedUserId =
+    localStorage.getItem("taskmintUserId");
+
+  if (savedUserId) {
+    currentUserId =
+      savedUserId;
+
+    return { id: savedUserId };
+  }
+
+  window.location.href = "login.html";
+  return null;
+}
+
 function goBack() {
-window.location.href = "profile.html";
+  window.location.href = "profile.html";
 }
 
-function goToCard() {
-window.location.href = "credit-card.html";
+function showCardForm() {
+  document.getElementById("cardForm").classList.remove("hidden");
+  setStatus("");
 }
 
-function applePay() {
-alert("Apple Pay will be connected using Stripe.");
+function hideCardForm() {
+  document.getElementById("cardForm").classList.add("hidden");
 }
 
-function paypal() {
-alert("PayPal checkout will be connected.");
+function getCardBrand(cardNumber) {
+  const clean =
+    String(cardNumber || "").replace(/\D/g, "");
+
+  if (clean.startsWith("4")) {
+    return "Visa";
+  }
+
+  if (/^5[1-5]/.test(clean)) {
+    return "Mastercard";
+  }
+
+  if (/^3[47]/.test(clean)) {
+    return "American Express";
+  }
+
+  if (/^6/.test(clean)) {
+    return "Discover";
+  }
+
+  return "Card";
 }
 
-function cashapp() {
-alert("Cash App Pay will be connected.");
+function formatCardNumber() {
+  const input =
+    document.getElementById("cardNumber");
+
+  const clean =
+    input.value.replace(/\D/g, "").slice(0, 16);
+
+  input.value =
+    clean.replace(/(.{4})/g, "$1 ").trim();
 }
 
-function googlePay() {
-alert("Google Pay will be connected using Stripe.");
+async function loadPaymentMethods() {
+  setStatus("");
+
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const { data: savedMethod, error } =
+    await supabaseClient
+      .from("customer_payment_methods")
+      .select("*")
+      .eq("customer_id", currentUserId)
+      .eq("is_default", true)
+      .maybeSingle();
+
+  if (error) {
+    document.getElementById("savedPaymentTitle").innerText =
+      "No saved payment";
+
+    document.getElementById("savedPaymentSub").innerText =
+      "Add a default method before accepting a quote.";
+
+    return;
+  }
+
+  if (!savedMethod) {
+    savedPaymentId = "";
+
+    document.getElementById("savedPaymentTitle").innerText =
+      "No saved payment";
+
+    document.getElementById("savedPaymentSub").innerText =
+      "Add a default method before accepting a quote.";
+
+    document.getElementById("defaultPill").innerText =
+      "Not set";
+
+    return;
+  }
+
+  savedPaymentId =
+    savedMethod.id;
+
+  document.getElementById("savedPaymentTitle").innerText =
+    savedMethod.method_type === "card"
+      ? `${savedMethod.card_brand || "Card"} ending in ${savedMethod.card_last4 || "----"}`
+      : savedMethod.method_label || savedMethod.method_type || "Saved Payment";
+
+  document.getElementById("savedPaymentSub").innerText =
+    savedMethod.method_type === "card"
+      ? `Expires ${savedMethod.exp_month || "--"}/${savedMethod.exp_year || "----"} • Billing zip ${savedMethod.billing_zip || "not listed"}`
+      : "This method is saved as your default payment preference.";
+
+  document.getElementById("defaultPill").innerText =
+    "Default payment";
+
+  document.getElementById("cardholderName").value =
+    savedMethod.cardholder_name || "";
+
+  document.getElementById("expMonth").value =
+    savedMethod.exp_month || "";
+
+  document.getElementById("expYear").value =
+    savedMethod.exp_year || "";
+
+  document.getElementById("billingZip").value =
+    savedMethod.billing_zip || "";
 }
-  
-function zelle() {
-window.location.href = "zelle.html";
+
+async function clearExistingDefaults() {
+  await supabaseClient
+    .from("customer_payment_methods")
+    .update({ is_default: false })
+    .eq("customer_id", currentUserId);
 }
+
+async function saveCardMethod() {
+  const cardholderName =
+    document.getElementById("cardholderName").value.trim();
+
+  const cardNumber =
+    document.getElementById("cardNumber").value.replace(/\D/g, "");
+
+  const expMonth =
+    document.getElementById("expMonth").value.trim();
+
+  const expYear =
+    document.getElementById("expYear").value.trim();
+
+  const billingZip =
+    document.getElementById("billingZip").value.trim();
+
+  if (!cardholderName || !cardNumber || !expMonth || !expYear || !billingZip) {
+    setStatus("Complete all card fields.", true);
+    return;
+  }
+
+  if (cardNumber.length < 12) {
+    setStatus("Enter a valid card number.", true);
+    return;
+  }
+
+  await getCurrentUser();
+
+  setStatus("Saving payment method...");
+
+  await clearExistingDefaults();
+
+  const cardBrand =
+    getCardBrand(cardNumber);
+
+  const last4 =
+    cardNumber.slice(-4);
+
+  /*
+    Do not store raw card numbers in Supabase for a live app.
+    When Stripe is connected, replace this with Stripe SetupIntent and store only stripe_payment_method_id.
+  */
+  const paymentPayload = {
+    customer_id: currentUserId,
+    method_type: "card",
+    method_label: `${cardBrand} ending in ${last4}`,
+    cardholder_name: cardholderName,
+    card_brand: cardBrand,
+    card_last4: last4,
+    exp_month: expMonth,
+    exp_year: expYear,
+    billing_zip: billingZip,
+    is_default: true
+  };
+
+  const { error } =
+    await supabaseClient
+      .from("customer_payment_methods")
+      .insert([paymentPayload]);
+
+  if (error) {
+    setStatus(error.message, true);
+    return;
+  }
+
+  document.getElementById("cardNumber").value = "";
+
+  setStatus("Payment method saved.");
+  hideCardForm();
+  await loadPaymentMethods();
+}
+
+async function setWalletMethod(methodLabel) {
+  await getCurrentUser();
+
+  await clearExistingDefaults();
+
+  const { error } =
+    await supabaseClient
+      .from("customer_payment_methods")
+      .insert([
+        {
+          customer_id: currentUserId,
+          method_type: methodLabel.toLowerCase().replaceAll(" ", "_"),
+          method_label: methodLabel,
+          is_default: true
+        }
+      ]);
+
+  if (error) {
+    setStatus(error.message, true);
+    return;
+  }
+
+  setStatus(`${methodLabel} saved as default.`);
+  await loadPaymentMethods();
+}
+
+async function removeDefaultPayment() {
+  await getCurrentUser();
+
+  if (!savedPaymentId) {
+    setStatus("No saved payment to remove.", true);
+    return;
+  }
+
+  const confirmRemove =
+    confirm("Remove your saved default payment method?");
+
+  if (!confirmRemove) {
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
+      .from("customer_payment_methods")
+      .delete()
+      .eq("id", savedPaymentId)
+      .eq("customer_id", currentUserId);
+
+  if (error) {
+    setStatus(error.message, true);
+    return;
+  }
+
+  setStatus("Payment method removed.");
+  savedPaymentId = "";
+  await loadPaymentMethods();
+}
+
+loadPaymentMethods();
 </script>
 
 </body>
