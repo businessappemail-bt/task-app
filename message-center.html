@@ -505,6 +505,18 @@ let taskId =
 let conversationId =
   params.get("conversation_id") || "";
 
+if (!isValidUUID(receiverId)) {
+  receiverId = "";
+}
+
+if (!isValidUUID(taskId)) {
+  taskId = "";
+}
+
+if (!isValidUUID(conversationId)) {
+  conversationId = "";
+}
+
 let currentUser = null;
 let currentConversationMessages = [];
 
@@ -536,6 +548,11 @@ function escapeHTML(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+
+function isValidUUID(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ""));
 }
 
 function containsBlockedWords(text) {
@@ -711,12 +728,18 @@ async function renderConversationCards(conversations) {
     let workerImage =
       "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-    const { data: profile } =
-      await supabaseClient
-        .from("worker_profiles")
-        .select("*")
-        .eq("id", workerId)
-        .maybeSingle();
+    let profile = null;
+
+    if (isValidUUID(workerId)) {
+      const { data: workerProfileData } =
+        await supabaseClient
+          .from("worker_profiles")
+          .select("*")
+          .eq("id", workerId)
+          .maybeSingle();
+
+      profile = workerProfileData;
+    }
 
     if (profile) {
       workerName =
@@ -776,7 +799,7 @@ async function renderConversationCards(conversations) {
                 ? `
                 <button
                   class="compact-btn accept-btn"
-                  onclick="acceptQuoteFromMessages('${convo.task_id}','${workerId}','${convo.quote_id || ""}')"
+                  onclick="acceptQuoteFromMessages('${convo.task_id || ""}','${workerId || ""}','${convo.quote_id || ""}','${quoteAmount || ""}')"
                 >
                   Accept Quote
                 </button>
@@ -821,11 +844,33 @@ async function renderConversationCards(conversations) {
 }
 
 function openConversation(conversationIdValue, taskIdValue, workerIdValue) {
+  if (!isValidUUID(conversationIdValue)) {
+    alert("Conversation not found.");
+    return;
+  }
+
+  const parts = [
+    `conversation_id=${encodeURIComponent(conversationIdValue)}`
+  ];
+
+  if (isValidUUID(taskIdValue)) {
+    parts.push(`task_id=${encodeURIComponent(taskIdValue)}`);
+  }
+
+  if (isValidUUID(workerIdValue)) {
+    parts.push(`worker_id=${encodeURIComponent(workerIdValue)}`);
+  }
+
   window.location.href =
-    `message-center.html?conversation_id=${encodeURIComponent(conversationIdValue)}&task_id=${encodeURIComponent(taskIdValue)}&worker_id=${encodeURIComponent(workerIdValue)}`;
+    `message-center.html?${parts.join("&")}`;
 }
 
 async function reportConversation(conversationIdValue) {
+  if (!isValidUUID(conversationIdValue)) {
+    alert("Conversation not found.");
+    return;
+  }
+
   await supabaseClient
     .from("task_conversations")
     .update({
@@ -837,6 +882,11 @@ async function reportConversation(conversationIdValue) {
 }
 
 async function blockConversation(conversationIdValue) {
+  if (!isValidUUID(conversationIdValue)) {
+    alert("Conversation not found.");
+    return;
+  }
+
   await supabaseClient
     .from("task_conversations")
     .update({
@@ -847,9 +897,30 @@ async function blockConversation(conversationIdValue) {
   alert("Worker blocked.");
 }
 
-function acceptQuoteFromMessages(taskIdValue, workerIdValue, quoteIdValue) {
-  window.location.href =
+function acceptQuoteFromMessages(taskIdValue, workerIdValue, quoteIdValue, quoteAmountValue) {
+  if (!isValidUUID(taskIdValue)) {
+    alert("Task not found.");
+    return;
+  }
+
+  if (!isValidUUID(workerIdValue)) {
+    alert("Worker not found.");
+    return;
+  }
+
+  if (!isValidUUID(quoteIdValue)) {
+    alert("Quote not found.");
+    return;
+  }
+
+  let url =
     `customer-pay-quote.html?task_id=${encodeURIComponent(taskIdValue)}&worker_id=${encodeURIComponent(workerIdValue)}&quote_id=${encodeURIComponent(quoteIdValue)}`;
+
+  if (quoteAmountValue) {
+    url += `&quote_amount=${encodeURIComponent(quoteAmountValue)}`;
+  }
+
+  window.location.href = url;
 }
 
 
@@ -873,7 +944,7 @@ async function loadMessages() {
   messagesList.innerHTML =
     `<div class="empty">Loading messages...</div>`;
 
-  if (!conversationId) {
+  if (!isValidUUID(conversationId)) {
     messagesList.innerHTML =
       `<div class="empty">Conversation not found.</div>`;
     return;
@@ -1047,7 +1118,13 @@ async function sendMessage() {
     return;
   }
 
-  if (!taskId) {
+  if (!isValidUUID(conversationId)) {
+    status.innerHTML =
+      `<span class="error">Conversation not found.</span>`;
+    return;
+  }
+
+  if (!isValidUUID(taskId)) {
     status.innerHTML =
       `<span class="error">Choose a task conversation before sending.</span>`;
     return;
@@ -1114,27 +1191,18 @@ async function reportUser() {
   const status =
     document.getElementById("status");
 
-  if (!receiverId) {
+  if (!isValidUUID(conversationId)) {
     status.innerHTML =
-      `<span class="error">No user selected to report.</span>`;
+      `<span class="error">No conversation selected to report.</span>`;
     return;
   }
 
-  let query =
-    supabaseClient
+  const { error } =
+    await supabaseClient
       .from("task_messages")
       .update({ is_reported: true })
-      .or(
-        `and(sender_id.eq.${receiverId},receiver_id.eq.${currentUser.id}),and(sender_id.eq.${currentUser.id},receiver_id.eq.${receiverId})`
-      );
-
-  if (taskId) {
-    query =
-      query.eq("task_id", taskId);
-  }
-
-  const { error } =
-    await query;
+      .eq("conversation_id", conversationId)
+      .neq("sender_id", currentUser.id);
 
   if (error) {
     status.innerHTML =
@@ -1143,34 +1211,25 @@ async function reportUser() {
   }
 
   status.innerHTML =
-    `<span class="success">User reported.</span>`;
+    `<span class="success">Conversation reported.</span>`;
 }
 
 async function blockUser() {
   const status =
     document.getElementById("status");
 
-  if (!receiverId) {
+  if (!isValidUUID(conversationId)) {
     status.innerHTML =
-      `<span class="error">No user selected to block.</span>`;
+      `<span class="error">No conversation selected to block.</span>`;
     return;
   }
 
-  let query =
-    supabaseClient
+  const { error } =
+    await supabaseClient
       .from("task_messages")
       .update({ is_blocked: true })
-      .or(
-        `and(sender_id.eq.${receiverId},receiver_id.eq.${currentUser.id}),and(sender_id.eq.${currentUser.id},receiver_id.eq.${receiverId})`
-      );
-
-  if (taskId) {
-    query =
-      query.eq("task_id", taskId);
-  }
-
-  const { error } =
-    await query;
+      .eq("conversation_id", conversationId)
+      .neq("sender_id", currentUser.id);
 
   if (error) {
     status.innerHTML =
@@ -1179,7 +1238,7 @@ async function blockUser() {
   }
 
   status.innerHTML =
-    `<span class="success">User blocked.</span>`;
+    `<span class="success">Worker blocked.</span>`;
 }
 
 async function loadPage() {
