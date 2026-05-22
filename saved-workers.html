@@ -1,1 +1,108 @@
-
+<!DOCTYPE html>
+<html>
+<head>
+<title>Saved Workers - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:radial-gradient(circle at top left,rgba(25,182,76,.16),transparent 32%),linear-gradient(180deg,#eef8f1 0%,#f5f5f5 100%);color:#111;padding-bottom:95px}
+.container{max-width:430px;margin:0 auto;padding:18px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.back,.refresh{color:#0b7a28;font-weight:900;cursor:pointer;font-size:14px}
+.hero{background:linear-gradient(135deg,#0b7a28,#19b64c);color:white;border-radius:28px;padding:22px;margin-bottom:16px;box-shadow:0 14px 30px rgba(11,122,40,.22);position:relative;overflow:hidden;animation:fadeUp .45s ease}
+.hero::before{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.12);top:-70px;right:-60px;animation:pulseGlow 5s ease-in-out infinite}
+.hero h1{margin:0 0 8px;font-size:30px;line-height:1.1;position:relative;z-index:2}
+.hero p{margin:0;font-size:14px;line-height:1.5;opacity:.96;position:relative;z-index:2}
+.summary-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.summary-box,.filter-card,.worker-card{background:white;border-radius:22px;border:1px solid #edf1ee;box-shadow:0 8px 24px rgba(0,0,0,.08);animation:fadeUp .45s ease}
+.summary-box{padding:14px;animation:floatCard 4s ease-in-out infinite}
+.summary-box:nth-child(2){animation-delay:.5s}
+.summary-label{color:#0b7a28;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.4px}
+.summary-value{font-size:18px;font-weight:900;margin-top:4px}
+.filter-card{padding:14px;margin-bottom:14px}
+.filter-title{font-size:16px;font-weight:900;margin-bottom:10px}
+.filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select,input{width:100%;padding:12px;border-radius:14px;border:1px solid #d9dfda;font-size:13px;outline:none;background:white}
+select:focus,input:focus{border-color:#0b7a28;box-shadow:0 0 0 4px rgba(11,122,40,.10)}
+.workers-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.worker-card{overflow:hidden;border-radius:20px}
+.worker-top{display:block;padding:12px;text-align:center}
+.worker-photo{width:76px;height:76px;border-radius:22px;object-fit:cover;border:3px solid #e7f7ec;margin:0 auto 8px;display:block}
+.worker-name{font-size:14px;font-weight:900;line-height:1.2;margin-bottom:4px}
+.worker-location{color:#666;font-size:11px;margin-bottom:7px}
+.rating-row{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap}
+.rating-pill,.gender-pill{background:#e7f7ec;color:#0b7a28;padding:6px 9px;border-radius:999px;font-size:10px;font-weight:900}
+.gender-pill{background:#f4f4f4;color:#333}
+.section{padding:0 10px 10px}
+.section-title{color:#0b7a28;font-size:10px;font-weight:900;text-transform:uppercase;margin-bottom:6px;letter-spacing:.4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:#f7faf8;border:1px solid #dfece3;border-radius:999px;padding:6px 8px;font-size:10px;font-weight:700}
+.action-row{display:grid;grid-template-columns:1fr;gap:6px;padding:0 10px 12px}
+button{width:100%;border:none;border-radius:14px;padding:10px;font-size:11px;font-weight:900;cursor:pointer;transition:.2s}
+button:hover{transform:translateY(-1px);box-shadow:0 5px 12px rgba(0,0,0,.09)}
+.primary-btn{background:linear-gradient(135deg,#0b7a28,#19b64c);color:white}
+.secondary-btn{background:white;color:#0b7a28;border:1px solid #cdebd5}
+.remove-btn{background:#b00020;color:white}
+.empty{background:white;border-radius:22px;padding:24px;text-align:center;color:#666;border:1px solid #edf1ee;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+#status{text-align:center;font-size:13px;font-weight:900;margin-bottom:12px;color:#0b7a28}
+.nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-top:1px solid #ddd;display:grid;grid-template-columns:repeat(5,1fr);padding:10px 6px}
+.nav a{text-decoration:none;color:#555;font-size:11px;font-weight:bold;text-align:center}
+.nav-icon{display:block;font-size:20px;margin-bottom:3px}
+.active{color:#0b7a28!important}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes floatCard{0%{transform:translateY(0)}50%{transform:translateY(-4px)}100%{transform:translateY(0)}}
+@keyframes pulseGlow{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top-bar">
+    <div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
+    <div class="refresh" onclick="loadSavedWorkers()">Refresh</div>
+  </div>
+  <div class="hero">
+    <h1>Saved Workers</h1>
+    <p>Review your favorite workers, filter by service type, and quickly open their profiles when you are ready to hire again.</p>
+  </div>
+  <div class="summary-row">
+    <div class="summary-box"><div class="summary-label">Saved</div><div class="summary-value" id="savedCount">0</div></div>
+    <div class="summary-box"><div class="summary-label">Showing</div><div class="summary-value" id="showingCount">0</div></div>
+  </div>
+  <div class="filter-card">
+    <div class="filter-title">Filter Saved Workers</div>
+    <div class="filter-grid">
+      <select id="serviceFilter" onchange="applyFilters()"><option value="">All job types</option></select>
+      <input id="searchFilter" placeholder="Search city, state, worker" oninput="applyFilters()">
+    </div>
+    <button class="secondary-btn" onclick="clearFilters()" style="margin-top:10px;">Clear Filters</button>
+  </div>
+  <p id="status"></p>
+  <div id="workersList"></div>
+</div>
+<div class="nav">
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
+  <a href="browse-workers.html"><span class="nav-icon">👷</span>Workers</a>
+  <a href="saved-workers.html" class="active"><span class="nav-icon">⭐</span>Saved</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+</div>
+<script>
+const supabaseClient=window.supabase.createClient("https://dbcthtjmtlumidpbucrc.supabase.co","sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ");
+let allSavedWorkers=[];let currentUserId="";
+function escapeHTML(value){if(value===null||value===undefined){return ""}return String(value).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function getWorkerName(worker){const firstName=worker.first_name||"";let lastName=worker.last_name||"";if(!lastName&&worker.full_name){const parts=worker.full_name.trim().split(" ");lastName=parts.length>1?parts[parts.length-1]:""}if(!lastName&&worker.display_name){const parts=worker.display_name.trim().split(" ");lastName=parts.length>1?parts[parts.length-1]:""}const lastInitial=lastName?lastName.charAt(0).toUpperCase()+".":"";if(firstName){return `${firstName} ${lastInitial}`.trim()}if(worker.full_name){const parts=worker.full_name.trim().split(" ");return parts.length>1?`${parts[0]} ${parts[parts.length-1].charAt(0).toUpperCase()}.`:parts[0]}if(worker.display_name){const parts=worker.display_name.trim().split(" ");return parts.length>1?`${parts[0]} ${parts[parts.length-1].charAt(0).toUpperCase()}.`:parts[0]}return "Worker"}
+function getServices(worker){if(Array.isArray(worker.services_offered)){return worker.services_offered}if(typeof worker.services_offered==="string"){return worker.services_offered.split(",").map(item=>item.trim()).filter(Boolean)}return []}
+function getServiceAreas(worker){if(Array.isArray(worker.service_areas)){return worker.service_areas}if(typeof worker.service_areas==="string"){return worker.service_areas.split(",").map(item=>item.trim()).filter(Boolean)}return []}
+async function getCurrentUser(){const{data}=await supabaseClient.auth.getSession();if(data.session&&data.session.user){localStorage.setItem("taskmintUserId",data.session.user.id);return data.session.user}const savedUserId=localStorage.getItem("taskmintUserId");if(savedUserId){return{id:savedUserId}}window.location.href="login.html";return null}
+async function loadSavedWorkers(){const workersList=document.getElementById("workersList");workersList.className="";workersList.innerHTML=`<div class="empty">Loading saved workers...</div>`;const user=await getCurrentUser();if(!user){return}currentUserId=user.id;const{data:savedRows,error:savedError}=await supabaseClient.from("saved_workers").select("*").eq("customer_id",currentUserId).order("created_at",{ascending:false});if(savedError){workersList.innerHTML=`<div class="empty">${escapeHTML(savedError.message)}</div>`;return}if(!savedRows||savedRows.length===0){allSavedWorkers=[];document.getElementById("savedCount").innerText="0";document.getElementById("showingCount").innerText="0";workersList.innerHTML=`<div class="empty">No saved workers yet.</div>`;return}const workerIds=savedRows.map(row=>row.worker_id).filter(Boolean);const{data:workers,error:workersError}=await supabaseClient.from("worker_profiles").select("*").in("id",workerIds).eq("is_worker_approved",true);if(workersError){workersList.innerHTML=`<div class="empty">${escapeHTML(workersError.message)}</div>`;return}const{data:profiles}=await supabaseClient.from("profiles").select("*");const profileMap={};(profiles||[]).forEach(profile=>{profileMap[profile.id]=profile});const savedDateMap={};savedRows.forEach(row=>{savedDateMap[row.worker_id]=row.created_at||""});allSavedWorkers=(workers||[]).map(worker=>{const linkedProfile=profileMap[worker.user_id]||profileMap[worker.profile_id]||profileMap[worker.id]||{};return{...linkedProfile,...worker,saved_at:savedDateMap[worker.id]||"",full_name:worker.full_name||worker.display_name||linkedProfile.full_name||linkedProfile.display_name||`${worker.first_name||""} ${worker.last_name||""}`.trim()||`${linkedProfile.first_name||""} ${linkedProfile.last_name||""}`.trim()||worker.name||"Worker",profile_photo_url:worker.profile_photo_url||worker.profile_image_url||worker.photo_url||worker.avatar_url||linkedProfile.profile_photo_url||linkedProfile.profile_image_url||linkedProfile.photo_url||linkedProfile.avatar_url||"",city:worker.city||linkedProfile.city||"",state:worker.state||linkedProfile.state||""}});populateServiceFilter();applyFilters()}
+function populateServiceFilter(){const serviceFilter=document.getElementById("serviceFilter");const selectedValue=serviceFilter.value;const serviceSet=new Set();allSavedWorkers.forEach(worker=>{getServices(worker).forEach(service=>{if(service){serviceSet.add(service)}})});serviceFilter.innerHTML=`<option value="">All job types</option>`;[...serviceSet].sort().forEach(service=>{const option=document.createElement("option");option.value=service;option.innerText=service;serviceFilter.appendChild(option)});serviceFilter.value=selectedValue}
+function applyFilters(){const serviceValue=document.getElementById("serviceFilter").value.toLowerCase();const searchValue=document.getElementById("searchFilter").value.toLowerCase().trim();let filtered=allSavedWorkers.filter(worker=>{const services=getServices(worker).join(" ").toLowerCase();const searchText=[getWorkerName(worker),worker.city,worker.state,getServiceAreas(worker).join(" "),services].join(" ").toLowerCase();const serviceMatch=!serviceValue||services.includes(serviceValue);const searchMatch=!searchValue||searchText.includes(searchValue);return serviceMatch&&searchMatch});renderWorkers(filtered)}
+function clearFilters(){document.getElementById("serviceFilter").value="";document.getElementById("searchFilter").value="";renderWorkers(allSavedWorkers)}
+async function removeSavedWorker(workerId){const confirmRemove=confirm("Remove this worker from your saved list?");if(!confirmRemove){return}const status=document.getElementById("status");status.innerText="";const{error}=await supabaseClient.from("saved_workers").delete().eq("customer_id",currentUserId).eq("worker_id",workerId);if(error){status.style.color="#b00020";status.innerText=error.message;return}status.style.color="#0b7a28";status.innerText="Worker removed.";await loadSavedWorkers()}
+function viewWorkerProfile(workerId){window.location.href=`worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}&workerId=${encodeURIComponent(workerId)}`}
+function renderWorkers(workers){const workersList=document.getElementById("workersList");document.getElementById("savedCount").innerText=String(allSavedWorkers.length);document.getElementById("showingCount").innerText=String(workers.length);if(!workers||workers.length===0){workersList.className="";workersList.innerHTML=`<div class="empty">No saved workers match your filter.</div>`;return}workersList.className="workers-grid";workersList.innerHTML="";workers.forEach(worker=>{const services=getServices(worker);const serviceAreas=getServiceAreas(worker);const photo=worker.profile_photo_url||worker.profile_image_url||worker.photo_url||worker.avatar_url||worker.image_url||"https://cdn-icons-png.flaticon.com/512/149/149071.png";const card=document.createElement("div");card.className="worker-card";card.innerHTML=`<div class="worker-top"><img class="worker-photo" src="${escapeHTML(photo)}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'"><div class="worker-info"><div class="worker-name">${escapeHTML(getWorkerName(worker))}</div><div class="worker-location">${escapeHTML(worker.city||"")}, ${escapeHTML(worker.state||"")}</div><div class="rating-row"><div class="rating-pill">⭐ ${escapeHTML(String(worker.average_rating||worker.rating||"5.0"))}</div>${worker.gender?`<div class="gender-pill">${escapeHTML(worker.gender)}</div>`:""}</div></div></div><div class="section"><div class="section-title">Services</div><div class="chips">${services.length>0?services.slice(0,3).map(service=>`<div class="chip">${escapeHTML(service)}</div>`).join(""):`<div class="chip">Services not listed</div>`}</div></div><div class="section"><div class="section-title">Areas</div><div class="chips">${serviceAreas.length>0?serviceAreas.slice(0,3).map(area=>`<div class="chip">${escapeHTML(area)}</div>`).join(""):`<div class="chip">Areas not listed</div>`}</div></div><div class="action-row"><button class="primary-btn" onclick="viewWorkerProfile('${worker.id}')">View Profile</button><button class="remove-btn" onclick="removeSavedWorker('${worker.id}')">Remove</button></div>`;workersList.appendChild(card)})}
+loadSavedWorkers();
+</script>
+</body>
+</html>
