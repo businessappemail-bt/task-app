@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Past Tasks - TaskMint</title>
+<title>Browse Workers - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,7 +18,7 @@ body {
     radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
     linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
   color: #111;
-  padding-bottom: 90px;
+  padding-bottom: 95px;
 }
 
 .container {
@@ -83,47 +83,17 @@ body {
   z-index: 2;
 }
 
-.summary-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.summary-box,
 .filter-card,
-.task-card {
+.worker-card {
   background: white;
-  border: 1px solid #edf1ee;
   border-radius: 22px;
-  padding: 14px;
+  border: 1px solid #edf1ee;
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   animation: fadeUp 0.45s ease;
 }
 
-.summary-box {
-  animation: floatCard 4s ease-in-out infinite;
-}
-
-.summary-box:nth-child(2) {
-  animation-delay: 0.5s;
-}
-
-.summary-label {
-  color: #0b7a28;
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-.summary-value {
-  font-size: 18px;
-  font-weight: 900;
-  margin-top: 4px;
-}
-
 .filter-card {
+  padding: 14px;
   margin-bottom: 14px;
 }
 
@@ -142,12 +112,11 @@ body {
 select,
 input {
   width: 100%;
-  padding: 11px;
-  border: 1px solid #d9dfda;
+  padding: 12px;
   border-radius: 14px;
+  border: 1px solid #d9dfda;
   font-size: 13px;
   outline: none;
-  background: white;
 }
 
 select:focus,
@@ -156,113 +125,118 @@ input:focus {
   box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
 }
 
-.task-card {
-  margin-bottom: 14px;
+.worker-card {
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.worker-top {
+  display: flex;
+  gap: 12px;
   padding: 16px;
 }
 
-.task-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: flex-start;
+.worker-photo {
+  width: 82px;
+  height: 82px;
+  border-radius: 22px;
+  object-fit: cover;
+  border: 3px solid #e7f7ec;
+  flex-shrink: 0;
 }
 
-.task-title {
+.worker-info {
+  flex: 1;
+}
+
+.worker-name {
   font-size: 18px;
   font-weight: 900;
   margin-bottom: 4px;
 }
 
-.task-sub {
+.worker-location {
   color: #666;
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: 13px;
+  margin-bottom: 8px;
 }
 
-.status-pill {
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rating-pill,
+.gender-pill {
   background: #e7f7ec;
   color: #0b7a28;
+  padding: 6px 10px;
   border-radius: 999px;
-  padding: 7px 10px;
   font-size: 11px;
   font-weight: 900;
-  white-space: nowrap;
 }
 
-.info-grid {
+.gender-pill {
+  background: #f4f4f4;
+  color: #333;
+}
+
+.section {
+  padding: 0 16px 16px;
+}
+
+.section-title {
+  color: #0b7a28;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.4px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: #f7faf8;
+  border: 1px solid #dfece3;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.action-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 12px;
-}
-
-.info-box {
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 16px;
-  padding: 10px;
-  min-height: 68px;
-}
-
-.info-label {
-  color: #0b7a28;
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  margin-bottom: 5px;
-}
-
-.info-value {
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.35;
-}
-
-.details-toggle {
-  margin-top: 12px;
-  color: #0b7a28;
-  font-size: 13px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.details-box {
-  display: none;
-  margin-top: 10px;
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 16px;
-  padding: 12px;
-}
-
-.detail-chip {
-  background: white;
-  border: 1px solid #e3eee6;
-  border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.35;
+  padding: 0 16px 16px;
 }
 
 button {
   width: 100%;
-  padding: 11px;
   border: none;
-  border-radius: 13px;
+  border-radius: 14px;
+  padding: 12px;
   font-size: 12px;
   font-weight: 900;
   cursor: pointer;
   transition: 0.2s;
-  margin-top: 10px;
 }
 
 button:hover {
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(0,0,0,0.09);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
 }
 
 .secondary-btn {
@@ -271,10 +245,15 @@ button:hover {
   border: 1px solid #cdebd5;
 }
 
+.saved-btn {
+  background: #111;
+  color: white;
+}
+
 .empty {
   background: white;
-  padding: 22px;
   border-radius: 22px;
+  padding: 24px;
   text-align: center;
   color: #666;
   border: 1px solid #edf1ee;
@@ -283,11 +262,10 @@ button:hover {
 
 #status {
   text-align: center;
-  color: #b00020;
   font-size: 13px;
   font-weight: 900;
-  margin: 10px 0;
-  line-height: 1.4;
+  margin-bottom: 12px;
+  color: #0b7a28;
 }
 
 .nav {
@@ -335,12 +313,6 @@ button:hover {
   }
 }
 
-@keyframes floatCard {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0); }
-}
-
 @keyframes pulseGlow {
   0% { transform: scale(1); }
   50% { transform: scale(1.12); }
@@ -350,55 +322,95 @@ button:hover {
 </head>
 
 <body>
+
 <div class="container">
 
   <div class="top-bar">
     <div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
-    <div class="refresh" onclick="loadPastTasks()">Refresh</div>
+    <div class="refresh" onclick="loadWorkers()">Refresh</div>
   </div>
 
   <div class="hero">
-    <h1>Past Tasks</h1>
-    <p>View completed jobs that have been marked paid, including worker details, payment amount, and task history.</p>
-  </div>
-
-  <div class="summary-row">
-    <div class="summary-box">
-      <div class="summary-label">Paid Tasks</div>
-      <div class="summary-value" id="paidCount">0</div>
-    </div>
-
-    <div class="summary-box">
-      <div class="summary-label">Total Paid</div>
-      <div class="summary-value" id="totalPaid">$0.00</div>
-    </div>
+    <h1>Browse Workers</h1>
+    <p>Discover local workers, compare ratings and services, and save favorites for future jobs.</p>
   </div>
 
   <div class="filter-card">
-    <div class="filter-title">Filter Past Tasks</div>
+
+    <div class="filter-title">Filter Workers</div>
 
     <div class="filter-grid">
-      <select id="taskTypeFilter" onchange="applyFilters()">
-        <option value="">All task types</option>
+
+      <input
+        id="cityFilter"
+        placeholder="City"
+        oninput="applyFilters()"
+      >
+
+      <input
+        id="stateFilter"
+        placeholder="State"
+        oninput="applyFilters()"
+      >
+
+      <input
+        id="serviceFilter"
+        placeholder="Service"
+        oninput="applyFilters()"
+      >
+
+      <select
+        id="genderFilter"
+        onchange="applyFilters()"
+      >
+        <option value="">All genders</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
       </select>
 
-      <input id="dateFilter" type="date" onchange="applyFilters()">
     </div>
 
-    <button class="secondary-btn" onclick="clearFilters()">Clear Filters</button>
+    <button
+      class="secondary-btn"
+      onclick="clearFilters()"
+      style="margin-top:10px;"
+    >
+      Clear Filters
+    </button>
+
   </div>
 
   <p id="status"></p>
 
-  <div id="tasksList"></div>
+  <div id="workersList"></div>
+
 </div>
 
 <div class="nav">
-  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
-  <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
-  <a href="view-open-task.html"><span class="nav-icon">📌</span>Open</a>
-  <a href="view-past-task.html" class="active"><span class="nav-icon">✅</span>Past</a>
-  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="customer-home.html">
+    <span class="nav-icon">🏠</span>
+    Home
+  </a>
+
+  <a href="post-job.html">
+    <span class="nav-icon">＋</span>
+    Post
+  </a>
+
+  <a href="browse-workers.html" class="active">
+    <span class="nav-icon">👷</span>
+    Workers
+  </a>
+
+  <a href="view-open-task.html">
+    <span class="nav-icon">📌</span>
+    Tasks
+  </a>
+
+  <a href="message-center.html">
+    <span class="nav-icon">💬</span>
+    Messages
+  </a>
 </div>
 
 <script>
@@ -407,7 +419,7 @@ const supabaseClient = window.supabase.createClient(
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
-let allPastTasks = [];
+let allWorkers = [];
 let currentUserId = "";
 
 function escapeHTML(value) {
@@ -423,95 +435,8 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
-function formatMoney(value) {
-  const numberValue =
-    Number(value || 0);
-
-  if (isNaN(numberValue)) {
-    return "$0.00";
-  }
-
-  return "$" + numberValue.toFixed(2);
-}
-
-function formatDate(value) {
-  if (!value) {
-    return "Not listed";
-  }
-
-  const date =
-    new Date(value);
-
-  if (isNaN(date.getTime())) {
-    return value;
-  }
-
-  return date.toLocaleDateString();
-}
-
-function getTaskPaidDate(task) {
-  return (
-    task.paid_at ||
-    task.completed_at ||
-    task.updated_at ||
-    task.created_at ||
-    ""
-  );
-}
-
-function getTaskAmount(task) {
-  return (
-    task.paid_amount ??
-    task.amount_paid ??
-    task.accepted_quote_amount ??
-    task.quote_amount ??
-    task.total_amount ??
-    task.price ??
-    task.amount ??
-    0
-  );
-}
-
-function getAssignedWorkerId(task) {
-  return (
-    task.assigned_worker_id ||
-    task.accepted_worker_id ||
-    task.worker_id ||
-    ""
-  );
-}
-
-
-function getTaskType(task) {
-  return (
-    task.category ||
-    task.task_type ||
-    task.service_type ||
-    task.job_type ||
-    task.type ||
-    task.title ||
-    "Task"
-  );
-}
-
-function getTaskDetails(task) {
-  if (task.task_details && typeof task.task_details === "object") {
-    return Object.keys(task.task_details)
-      .map(key => {
-        const label =
-          key.replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase());
-
-        return `${label}: ${task.task_details[key]}`;
-      });
-  }
-
-  if (task.description) {
-    return String(task.description)
-      .split("\n")
-      .filter(Boolean);
-  }
-
-  return ["No task details listed."];
+function randomizeArray(array) {
+  return [...array].sort(() => Math.random() - 0.5);
 }
 
 async function getCurrentUser() {
@@ -519,7 +444,11 @@ async function getCurrentUser() {
     await supabaseClient.auth.getSession();
 
   if (data.session && data.session.user) {
-    localStorage.setItem("taskmintUserId", data.session.user.id);
+    localStorage.setItem(
+      "taskmintUserId",
+      data.session.user.id
+    );
+
     return data.session.user;
   }
 
@@ -534,84 +463,13 @@ async function getCurrentUser() {
   return null;
 }
 
-async function attachQuoteAmountsAndWorkers() {
-  for (const task of allPastTasks) {
-    const quoteId =
-      task.accepted_quote_id ||
-      task.quote_id ||
-      "";
+async function loadWorkers() {
 
-    if (quoteId) {
-      const { data: quote } =
-        await supabaseClient
-          .from("worker_quotes")
-          .select("*")
-          .eq("id", quoteId)
-          .maybeSingle();
+  const workersList =
+    document.getElementById("workersList");
 
-      if (quote) {
-        task.quote_amount =
-          quote.quote_amount ??
-          quote.quote_price ??
-          quote.offer_amount ??
-          quote.total_amount ??
-          quote.quote ??
-          quote.amount ??
-          quote.price ??
-          task.quote_amount ??
-          0;
-
-        task.worker_id =
-          task.worker_id ||
-          quote.worker_id ||
-          quote.user_id ||
-          quote.worker_user_id ||
-          "";
-      }
-    }
-  }
-}
-
-async function getWorkerName(workerId) {
-  if (!workerId) {
-    return "Worker not listed";
-  }
-
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("first_name, last_name, full_name, display_name")
-      .eq("id", workerId)
-      .maybeSingle();
-
-  const { data: workerProfile } =
-    await supabaseClient
-      .from("worker_profiles")
-      .select("full_name, display_name")
-      .eq("id", workerId)
-      .maybeSingle();
-
-  const person =
-    Object.assign({}, profile || {}, workerProfile || {});
-
-  return (
-    person.full_name ||
-    person.display_name ||
-    `${person.first_name || ""} ${person.last_name || ""}`.trim() ||
-    "Worker not listed"
-  );
-}
-
-async function loadPastTasks() {
-  const tasksList =
-    document.getElementById("tasksList");
-
-  const status =
-    document.getElementById("status");
-
-  status.innerText = "";
-  tasksList.innerHTML =
-    `<div class="empty">Loading paid tasks...</div>`;
+  workersList.innerHTML =
+    `<div class="empty">Loading workers...</div>`;
 
   const user =
     await getCurrentUser();
@@ -623,223 +481,336 @@ async function loadPastTasks() {
   currentUserId =
     user.id;
 
-  const { data: tasks, error } =
+  const { data: workers, error } =
     await supabaseClient
-      .from("tasks")
+      .from("worker_profiles")
       .select("*")
-      .eq("customer_id", currentUserId)
-      .eq("status", "paid")
-      .order("updated_at", { ascending: false });
+      .eq("is_worker_approved", true);
 
   if (error) {
-    tasksList.innerHTML =
+    workersList.innerHTML =
       `<div class="empty">${escapeHTML(error.message)}</div>`;
+
     return;
   }
 
-  allPastTasks =
-    tasks || [];
+  allWorkers =
+    randomizeArray(workers || []);
 
-  await attachQuoteAmountsAndWorkers();
-  populateTaskTypeFilter();
   applyFilters();
 }
 
-function populateTaskTypeFilter() {
-  const select =
-    document.getElementById("taskTypeFilter");
+function getServices(worker) {
 
-  const currentValue =
-    select.value;
+  if (Array.isArray(worker.services_offered)) {
+    return worker.services_offered;
+  }
 
-  const types =
-    [...new Set(
-      allPastTasks
-        .map(task => getTaskType(task))
-        .filter(Boolean)
-    )].sort();
+  if (typeof worker.services_offered === "string") {
+    return worker.services_offered
+      .split(",")
+      .map(item => item.trim())
+      .filter(Boolean);
+  }
 
-  select.innerHTML =
-    `<option value="">All task types</option>`;
+  return [];
+}
 
-  types.forEach(type => {
-    const option =
-      document.createElement("option");
+function getServiceAreas(worker) {
 
-    option.value = type;
-    option.innerText = type;
+  if (Array.isArray(worker.service_areas)) {
+    return worker.service_areas;
+  }
 
-    select.appendChild(option);
-  });
+  if (typeof worker.service_areas === "string") {
+    return worker.service_areas
+      .split(",")
+      .map(item => item.trim())
+      .filter(Boolean);
+  }
 
-  select.value =
-    currentValue;
+  return [];
 }
 
 function applyFilters() {
-  const typeFilter =
-    document.getElementById("taskTypeFilter").value;
 
-  const dateFilter =
-    document.getElementById("dateFilter").value;
+  const city =
+    document.getElementById("cityFilter").value
+      .toLowerCase()
+      .trim();
+
+  const state =
+    document.getElementById("stateFilter").value
+      .toLowerCase()
+      .trim();
+
+  const service =
+    document.getElementById("serviceFilter").value
+      .toLowerCase()
+      .trim();
+
+  const gender =
+    document.getElementById("genderFilter").value;
 
   let filtered =
-    allPastTasks.slice();
+    allWorkers.filter(worker => {
 
-  if (typeFilter) {
-    filtered =
-      filtered.filter(task =>
-        (task.category || task.title || "") === typeFilter
+      const workerCity =
+        String(worker.city || "")
+          .toLowerCase();
+
+      const workerState =
+        String(worker.state || "")
+          .toLowerCase();
+
+      const services =
+        getServices(worker)
+          .join(" ")
+          .toLowerCase();
+
+      const workerGender =
+        String(worker.gender || "");
+
+      const cityMatch =
+        !city || workerCity.includes(city);
+
+      const stateMatch =
+        !state || workerState.includes(state);
+
+      const serviceMatch =
+        !service || services.includes(service);
+
+      const genderMatch =
+        !gender || workerGender === gender;
+
+      return (
+        cityMatch &&
+        stateMatch &&
+        serviceMatch &&
+        genderMatch
       );
-  }
+    });
 
-  if (dateFilter) {
-    filtered =
-      filtered.filter(task => {
-        const paidDate =
-          getTaskPaidDate(task);
-
-        if (!paidDate) {
-          return false;
-        }
-
-        return String(paidDate).slice(0, 10) === dateFilter;
-      });
-  }
-
-  renderTasks(filtered);
+  renderWorkers(filtered);
 }
 
 function clearFilters() {
-  document.getElementById("taskTypeFilter").value = "";
-  document.getElementById("dateFilter").value = "";
 
-  renderTasks(allPastTasks);
+  document.getElementById("cityFilter").value = "";
+  document.getElementById("stateFilter").value = "";
+  document.getElementById("serviceFilter").value = "";
+  document.getElementById("genderFilter").value = "";
+
+  renderWorkers(allWorkers);
 }
 
-async function renderTasks(tasks) {
-  const tasksList =
-    document.getElementById("tasksList");
+async function saveWorker(workerId) {
 
-  document.getElementById("paidCount").innerText =
-    String(tasks.length);
+  const status =
+    document.getElementById("status");
 
-  const total =
-    tasks.reduce((sum, task) => {
-      return sum + Number(getTaskAmount(task) || 0);
-    }, 0);
+  status.innerText = "";
 
-  document.getElementById("totalPaid").innerText =
-    formatMoney(total);
+  const { error } =
+    await supabaseClient
+      .from("saved_workers")
+      .insert([
+        {
+          customer_id: currentUserId,
+          worker_id: workerId
+        }
+      ]);
 
-  if (!tasks || tasks.length === 0) {
-    tasksList.innerHTML =
-      `<div class="empty">No paid tasks match this filter.</div>`;
+  if (error) {
+
+    if (
+      error.message &&
+      error.message.toLowerCase().includes("duplicate")
+    ) {
+      status.innerText =
+        "Worker already saved.";
+      return;
+    }
+
+    status.innerText =
+      error.message;
+
     return;
   }
 
-  tasksList.innerHTML = "";
+  status.innerText =
+    "Worker saved.";
+}
 
-  for (const task of tasks) {
-    const workerId =
-      getAssignedWorkerId(task);
+function viewWorkerProfile(workerId) {
 
-    const workerName =
-      await getWorkerName(workerId);
+  window.location.href =
+    `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`;
+}
 
-    const detailsId =
-      `details-${task.id}`;
+function renderWorkers(workers) {
+
+  const workersList =
+    document.getElementById("workersList");
+
+  if (!workers || workers.length === 0) {
+
+    workersList.innerHTML =
+      `<div class="empty">No workers match your filters.</div>`;
+
+    return;
+  }
+
+  workersList.innerHTML = "";
+
+  workers.forEach(worker => {
 
     const card =
       document.createElement("div");
 
     card.className =
-      "task-card";
+      "worker-card";
 
-    const details =
-      getTaskDetails(task)
-        .map(detail => `
-          <div class="detail-chip">
-            ${escapeHTML(detail)}
-          </div>
-        `)
-        .join("");
+    const services =
+      getServices(worker);
+
+    const serviceAreas =
+      getServiceAreas(worker);
+
+    const photo =
+      worker.profile_photo_url ||
+      worker.profile_image_url ||
+      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
     card.innerHTML = `
-      <div class="task-top">
-        <div>
-          <div class="task-title">
-            ${escapeHTML(getTaskType(task))}
+      <div class="worker-top">
+
+        <img
+          class="worker-photo"
+          src="${escapeHTML(photo)}"
+        >
+
+        <div class="worker-info">
+
+          <div class="worker-name">
+            ${escapeHTML(
+              worker.full_name ||
+              worker.display_name ||
+              "Worker"
+            )}
           </div>
 
-          <div class="task-sub">
-            Order # TM-${String(task.id).slice(0, 8).toUpperCase()} •
-            Paid ${escapeHTML(formatDate(getTaskPaidDate(task)))}
+          <div class="worker-location">
+            ${escapeHTML(worker.city || "")},
+            ${escapeHTML(worker.state || "")}
           </div>
+
+          <div class="rating-row">
+
+            <div class="rating-pill">
+              ⭐ ${escapeHTML(
+                String(
+                  worker.average_rating ||
+                  worker.rating ||
+                  "5.0"
+                )
+              )}
+            </div>
+
+            ${
+              worker.gender
+                ? `
+                <div class="gender-pill">
+                  ${escapeHTML(worker.gender)}
+                </div>
+                `
+                : ""
+            }
+
+          </div>
+
         </div>
 
-        <div class="status-pill">
-          Paid
-        </div>
       </div>
 
-      <div class="info-grid">
-        <div class="info-box">
-          <div class="info-label">Worker</div>
-          <div class="info-value">
-            ${escapeHTML(workerName)}
-          </div>
+      <div class="section">
+
+        <div class="section-title">
+          Services Offered
         </div>
 
-        <div class="info-box">
-          <div class="info-label">Amount Paid</div>
-          <div class="info-value">
-            ${escapeHTML(formatMoney(getTaskAmount(task)))}
-          </div>
+        <div class="chips">
+
+          ${
+            services.length > 0
+              ? services.map(service => `
+                  <div class="chip">
+                    ${escapeHTML(service)}
+                  </div>
+                `).join("")
+              : `
+                  <div class="chip">
+                    Services not listed
+                  </div>
+                `
+          }
+
         </div>
 
-        <div class="info-box">
-          <div class="info-label">Task Date</div>
-          <div class="info-value">
-            ${escapeHTML(formatDate(task.task_date || task.date_needed || task.created_at))}
-          </div>
-        </div>
-
-        <div class="info-box">
-          <div class="info-label">Location</div>
-          <div class="info-value">
-            ${escapeHTML(task.city || "")}, ${escapeHTML(task.state || "")}
-          </div>
-        </div>
       </div>
 
-      <div class="details-toggle" onclick="toggleDetails('${detailsId}')">
-        View task details
+      <div class="section">
+
+        <div class="section-title">
+          Service Areas
+        </div>
+
+        <div class="chips">
+
+          ${
+            serviceAreas.length > 0
+              ? serviceAreas.map(area => `
+                  <div class="chip">
+                    ${escapeHTML(area)}
+                  </div>
+                `).join("")
+              : `
+                  <div class="chip">
+                    Areas not listed
+                  </div>
+                `
+          }
+
+        </div>
+
       </div>
 
-      <div class="details-box" id="${detailsId}">
-        ${details}
+      <div class="action-row">
+
+        <button
+          class="primary-btn"
+          onclick="viewWorkerProfile('${worker.id}')"
+        >
+          View Profile
+        </button>
+
+        <button
+          class="saved-btn"
+          onclick="saveWorker('${worker.id}')"
+        >
+          Save Worker
+        </button>
+
       </div>
     `;
 
-    tasksList.appendChild(card);
-  }
+    workersList.appendChild(card);
+  });
 }
 
-function toggleDetails(detailsId) {
-  const box =
-    document.getElementById(detailsId);
-
-  if (!box) {
-    return;
-  }
-
-  box.style.display =
-    box.style.display === "block" ? "none" : "block";
-}
-
-loadPastTasks();
+loadWorkers();
 </script>
+
 </body>
 </html>
 
