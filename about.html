@@ -1,74 +1,437 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>About TaskMint</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body { margin:0; font-family:Arial, sans-serif; background:#f4f4f4; padding-bottom:80px; }
-    .container { max-width:420px; margin:0 auto; background:white; min-height:100vh; }
-    .header { position:relative; text-align:center; padding:18px; font-size:22px; font-weight:bold; border-bottom:1px solid #ddd; }
-    .back { position:absolute; left:15px; top:14px; font-size:28px; color:green; cursor:pointer; }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    .section { padding:20px; border-bottom:1px solid #eee; }
-    .section h2 { margin-top:0; font-size:20px; }
-    .section p { color:#555; line-height:1.5; font-size:15px; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 95px;
+}
 
-    .nav { position:fixed; bottom:0; width:100%; background:white; border-top:1px solid #ddd; display:flex; justify-content:center; }
-    .nav-inner { max-width:420px; width:100%; display:flex; justify-content:space-around; padding:10px 0; }
-    .nav a { text-decoration:none; color:#777; font-size:14px; }
-    .nav a.active { color:green; font-weight:bold; }
-  </style>
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back,
+.quick-link {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.about-card,
+.section-card,
+.notice {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
+}
+
+.about-card {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.about-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.about-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.about-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.about-sub {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.section-card p,
+.notice {
+  color: #555;
+  line-height: 1.5;
+  font-size: 14px;
+  margin: 0;
+}
+
+.step-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.step-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+  text-align: center;
+}
+
+.step-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.step-title {
+  color: #0b7a28;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.value-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.value-item {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.value-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.value-title {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.value-sub {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.35;
+  margin-top: 3px;
+}
+
+.notice {
+  background: #fff8e6;
+  border: 1px solid #ffe0a3;
+  color: #6f4b00;
+  font-weight: 800;
+}
+
+.contact-link {
+  color: #0b7a28;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.version-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.45;
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-  <div class="header">
-    <span class="back" onclick="window.location.href='profile.html'">‹</span>
-    About TaskMint
+  <div class="top-bar">
+    <div class="back" onclick="window.location.href='profile.html'">← Back</div>
+    <div class="quick-link" onclick="window.location.href='support.html'">Support</div>
   </div>
 
-  <div class="section">
-    <h2>About Us</h2>
+  <div class="hero">
+    <h1>About TaskMint</h1>
+    <p>A local task marketplace built to make hiring help easier, faster, and more organized.</p>
+  </div>
+
+  <div class="about-card">
+    <div class="about-top">
+      <div class="about-icon">🌱</div>
+      <div>
+        <div class="about-title">Built for everyday help</div>
+        <div class="about-sub">
+          TaskMint connects customers with workers for local tasks, quotes, scheduling, messaging, and task updates.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">About Us</div>
     <p>
       TaskMint is a task marketplace that helps customers find reliable workers for everyday jobs.
       Customers can post a task, review interested workers, message applicants, and choose the right person for the job.
     </p>
   </div>
 
-  <div class="section">
-    <h2>Our Mission</h2>
+  <div class="section-card">
+    <div class="section-title">Our Mission</div>
     <p>
       Our mission is to make it easier for people to get help when they need it while giving workers a simple way to find paid opportunities.
     </p>
   </div>
 
-  <div class="section">
-    <h2>How TaskMint Works</h2>
+  <div class="section-card">
+    <div class="section-title">How TaskMint Works</div>
     <p>
       Customers post jobs, workers apply, and customers can review applicants before accepting someone for the task.
       TaskMint is being built to support messaging, payments, scheduling, and task updates in one place.
     </p>
+
+    <div class="step-grid">
+      <div class="step-box">
+        <div class="step-icon">📝</div>
+        <div class="step-title">Post a Task</div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-icon">💬</div>
+        <div class="step-title">Compare Quotes</div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-icon">💳</div>
+        <div class="step-title">Pay Securely</div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-icon">✅</div>
+        <div class="step-title">Complete Job</div>
+      </div>
+    </div>
   </div>
 
-  <div class="section">
-    <h2>Contact</h2>
+  <div class="section-card">
+    <div class="section-title">What TaskMint Supports</div>
+
+    <div class="value-list">
+      <div class="value-item">
+        <div class="value-icon">📌</div>
+        <div>
+          <div class="value-title">Task management</div>
+          <div class="value-sub">Customers can keep track of open, scheduled, completed, and past tasks.</div>
+        </div>
+      </div>
+
+      <div class="value-item">
+        <div class="value-icon">👷</div>
+        <div>
+          <div class="value-title">Worker profiles</div>
+          <div class="value-sub">Customers can review workers, ratings, service areas, and services offered.</div>
+        </div>
+      </div>
+
+      <div class="value-item">
+        <div class="value-icon">🔐</div>
+        <div>
+          <div class="value-title">Safety-focused tools</div>
+          <div class="value-sub">Arrival codes, task messaging, and dispute tools help keep the process organized.</div>
+        </div>
+      </div>
+
+      <div class="value-item">
+        <div class="value-icon">⚠️</div>
+        <div>
+          <div class="value-title">Dispute support</div>
+          <div class="value-sub">Customers can submit task-related concerns for review when eligible.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice">
+    TaskMint is being built as a growing platform. Features may continue to improve as customer and worker tools are added.
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Contact</div>
     <p>
-      You can contact at Support.team@trytraskmint.com
+      You can contact us at
+      <a class="contact-link" href="mailto:support.team@trytaskmint.com">
+        support.team@trytaskmint.com
+      </a>
     </p>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">App Information</div>
+
+    <div class="version-box">
+      App: TaskMint Customer<br>
+      Version: Beta<br>
+      Website: trytaskmint.com<br>
+      Support: support.team@trytaskmint.com
+    </div>
   </div>
 
 </div>
 
 <div class="nav">
-  <div class="nav-inner">
-    <a href="customer-home.html">Home</a>
-    <a href="my-jobs.html">My Jobs</a>
-    <a href="messages.html">Messages</a>
-    <a href="profile.html" class="active">Profile</a>
-  </div>
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Tasks</a>
+  <a href="browse-workers.html"><span class="nav-icon">👷</span>Workers</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="profile.html" class="active"><span class="nav-icon">👤</span>Profile</a>
 </div>
 
 </body>
