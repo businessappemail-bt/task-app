@@ -5,244 +5,1103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; color: #111; }
-.container { max-width: 420px; margin: 0 auto; padding: 20px; }
-.back { color: green; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-.card, .notice { background: white; border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 5px rgba(0,0,0,0.08); }
-.notice { background: #fff8e1; border-left: 4px solid #d6a100; font-size: 14px; }
-.status-pill { display: inline-block; background: #e8f5e9; color: green; padding: 6px 10px; border-radius: 20px; font-weight: bold; }
-label { display: block; font-weight: bold; margin-top: 12px; }
-input, select, textarea, button { width: 100%; box-sizing: border-box; padding: 13px; margin-top: 8px; border-radius: 10px; border: 1px solid #ccc; font-size: 15px; }
-textarea { min-height: 110px; }
-button { background: green; color: white; border: none; cursor: pointer; margin-top: 16px; }
-.small { color: #666; font-size: 13px; }
-#status { margin-top: 14px; text-align: center; font-weight: bold; }
-.hidden { display: none; }
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 40px;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back,
+.refresh {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.card,
+.notice,
+.dispute-card {
+  background: white;
+  border-radius: 22px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border: 1px solid #edf1ee;
+  animation: fadeUp 0.45s ease;
+}
+
+.notice {
+  background: #fff8e6;
+  border: 1px solid #ffe0a3;
+  color: #6f4b00;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin: 18px 0 10px;
+}
+
+.status-pill {
+  display: inline-block;
+  background: #e7f7ec;
+  color: #0b7a28;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: capitalize;
+}
+
+.status-pill.closed,
+.status-pill.resolved,
+.status-pill.rejected {
+  background: #f4f4f4;
+  color: #333;
+}
+
+label {
+  display: block;
+  font-weight: 900;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  margin-top: 8px;
+  border-radius: 14px;
+  border: 1px solid #d9dfda;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+button {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  margin-top: 10px;
+  border-radius: 14px;
+  border: none;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.secondary-btn {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
+}
+
+.danger-btn {
+  background: #b00020;
+  color: white;
+}
+
+.small {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.hidden {
+  display: none;
+}
+
+#status,
+#messageStatus {
+  margin-top: 14px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.error {
+  color: #b00020;
+}
+
+.success {
+  color: #0b7a28;
+}
+
+.task-result {
+  padding: 12px;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  margin-top: 10px;
+  background: #f7faf8;
+}
+
+.dispute-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.dispute-title {
+  font-size: 15px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.dispute-sub {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.35;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.info-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  padding: 10px;
+  min-height: 68px;
+}
+
+.info-label {
+  color: #0b7a28;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 5px;
+}
+
+.info-value {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.message-thread {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+  margin-top: 12px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.thread-message {
+  max-width: 86%;
+  padding: 11px;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.thread-message.customer {
+  background: #0b7a28;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 6px;
+}
+
+.thread-message.taskmint {
+  background: white;
+  color: #111;
+  margin-right: auto;
+  border: 1px solid #e3eee6;
+  border-bottom-left-radius: 6px;
+}
+
+.thread-message.worker-note {
+  display: none;
+}
+
+.message-meta {
+  font-size: 10px;
+  opacity: 0.75;
+  margin-top: 6px;
+}
+
+.evidence-img {
+  max-width: 100%;
+  border-radius: 14px;
+  margin-top: 8px;
+}
+
+.empty {
+  background: white;
+  padding: 20px;
+  border-radius: 18px;
+  text-align: center;
+  color: #666;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
 </style>
 </head>
 
 <body>
 <div class="container">
-<div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
 
-<h1>Dispute Center</h1>
+  <div class="top-bar">
+    <div class="back" onclick="goBack()">← Back</div>
+    <div class="refresh" onclick="loadDisputes()">Refresh</div>
+  </div>
 
-<div id="dashboardSection">
-<div class="notice">
-To open a new dispute, go to View Open Task, select the task, and tap Open Dispute.
+  <div class="hero">
+    <h1>Dispute Center</h1>
+    <p>Open a dispute, send updates to TaskMint, and track the review until it is closed.</p>
+  </div>
+
+  <div id="dashboardSection">
+
+    <div class="notice">
+      Disputes can take anywhere between <strong>7–10 business days</strong> depending on the information provided and the investigation process.
+    </div>
+
+    <div class="card">
+      <h3>Link a Task</h3>
+      <p class="small">
+        If you opened this page from a task card, the task will link automatically. You can also search by TaskMint order number or task ID.
+      </p>
+
+      <input id="taskSearchInput" placeholder="Example: TM-12345678 or full task ID">
+      <button class="secondary-btn" onclick="searchTask()">Search Task</button>
+
+      <div id="taskSearchResult"></div>
+    </div>
+
+    <div class="section-title">Open Disputes</div>
+    <div id="openDisputesList">Loading open disputes...</div>
+
+    <div class="section-title">Past Disputes</div>
+    <div id="pastDisputesList">Loading past disputes...</div>
+  </div>
+
+  <div id="formSection" class="hidden">
+
+    <div class="notice">
+      Disputes can take anywhere between <strong>7–10 business days</strong>. Submit clear details, screenshots, and job-related evidence to help TaskMint review the issue.
+    </div>
+
+    <div class="card">
+      <p><strong>Dispute Status:</strong> <span class="status-pill">Open</span></p>
+      <p class="small">Customer and worker messages are kept separate. You will only see your messages with TaskMint.</p>
+    </div>
+
+    <div class="card">
+      <h3>Task Information</h3>
+      <p><strong>Task ID:</strong> <span id="taskIdText">Not linked</span></p>
+      <p><strong>Worker ID:</strong> <span id="workerIdText">Not linked</span></p>
+    </div>
+
+    <div class="card">
+      <h3>Open a Dispute</h3>
+
+      <label for="reason">Reason</label>
+      <select id="reason">
+        <option value="">Select dispute reason</option>
+        <option value="Work not completed">Work not completed</option>
+        <option value="Poor quality work">Poor quality work</option>
+        <option value="No-show">No-show</option>
+        <option value="Damage to property">Damage to property</option>
+        <option value="Payment issue">Payment issue</option>
+        <option value="Miscommunication">Miscommunication</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="description">What happened?</label>
+      <textarea id="description" placeholder="Explain the issue clearly"></textarea>
+
+      <label for="additionalNotes">Additional Notes</label>
+      <textarea id="additionalNotes" placeholder="Anything else TaskMint should know?"></textarea>
+
+      <label for="evidenceFile">Upload Evidence</label>
+      <input id="evidenceFile" type="file" accept="image/*">
+
+      <p class="small">Photos may include damaged property, incomplete work, screenshots, or job-related proof.</p>
+
+      <button class="primary-btn" onclick="submitDispute()">Submit Dispute</button>
+
+      <p id="status"></p>
+    </div>
+
+    <div class="notice">
+      <strong>What happens next:</strong><br>
+      TaskMint will review dispute details, evidence, messages, task status, and payment records before making a decision.
+    </div>
+  </div>
+
+  <div id="messageSection" class="hidden">
+
+    <div class="card">
+      <div class="dispute-top">
+        <div>
+          <div class="dispute-title" id="messageDisputeTitle">Dispute Messages</div>
+          <div class="dispute-sub" id="messageDisputeSub">Messages between you and TaskMint.</div>
+        </div>
+
+        <span id="messageDisputeStatus" class="status-pill">Open</span>
+      </div>
+
+      <div class="notice" style="margin-top:12px;">
+        Only you and TaskMint can see this message thread. Worker messages are separate and are not shown here.
+      </div>
+
+      <div id="messageThread" class="message-thread">
+        Loading messages...
+      </div>
+
+      <label for="customerReply">Reply to TaskMint</label>
+      <textarea id="customerReply" placeholder="Type your response to TaskMint..."></textarea>
+
+      <label for="replyFile">Attach Evidence</label>
+      <input id="replyFile" type="file" accept="image/*">
+
+      <button class="primary-btn" onclick="sendDisputeMessage()">Send Reply</button>
+      <button class="secondary-btn" onclick="showDashboard()">Back to Disputes</button>
+
+      <p id="messageStatus"></p>
+    </div>
+
+  </div>
+
 </div>
 
-<h2>Open Disputes</h2>
-<div id="openDisputesList" class="card">Loading open disputes...</div>
-
-<h2>Past Disputes</h2>
-<div id="pastDisputesList" class="card">Loading past disputes...</div>
-</div>
-
-<div id="formSection" class="hidden">
-<div class="notice">
-Disputes are reviewed for safety and fairness. Submit clear details and job-related evidence only.
-</div>
-
-<div class="card">
-<p><strong>Dispute Status:</strong> <span class="status-pill">Open</span></p>
-<p class="small">A dispute will remain open until reviewed and resolved.</p>
-</div>
-
-<div class="card">
-<h3>Task Information</h3>
-<p><strong>Task ID:</strong> <span id="taskIdText">Not linked</span></p>
-<p><strong>Worker ID:</strong> <span id="workerIdText">Not linked</span></p>
-</div>
-
-<div class="card">
-<h3>Open a Dispute</h3>
-
-<label for="reason">Reason</label>
-<select id="reason">
-<option value="">Select dispute reason</option>
-<option value="Work not completed">Work not completed</option>
-<option value="Poor quality work">Poor quality work</option>
-<option value="No-show">No-show</option>
-<option value="Damage to property">Damage to property</option>
-<option value="Payment issue">Payment issue</option>
-<option value="Miscommunication">Miscommunication</option>
-<option value="Other">Other</option>
-</select>
-
-<label for="description">What happened?</label>
-<textarea id="description" placeholder="Explain the issue clearly"></textarea>
-
-<label for="additionalNotes">Additional Notes</label>
-<textarea id="additionalNotes" placeholder="Anything else we should know?"></textarea>
-
-<label for="evidenceFile">Upload Evidence</label>
-<input id="evidenceFile" type="file" accept="image/*">
-
-<p class="small">Photos may include damaged property, incomplete work, screenshots, or job-related proof.</p>
-
-<button onclick="submitDispute()">Submit Dispute</button>
-
-<p id="status"></p>
-</div>
-
-<div class="notice">
-<strong>What happens next:</strong><br>
-TaskMint will review the dispute details, evidence, messages, task status, and payment records before making a decision.
-</div>
-</div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabaseClient = supabase.createClient(
-"https://dbcthtjmtlumidpbucrc.supabase.co",
-"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
-const params = new URLSearchParams(window.location.search);
-const taskId = params.get("task_id");
-const workerId = params.get("worker_id");
+const params =
+  new URLSearchParams(window.location.search);
 
-const customerId = localStorage.getItem("taskmintUserId");
+let taskId =
+  params.get("task_id") || "";
 
-if (taskId) {
-document.getElementById("dashboardSection").classList.add("hidden");
-document.getElementById("formSection").classList.remove("hidden");
-document.getElementById("taskIdText").innerText = taskId;
-document.getElementById("workerIdText").innerText = workerId || "Not assigned yet";
-} else {
-document.getElementById("dashboardSection").classList.remove("hidden");
-document.getElementById("formSection").classList.add("hidden");
-loadDisputes();
+let workerId =
+  params.get("worker_id") || "";
+
+let customerId =
+  localStorage.getItem("taskmintUserId") || "";
+
+let activeDisputeId = "";
+
+function escapeHTML(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "Not listed";
+  }
+
+  const date =
+    new Date(value);
+
+  if (isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString();
+}
+
+function goBack() {
+  if (!document.getElementById("messageSection").classList.contains("hidden")) {
+    showDashboard();
+    return;
+  }
+
+  if (!document.getElementById("formSection").classList.contains("hidden")) {
+    window.location.href = "dispute-center.html";
+    return;
+  }
+
+  window.location.href = "customer-home.html";
+}
+
+async function getCurrentUser() {
+  const { data } =
+    await supabaseClient.auth.getSession();
+
+  if (data.session && data.session.user) {
+    customerId =
+      data.session.user.id;
+
+    localStorage.setItem("taskmintUserId", customerId);
+    return data.session.user;
+  }
+
+  if (customerId) {
+    return { id: customerId };
+  }
+
+  window.location.href = "login.html";
+  return null;
+}
+
+function showDashboard() {
+  document.getElementById("dashboardSection").classList.remove("hidden");
+  document.getElementById("formSection").classList.add("hidden");
+  document.getElementById("messageSection").classList.add("hidden");
+  activeDisputeId = "";
+  loadDisputes();
+}
+
+function showForm() {
+  document.getElementById("dashboardSection").classList.add("hidden");
+  document.getElementById("formSection").classList.remove("hidden");
+  document.getElementById("messageSection").classList.add("hidden");
+
+  document.getElementById("taskIdText").innerText =
+    taskId || "Not linked";
+
+  document.getElementById("workerIdText").innerText =
+    workerId || "Not assigned yet";
+}
+
+function showMessageSection() {
+  document.getElementById("dashboardSection").classList.add("hidden");
+  document.getElementById("formSection").classList.add("hidden");
+  document.getElementById("messageSection").classList.remove("hidden");
+}
+
+async function searchTask() {
+  const resultBox =
+    document.getElementById("taskSearchResult");
+
+  const value =
+    document.getElementById("taskSearchInput").value.trim();
+
+  resultBox.innerHTML = "";
+
+  if (!value) {
+    resultBox.innerHTML =
+      `<div class="task-result">Enter a TaskMint order number or task ID.</div>`;
+    return;
+  }
+
+  const cleanValue =
+    value.replace("TM-", "").replace("tm-", "").trim();
+
+  let query =
+    supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("customer_id", customerId);
+
+  if (cleanValue.length === 8) {
+    query =
+      query.ilike("id", `${cleanValue}%`);
+  } else {
+    query =
+      query.eq("id", cleanValue);
+  }
+
+  const { data: tasks, error } =
+    await query;
+
+  if (error) {
+    resultBox.innerHTML =
+      `<div class="task-result error">${escapeHTML(error.message)}</div>`;
+    return;
+  }
+
+  if (!tasks || tasks.length === 0) {
+    resultBox.innerHTML =
+      `<div class="task-result">No matching task found.</div>`;
+    return;
+  }
+
+  const task =
+    Array.isArray(tasks) ? tasks[0] : tasks;
+
+  resultBox.innerHTML = `
+    <div class="task-result">
+      <strong>${escapeHTML(task.category || task.title || "Task")}</strong><br>
+      Order # TM-${String(task.id).slice(0,8).toUpperCase()}<br>
+      ${escapeHTML(task.city || "")}, ${escapeHTML(task.state || "")}
+      <button class="primary-btn" onclick="startDisputeForTask('${task.id}', '${task.assigned_worker_id || task.worker_id || ""}')">
+        Open Dispute for This Task
+      </button>
+    </div>
+  `;
+}
+
+function startDisputeForTask(selectedTaskId, selectedWorkerId) {
+  taskId =
+    selectedTaskId;
+
+  workerId =
+    selectedWorkerId || "";
+
+  showForm();
 }
 
 async function loadDisputes() {
-const openList = document.getElementById("openDisputesList");
-const pastList = document.getElementById("pastDisputesList");
+  const openList =
+    document.getElementById("openDisputesList");
 
-if (!customerId) {
-openList.innerHTML = "You must be logged in.";
-pastList.innerHTML = "";
-return;
+  const pastList =
+    document.getElementById("pastDisputesList");
+
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  openList.innerHTML =
+    `<div class="empty">Loading open disputes...</div>`;
+
+  pastList.innerHTML =
+    `<div class="empty">Loading past disputes...</div>`;
+
+  const { data: disputes, error } =
+    await supabaseClient
+      .from("disputes")
+      .select("*")
+      .eq("customer_id", customerId)
+      .order("created_at", { ascending: false });
+
+  if (error) {
+    openList.innerHTML =
+      `<div class="empty error">${escapeHTML(error.message)}</div>`;
+
+    pastList.innerHTML = "";
+    return;
+  }
+
+  const openDisputes =
+    (disputes || []).filter(dispute =>
+      ["open", "reviewing", "pending", "in_review"].includes(String(dispute.status || "open"))
+    );
+
+  const pastDisputes =
+    (disputes || []).filter(dispute =>
+      ["closed", "resolved", "rejected", "cancelled"].includes(String(dispute.status || ""))
+    );
+
+  openList.innerHTML =
+    openDisputes.length ? "" : `<div class="empty">No open disputes.</div>`;
+
+  pastList.innerHTML =
+    pastDisputes.length ? "" : `<div class="empty">No past disputes.</div>`;
+
+  openDisputes.forEach(dispute => {
+    openList.appendChild(createDisputeCard(dispute, false));
+  });
+
+  pastDisputes.forEach(dispute => {
+    pastList.appendChild(createDisputeCard(dispute, true));
+  });
 }
 
-const { data: disputes, error } = await supabaseClient
-.from("disputes")
-.select("*")
-.eq("customer_id", customerId)
-.order("created_at", { ascending: false });
+function createDisputeCard(dispute, isPast) {
+  const div =
+    document.createElement("div");
 
-if (error) {
-openList.innerHTML = error.message;
-pastList.innerHTML = "";
-return;
-}
+  div.className =
+    "dispute-card";
 
-const openDisputes = disputes.filter(d => d.status === "open" || d.status === "reviewing");
-const pastDisputes = disputes.filter(d => d.status === "resolved" || d.status === "rejected");
+  const status =
+    dispute.status || "open";
 
-openList.innerHTML = openDisputes.length ? "" : "No open disputes.";
-pastList.innerHTML = pastDisputes.length ? "" : "No past disputes.";
+  div.innerHTML = `
+    <div class="dispute-top">
+      <div>
+        <div class="dispute-title">
+          ${escapeHTML(dispute.reason || "Dispute")}
+        </div>
 
-openDisputes.forEach(dispute => {
-openList.appendChild(createDisputeCard(dispute));
-});
+        <div class="dispute-sub">
+          Order # ${dispute.task_id ? "TM-" + String(dispute.task_id).slice(0,8).toUpperCase() : "Not linked"}<br>
+          Opened ${escapeHTML(formatDate(dispute.created_at))}
+        </div>
+      </div>
 
-pastDisputes.forEach(dispute => {
-pastList.appendChild(createDisputeCard(dispute));
-});
-}
+      <span class="status-pill ${escapeHTML(status)}">
+        ${escapeHTML(status)}
+      </span>
+    </div>
 
-function createDisputeCard(dispute) {
-const div = document.createElement("div");
-div.style.borderBottom = "1px solid #eee";
-div.style.padding = "12px 0";
+    <div class="info-grid">
+      <div class="info-box">
+        <div class="info-label">Reason</div>
+        <div class="info-value">${escapeHTML(dispute.reason || "N/A")}</div>
+      </div>
 
-div.innerHTML = `
-<p><strong>Reason:</strong> ${dispute.reason || "N/A"}</p>
-<p><strong>Status:</strong> ${dispute.status || "open"}</p>
-<p><strong>Description:</strong> ${dispute.description || ""}</p>
-<p><strong>Opened:</strong> ${new Date(dispute.created_at).toLocaleDateString()}</p>
-<p><strong>Task ID:</strong> ${dispute.task_id || "Not linked"}</p>
-`;
+      <div class="info-box">
+        <div class="info-label">Review Time</div>
+        <div class="info-value">7–10 business days</div>
+      </div>
+    </div>
 
-return div;
+    <p class="small" style="margin-top:12px;">
+      ${escapeHTML(dispute.description || "")}
+    </p>
+
+    ${
+      dispute.evidence_url
+        ? `<img class="evidence-img" src="${escapeHTML(dispute.evidence_url)}">`
+        : ""
+    }
+
+    <button class="secondary-btn" onclick="openDisputeMessages('${dispute.id}')">
+      ${isPast ? "View Message History" : "Message TaskMint"}
+    </button>
+  `;
+
+  return div;
 }
 
 async function uploadEvidence(file, userId) {
-const fileName = `${userId}-${Date.now()}-${file.name}`;
+  const safeName =
+    file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
 
-const { error } = await supabaseClient.storage
-.from("dispute-evidence")
-.upload(fileName, file);
+  const fileName =
+    `${userId}/${Date.now()}-${safeName}`;
 
-if (error) throw error;
+  const { error } =
+    await supabaseClient.storage
+      .from("dispute-evidence")
+      .upload(fileName, file);
 
-const { data } = supabaseClient.storage
-.from("dispute-evidence")
-.getPublicUrl(fileName);
+  if (error) {
+    throw error;
+  }
 
-return data.publicUrl;
+  const { data } =
+    supabaseClient.storage
+      .from("dispute-evidence")
+      .getPublicUrl(fileName);
+
+  return data.publicUrl;
 }
 
 async function submitDispute() {
-const status = document.getElementById("status");
-const reason = document.getElementById("reason").value;
-const description = document.getElementById("description").value.trim();
-const additionalNotes = document.getElementById("additionalNotes").value.trim();
-const evidenceFile = document.getElementById("evidenceFile").files[0];
+  const status =
+    document.getElementById("status");
 
-status.innerText = "";
+  const reason =
+    document.getElementById("reason").value;
 
-if (!reason || !description) {
-status.innerText = "Please select a reason and explain what happened.";
-return;
+  const description =
+    document.getElementById("description").value.trim();
+
+  const additionalNotes =
+    document.getElementById("additionalNotes").value.trim();
+
+  const evidenceFile =
+    document.getElementById("evidenceFile").files[0];
+
+  status.className = "";
+  status.innerText = "";
+
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  if (!reason || !description) {
+    status.className = "error";
+    status.innerText =
+      "Please select a reason and explain what happened.";
+    return;
+  }
+
+  let evidenceUrl = null;
+
+  try {
+    if (evidenceFile) {
+      evidenceUrl =
+        await uploadEvidence(evidenceFile, customerId);
+    }
+
+    const { data: dispute, error } =
+      await supabaseClient
+        .from("disputes")
+        .insert([
+          {
+            task_id: taskId || null,
+            customer_id: customerId,
+            worker_id: workerId || null,
+            opened_by: customerId,
+            reason: reason,
+            description: description,
+            status: "open",
+            evidence_url: evidenceUrl,
+            additional_notes: additionalNotes || null
+          }
+        ])
+        .select()
+        .single();
+
+    if (error) {
+      status.className = "error";
+      status.innerText =
+        error.message;
+      return;
+    }
+
+    await supabaseClient
+      .from("dispute_messages")
+      .insert([
+        {
+          dispute_id: dispute.id,
+          sender_id: customerId,
+          sender_role: "customer",
+          visible_to: "customer",
+          message: description,
+          attachment_url: evidenceUrl,
+          is_read: false
+        }
+      ]);
+
+    status.className = "success";
+    status.innerText =
+      "Dispute submitted successfully.";
+
+    document.getElementById("reason").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("additionalNotes").value = "";
+    document.getElementById("evidenceFile").value = "";
+
+    setTimeout(() => {
+      openDisputeMessages(dispute.id);
+    }, 600);
+
+  } catch (err) {
+    status.className = "error";
+    status.innerText =
+      err.message;
+  }
 }
 
-if (!customerId) {
-status.innerText = "You must be logged in.";
-return;
+async function openDisputeMessages(disputeId) {
+  activeDisputeId =
+    disputeId;
+
+  showMessageSection();
+  await loadDisputeMessages();
 }
 
-let evidenceUrl = null;
+async function loadDisputeMessages() {
+  const thread =
+    document.getElementById("messageThread");
 
-try {
-if (evidenceFile) {
-evidenceUrl = await uploadEvidence(evidenceFile, customerId);
+  const title =
+    document.getElementById("messageDisputeTitle");
+
+  const sub =
+    document.getElementById("messageDisputeSub");
+
+  const pill =
+    document.getElementById("messageDisputeStatus");
+
+  thread.innerHTML =
+    "Loading messages...";
+
+  const { data: dispute, error: disputeError } =
+    await supabaseClient
+      .from("disputes")
+      .select("*")
+      .eq("id", activeDisputeId)
+      .eq("customer_id", customerId)
+      .maybeSingle();
+
+  if (disputeError || !dispute) {
+    thread.innerHTML =
+      `<div class="empty error">${escapeHTML(disputeError?.message || "Dispute not found.")}</div>`;
+    return;
+  }
+
+  title.innerText =
+    dispute.reason || "Dispute Messages";
+
+  sub.innerText =
+    dispute.task_id
+      ? `Order # TM-${String(dispute.task_id).slice(0,8).toUpperCase()}`
+      : "Dispute not linked to a task";
+
+  pill.innerText =
+    dispute.status || "open";
+
+  pill.className =
+    `status-pill ${dispute.status || "open"}`;
+
+  const { data: messages, error } =
+    await supabaseClient
+      .from("dispute_messages")
+      .select("*")
+      .eq("dispute_id", activeDisputeId)
+      .in("visible_to", ["customer", "both"])
+      .order("created_at", { ascending: true });
+
+  if (error) {
+    thread.innerHTML =
+      `<div class="empty error">${escapeHTML(error.message)}</div>`;
+    return;
+  }
+
+  if (!messages || messages.length === 0) {
+    thread.innerHTML =
+      `<div class="empty">No messages yet.</div>`;
+    return;
+  }
+
+  thread.innerHTML = "";
+
+  messages.forEach(message => {
+    const div =
+      document.createElement("div");
+
+    const isCustomer =
+      message.sender_role === "customer";
+
+    div.className =
+      isCustomer
+        ? "thread-message customer"
+        : "thread-message taskmint";
+
+    div.innerHTML = `
+      <strong>${isCustomer ? "You" : "TaskMint"}</strong><br>
+      ${escapeHTML(message.message || "")}
+      ${
+        message.attachment_url
+          ? `<img class="evidence-img" src="${escapeHTML(message.attachment_url)}">`
+          : ""
+      }
+      <div class="message-meta">
+        ${message.created_at ? new Date(message.created_at).toLocaleString() : ""}
+      </div>
+    `;
+
+    thread.appendChild(div);
+  });
+
+  await supabaseClient
+    .from("dispute_messages")
+    .update({ is_read: true })
+    .eq("dispute_id", activeDisputeId)
+    .in("visible_to", ["customer", "both"])
+    .neq("sender_role", "customer");
 }
 
-const { error } = await supabaseClient
-.from("disputes")
-.insert([{
-task_id: taskId || null,
-customer_id: customerId,
-worker_id: workerId || null,
-opened_by: customerId,
-reason: reason,
-description: description,
-status: "open",
-evidence_url: evidenceUrl,
-additional_notes: additionalNotes || null
-}]);
+async function sendDisputeMessage() {
+  const status =
+    document.getElementById("messageStatus");
 
-if (error) {
-status.innerText = error.message;
-return;
+  const message =
+    document.getElementById("customerReply").value.trim();
+
+  const file =
+    document.getElementById("replyFile").files[0];
+
+  status.className = "";
+  status.innerText = "";
+
+  if (!activeDisputeId) {
+    status.className = "error";
+    status.innerText =
+      "No dispute selected.";
+    return;
+  }
+
+  if (!message && !file) {
+    status.className = "error";
+    status.innerText =
+      "Enter a message or attach evidence.";
+    return;
+  }
+
+  let attachmentUrl = null;
+
+  try {
+    if (file) {
+      attachmentUrl =
+        await uploadEvidence(file, customerId);
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("dispute_messages")
+        .insert([
+          {
+            dispute_id: activeDisputeId,
+            sender_id: customerId,
+            sender_role: "customer",
+            visible_to: "customer",
+            message: message,
+            attachment_url: attachmentUrl,
+            is_read: false
+          }
+        ]);
+
+    if (error) {
+      status.className = "error";
+      status.innerText =
+        error.message;
+      return;
+    }
+
+    document.getElementById("customerReply").value = "";
+    document.getElementById("replyFile").value = "";
+
+    status.className = "success";
+    status.innerText =
+      "Reply sent.";
+
+    await loadDisputeMessages();
+
+  } catch (err) {
+    status.className = "error";
+    status.innerText =
+      err.message;
+  }
 }
 
-status.innerText = "Dispute submitted successfully.";
+async function initPage() {
+  await getCurrentUser();
 
-document.getElementById("reason").value = "";
-document.getElementById("description").value = "";
-document.getElementById("additionalNotes").value = "";
-document.getElementById("evidenceFile").value = "";
+  if (taskId) {
+    showForm();
+  } else {
+    showDashboard();
+  }
+}
 
-} catch (err) {
-status.innerText = err.message;
-}
-}
+initPage();
 </script>
 </body>
 </html>
