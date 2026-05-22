@@ -758,7 +758,7 @@ function setStepPill(text) {
 
 function selectCategory(category) {
   selectedCategory = category;
-  questions = questionBank[category];
+  questions = questionBank[category] || [];
   questionIndex = 0;
   answers = {};
   pickupAddress = {};
@@ -946,6 +946,28 @@ function showPickupAddress() {
     .classList
     .remove("hidden");
 
+  document.getElementById("pickupUnit").value =
+    pickupAddress.unit || "";
+
+  document.getElementById("pickupCity").value =
+    pickupAddress.city || "";
+
+  document.getElementById("pickupState").value =
+    pickupAddress.state || "";
+
+  document.getElementById("pickupZip").value =
+    pickupAddress.zip || "";
+
+  if (pickupAddress.address) {
+    document.getElementById("pickupSelected").innerText =
+      pickupAddress.address;
+
+    document
+      .getElementById("pickupSelected")
+      .classList
+      .remove("hidden");
+  }
+
   setupPlaceAutocomplete("pickupGoogleBox", "pickup");
 }
 
@@ -1008,6 +1030,28 @@ function showDropoffAddress() {
     .classList
     .remove("hidden");
 
+  document.getElementById("dropoffUnit").value =
+    dropoffAddress.unit || "";
+
+  document.getElementById("dropoffCity").value =
+    dropoffAddress.city || "";
+
+  document.getElementById("dropoffState").value =
+    dropoffAddress.state || "";
+
+  document.getElementById("dropoffZip").value =
+    dropoffAddress.zip || "";
+
+  if (dropoffAddress.address) {
+    document.getElementById("dropoffSelected").innerText =
+      dropoffAddress.address;
+
+    document
+      .getElementById("dropoffSelected")
+      .classList
+      .remove("hidden");
+  }
+
   setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
 }
 
@@ -1050,18 +1094,16 @@ function showReview() {
   hideAllSteps();
 
   document.getElementById("pageTitle").innerText =
-    "Review Task";
+    editTaskId ? "Review Task Updates" : "Review Task";
 
   document.getElementById("pageSubtext").innerText =
-    "Confirm the details before posting.";
+    editTaskId ? "Confirm the updated details before saving." : "Confirm the details before posting.";
 
   setStepPill("Review");
 
-  const previewArrivalCode = generateArrivalCode();
-
   let html = `
     <div class="code-note">
-      Arrival Code: ${previewArrivalCode}<br>
+      Arrival Code will show on the open task page after saving.<br>
       Only give this code to the worker after they have arrived for the job.
     </div>
     <p><strong>Category:</strong> ${selectedCategory}</p>
@@ -1105,6 +1147,14 @@ function showReview() {
     priceBox.classList.remove("hidden");
   } else {
     priceBox.classList.add("hidden");
+  }
+
+  const submitButton =
+    document.querySelector("#reviewStep button");
+
+  if (submitButton) {
+    submitButton.innerText =
+      editTaskId ? "Save Task Updates" : "Post Task";
   }
 
   document
@@ -1273,98 +1323,69 @@ async function submitTask() {
     document.querySelector("#reviewStep button");
 
   postButton.disabled = true;
-  postButton.innerText = "Posting Task...";
+  postButton.innerText =
+    editTaskId ? "Saving Updates..." : "Posting Task...";
 
-  let error;
+  const taskPayload = {
+    customer_id: profile.id,
+    title: selectedCategory,
+    category: selectedCategory,
+    description: buildDescription(),
+    task_details: answers,
+    task_date: answers.date_needed === "Flexible" ? null : answers.date_needed,
+    date_needed: answers.date_needed || null,
+    date_flexible: answers.date_flexible === "Yes",
+    distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),
+    location_address: pickupAddress.address || null,
+    unit: pickupAddress.unit || null,
+    city: pickupAddress.city || null,
+    state: pickupAddress.state || null,
+    zip_code: pickupAddress.zip || null,
+    pickup_lat: pickupLat,
+    pickup_lng: pickupLng,
+    dropoff_address: dropoffAddress.address || null,
+    dropoff_unit: dropoffAddress.unit || null,
+    dropoff_city: dropoffAddress.city || null,
+    dropoff_state: dropoffAddress.state || null,
+    dropoff_zip_code: dropoffAddress.zip || null,
+    dropoff_lat: dropoffLat,
+    dropoff_lng: dropoffLng,
+    status: "open"
+  };
 
-if (editTaskId) {
+  if (!editTaskId) {
+    taskPayload.arrival_code = generateArrivalCode();
+  }
 
-  const updateResult =
-    await supabaseClient
-      .from("tasks")
-      .update({
-        
-          customer_id: profile.id,
-          title: selectedCategory,
-          category: selectedCategory,
-          description: buildDescription(),
-          task_details: answers,
-          arrival_code: generateArrivalCode(),
-          task_date: answers.date_needed === "Flexible" ? null : answers.date_needed,
-          date_needed: answers.date_needed || null,
-          date_flexible: answers.date_flexible === "Yes",
-          distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),
-          location_address: pickupAddress.address,
-          unit: pickupAddress.unit || null,
-          city: pickupAddress.city,
-          state: pickupAddress.state,
-          zip_code: pickupAddress.zip,
-          pickup_lat: pickupLat,
-          pickup_lng: pickupLng,
-          dropoff_address: dropoffAddress.address || null,
-          dropoff_unit: dropoffAddress.unit || null,
-          dropoff_city: dropoffAddress.city || null,
-          dropoff_state: dropoffAddress.state || null,
-          dropoff_zip_code: dropoffAddress.zip || null,
-          dropoff_lat: dropoffLat,
-          dropoff_lng: dropoffLng,
-          status: "open"
-             })
-      .eq("id", editTaskId)
-      .eq("customer_id", profile.id);
+  let result;
 
-  error = updateResult.error;
+  if (editTaskId) {
+    result =
+      await supabaseClient
+        .from("tasks")
+        .update(taskPayload)
+        .eq("id", editTaskId)
+        .eq("customer_id", profile.id);
+  } else {
+    result =
+      await supabaseClient
+        .from("tasks")
+        .insert([taskPayload]);
+  }
 
-} else {
-
-  const insertResult =
-    await supabaseClient
-      .from("tasks")
-      .insert([
-        {
-
-               customer_id: profile.id,
-          title: selectedCategory,
-          category: selectedCategory,
-          description: buildDescription(),
-          task_details: answers,
-          arrival_code: generateArrivalCode(),
-
-          task_date:
-            answers.date_needed === "Flexible"
-              ? null
-              : answers.date_needed,
-
-          flexible_date:
-            answers.date_needed === "Flexible",
-
-          distance_miles: distanceMiles,
-
-          location:
-            answers.city && answers.state
-              ? `${answers.city}, ${answers.state}`
-              : "",
-
-          city: answers.city || "",
-          state: answers.state || "",
-          zipcode: answers.zipcode || "",
-
-            status: "open"
-        }
-      ]);  
-
-  if (error) {
-    status.innerText = error.message;
+  if (result.error) {
+    status.innerText = result.error.message;
     postButton.disabled = false;
-    postButton.innerText = "Post Task";
+    postButton.innerText =
+      editTaskId ? "Save Task Updates" : "Post Task";
     return;
   }
 
   status.style.color = "#0b7a28";
   status.innerText =
-  editTaskId
-    ? "Task updated successfully."
-    : "Task posted. Workers can now send quotes. Only give the arrival code to the worker once they arrive.";
+    editTaskId
+      ? "Task updated successfully."
+      : "Task posted. Workers can now send quotes. Only give the arrival code to the worker once they arrive.";
 
   setTimeout(() => {
     window.location.href = "view-open-task.html";
@@ -1372,12 +1393,43 @@ if (editTaskId) {
 }
 
 function goBack() {
-  if (
+  const reviewVisible =
     !document
       .getElementById("reviewStep")
       .classList
-      .contains("hidden")
-  ) {
+      .contains("hidden");
+
+  const dropoffVisible =
+    !document
+      .getElementById("dropoffAddressStep")
+      .classList
+      .contains("hidden");
+
+  const pickupVisible =
+    !document
+      .getElementById("pickupAddressStep")
+      .classList
+      .contains("hidden");
+
+  const dateVisible =
+    !document
+      .getElementById("dateStep")
+      .classList
+      .contains("hidden");
+
+  const questionVisible =
+    !document
+      .getElementById("questionStep")
+      .classList
+      .contains("hidden");
+
+  const categoryVisible =
+    !document
+      .getElementById("categoryStep")
+      .classList
+      .contains("hidden");
+
+  if (reviewVisible) {
     if (
       selectedCategory === "Moving" ||
       selectedCategory === "Errands"
@@ -1390,56 +1442,67 @@ function goBack() {
     return;
   }
 
-  if (
-    !document
-      .getElementById("dropoffAddressStep")
-      .classList
-      .contains("hidden")
-  ) {
+  if (dropoffVisible) {
     showPickupAddress();
     return;
   }
 
-  if (
-    !document
-      .getElementById("pickupAddressStep")
-      .classList
-      .contains("hidden")
-  ) {
+  if (pickupVisible) {
     showDateNeeded();
     return;
   }
 
-  if (
-    !document
-      .getElementById("dateStep")
-      .classList
-      .contains("hidden")
-  ) {
-    questionIndex = questions.length - 1;
-    showQuestion();
+  if (dateVisible) {
+    if (questions && questions.length) {
+      questionIndex = questions.length - 1;
+      showQuestion();
+    } else {
+      resetToCategories();
+    }
+
     return;
   }
 
-  if (
-    !document
-      .getElementById("questionStep")
-      .classList
-      .contains("hidden")
-  ) {
+  if (questionVisible) {
     if (questionIndex > 0) {
       questionIndex--;
       showQuestion();
     } else {
+      resetToCategories();
+    }
+
+    return;
+  }
+
+  if (categoryVisible) {
+    window.location.href =
+      editTaskId ? "view-open-task.html" : "customer-home.html";
+    return;
+  }
+
+  window.location.href =
+    editTaskId ? "view-open-task.html" : "customer-home.html";
+}
+
 async function loadTaskForEdit() {
   const status =
     document.getElementById("status");
+
+  const profile =
+    await getCustomerProfile();
+
+  if (!profile) {
+    status.innerText =
+      "Could not find your customer profile. Log out and log back in, then try again.";
+    return;
+  }
 
   const { data: task, error } =
     await supabaseClient
       .from("tasks")
       .select("*")
       .eq("id", editTaskId)
+      .eq("customer_id", profile.id)
       .maybeSingle();
 
   if (error || !task) {
@@ -1451,8 +1514,22 @@ async function loadTaskForEdit() {
   selectedCategory =
     task.category || task.title || "";
 
+  questions =
+    questionBank[selectedCategory] || [];
+
+  questionIndex = 0;
+
   answers =
     task.task_details || {};
+
+  if (task.date_flexible || task.date_needed === "Flexible") {
+    answers.date_needed = "Flexible";
+    answers.date_flexible = "Yes";
+  } else {
+    answers.date_needed =
+      task.date_needed || task.task_date || "";
+    answers.date_flexible = "No";
+  }
 
   pickupAddress = {
     address: task.location_address || "",
@@ -1479,32 +1556,16 @@ async function loadTaskForEdit() {
   showReview();
 }
 
-if (editTaskId) {
-  loadTaskForEdit();
-} else {
-  resetToCategories();
-}
-      
-      if (editTaskId) {
-  loadTaskForEdit();
-} else {
-  resetToCategories();
-}
-
-    return;
-  }
-
-  window.location.href = "customer-home.html";
-}
-
 function resetToCategories() {
   hideAllSteps();
 
   document.getElementById("pageTitle").innerText =
-    "Post a Task";
+    editTaskId ? "Edit Task" : "Post a Task";
 
   document.getElementById("pageSubtext").innerText =
-    "Choose what you need help with. Workers will send you quotes.";
+    editTaskId
+      ? "Choose a category to update this task."
+      : "Choose what you need help with. Workers will send you quotes.";
 
   setStepPill("Choose task");
 
@@ -1512,6 +1573,12 @@ function resetToCategories() {
     .getElementById("categoryStep")
     .classList
     .remove("hidden");
+}
+
+if (editTaskId) {
+  loadTaskForEdit();
+} else {
+  resetToCategories();
 }
 </script>
 
