@@ -358,48 +358,7 @@ input:focus {
     <p>Post tasks, compare worker quotes, pay securely, and keep everything organized from start to finish.</p>
   </div>
 
-  <div class="slider-card">
-
-    <div class="slide active">
-      <div class="image-bubble">📝</div>
-      <h2>Get Tasks Done Fast</h2>
-      <p>Post a task and connect with available local workers who can send quotes.</p>
-    </div>
-
-    <div class="slide">
-      <div class="image-bubble">📋</div>
-      <h2>Tell Us What You Need</h2>
-      <p>Answer a few task-specific questions so workers know the details before quoting.</p>
-    </div>
-
-    <div class="slide">
-      <div class="image-bubble">💬</div>
-      <h2>Receive Quotes</h2>
-      <p>Workers send quote offers. Review worker profiles, ratings, messages, and quote amounts.</p>
-    </div>
-
-    <div class="slide">
-      <div class="image-bubble">💳</div>
-      <h2>Secure Payment</h2>
-      <p>Pay after accepting a quote. Payment details can be saved so checkout is faster next time.</p>
-    </div>
-
-    <div class="slide">
-      <div class="image-bubble">✅</div>
-      <h2>Job Completed</h2>
-      <p><span class="green">TASK</span>s are <span class="green">MINT</span> to be easy.</p>
-    </div>
-
-    <div class="dots"></div>
-
-    <div class="buttons">
-      <button class="skip" onclick="finishOnboarding()">Skip</button>
-      <button class="next" onclick="nextSlide()">Next</button>
-    </div>
-
-  </div>
-
-  <div class="search-card">
+    <div class="search-card">
     <div class="section-title">Search Help Questions</div>
     <div class="section-sub">Search by keyword like quotes, payment, disputes, worker, arrival code, or cancel.</div>
 
@@ -518,65 +477,6 @@ input:focus {
 </div>
 
 <script>
-let currentSlide = 0;
-
-const slides =
-  document.querySelectorAll(".slide");
-
-const dotsContainer =
-  document.querySelector(".dots");
-
-const nextButton =
-  document.querySelector(".next");
-
-slides.forEach((_, index) => {
-  const dot =
-    document.createElement("div");
-
-  dot.classList.add("dot");
-
-  if (index === 0) {
-    dot.classList.add("active");
-  }
-
-  dot.onclick = function () {
-    currentSlide = index;
-    showSlide(currentSlide);
-  };
-
-  dotsContainer.appendChild(dot);
-});
-
-const dots =
-  document.querySelectorAll(".dot");
-
-function showSlide(index) {
-  slides.forEach(slide =>
-    slide.classList.remove("active")
-  );
-
-  dots.forEach(dot =>
-    dot.classList.remove("active")
-  );
-
-  slides[index].classList.add("active");
-  dots[index].classList.add("active");
-
-  nextButton.textContent =
-    index === slides.length - 1
-      ? "Get Started"
-      : "Next";
-}
-
-function nextSlide() {
-  if (currentSlide < slides.length - 1) {
-    currentSlide++;
-    showSlide(currentSlide);
-  } else {
-    finishOnboarding();
-  }
-}
-
 function finishOnboarding() {
   localStorage.setItem("seenHowItWorks", "true");
 
