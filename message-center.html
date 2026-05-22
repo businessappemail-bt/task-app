@@ -128,6 +128,62 @@ body {
   margin-bottom: 4px;
 }
 
+.worker-row {
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.worker-pic {
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  object-fit:cover;
+  border:2px solid #e7f7ec;
+}
+
+.quote-pill {
+  display:inline-block;
+  margin-top:6px;
+  background:#e7f7ec;
+  color:#0b7a28;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+}
+
+.compact-actions {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+
+.compact-btn {
+  padding:10px;
+  border:none;
+  border-radius:12px;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.accept-btn {
+  background:#0b7a28;
+  color:white;
+}
+
+.report-btn {
+  background:#b00020;
+  color:white;
+}
+
+.block-btn {
+  background:#333;
+  color:white;
+}
+
 .conversation-sub {
   color: #666;
   font-size: 12px;
@@ -368,6 +424,29 @@ button:hover {
     Messages are monitored for safety. Keep payments inside TaskMint and only upload job-related images.
   </div>
 
+  <div class="card">
+    <div class="section-title">Filter Conversations</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <input
+        id="searchInput"
+        placeholder="Search tasks"
+        oninput="filterConversations()"
+        style="padding:12px;border:1px solid #d9dfda;border-radius:14px;font-size:13px;"
+      >
+
+      <select
+        id="filterSelect"
+        onchange="filterConversations()"
+        style="padding:12px;border:1px solid #d9dfda;border-radius:14px;font-size:13px;"
+      >
+        <option value="">All</option>
+        <option value="unread">Unread</option>
+        <option value="quotes">Quotes Pending</option>
+      </select>
+    </div>
+  </div>
+
   <div id="conversationList" class="card">
     Loading conversations...
   </div>
@@ -422,6 +501,9 @@ let receiverId =
 
 let taskId =
   params.get("task_id") || "";
+
+let conversationId =
+  params.get("conversation_id") || "";
 
 let currentUser = null;
 let currentConversationMessages = [];
@@ -532,15 +614,16 @@ async function loadConversations() {
     document.getElementById("conversationList");
 
   box.classList.remove("hidden");
+
   box.innerHTML =
     `<div class="empty">Loading conversations...</div>`;
 
-  const { data: messages, error } =
+  const { data: conversations, error } =
     await supabaseClient
-      .from("messages")
+      .from("task_conversations")
       .select("*")
-      .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-      .order("created_at", { ascending: false });
+      .or(`customer_id.eq.${currentUser.id},worker_id.eq.${currentUser.id}`)
+      .order("updated_at", { ascending: false });
 
   if (error) {
     box.innerHTML =
@@ -548,89 +631,112 @@ async function loadConversations() {
     return;
   }
 
-  if (!messages || messages.length === 0) {
+  if (!conversations || conversations.length === 0) {
     box.innerHTML =
       `<div class="empty">No conversations yet.</div>`;
     return;
   }
 
-  const grouped = {};
+  window.allConversations =
+    conversations;
 
-  messages.forEach(message => {
-    const key =
-      conversationKey(message, currentUser.id);
+  renderConversationCards(conversations);
+}
 
-    if (!grouped[key]) {
-      grouped[key] = {
-        task_id: message.task_id || "",
-        other_user_id: getOtherPersonId(message, currentUser.id),
-        latest_message: message,
-        unread_count: 0,
-        total: 0
-      };
-    }
 
-    grouped[key].total += 1;
+function filterConversations() {
+  if (!window.allConversations) {
+    return;
+  }
 
-    if (
-      message.receiver_id === currentUser.id &&
-      message.is_read === false
-    ) {
-      grouped[key].unread_count += 1;
-    }
-  });
+  const search =
+    document.getElementById("searchInput").value.toLowerCase();
 
-  const conversations =
-    Object.values(grouped);
+  const filter =
+    document.getElementById("filterSelect").value;
+
+  let filtered =
+    window.allConversations;
+
+  if (search) {
+    filtered =
+      filtered.filter(convo =>
+        String(convo.task_title || "")
+          .toLowerCase()
+          .includes(search)
+      );
+  }
+
+  if (filter === "unread") {
+    filtered =
+      filtered.filter(convo =>
+        convo.customer_unread_count > 0
+      );
+  }
+
+  if (filter === "quotes") {
+    filtered =
+      filtered.filter(convo =>
+        convo.quote_status === "pending"
+      );
+  }
+
+  renderConversationCards(filtered);
+}
+
+async function renderConversationCards(conversations) {
+  const box =
+    document.getElementById("conversationList");
 
   box.innerHTML =
     `<div class="section-title">Conversations by Task</div>`;
 
   for (const convo of conversations) {
+
+    const workerId =
+      convo.worker_id;
+
     let taskLabel =
-      convo.task_id
-        ? `Task #${String(convo.task_id).slice(0, 8).toUpperCase()}`
-        : "General Message";
+      convo.task_title || "Task";
+
+    let quoteAmount =
+      convo.quote_amount ||
+      convo.accepted_quote_amount ||
+      convo.amount ||
+      "";
 
     let workerName =
       "Worker";
 
-    if (convo.task_id) {
-      const { data: task } =
-        await supabaseClient
-          .from("tasks")
-          .select("id, title, category")
-          .eq("id", convo.task_id)
-          .maybeSingle();
-
-      if (task) {
-        taskLabel =
-          task.category || task.title || taskLabel;
-      }
-    }
+    let workerImage =
+      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
     const { data: profile } =
       await supabaseClient
-        .from("profiles")
-        .select("first_name, last_name, full_name, display_name")
-        .eq("id", convo.other_user_id)
-        .maybeSingle();
-
-    const { data: workerProfile } =
-      await supabaseClient
         .from("worker_profiles")
-        .select("full_name, display_name")
-        .eq("id", convo.other_user_id)
+        .select("*")
+        .eq("id", workerId)
         .maybeSingle();
 
-    const person =
-      Object.assign({}, profile || {}, workerProfile || {});
+    if (profile) {
+      workerName =
+        profile.full_name ||
+        profile.display_name ||
+        "Worker";
 
-    workerName =
-      person.full_name ||
-      person.display_name ||
-      `${person.first_name || ""} ${person.last_name || ""}`.trim() ||
-      "Worker";
+      workerImage =
+        profile.profile_photo_url ||
+        workerImage;
+    }
+
+    const { data: latestMessage } =
+      await supabaseClient
+        .from("task_messages")
+        .select("*")
+        .eq("conversation_id", convo.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
     const card =
       document.createElement("div");
@@ -638,34 +744,114 @@ async function loadConversations() {
     card.className =
       "conversation-card";
 
-    card.onclick =
-      function () {
-        window.location.href =
-          `message-center.html?task_id=${encodeURIComponent(convo.task_id)}&worker_id=${encodeURIComponent(convo.other_user_id)}`;
-      };
-
     card.innerHTML = `
-      <div class="conversation-top">
-        <div>
+      <div class="worker-row">
+
+        <img
+          class="worker-pic"
+          src="${escapeHTML(workerImage)}"
+        >
+
+        <div style="flex:1;">
+
           <div class="conversation-title">
             ${escapeHTML(taskLabel)}
           </div>
 
           <div class="conversation-sub">
-            With ${escapeHTML(workerName)}<br>
-            ${escapeHTML(convo.latest_message.message || "Image message")}
+            ${escapeHTML(workerName)}<br>
+            ${escapeHTML(latestMessage?.message || "No messages yet")}
           </div>
+
+          ${
+            quoteAmount
+              ? `<div class="quote-pill">Quote: $${Number(quoteAmount).toFixed(2)}</div>`
+              : ""
+          }
+
+          <div class="compact-actions">
+
+            ${
+              convo.quote_status !== "accepted"
+                ? `
+                <button
+                  class="compact-btn accept-btn"
+                  onclick="acceptQuoteFromMessages('${convo.task_id}','${workerId}','${convo.quote_id || ""}')"
+                >
+                  Accept Quote
+                </button>
+                `
+                : ""
+            }
+
+            <button
+              class="compact-btn report-btn"
+              onclick="reportConversation('${convo.id}')"
+            >
+              Report
+            </button>
+
+            <button
+              class="compact-btn block-btn"
+              onclick="blockConversation('${convo.id}')"
+            >
+              Block
+            </button>
+
+          </div>
+
         </div>
 
-        <div class="badge ${convo.unread_count > 0 ? "unread-badge" : ""}">
-          ${convo.unread_count > 0 ? `${convo.unread_count} new` : `${convo.total} msg`}
+        <div
+          class="badge ${convo.customer_unread_count > 0 ? "unread-badge" : ""}"
+          onclick="openConversation('${convo.id}','${convo.task_id}','${workerId}')"
+        >
+          ${
+            convo.customer_unread_count > 0
+              ? `${convo.customer_unread_count} new`
+              : "Open"
+          }
         </div>
+
       </div>
     `;
 
     box.appendChild(card);
   }
 }
+
+function openConversation(conversationIdValue, taskIdValue, workerIdValue) {
+  window.location.href =
+    `message-center.html?conversation_id=${encodeURIComponent(conversationIdValue)}&task_id=${encodeURIComponent(taskIdValue)}&worker_id=${encodeURIComponent(workerIdValue)}`;
+}
+
+async function reportConversation(conversationIdValue) {
+  await supabaseClient
+    .from("task_conversations")
+    .update({
+      customer_reported: true
+    })
+    .eq("id", conversationIdValue);
+
+  alert("Conversation reported.");
+}
+
+async function blockConversation(conversationIdValue) {
+  await supabaseClient
+    .from("task_conversations")
+    .update({
+      customer_blocked: true
+    })
+    .eq("id", conversationIdValue);
+
+  alert("Worker blocked.");
+}
+
+function acceptQuoteFromMessages(taskIdValue, workerIdValue, quoteIdValue) {
+  window.location.href =
+    `customer-pay-quote.html?task_id=${encodeURIComponent(taskIdValue)}&worker_id=${encodeURIComponent(workerIdValue)}&quote_id=${encodeURIComponent(quoteIdValue)}`;
+}
+
 
 async function loadMessages() {
   const messagesList =
@@ -687,22 +873,18 @@ async function loadMessages() {
   messagesList.innerHTML =
     `<div class="empty">Loading messages...</div>`;
 
-  let query =
-    supabaseClient
-      .from("messages")
-      .select("*")
-      .or(
-        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${currentUser.id})`
-      )
-      .order("created_at", { ascending: true });
-
-  if (taskId) {
-    query =
-      query.eq("task_id", taskId);
+  if (!conversationId) {
+    messagesList.innerHTML =
+      `<div class="empty">Conversation not found.</div>`;
+    return;
   }
 
   const { data: messages, error } =
-    await query;
+    await supabaseClient
+      .from("task_messages")
+      .select("*")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true });
 
   if (error) {
     messagesList.innerHTML =
@@ -750,7 +932,7 @@ async function markCurrentThreadRead() {
 
   let query =
     supabaseClient
-      .from("messages")
+      .from("task_messages")
       .update({ is_read: true })
       .eq("receiver_id", currentUser.id)
       .eq("sender_id", receiverId);
@@ -893,17 +1075,16 @@ async function sendMessage() {
 
     const { error } =
       await supabaseClient
-        .from("messages")
+        .from("task_messages")
         .insert([
           {
-            sender_id: currentUser.id,
-            receiver_id: receiverId,
+            conversation_id: conversationId,
             task_id: taskId,
+            sender_id: currentUser.id,
+            sender_type: "customer",
             message: message,
             image_url: imageUrl,
-            is_read: false,
-            is_reported: false,
-            is_blocked: false
+            is_read: false
           }
         ]);
 
@@ -941,7 +1122,7 @@ async function reportUser() {
 
   let query =
     supabaseClient
-      .from("messages")
+      .from("task_messages")
       .update({ is_reported: true })
       .or(
         `and(sender_id.eq.${receiverId},receiver_id.eq.${currentUser.id}),and(sender_id.eq.${currentUser.id},receiver_id.eq.${receiverId})`
@@ -977,7 +1158,7 @@ async function blockUser() {
 
   let query =
     supabaseClient
-      .from("messages")
+      .from("task_messages")
       .update({ is_blocked: true })
       .or(
         `and(sender_id.eq.${receiverId},receiver_id.eq.${currentUser.id}),and(sender_id.eq.${currentUser.id},receiver_id.eq.${receiverId})`
@@ -1030,4 +1211,3 @@ loadPage();
 </script>
 </body>
 </html>
-
