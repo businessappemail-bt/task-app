@@ -1431,8 +1431,65 @@ function goBack() {
       questionIndex--;
       showQuestion();
     } else {
-      resetToCategories();
-    }
+async function loadTaskForEdit() {
+  const status =
+    document.getElementById("status");
+
+  const { data: task, error } =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("id", editTaskId)
+      .maybeSingle();
+
+  if (error || !task) {
+    status.innerText =
+      error?.message || "Could not load task for editing.";
+    return;
+  }
+
+  selectedCategory =
+    task.category || task.title || "";
+
+  answers =
+    task.task_details || {};
+
+  pickupAddress = {
+    address: task.location_address || "",
+    unit: task.unit || "",
+    city: task.city || "",
+    state: task.state || "",
+    zip: task.zip_code || ""
+  };
+
+  pickupLat = task.pickup_lat || null;
+  pickupLng = task.pickup_lng || null;
+
+  dropoffAddress = {
+    address: task.dropoff_address || "",
+    unit: task.dropoff_unit || "",
+    city: task.dropoff_city || "",
+    state: task.dropoff_state || "",
+    zip: task.dropoff_zip_code || ""
+  };
+
+  dropoffLat = task.dropoff_lat || null;
+  dropoffLng = task.dropoff_lng || null;
+
+  showReview();
+}
+
+if (editTaskId) {
+  loadTaskForEdit();
+} else {
+  resetToCategories();
+}
+      
+      if (editTaskId) {
+  loadTaskForEdit();
+} else {
+  resetToCategories();
+}
 
     return;
   }
