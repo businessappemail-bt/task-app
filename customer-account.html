@@ -641,12 +641,10 @@ async function saveAccount() {
     return;
   }
 
-  setStatus("Account details updated.");
+await loadAccount();
 
-  await loadAccount();
-}
+setStatus("Account details saved successfully.");
 
-loadAccount();
 </script>
 
 </body>
