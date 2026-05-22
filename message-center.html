@@ -505,6 +505,8 @@ let taskId =
 let conversationId =
   params.get("conversation_id") || "";
 
+let customerId = "";
+
 if (!isValidUUID(receiverId)) {
   receiverId = "";
 }
@@ -624,6 +626,85 @@ function conversationKey(message, userId) {
     getOtherPersonId(message, userId) || "unknown";
 
   return `${message.task_id || "no-task"}_${otherUser}`;
+}
+
+
+async function getTaskCustomerId(taskIdValue) {
+  if (!isValidUUID(taskIdValue)) {
+    return "";
+  }
+
+  const { data: task } =
+    await supabaseClient
+      .from("tasks")
+      .select("customer_id")
+      .eq("id", taskIdValue)
+      .maybeSingle();
+
+  return task?.customer_id || currentUser.id;
+}
+
+async function ensureTaskConversation() {
+  if (isValidUUID(conversationId)) {
+    return conversationId;
+  }
+
+  if (!isValidUUID(taskId) || !isValidUUID(receiverId)) {
+    return "";
+  }
+
+  customerId =
+    await getTaskCustomerId(taskId);
+
+  const { data: existingConversation, error: findError } =
+    await supabaseClient
+      .from("task_conversations")
+      .select("*")
+      .eq("task_id", taskId)
+      .eq("customer_id", customerId)
+      .eq("worker_id", receiverId)
+      .maybeSingle();
+
+  if (findError) {
+    console.log(findError.message);
+  }
+
+  if (existingConversation && existingConversation.id) {
+    conversationId = existingConversation.id;
+    return conversationId;
+  }
+
+  const { data: newConversation, error: createError } =
+    await supabaseClient
+      .from("task_conversations")
+      .insert([
+        {
+          task_id: taskId,
+          customer_id: customerId,
+          worker_id: receiverId,
+          conversation_type: "task",
+          updated_at: new Date().toISOString()
+        }
+      ])
+      .select()
+      .single();
+
+  if (createError) {
+    const status =
+      document.getElementById("status");
+
+    if (status) {
+      status.innerHTML =
+        `<span class="error">${escapeHTML(createError.message)}</span>`;
+    }
+
+    return "";
+  }
+
+  conversationId =
+    newConversation.id;
+
+  return conversationId;
 }
 
 async function loadConversations() {
@@ -944,9 +1025,11 @@ async function loadMessages() {
   messagesList.innerHTML =
     `<div class="empty">Loading messages...</div>`;
 
+  await ensureTaskConversation();
+
   if (!isValidUUID(conversationId)) {
     messagesList.innerHTML =
-      `<div class="empty">Conversation not found.</div>`;
+      `<div class="empty">Conversation not found. Open this chat from the task card again.</div>`;
     return;
   }
 
@@ -1118,6 +1201,8 @@ async function sendMessage() {
     return;
   }
 
+  await ensureTaskConversation();
+
   if (!isValidUUID(conversationId)) {
     status.innerHTML =
       `<span class="error">Conversation not found.</span>`;
@@ -1170,6 +1255,13 @@ async function sendMessage() {
         `<span class="error">${escapeHTML(error.message)}</span>`;
       return;
     }
+
+    await supabaseClient
+      .from("task_conversations")
+      .update({
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", conversationId);
 
     document.getElementById("messageInput").value = "";
     document.getElementById("imageInput").value = "";
