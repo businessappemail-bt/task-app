@@ -4,115 +4,333 @@
 <title>Account Security - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: #f4f4f4;
-padding-bottom: 80px;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 95px;
 }
 
 .container {
-max-width: 420px;
-margin: 0 auto;
-background: white;
-min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
 }
 
-.header {
-display: flex;
-align-items: center;
-gap: 15px;
-padding: 18px 20px;
-border-bottom: 1px solid #ddd;
-font-size: 22px;
-font-weight: bold;
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
-.back {
-font-size: 28px;
-cursor: pointer;
-color: green;
+.back,
+.refresh {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.section {
-padding: 20px;
-border-bottom: 1px solid #eee;
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
 }
 
-.section h3 {
-margin: 0 0 8px;
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
 }
 
-.section p {
-color: #555;
-margin: 0 0 15px;
-line-height: 1.4;
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.security-summary,
+.card,
+.notice {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
+}
+
+.security-summary {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.summary-top {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.lock-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.summary-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.summary-sub {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.status-pill {
+  display: inline-block;
+  margin-top: 8px;
+  background: #f4f4f4;
+  color: #333;
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.status-pill.enabled {
+  background: #e7f7ec;
+  color: #0b7a28;
+}
+
+.notice {
+  background: #fff8e6;
+  border: 1px solid #ffe0a3;
+  color: #6f4b00;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.section-sub {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  color: #0b7a28;
+  margin: 10px 0 6px;
 }
 
 input {
-width: 100%;
-padding: 14px;
-margin-bottom: 12px;
-border: 1px solid #ccc;
-border-radius: 10px;
-font-size: 16px;
-box-sizing: border-box;
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  font-size: 15px;
+  outline: none;
+  background: white;
+}
+
+input:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
 }
 
 button {
-width: 100%;
-padding: 14px;
-border: none;
-border-radius: 10px;
-background: green;
-color: white;
-font-size: 16px;
-cursor: pointer;
-margin-top: 8px;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.secondary {
-background: white;
-color: #111;
-border: 1px solid #ccc;
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.secondary-btn {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
+}
+
+.danger-btn {
+  background: #b00020;
+  color: white;
+}
+
+.security-list {
+  display: grid;
+  gap: 10px;
+}
+
+.security-item {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.security-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.security-item-title {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.security-item-sub {
+  font-size: 12px;
+  color: #666;
+  margin-top: 3px;
+  line-height: 1.35;
 }
 
 #status {
-text-align: center;
-padding: 15px;
-color: #333;
-font-weight: bold;
+  text-align: center;
+  padding: 8px;
+  color: #0b7a28;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+.error {
+  color: #b00020 !important;
 }
 
 .nav {
-position: fixed;
-bottom: 0;
-left: 0;
-width: 100%;
-background: white;
-border-top: 1px solid #ddd;
-display: flex;
-justify-content: center;
-}
-
-.nav-inner {
-max-width: 420px;
-width: 100%;
-display: flex;
-justify-content: space-around;
-padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
 }
 
 .nav a {
-text-decoration: none;
-color: #888;
-font-size: 14px;
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
 }
 
-.nav a.active {
-color: green;
-font-weight: bold;
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 </style>
 </head>
@@ -121,96 +339,283 @@ font-weight: bold;
 
 <div class="container">
 
-<div class="header">
-<span class="back" onclick="window.location.href='profile.html'">‹</span>
-Account Security
-</div>
+  <div class="top-bar">
+    <div class="back" onclick="window.location.href='profile.html'">← Back</div>
+    <div class="refresh" onclick="loadSecurityStatus()">Refresh</div>
+  </div>
 
-<div class="section">
-<h3>2-Step Verification</h3>
-<p>Add phone verification to help protect your TaskMint account.</p>
+  <div class="hero">
+    <h1>Account Security</h1>
+    <p>Add another layer of protection to help keep your TaskMint account safe.</p>
+  </div>
 
-<input id="phone" type="text" placeholder="Phone number">
-<button onclick="sendCode()">Send Code</button>
-</div>
+  <div class="security-summary">
+    <div class="summary-top">
+      <div class="lock-icon">🔐</div>
+      <div>
+        <div class="summary-title">Security Status</div>
+        <div class="summary-sub" id="securitySummaryText">
+          Checking your account protection...
+        </div>
+        <div id="twoStepPill" class="status-pill">2-Step Off</div>
+      </div>
+    </div>
+  </div>
 
-<div class="section">
-<h3>Enter Verification Code</h3>
-<p>Enter the code sent to your phone.</p>
+  <div class="notice">
+    Text-message verification is currently set up for testing. When TaskMint goes live, connect this to Supabase phone auth or Twilio before using real customer verification codes.
+  </div>
 
-<input id="code" type="text" placeholder="Verification code">
-<button onclick="verifyCode()">Verify Code</button>
-<button class="secondary" onclick="disableTwoStep()">Turn Off 2-Step Verification</button>
-</div>
+  <div class="card">
+    <div class="section-title">Turn On 2-Step Verification</div>
+    <div class="section-sub">
+      Add a phone number and verify the code before enabling 2-step protection on this account.
+    </div>
 
-<div id="status"></div>
+    <label for="phone">Phone Number</label>
+    <input id="phone" type="tel" placeholder="Example: 4045551234">
+
+    <button class="primary-btn" onclick="sendCode()">Send Verification Code</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Enter Verification Code</div>
+    <div class="section-sub">
+      Enter the code sent to your phone. For testing, this page uses code <strong>123456</strong>.
+    </div>
+
+    <label for="code">Verification Code</label>
+    <input id="code" type="text" placeholder="Enter 6-digit code" maxlength="6">
+
+    <button class="primary-btn" onclick="verifyCode()">Verify & Turn On</button>
+    <button class="danger-btn" onclick="disableTwoStep()">Turn Off 2-Step Verification</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Security Tips</div>
+
+    <div class="security-list">
+      <div class="security-item">
+        <div class="security-item-icon">🔑</div>
+        <div>
+          <div class="security-item-title">Use a strong password</div>
+          <div class="security-item-sub">Avoid reusing passwords from other apps or websites.</div>
+        </div>
+      </div>
+
+      <div class="security-item">
+        <div class="security-item-icon">💬</div>
+        <div>
+          <div class="security-item-title">Keep payments inside TaskMint</div>
+          <div class="security-item-sub">Do not send card, Cash App, Zelle, or banking details through messages.</div>
+        </div>
+      </div>
+
+      <div class="security-item">
+        <div class="security-item-icon">📱</div>
+        <div>
+          <div class="security-item-title">Verify your phone number</div>
+          <div class="security-item-sub">Phone verification helps protect your customer account from unauthorized access.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="status"></div>
 
 </div>
 
 <div class="nav">
-<div class="nav-inner">
-<a href="customer-home.html">Home</a>
-<a href="my-jobs.html">My Jobs</a>
-<a href="messages.html">Messages</a>
-<a href="profile.html" class="active">Profile</a>
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Tasks</a>
+  <a href="browse-workers.html"><span class="nav-icon">👷</span>Workers</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="profile.html" class="active"><span class="nav-icon">👤</span>Profile</a>
 </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const supabaseClient = window.supabase.createClient(
-"https://dbcthtjmtlumidpbucrc.supabase.co",
-"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJC11dJ"
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
+let currentUserId = "";
+
+function setStatus(message, isError = false) {
+  const status =
+    document.getElementById("status");
+
+  status.className =
+    isError ? "error" : "";
+
+  status.innerText =
+    message;
+}
+
+async function getCurrentUser() {
+  const { data } =
+    await supabaseClient.auth.getSession();
+
+  if (data.session && data.session.user) {
+    currentUserId =
+      data.session.user.id;
+
+    localStorage.setItem("taskmintUserId", currentUserId);
+    return data.session.user;
+  }
+
+  const savedUserId =
+    localStorage.getItem("taskmintUserId");
+
+  if (savedUserId) {
+    currentUserId =
+      savedUserId;
+
+    return { id: savedUserId };
+  }
+
+  window.location.href = "login.html";
+  return null;
+}
+
+function normalizePhone(phone) {
+  return String(phone || "")
+    .replace(/[^0-9]/g, "");
+}
+
+async function loadSecurityStatus() {
+  setStatus("");
+
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const twoStepEnabled =
+    localStorage.getItem("taskmintTwoStepEnabled") === "true";
+
+  const savedPhone =
+    localStorage.getItem("taskmintTwoStepPhone") || "";
+
+  document.getElementById("phone").value =
+    savedPhone;
+
+  const pill =
+    document.getElementById("twoStepPill");
+
+  const summary =
+    document.getElementById("securitySummaryText");
+
+  if (twoStepEnabled) {
+    pill.classList.add("enabled");
+    pill.innerText =
+      "2-Step On";
+
+    summary.innerText =
+      savedPhone
+        ? `2-step verification is active for phone ending in ${savedPhone.slice(-4)}.`
+        : "2-step verification is active.";
+  } else {
+    pill.classList.remove("enabled");
+    pill.innerText =
+      "2-Step Off";
+
+    summary.innerText =
+      "2-step verification is not turned on yet.";
+  }
+}
+
+async function saveSecuritySettings(twoStepEnabled, phone) {
+  /*
+    Saves to profiles if the columns exist.
+    If SQL has not been added yet, the local test flow still works.
+  */
+
+  if (!currentUserId) {
+    return;
+  }
+
+  await supabaseClient
+    .from("profiles")
+    .update({
+      two_step_enabled: twoStepEnabled,
+      two_step_phone: phone || null
+    })
+    .eq("id", currentUserId);
+}
+
 async function sendCode() {
-const phone = document.getElementById("phone").value;
-const status = document.getElementById("status");
+  const rawPhone =
+    document.getElementById("phone").value;
 
-if (!phone) {
-status.innerText = "Enter your phone number.";
-return;
+  const phone =
+    normalizePhone(rawPhone);
+
+  if (!phone || phone.length < 10) {
+    setStatus("Enter a valid phone number.", true);
+    return;
+  }
+
+  localStorage.setItem("taskmintTwoStepPhone", phone);
+  localStorage.setItem("taskmintTestCode", "123456");
+
+  await saveSecuritySettings(false, phone);
+
+  setStatus("Code sent. Use 123456 for testing.");
+  await loadSecurityStatus();
 }
 
-/*
-Real text-code sending needs Supabase phone auth or a service like Twilio.
-For now, this saves the phone and simulates sending a code.
-*/
+async function verifyCode() {
+  const code =
+    document.getElementById("code").value.trim();
 
-localStorage.setItem("taskmintTwoStepPhone", phone);
-localStorage.setItem("taskmintTestCode", "123456");
+  const testCode =
+    localStorage.getItem("taskmintTestCode");
 
-status.innerText = "Code sent. Use 123456 for testing.";
+  const phone =
+    localStorage.getItem("taskmintTwoStepPhone") || "";
+
+  if (!code) {
+    setStatus("Enter the verification code.", true);
+    return;
+  }
+
+  if (code !== testCode) {
+    setStatus("Incorrect code.", true);
+    return;
+  }
+
+  localStorage.setItem("taskmintTwoStepEnabled", "true");
+
+  await saveSecuritySettings(true, phone);
+
+  setStatus("2-Step Verification is now turned on.");
+  document.getElementById("code").value = "";
+
+  await loadSecurityStatus();
 }
 
-function verifyCode() {
-const code = document.getElementById("code").value;
-const status = document.getElementById("status");
-const testCode = localStorage.getItem("taskmintTestCode");
+async function disableTwoStep() {
+  const confirmDisable =
+    confirm("Turn off 2-step verification?");
 
-if (!code) {
-status.innerText = "Enter the verification code.";
-return;
+  if (!confirmDisable) {
+    return;
+  }
+
+  localStorage.removeItem("taskmintTwoStepEnabled");
+  localStorage.removeItem("taskmintTwoStepPhone");
+  localStorage.removeItem("taskmintTestCode");
+
+  await saveSecuritySettings(false, "");
+
+  setStatus("2-Step Verification is turned off.");
+  await loadSecurityStatus();
 }
 
-if (code !== testCode) {
-status.innerText = "Incorrect code.";
-return;
-}
-
-localStorage.setItem("taskmintTwoStepEnabled", "true");
-status.innerText = "2-Step Verification is now turned on.";
-}
-
-function disableTwoStep() {
-localStorage.removeItem("taskmintTwoStepEnabled");
-localStorage.removeItem("taskmintTwoStepPhone");
-localStorage.removeItem("taskmintTestCode");
-
-document.getElementById("status").innerText =
-"2-Step Verification is turned off.";
-}
+loadSecurityStatus();
 </script>
 
 </body>
