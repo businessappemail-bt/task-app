@@ -1,100 +1,345 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>How Info - TaskMint</title>
+<title>How TaskMint Works</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: #f7f7f7;
-color: #111;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 30px;
 }
 
 .container {
-max-width: 520px;
-margin: 0 auto;
-min-height: 100vh;
-background: #fff;
-padding: 20px;
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 18px;
 }
 
-.back {
-color: #287a32;
-font-size: 15px;
-margin-bottom: 20px;
-cursor: pointer;
-font-weight: bold;
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
-h1 {
-font-size: 26px;
-margin-bottom: 8px;
+.back,
+.skip-top {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.intro {
-color: #555;
-font-size: 15px;
-line-height: 1.5;
-margin-bottom: 24px;
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.slider-card,
+.search-card,
+.faq-card {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
+}
+
+.slide {
+  display: none;
+  text-align: center;
+  animation: slideFade 0.35s ease;
+}
+
+.slide.active {
+  display: block;
+}
+
+.image-bubble {
+  width: 118px;
+  height: 118px;
+  margin: 0 auto 18px;
+  border-radius: 34px;
+  background: linear-gradient(135deg, #e7f7ec, #ffffff);
+  border: 4px solid white;
+  box-shadow: 0 12px 24px rgba(11,122,40,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.slide h2 {
+  font-size: 24px;
+  margin: 0 0 10px;
+}
+
+.slide p {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #555;
+  margin: 0;
+}
+
+.green {
+  color: #0b7a28;
+  font-weight: 900;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0 16px;
+  gap: 8px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d6d6d6;
+  transition: 0.2s;
+}
+
+.dot.active {
+  width: 24px;
+  border-radius: 10px;
+  background: #0b7a28;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button {
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+.skip {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
+}
+
+.next {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.section-sub {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.search-wrap {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #0b7a28;
+  font-weight: 900;
+}
+
+input {
+  width: 100%;
+  padding: 13px 13px 13px 38px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  font-size: 14px;
+  outline: none;
+}
+
+input:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
 }
 
 .faq-item {
-border-bottom: 1px solid #e5e5e5;
-padding: 14px 0;
+  border: 1px solid #edf1ee;
+  border-radius: 18px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  background: #f7faf8;
 }
 
 .faq-question {
-width: 100%;
-background: none;
-border: none;
-padding: 0;
-font-size: 17px;
-font-weight: bold;
-color: #111;
-display: flex;
-justify-content: space-between;
-align-items: center;
-text-align: left;
-cursor: pointer;
-}
-
-.arrow {
-font-size: 22px;
-color: #287a32;
-transition: transform 0.2s ease;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 .faq-answer {
-display: none;
-margin-top: 12px;
-color: #444;
-font-size: 15px;
-line-height: 1.6;
+  display: none;
+  padding: 0 14px 14px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
-.faq-answer ul {
-padding-left: 20px;
-margin-top: 8px;
+.faq-item.open .faq-answer {
+  display: block;
 }
 
-.faq-item.active .faq-answer {
-display: block;
+.faq-item.open .faq-arrow {
+  transform: rotate(90deg);
 }
 
-.faq-item.active .arrow {
-transform: rotate(90deg);
+.faq-arrow {
+  color: #0b7a28;
+  font-size: 20px;
+  transition: 0.2s;
 }
 
-.note-box {
-background: #f0f8f1;
-border-left: 4px solid #287a32;
-padding: 12px;
-margin-top: 14px;
-font-size: 14px;
-color: #333;
-border-radius: 6px;
+.empty {
+  display: none;
+  background: #fff8e6;
+  color: #6f4b00;
+  border: 1px solid #ffe0a3;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.quick-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+  text-align: center;
+}
+
+.quick-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.quick-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: #0b7a28;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 </style>
 </head>
@@ -103,319 +348,301 @@ border-radius: 6px;
 
 <div class="container">
 
-<div class="back" onclick="goBack()">← Back to Profile</div>
+  <div class="top-bar">
+    <div class="back" onclick="goBack()">← Back</div>
+    <div class="skip-top" onclick="finishOnboarding()">Skip</div>
+  </div>
 
-<h1>How TaskMint Works</h1>
+  <div class="hero">
+    <h1>How TaskMint Works</h1>
+    <p>Post tasks, compare worker quotes, pay securely, and keep everything organized from start to finish.</p>
+  </div>
 
-<p class="intro">
-Find answers about posting tasks, accepting work, fees, payments, disputes,
-and other important information.
-</p>
+  <div class="slider-card">
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-How do I post a task?
-<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<ul>
-<li>Tap post a task.</li>
-<li>Next you'll see a menu of task that can be completed on our platform. Pick what you need done.</li>
-<li>Answer the required questions.</li>
-<li>Enter your address.</li>
-<li>Tap post task.</li>
-<li>Your task is now visible to all workers in your area who can help.</li>
-</ul>
-</div>
-</div>
+    <div class="slide active">
+      <div class="image-bubble">📝</div>
+      <h2>Get Tasks Done Fast</h2>
+      <p>Post a task and connect with available local workers who can send quotes.</p>
+    </div>
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-How do workers accept a task?
-<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<ul>
-<li>Find a task that you're interested in.</li>
-<li>Send a short but convincing message to the customer and provide a quote for the task available.</li>
-<li>Agree on amount, terms, and date for the task.</li>
-<li>Within the task tap on send quote and enter your agreed amount and send it.</li>
-<li>Your customer will have 3 days to pay the invoice before it expires.</li>
-</ul>
-</div>
-</div>
+    <div class="slide">
+      <div class="image-bubble">📋</div>
+      <h2>Tell Us What You Need</h2>
+      <p>Answer a few task-specific questions so workers know the details before quoting.</p>
+    </div>
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-What is the fee breakdown?
-<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<li>Customers are not charged any fees. Workers contribute a 15% service fee for access to the platform, including proteccted payments, dispute support, and job opportunities.</li>
-</ul>
+    <div class="slide">
+      <div class="image-bubble">💬</div>
+      <h2>Receive Quotes</h2>
+      <p>Workers send quote offers. Review worker profiles, ratings, messages, and quote amounts.</p>
+    </div>
 
-<div class="note-box">
-We strive to remain transparent so if you have any questions about a payment please email us at workersupport@trytaskmint.com.
-</div>
-</div>
-</div>
+    <div class="slide">
+      <div class="image-bubble">💳</div>
+      <h2>Secure Payment</h2>
+      <p>Pay after accepting a quote. Payment details can be saved so checkout is faster next time.</p>
+    </div>
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-How does payment work?
-<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-Workers submit a quote for the job. Once the customer accepts the quote, payment is made immediately. 
+    <div class="slide">
+      <div class="image-bubble">✅</div>
+      <h2>Job Completed</h2>
+      <p><span class="green">TASK</span>s are <span class="green">MINT</span> to be easy.</p>
+    </div>
 
-Funds are securely held by our platform and are not released immediately. 
+    <div class="dots"></div>
 
-After the job is completed, the customer has up to 3 days to confirm completion. If no issues are reported within that time, the payment is automatically released to the worker.
+    <div class="buttons">
+      <button class="skip" onclick="finishOnboarding()">Skip</button>
+      <button class="next" onclick="nextSlide()">Next</button>
+    </div>
 
-A 15% service fee is deducted from the worker's payout. Customers are not charged any additional fees. 
+  </div>
 
-If a concern is raised, the funds remain on hold while the issue is reviewed and resolved.
-</p>
-</div>
-</div>
+  <div class="search-card">
+    <div class="section-title">Search Help Questions</div>
+    <div class="section-sub">Search by keyword like quotes, payment, disputes, worker, arrival code, or cancel.</div>
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-What happens if there is a dispute?
-<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<ul>
-<p>If a customer reports an issue within 3 days, the payment is placed on hold. Both the customer and worker MUST submit details and evidence. 
-    After review, a final decision is made and the funds are either released to the worker, partially refunded, or fully refunded to the customer. 
-    Disputes can take up to 7 business days to be completed depending on the evidence provided.
-</p>
-</ul>
-</div>
-</div>
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input id="faqSearch" placeholder="Search questions..." oninput="filterFAQ()">
+    </div>
+  </div>
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-What should customers know before hiring?
-<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-Always review worker's profiles, ratings, and past work before accepting a quote. Make sure the job details, timeline, and total price are clearly agreed on upfront.
-Payment is required once you accept a quote and will be held securely until the job is completed. Communicate through the platform only and keep all agreements, updates, and expectations documented for protection.
-</p>
-</div>
-</div>
+  <div class="faq-card">
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-*What should workers know before accepting?
-<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-Review the job details, location, timeline, and exptectations carefully before submitting a quote. Make sure your quote reflects the full scope of work as pricing should be final once accepted.
+    <div class="section-title">Common Questions</div>
 
-You are responsible for completing the job as agreed and communicating clearly with the customer through the platform. 
+    <div id="emptyMessage" class="empty">
+      No matching questions found.
+    </div>
 
-Payment is released after the job is completed and approved (or automatically after 3 days). A 15% service fee will be deducted from your payout. 
+    <div class="faq-item" data-keywords="post task create job order questions address date">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        How do I post a task?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        Tap Post, choose the task type, answer the questions, add the task address and date needed, then review and post.
+      </div>
+    </div>
 
-Ensure at your arrival to your job to always retrieve the arrival pin code so that you aren't marked as a no show. 
-If you don't retrieve this pin then we are unable to verify you completed this task unless the customer advises you have.
+    <div class="faq-item" data-keywords="quotes offers workers accept quote price amount">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        How do worker quotes work?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        Workers review your task and send quote offers. You can compare the worker, rating, message, and quote amount before accepting.
+      </div>
+    </div>
 
-Failure to complete the job as agreed may result in disputes, delayed payment, or account action.
-</p>
-</div>
-</div>
+    <div class="faq-item" data-keywords="payment pay card saved payment accepted quote stripe">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        When do I pay?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        You pay after accepting a worker quote. If you saved a default payment method, the payment page can pull those saved display details.
+      </div>
+    </div>
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-What happens after I hire a worker?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-Once you accept a workers quote, your payment is securely held by Taskmint until the task is completed. The worker will receive your task assignment and be able to contact you through the app.
+    <div class="faq-item" data-keywords="arrival code worker arrived safety confirm job">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        What is the arrival code?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        The arrival code confirms the worker arrived for the job. Only give the code to the assigned worker once they are actually there.
+      </div>
+    </div>
 
-You will be able to:
-<li>Message your worker</li>
-<li>Track task progress</li>
-<li>Confirm arrival</li>
-<li>Mark the task complete</li>
-<li>Open a dispute if needed</li>
-</p>
-</div>
-</div>
+    <div class="faq-item" data-keywords="message worker chat file photo image">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        Can I message workers?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        Yes. Messages are tied to the task so conversations stay organized. Keep payments and job updates inside TaskMint.
+      </div>
+    </div>
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-What is the arrival code?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-For safety and verification purposes, every assigned task includes a uniqure arrival code.
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        Can I edit or cancel a task?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        You can edit open tasks before they are completed. Cancel options depend on the task status and whether a worker has already been accepted.
+      </div>
+    </div>
 
-When the worker arrives:
-1. Ask the worker to confirm they are there
-2. Provide the arrival code shown inside your task details.
-3. The worker enters the code in the app.
-4. The task officially begins.
+    <div class="faq-item" data-keywords="dispute issue problem completed task review 7 10 business days">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        How do disputes work?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        Disputes can be opened on completed tasks. TaskMint reviews the details, evidence, messages, task status, and payment records. Reviews can take 7–10 business days.
+      </div>
+    </div>
 
-Never provide the arrival code before the worker arrives at the location. </p>
-</div>
-</div>
+  </div>
 
-    <div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-When is the worker paid?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-Payments are securely held while the task is being completed.
+  <div class="faq-card">
+    <div class="section-title">Quick Guide</div>
 
-Once the task is finished.
-You'll have up to 3 days to confirm completion or report a problem. 
-If no dispute is opened during that time, funds are released to the worker automatically.
-Taskmint deducts the worker platform fee before payout.</p>
-</div>
-</div>
+    <div class="quick-grid">
+      <div class="quick-box">
+        <div class="quick-icon">📝</div>
+        <div class="quick-title">Post</div>
+      </div>
 
-    <div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-What if I have an issue with the task?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-If something goes wrong, you can open a dispute directly from the task details page. 
+      <div class="quick-box">
+        <div class="quick-icon">💬</div>
+        <div class="quick-title">Compare Quotes</div>
+      </div>
 
-Examples include:
-<li>Worker never arrived</li>
-<li>Property damage</li>
-<li>Incomplete work</li>
-<li>Safety concerns</li>
-<li>Wrong service completed</li>
+      <div class="quick-box">
+        <div class="quick-icon">💳</div>
+        <div class="quick-title">Pay Securely</div>
+      </div>
 
-Our team may review:
-<li>Messages</li>
-<li>Photos</li>
-<li>Task details</li>
-<li>Timeline activity</li>
-<li>Arrival verification</li>
-</p>
-</div>
-</div>
+      <div class="quick-box">
+        <div class="quick-icon">✅</div>
+        <div class="quick-title">Complete Task</div>
+      </div>
+    </div>
+  </div>
 
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-Can I cancel a task?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-Task may be cancelled before a worker begins.
-
-However:
-Cancelling after a worker has already traveled or started work may result in fees.
-Frequent cancellations may affet account standing.</p>
-</div>
-</div>
-
-    <div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-Should I communicate outside the app?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-For your protection, all communication should remain inside Taskmint messaging and calling feature.
-
-Keeping conversations in-app helps:
-<li>Protect payments</li>
-<li>Verify agreements</li>
-<li>Support Disputes</li>
-<li>Improve account security</li>
-</p>
-</div>
-</div>
-
-    <div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-What should I do before a worker arrives?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-We recommend:
-<li>Clearing workspace areas</li>
-<li>Securing valuables</li>
-<li>Providing accurate task details</li>
-<li>Ensuring pets are safely secured if necessary</li>
-<li>Being available during the scheduled time</li></p>
-</div>
-</div>
-
-    <div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-What if mutliple workers send quotes?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-You are free to compare:
-
-<li>Pricing</li>
-<li>Ratings</li>
-<li>Experience</li>
-<li>Response time</li>
-<li>Reviews</li>
-
-You choose the worker that best fits your needs.
-</p>
-</div>
-</div>
-
-<div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-Does Taskmint guarantee worker service?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-Taskmint provides the platform connecting customers and workers. Workers are independent users of the platform.
-
-Customers should:
-<li>Review worker profiles carefully</li>
-<li>Read ratings and reviews</li>
-<li>Communicate expectations clearly before hiring</li></p>
-</div>
-</div>
-
-    <div class="faq-item">
-<button class="faq-question" onclick="toggleFAQ(this)">
-Why are payments held before the task start?<span class="arrow">›</span>
-</button>
-<div class="faq-answer">
-<p>
-Payments are held to help protect both the customers and workers. 
-
-    
-This system helps:
-<li>Prevent non-payment</li>
-<li>Reduce scams</li>
-<li>Support disputes</li>
-<li>Verify task completion before funds are released</li></p>
-</div>
-</div>
-
-    
 </div>
 
 <script>
-function toggleFAQ(button) {
-const item = button.parentElement;
-item.classList.toggle("active");
+let currentSlide = 0;
+
+const slides =
+  document.querySelectorAll(".slide");
+
+const dotsContainer =
+  document.querySelector(".dots");
+
+const nextButton =
+  document.querySelector(".next");
+
+slides.forEach((_, index) => {
+  const dot =
+    document.createElement("div");
+
+  dot.classList.add("dot");
+
+  if (index === 0) {
+    dot.classList.add("active");
+  }
+
+  dot.onclick = function () {
+    currentSlide = index;
+    showSlide(currentSlide);
+  };
+
+  dotsContainer.appendChild(dot);
+});
+
+const dots =
+  document.querySelectorAll(".dot");
+
+function showSlide(index) {
+  slides.forEach(slide =>
+    slide.classList.remove("active")
+  );
+
+  dots.forEach(dot =>
+    dot.classList.remove("active")
+  );
+
+  slides[index].classList.add("active");
+  dots[index].classList.add("active");
+
+  nextButton.textContent =
+    index === slides.length - 1
+      ? "Get Started"
+      : "Next";
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) {
+    currentSlide++;
+    showSlide(currentSlide);
+  } else {
+    finishOnboarding();
+  }
+}
+
+function finishOnboarding() {
+  localStorage.setItem("seenHowItWorks", "true");
+
+  const previousPage =
+    document.referrer || "";
+
+  if (previousPage.includes("profile.html")) {
+    window.location.href = "profile.html";
+    return;
+  }
+
+  window.location.href = "signup.html";
 }
 
 function goBack() {
-window.location.href = "profile.html";
+  if (document.referrer) {
+    history.back();
+    return;
+  }
+
+  window.location.href = "profile.html";
+}
+
+function toggleFAQ(questionEl) {
+  const item =
+    questionEl.parentElement;
+
+  item.classList.toggle("open");
+}
+
+function filterFAQ() {
+  const search =
+    document.getElementById("faqSearch")
+      .value
+      .toLowerCase()
+      .trim();
+
+  const items =
+    document.querySelectorAll(".faq-item");
+
+  let visibleCount = 0;
+
+  items.forEach(item => {
+    const text =
+      item.innerText.toLowerCase();
+
+    const keywords =
+      item.dataset.keywords || "";
+
+    const match =
+      !search ||
+      text.includes(search) ||
+      keywords.includes(search);
+
+    item.style.display =
+      match ? "block" : "none";
+
+    if (match) {
+      visibleCount++;
+    }
+  });
+
+  document.getElementById("emptyMessage").style.display =
+    visibleCount === 0 ? "block" : "none";
 }
 </script>
 
 </body>
 </html>
-
