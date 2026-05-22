@@ -666,9 +666,26 @@ if (searchValue.startsWith("TM-")) {
       <strong>${escapeHTML(task.category || task.title || "Task")}</strong><br>
       Order # TM-${String(task.id).slice(0,8).toUpperCase()}<br>
       ${escapeHTML(task.city || "")}, ${escapeHTML(task.state || "")}
-      <button class="primary-btn" onclick="startDisputeForTask('${task.id}', '${task.assigned_worker_id || task.worker_id || ""}')">
+      ${
+  task.status === "completed"
+    ? `
+      <button
+        class="primary-btn"
+        onclick="startDisputeForTask('${task.id}', '${task.assigned_worker_id || task.worker_id || ""}')"
+      >
         Open Dispute for This Task
       </button>
+    `
+    : `
+      <button
+        class="secondary-btn"
+        disabled
+        style="opacity:.6;cursor:not-allowed;"
+      >
+        Disputes can only be opened on completed tasks
+      </button>
+    `
+}
     </div>
   `;
 }
