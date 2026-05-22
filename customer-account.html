@@ -1,1 +1,654 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Customer Account - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 90px;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back,
+.refresh {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.card,
+.summary-card {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
+}
+
+.summary-card {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.summary-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 20px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.summary-name {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.summary-sub {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.35;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  color: #0b7a28;
+  margin: 10px 0 6px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  outline: none;
+  background: white;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+}
+
+.notice {
+  background: #fff8e6;
+  color: #6f4b00;
+  border: 1px solid #ffe0a3;
+  border-radius: 18px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.secondary-btn {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
+}
+
+.danger-btn {
+  background: #b00020;
+  color: white;
+}
+
+#status {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.4;
+  margin: 12px 0;
+  color: #0b7a28;
+}
+
+.error {
+  color: #b00020 !important;
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div class="back" onclick="window.location.href='profile.html'">← Back</div>
+    <div class="refresh" onclick="loadAccount()">Refresh</div>
+  </div>
+
+  <div class="hero">
+    <h1>Account Details</h1>
+    <p>Keep your name, phone number, and address updated so workers have accurate task information.</p>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-top">
+      <div class="avatar" id="avatarBox">
+        👤
+      </div>
+
+      <div>
+        <div class="summary-name" id="summaryName">Loading...</div>
+        <div class="summary-sub" id="summaryEmail">Loading account...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice">
+    Your address helps TaskMint prefill task details faster. Workers only see the task address connected to the job you post.
+  </div>
+
+  <div class="card">
+    <div class="section-title">Personal Information</div>
+
+    <div class="field-grid">
+
+      <div>
+        <label for="firstName">First Name</label>
+        <input id="firstName" placeholder="First name">
+      </div>
+
+      <div>
+        <label for="lastName">Last Name</label>
+        <input id="lastName" placeholder="Last name">
+      </div>
+
+      <div class="field-full">
+        <label for="phone">Phone Number</label>
+        <input id="phone" placeholder="Phone number">
+      </div>
+
+      <div class="field-full">
+        <label for="preferredName">Preferred Name</label>
+        <input id="preferredName" placeholder="Optional preferred name">
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Home Address</div>
+
+    <div class="field-grid">
+
+      <div class="field-full">
+        <label for="streetAddress">Street Address</label>
+        <input id="streetAddress" placeholder="Street address">
+      </div>
+
+      <div class="field-full">
+        <label for="unit">Apt / Unit</label>
+        <input id="unit" placeholder="Apt, suite, unit, optional">
+      </div>
+
+      <div>
+        <label for="city">City</label>
+        <input id="city" placeholder="City">
+      </div>
+
+      <div>
+        <label for="state">State</label>
+        <input id="state" placeholder="State">
+      </div>
+
+      <div>
+        <label for="zipcode">Zip Code</label>
+        <input id="zipcode" placeholder="Zip code">
+      </div>
+
+      <div>
+        <label for="country">Country</label>
+        <input id="country" placeholder="United States">
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Task Preferences</div>
+
+    <div class="field-grid">
+
+      <div class="field-full">
+        <label for="defaultTaskNotes">Default Task Notes</label>
+        <textarea id="defaultTaskNotes" placeholder="Optional notes you may want attached to future task posts."></textarea>
+      </div>
+
+      <div>
+        <label for="contactPreference">Contact Preference</label>
+        <select id="contactPreference">
+          <option value="">Select one</option>
+          <option value="app_messages">App messages</option>
+          <option value="phone">Phone</option>
+          <option value="email">Email</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="notificationPreference">Notifications</label>
+        <select id="notificationPreference">
+          <option value="">Select one</option>
+          <option value="all">All updates</option>
+          <option value="important">Important only</option>
+          <option value="messages_only">Messages only</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <p id="status"></p>
+
+  <div class="button-row">
+    <button class="secondary-btn" onclick="loadAccount()">Reset</button>
+    <button class="primary-btn" onclick="saveAccount()">Save Changes</button>
+  </div>
+
+</div>
+
+<div class="nav">
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Tasks</a>
+  <a href="browse-workers.html"><span class="nav-icon">👷</span>Workers</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="profile.html" class="active"><span class="nav-icon">👤</span>Profile</a>
+</div>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+let currentUserId = "";
+
+function setStatus(message, isError = false) {
+  const status =
+    document.getElementById("status");
+
+  status.className =
+    isError ? "error" : "";
+
+  status.innerText =
+    message;
+}
+
+async function getCurrentUser() {
+  const { data } =
+    await supabaseClient.auth.getSession();
+
+  if (data.session && data.session.user) {
+    currentUserId =
+      data.session.user.id;
+
+    localStorage.setItem("taskmintUserId", currentUserId);
+    return data.session.user;
+  }
+
+  const savedUserId =
+    localStorage.getItem("taskmintUserId");
+
+  if (savedUserId) {
+    currentUserId =
+      savedUserId;
+
+    return { id: savedUserId };
+  }
+
+  window.location.href = "login.html";
+  return null;
+}
+
+function valueOf(id) {
+  return document.getElementById(id).value.trim();
+}
+
+function setValue(id, value) {
+  document.getElementById(id).value =
+    value || "";
+}
+
+async function loadAccount() {
+  setStatus("");
+
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const { data: profile, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", currentUserId)
+      .maybeSingle();
+
+  if (error || !profile) {
+    setStatus(error?.message || "Could not load account details.", true);
+    return;
+  }
+
+  setValue("firstName", profile.first_name);
+  setValue("lastName", profile.last_name);
+  setValue("phone", profile.phone);
+  setValue("preferredName", profile.preferred_name);
+
+  setValue("streetAddress", profile.street_address || profile.address);
+  setValue("unit", profile.unit || profile.apt_unit);
+  setValue("city", profile.city);
+  setValue("state", profile.state);
+  setValue("zipcode", profile.zipcode || profile.zip_code);
+  setValue("country", profile.country || "United States");
+
+  setValue("defaultTaskNotes", profile.default_task_notes);
+  setValue("contactPreference", profile.contact_preference);
+  setValue("notificationPreference", profile.notification_preference);
+
+  const name =
+    `${profile.first_name || ""} ${profile.last_name || ""}`.trim() ||
+    "TaskMint Customer";
+
+  document.getElementById("summaryName").innerText =
+    name;
+
+  document.getElementById("summaryEmail").innerText =
+    profile.email || user.email || "No email listed";
+
+  if (profile.profile_photo_url) {
+    document.getElementById("avatarBox").innerHTML =
+      `<img src="${profile.profile_photo_url}">`;
+  } else {
+    document.getElementById("avatarBox").innerText =
+      "👤";
+  }
+}
+
+async function saveAccount() {
+  setStatus("");
+
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const firstName =
+    valueOf("firstName");
+
+  const lastName =
+    valueOf("lastName");
+
+  const phone =
+    valueOf("phone");
+
+  const streetAddress =
+    valueOf("streetAddress");
+
+  const city =
+    valueOf("city");
+
+  const state =
+    valueOf("state");
+
+  const zipcode =
+    valueOf("zipcode");
+
+  if (!firstName || !lastName) {
+    setStatus("First and last name are required.", true);
+    return;
+  }
+
+  if (!streetAddress || !city || !state || !zipcode) {
+    setStatus("Complete your address before saving.", true);
+    return;
+  }
+
+  setStatus("Saving account details...");
+
+  const updates = {
+    first_name: firstName,
+    last_name: lastName,
+    phone: phone || null,
+    preferred_name: valueOf("preferredName") || null,
+
+    street_address: streetAddress,
+    address: streetAddress,
+    unit: valueOf("unit") || null,
+    apt_unit: valueOf("unit") || null,
+    city: city,
+    state: state,
+    zipcode: zipcode,
+    zip_code: zipcode,
+    country: valueOf("country") || "United States",
+
+    default_task_notes: valueOf("defaultTaskNotes") || null,
+    contact_preference: valueOf("contactPreference") || null,
+    notification_preference: valueOf("notificationPreference") || null
+  };
+
+  const { error } =
+    await supabaseClient
+      .from("profiles")
+      .update(updates)
+      .eq("id", currentUserId);
+
+  if (error) {
+    setStatus(error.message, true);
+    return;
+  }
+
+  setStatus("Account details updated.");
+
+  await loadAccount();
+}
+
+loadAccount();
+</script>
+
+</body>
+</html>
 
