@@ -555,12 +555,12 @@ function formatMoney(value) {
 function getQuoteAmount(app) {
   return (
     app.quote_amount ??
-    app.amount ??
-    app.price ??
     app.quote_price ??
     app.offer_amount ??
     app.total_amount ??
     app.quote ??
+    app.amount ??
+    app.price ??
     ""
   );
 }
