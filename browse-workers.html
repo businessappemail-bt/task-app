@@ -501,15 +501,23 @@ function escapeHTML(value) {
 
 
 function getWorkerName(worker) {
+
+  const firstName =
+    worker.first_name || "";
+
+  const lastInitial =
+    worker.last_name
+      ? worker.last_name.charAt(0).toUpperCase() + "."
+      : "";
+
   return (
-    worker.full_name ||
     worker.display_name ||
-    `${worker.first_name || ""} ${worker.last_name || ""}`.trim() ||
+    `${firstName} ${lastInitial}`.trim() ||
+    worker.full_name ||
     worker.name ||
     "Worker"
   );
 }
-
 function randomizeArray(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }
