@@ -617,13 +617,19 @@ async function searchTask() {
       .select("*")
       .eq("customer_id", customerId);
 
-  if (cleanValue.length === 8) {
-    query =
-      query.ilike("id", `${cleanValue}%`);
-  } else {
-    query =
-      query.eq("id", cleanValue);
-  }
+if (cleanValue.toUpperCase().startsWith("TM-")) {
+
+  query =
+    query.eq(
+      "order_number",
+      cleanValue.toUpperCase()
+    );
+
+} else {
+
+  query =
+    query.eq("id", cleanValue);
+}
 
   const { data: tasks, error } =
     await query;
