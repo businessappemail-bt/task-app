@@ -268,6 +268,70 @@ button:hover {
   color: #0b7a28;
 }
 
+.workers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.workers-grid .worker-card {
+  margin-bottom: 0;
+  border-radius: 20px;
+}
+
+.workers-grid .worker-top {
+  display: block;
+  padding: 12px;
+  text-align: center;
+}
+
+.workers-grid .worker-photo {
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  margin: 0 auto 8px;
+  display: block;
+}
+
+.workers-grid .worker-name {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.workers-grid .worker-location {
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+.workers-grid .rating-row {
+  justify-content: center;
+}
+
+.workers-grid .section {
+  padding: 0 10px 10px;
+}
+
+.workers-grid .section-title {
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+
+.workers-grid .chip {
+  font-size: 10px;
+  padding: 6px 8px;
+}
+
+.workers-grid .action-row {
+  grid-template-columns: 1fr;
+  padding: 0 10px 12px;
+  gap: 6px;
+}
+
+.workers-grid button {
+  padding: 10px;
+  font-size: 11px;
+}
+
 .nav {
   position: fixed;
   bottom: 0;
@@ -435,6 +499,17 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
+
+function getWorkerName(worker) {
+  return (
+    worker.full_name ||
+    worker.display_name ||
+    `${worker.first_name || ""} ${worker.last_name || ""}`.trim() ||
+    worker.name ||
+    "Worker"
+  );
+}
+
 function randomizeArray(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }
@@ -468,6 +543,7 @@ async function loadWorkers() {
   const workersList =
     document.getElementById("workersList");
 
+  workersList.className = "";
   workersList.innerHTML =
     `<div class="empty">Loading workers...</div>`;
 
@@ -481,10 +557,10 @@ async function loadWorkers() {
   currentUserId =
     user.id;
 
- const { data: workers, error } =
-  await supabaseClient
-    .from("worker_profiles")
-    .select("*");
+  const { data: workers, error } =
+    await supabaseClient
+      .from("worker_profiles")
+      .select("*");
 
   if (error) {
     workersList.innerHTML =
@@ -493,8 +569,64 @@ async function loadWorkers() {
     return;
   }
 
+  const { data: profiles } =
+    await supabaseClient
+      .from("profiles")
+      .select("*");
+
+  const profileMap = {};
+
+  (profiles || []).forEach(profile => {
+    profileMap[profile.id] = profile;
+  });
+
+  const mergedWorkers =
+    (workers || []).map(worker => {
+      const linkedProfile =
+        profileMap[worker.user_id] ||
+        profileMap[worker.profile_id] ||
+        profileMap[worker.id] ||
+        {};
+
+      return {
+        ...linkedProfile,
+        ...worker,
+
+        full_name:
+          worker.full_name ||
+          worker.display_name ||
+          linkedProfile.full_name ||
+          linkedProfile.display_name ||
+          `${worker.first_name || ""} ${worker.last_name || ""}`.trim() ||
+          `${linkedProfile.first_name || ""} ${linkedProfile.last_name || ""}`.trim() ||
+          worker.name ||
+          "Worker",
+
+        profile_photo_url:
+          worker.profile_photo_url ||
+          worker.profile_image_url ||
+          worker.photo_url ||
+          worker.avatar_url ||
+          linkedProfile.profile_photo_url ||
+          linkedProfile.profile_image_url ||
+          linkedProfile.photo_url ||
+          linkedProfile.avatar_url ||
+          "",
+
+        city:
+          worker.city ||
+          linkedProfile.city ||
+          "",
+
+        state:
+          worker.state ||
+          linkedProfile.state ||
+          ""
+      };
+    });
+
   allWorkers =
-    randomizeArray(workers || []);
+    randomizeArray(mergedWorkers);
 
   applyFilters();
 }
@@ -644,7 +776,7 @@ async function saveWorker(workerId) {
 function viewWorkerProfile(workerId) {
 
   window.location.href =
-    `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`;
+    `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}&workerId=${encodeURIComponent(workerId)}`;
 }
 
 function renderWorkers(workers) {
@@ -654,12 +786,14 @@ function renderWorkers(workers) {
 
   if (!workers || workers.length === 0) {
 
+    workersList.className = "";
     workersList.innerHTML =
       `<div class="empty">No workers match your filters.</div>`;
 
     return;
   }
 
+  workersList.className = "workers-grid";
   workersList.innerHTML = "";
 
   workers.forEach(worker => {
@@ -679,6 +813,9 @@ function renderWorkers(workers) {
     const photo =
       worker.profile_photo_url ||
       worker.profile_image_url ||
+      worker.photo_url ||
+      worker.avatar_url ||
+      worker.image_url ||
       "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
     card.innerHTML = `
@@ -687,18 +824,13 @@ function renderWorkers(workers) {
         <img
           class="worker-photo"
           src="${escapeHTML(photo)}"
+          onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'"
         >
 
        <div class="worker-info">
 
   <div class="worker-name">
-    ${escapeHTML(
-      worker.full_name ||
-      worker.display_name ||
-      `${worker.first_name || ""} ${worker.last_name || ""}`.trim() ||
-      worker.name ||
-      "Worker"
-    )}
+    ${escapeHTML(getWorkerName(worker))}
   </div>
 
           <div class="worker-location">
