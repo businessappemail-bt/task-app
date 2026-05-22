@@ -1,1 +1,845 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Past Tasks - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 90px;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back,
+.refresh {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.summary-box,
+.filter-card,
+.task-card {
+  background: white;
+  border: 1px solid #edf1ee;
+  border-radius: 22px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
+}
+
+.summary-box {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.summary-box:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.summary-label {
+  color: #0b7a28;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.summary-value {
+  font-size: 18px;
+  font-weight: 900;
+  margin-top: 4px;
+}
+
+.filter-card {
+  margin-bottom: 14px;
+}
+
+.filter-title {
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+select,
+input {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  font-size: 13px;
+  outline: none;
+  background: white;
+}
+
+select:focus,
+input:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+}
+
+.task-card {
+  margin-bottom: 14px;
+  padding: 16px;
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.task-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.task-sub {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.status-pill {
+  background: #e7f7ec;
+  color: #0b7a28;
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.info-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  padding: 10px;
+  min-height: 68px;
+}
+
+.info-label {
+  color: #0b7a28;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 5px;
+}
+
+.info-value {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.details-toggle {
+  margin-top: 12px;
+  color: #0b7a28;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.details-box {
+  display: none;
+  margin-top: 10px;
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.detail-chip {
+  background: white;
+  border: 1px solid #e3eee6;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+button {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 10px;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.09);
+}
+
+.secondary-btn {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
+}
+
+.empty {
+  background: white;
+  padding: 22px;
+  border-radius: 22px;
+  text-align: center;
+  color: #666;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+#status {
+  text-align: center;
+  color: #b00020;
+  font-size: 13px;
+  font-weight: 900;
+  margin: 10px 0;
+  line-height: 1.4;
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="top-bar">
+    <div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
+    <div class="refresh" onclick="loadPastTasks()">Refresh</div>
+  </div>
+
+  <div class="hero">
+    <h1>Past Tasks</h1>
+    <p>View completed jobs that have been marked paid, including worker details, payment amount, and task history.</p>
+  </div>
+
+  <div class="summary-row">
+    <div class="summary-box">
+      <div class="summary-label">Paid Tasks</div>
+      <div class="summary-value" id="paidCount">0</div>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-label">Total Paid</div>
+      <div class="summary-value" id="totalPaid">$0.00</div>
+    </div>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-title">Filter Past Tasks</div>
+
+    <div class="filter-grid">
+      <select id="taskTypeFilter" onchange="applyFilters()">
+        <option value="">All task types</option>
+      </select>
+
+      <input id="dateFilter" type="date" onchange="applyFilters()">
+    </div>
+
+    <button class="secondary-btn" onclick="clearFilters()">Clear Filters</button>
+  </div>
+
+  <p id="status"></p>
+
+  <div id="tasksList"></div>
+</div>
+
+<div class="nav">
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Open</a>
+  <a href="view-past-task.html" class="active"><span class="nav-icon">✅</span>Past</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+</div>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+let allPastTasks = [];
+let currentUserId = "";
+
+function escapeHTML(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatMoney(value) {
+  const numberValue =
+    Number(value || 0);
+
+  if (isNaN(numberValue)) {
+    return "$0.00";
+  }
+
+  return "$" + numberValue.toFixed(2);
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "Not listed";
+  }
+
+  const date =
+    new Date(value);
+
+  if (isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString();
+}
+
+function getTaskPaidDate(task) {
+  return (
+    task.paid_at ||
+    task.completed_at ||
+    task.updated_at ||
+    task.created_at ||
+    ""
+  );
+}
+
+function getTaskAmount(task) {
+  return (
+    task.paid_amount ??
+    task.amount_paid ??
+    task.accepted_quote_amount ??
+    task.quote_amount ??
+    task.total_amount ??
+    task.price ??
+    task.amount ??
+    0
+  );
+}
+
+function getAssignedWorkerId(task) {
+  return (
+    task.assigned_worker_id ||
+    task.accepted_worker_id ||
+    task.worker_id ||
+    ""
+  );
+}
+
+
+function getTaskType(task) {
+  return (
+    task.category ||
+    task.task_type ||
+    task.service_type ||
+    task.job_type ||
+    task.type ||
+    task.title ||
+    "Task"
+  );
+}
+
+function getTaskDetails(task) {
+  if (task.task_details && typeof task.task_details === "object") {
+    return Object.keys(task.task_details)
+      .map(key => {
+        const label =
+          key.replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase());
+
+        return `${label}: ${task.task_details[key]}`;
+      });
+  }
+
+  if (task.description) {
+    return String(task.description)
+      .split("\n")
+      .filter(Boolean);
+  }
+
+  return ["No task details listed."];
+}
+
+async function getCurrentUser() {
+  const { data } =
+    await supabaseClient.auth.getSession();
+
+  if (data.session && data.session.user) {
+    localStorage.setItem("taskmintUserId", data.session.user.id);
+    return data.session.user;
+  }
+
+  const savedUserId =
+    localStorage.getItem("taskmintUserId");
+
+  if (savedUserId) {
+    return { id: savedUserId };
+  }
+
+  window.location.href = "login.html";
+  return null;
+}
+
+async function attachQuoteAmountsAndWorkers() {
+  for (const task of allPastTasks) {
+    const quoteId =
+      task.accepted_quote_id ||
+      task.quote_id ||
+      "";
+
+    if (quoteId) {
+      const { data: quote } =
+        await supabaseClient
+          .from("worker_quotes")
+          .select("*")
+          .eq("id", quoteId)
+          .maybeSingle();
+
+      if (quote) {
+        task.quote_amount =
+          quote.quote_amount ??
+          quote.quote_price ??
+          quote.offer_amount ??
+          quote.total_amount ??
+          quote.quote ??
+          quote.amount ??
+          quote.price ??
+          task.quote_amount ??
+          0;
+
+        task.worker_id =
+          task.worker_id ||
+          quote.worker_id ||
+          quote.user_id ||
+          quote.worker_user_id ||
+          "";
+      }
+    }
+  }
+}
+
+async function getWorkerName(workerId) {
+  if (!workerId) {
+    return "Worker not listed";
+  }
+
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("first_name, last_name, full_name, display_name")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  const { data: workerProfile } =
+    await supabaseClient
+      .from("worker_profiles")
+      .select("full_name, display_name")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  const person =
+    Object.assign({}, profile || {}, workerProfile || {});
+
+  return (
+    person.full_name ||
+    person.display_name ||
+    `${person.first_name || ""} ${person.last_name || ""}`.trim() ||
+    "Worker not listed"
+  );
+}
+
+async function loadPastTasks() {
+  const tasksList =
+    document.getElementById("tasksList");
+
+  const status =
+    document.getElementById("status");
+
+  status.innerText = "";
+  tasksList.innerHTML =
+    `<div class="empty">Loading paid tasks...</div>`;
+
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  currentUserId =
+    user.id;
+
+  const { data: tasks, error } =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("customer_id", currentUserId)
+      .eq("status", "paid")
+      .order("updated_at", { ascending: false });
+
+  if (error) {
+    tasksList.innerHTML =
+      `<div class="empty">${escapeHTML(error.message)}</div>`;
+    return;
+  }
+
+  allPastTasks =
+    tasks || [];
+
+  await attachQuoteAmountsAndWorkers();
+  populateTaskTypeFilter();
+  applyFilters();
+}
+
+function populateTaskTypeFilter() {
+  const select =
+    document.getElementById("taskTypeFilter");
+
+  const currentValue =
+    select.value;
+
+  const types =
+    [...new Set(
+      allPastTasks
+        .map(task => getTaskType(task))
+        .filter(Boolean)
+    )].sort();
+
+  select.innerHTML =
+    `<option value="">All task types</option>`;
+
+  types.forEach(type => {
+    const option =
+      document.createElement("option");
+
+    option.value = type;
+    option.innerText = type;
+
+    select.appendChild(option);
+  });
+
+  select.value =
+    currentValue;
+}
+
+function applyFilters() {
+  const typeFilter =
+    document.getElementById("taskTypeFilter").value;
+
+  const dateFilter =
+    document.getElementById("dateFilter").value;
+
+  let filtered =
+    allPastTasks.slice();
+
+  if (typeFilter) {
+    filtered =
+      filtered.filter(task =>
+        (task.category || task.title || "") === typeFilter
+      );
+  }
+
+  if (dateFilter) {
+    filtered =
+      filtered.filter(task => {
+        const paidDate =
+          getTaskPaidDate(task);
+
+        if (!paidDate) {
+          return false;
+        }
+
+        return String(paidDate).slice(0, 10) === dateFilter;
+      });
+  }
+
+  renderTasks(filtered);
+}
+
+function clearFilters() {
+  document.getElementById("taskTypeFilter").value = "";
+  document.getElementById("dateFilter").value = "";
+
+  renderTasks(allPastTasks);
+}
+
+async function renderTasks(tasks) {
+  const tasksList =
+    document.getElementById("tasksList");
+
+  document.getElementById("paidCount").innerText =
+    String(tasks.length);
+
+  const total =
+    tasks.reduce((sum, task) => {
+      return sum + Number(getTaskAmount(task) || 0);
+    }, 0);
+
+  document.getElementById("totalPaid").innerText =
+    formatMoney(total);
+
+  if (!tasks || tasks.length === 0) {
+    tasksList.innerHTML =
+      `<div class="empty">No paid tasks match this filter.</div>`;
+    return;
+  }
+
+  tasksList.innerHTML = "";
+
+  for (const task of tasks) {
+    const workerId =
+      getAssignedWorkerId(task);
+
+    const workerName =
+      await getWorkerName(workerId);
+
+    const detailsId =
+      `details-${task.id}`;
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "task-card";
+
+    const details =
+      getTaskDetails(task)
+        .map(detail => `
+          <div class="detail-chip">
+            ${escapeHTML(detail)}
+          </div>
+        `)
+        .join("");
+
+    card.innerHTML = `
+      <div class="task-top">
+        <div>
+          <div class="task-title">
+            ${escapeHTML(getTaskType(task))}
+          </div>
+
+          <div class="task-sub">
+            Order # TM-${String(task.id).slice(0, 8).toUpperCase()} •
+            Paid ${escapeHTML(formatDate(getTaskPaidDate(task)))}
+          </div>
+        </div>
+
+        <div class="status-pill">
+          Paid
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-label">Worker</div>
+          <div class="info-value">
+            ${escapeHTML(workerName)}
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">Amount Paid</div>
+          <div class="info-value">
+            ${escapeHTML(formatMoney(getTaskAmount(task)))}
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">Task Date</div>
+          <div class="info-value">
+            ${escapeHTML(formatDate(task.task_date || task.date_needed || task.created_at))}
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">Location</div>
+          <div class="info-value">
+            ${escapeHTML(task.city || "")}, ${escapeHTML(task.state || "")}
+          </div>
+        </div>
+      </div>
+
+      <div class="details-toggle" onclick="toggleDetails('${detailsId}')">
+        View task details
+      </div>
+
+      <div class="details-box" id="${detailsId}">
+        ${details}
+      </div>
+    `;
+
+    tasksList.appendChild(card);
+  }
+}
+
+function toggleDetails(detailsId) {
+  const box =
+    document.getElementById(detailsId);
+
+  if (!box) {
+    return;
+  }
+
+  box.style.display =
+    box.style.display === "block" ? "none" : "block";
+}
+
+loadPastTasks();
+</script>
+</body>
+</html>
 
