@@ -510,13 +510,35 @@ function getWorkerName(worker) {
       ? worker.last_name.charAt(0).toUpperCase() + "."
       : "";
 
-  return (
-    worker.display_name ||
-    `${firstName} ${lastInitial}`.trim() ||
-    worker.full_name ||
-    worker.name ||
-    "Worker"
-  );
+  if (firstName) {
+    return `${firstName} ${lastInitial}`.trim();
+  }
+
+  if (worker.display_name) {
+
+    const parts =
+      worker.display_name.trim().split(" ");
+
+    if (parts.length > 1) {
+      return `${parts[0]} ${parts[1].charAt(0).toUpperCase()}.`;
+    }
+
+    return worker.display_name;
+  }
+
+  if (worker.full_name) {
+
+    const parts =
+      worker.full_name.trim().split(" ");
+
+    if (parts.length > 1) {
+      return `${parts[0]} ${parts[1].charAt(0).toUpperCase()}.`;
+    }
+
+    return worker.full_name;
+  }
+
+  return "Worker";
 }
 function randomizeArray(array) {
   return [...array].sort(() => Math.random() - 0.5);
