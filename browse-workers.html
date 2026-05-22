@@ -501,41 +501,38 @@ function escapeHTML(value) {
 
 
 function getWorkerName(worker) {
-
   const firstName =
-    worker.first_name || "";
+    worker.first_name ||
+    "";
+
+  let lastName =
+    worker.last_name ||
+    "";
+
+  if (!lastName && worker.full_name) {
+    const parts = worker.full_name.trim().split(" ");
+    lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+  }
+
+  if (!lastName && worker.display_name) {
+    const parts = worker.display_name.trim().split(" ");
+    lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+  }
 
   const lastInitial =
-    worker.last_name
-      ? worker.last_name.charAt(0).toUpperCase() + "."
+    lastName
+      ? lastName.charAt(0).toUpperCase() + "."
       : "";
 
   if (firstName) {
     return `${firstName} ${lastInitial}`.trim();
   }
 
-  if (worker.display_name) {
-
-    const parts =
-      worker.display_name.trim().split(" ");
-
-    if (parts.length > 1) {
-      return `${parts[0]} ${parts[1].charAt(0).toUpperCase()}.`;
-    }
-
-    return worker.display_name;
-  }
-
   if (worker.full_name) {
-
-    const parts =
-      worker.full_name.trim().split(" ");
-
-    if (parts.length > 1) {
-      return `${parts[0]} ${parts[1].charAt(0).toUpperCase()}.`;
-    }
-
-    return worker.full_name;
+    const parts = worker.full_name.trim().split(" ");
+    return parts.length > 1
+      ? `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`
+      : parts[0];
   }
 
   return "Worker";
