@@ -617,18 +617,30 @@ async function searchTask() {
       .select("*")
       .eq("customer_id", customerId);
 
-if (cleanValue.toUpperCase().startsWith("TM-")) {
+const searchValue =
+  value.toUpperCase().trim();
+
+if (searchValue.startsWith("TM-")) {
 
   query =
     query.eq(
       "order_number",
-      cleanValue.toUpperCase()
+      searchValue
+    );
+
+} else if (searchValue.length === 8) {
+
+  query =
+    query.eq(
+      "order_number",
+      `TM-${searchValue}`
     );
 
 } else {
 
   query =
-    query.eq("id", cleanValue);
+    query.eq("id", value);
+
 }
 
   const { data: tasks, error } =
