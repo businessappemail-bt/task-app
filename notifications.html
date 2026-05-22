@@ -4,165 +4,374 @@
 <title>Notifications - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: #f4f4f4;
-padding-bottom: 80px;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 95px;
 }
 
 .container {
-max-width: 420px;
-margin: 0 auto;
-background: white;
-min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
 }
 
-.header {
-position: relative;
-text-align: center;
-padding: 18px;
-font-size: 22px;
-font-weight: bold;
-border-bottom: 1px solid #ddd;
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
-.back {
-position: absolute;
-left: 15px;
-top: 14px;
-font-size: 28px;
-color: green;
-cursor: pointer;
+.back,
+.refresh {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.summary-card,
+.section-card,
+.note {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
+}
+
+.summary-card {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.summary-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.summary-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.summary-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.summary-sub {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.status-pill {
+  display: inline-block;
+  background: #e7f7ec;
+  color: #0b7a28;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  margin-top: 8px;
 }
 
 .section-title {
-padding: 25px 20px 10px;
-font-size: 13px;
-font-weight: bold;
-color: #555;
-text-transform: uppercase;
-background: #f7f7f7;
-border-bottom: 1px solid #eee;
+  font-size: 17px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.section-sub {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 8px;
 }
 
 .row {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 18px 20px;
-border-bottom: 1px solid #eee;
-background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 0;
+  border-bottom: 1px solid #edf1ee;
 }
 
-.row-text {
-max-width: 280px;
+.row:last-child {
+  border-bottom: none;
+}
+
+.row-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.row-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .row-title {
-font-size: 16px;
-font-weight: bold;
-margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 4px;
 }
 
 .row-subtitle {
-font-size: 13px;
-color: #666;
-line-height: 1.3;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.35;
 }
 
 .switch {
-position: relative;
-width: 52px;
-height: 28px;
+  position: relative;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
 .switch input {
-opacity: 0;
-width: 0;
-height: 0;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 .slider {
-position: absolute;
-cursor: pointer;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background: #ccc;
-transition: .3s;
-border-radius: 28px;
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #ccc;
+  transition: .3s;
+  border-radius: 28px;
 }
 
 .slider:before {
-position: absolute;
-content: "";
-height: 22px;
-width: 22px;
-left: 3px;
-bottom: 3px;
-background: white;
-transition: .3s;
-border-radius: 50%;
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.18);
 }
 
 input:checked + .slider {
-background: green;
+  background: #0b7a28;
 }
 
 input:checked + .slider:before {
-transform: translateX(24px);
+  transform: translateX(24px);
 }
 
 input:disabled + .slider {
-background: green;
-opacity: 0.6;
-cursor: not-allowed;
+  background: #0b7a28;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .note {
-padding: 18px 20px;
-color: #666;
-font-size: 14px;
-line-height: 1.4;
+  background: #fff8e6;
+  border: 1px solid #ffe0a3;
+  color: #6f4b00;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 800;
 }
 
 #status {
-text-align: center;
-padding: 12px;
-font-weight: bold;
-color: green;
+  text-align: center;
+  color: #0b7a28;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.4;
+  margin: 10px 0;
+}
+
+.error {
+  color: #b00020 !important;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.quick-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+  text-align: center;
+}
+
+.quick-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.quick-title {
+  color: #0b7a28;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+button {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+.secondary-btn {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
 }
 
 .nav {
-position: fixed;
-bottom: 0;
-width: 100%;
-background: white;
-border-top: 1px solid #ddd;
-display: flex;
-justify-content: center;
-}
-
-.nav-inner {
-max-width: 420px;
-width: 100%;
-display: flex;
-justify-content: space-around;
-padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
 }
 
 .nav a {
-text-decoration: none;
-color: #777;
-font-size: 14px;
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
 }
 
-.nav a.active {
-color: green;
-font-weight: bold;
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 </style>
 </head>
@@ -171,131 +380,373 @@ font-weight: bold;
 
 <div class="container">
 
-<div class="header">
-<span class="back" onclick="window.location.href='profile.html'">‹</span>
-Notifications
-</div>
+  <div class="top-bar">
+    <div class="back" onclick="window.location.href='profile.html'">← Back</div>
+    <div class="refresh" onclick="loadNotificationSettings()">Refresh</div>
+  </div>
 
-<div class="section-title">Required Task Notifications</div>
+  <div class="hero">
+    <h1>Notifications</h1>
+    <p>Choose how TaskMint keeps you updated about quotes, messages, payments, disputes, and important task activity.</p>
+  </div>
 
-<div class="row">
-<div class="row-text">
-<div class="row-title">Push Notifications</div>
-<div class="row-subtitle">Required for open and active tasks.</div>
-</div>
-<label class="switch">
-<input type="checkbox" checked disabled>
-<span class="slider"></span>
-</label>
-</div>
+  <div class="summary-card">
+    <div class="summary-top">
+      <div class="summary-icon">🔔</div>
+      <div>
+        <div class="summary-title">Notification Center</div>
+        <div class="summary-sub">
+          Required task alerts stay on so you do not miss active job updates.
+        </div>
+        <div class="status-pill">Task alerts protected</div>
+      </div>
+    </div>
+  </div>
 
-<div class="row">
-<div class="row-text">
-<div class="row-title">Task Email Notifications</div>
-<div class="row-subtitle">Required for open and active tasks.</div>
-</div>
-<label class="switch">
-<input type="checkbox" checked disabled>
-<span class="slider"></span>
-</label>
-</div>
+  <div class="section-card">
+    <div class="section-title">Required Task Notifications</div>
+    <div class="section-sub">
+      These stay on while you have open, scheduled, or active tasks.
+    </div>
 
-<div class="section-title">Optional Notifications</div>
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">📲</div>
+        <div>
+          <div class="row-title">Push Notifications</div>
+          <div class="row-subtitle">Required for open and active task updates.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" checked disabled>
+        <span class="slider"></span>
+      </label>
+    </div>
 
-<div class="row">
-<div class="row-text">
-<div class="row-title">Marketing Emails</div>
-<div class="row-subtitle">Deals, updates, promotions, and platform news.</div>
-</div>
-<label class="switch">
-<input id="marketingEmails" type="checkbox" onchange="saveNotificationSettings()">
-<span class="slider"></span>
-</label>
-</div>
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">📧</div>
+        <div>
+          <div class="row-title">Task Email Notifications</div>
+          <div class="row-subtitle">Required for task confirmations, worker updates, and payment receipts.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" checked disabled>
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
 
-<div class="row">
-<div class="row-text">
-<div class="row-title">Text Message Notifications</div>
-<div class="row-subtitle">Receive optional SMS updates.</div>
-</div>
-<label class="switch">
-<input id="textNotifications" type="checkbox" onchange="saveNotificationSettings()">
-<span class="slider"></span>
-</label>
-</div>
+  <div class="section-card">
+    <div class="section-title">Optional Notifications</div>
+    <div class="section-sub">
+      Turn these on or off based on what you want to receive.
+    </div>
 
-<div class="note">
-Required task notifications cannot be turned off because they help customers and workers stay updated on active jobs. Optional marketing emails and text messages can be turned on or off anytime.
-</div>
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">💬</div>
+        <div>
+          <div class="row-title">Message Notifications</div>
+          <div class="row-subtitle">Alerts when a worker sends a message or responds about a task.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input id="messageNotifications" type="checkbox" onchange="saveNotificationSettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
 
-<div id="status"></div>
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">💵</div>
+        <div>
+          <div class="row-title">Quote Notifications</div>
+          <div class="row-subtitle">Alerts when workers send or update quote offers.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input id="quoteNotifications" type="checkbox" onchange="saveNotificationSettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">📅</div>
+        <div>
+          <div class="row-title">Schedule Reminders</div>
+          <div class="row-subtitle">Reminders before scheduled jobs and same-day task activity.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input id="scheduleReminders" type="checkbox" onchange="saveNotificationSettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">🧾</div>
+        <div>
+          <div class="row-title">Payment & Receipt Alerts</div>
+          <div class="row-subtitle">Updates about accepted quotes, successful payments, and receipts.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input id="paymentNotifications" type="checkbox" onchange="saveNotificationSettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">⚠️</div>
+        <div>
+          <div class="row-title">Dispute Updates</div>
+          <div class="row-subtitle">Alerts when TaskMint responds to a dispute or changes the dispute status.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input id="disputeNotifications" type="checkbox" onchange="saveNotificationSettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">📱</div>
+        <div>
+          <div class="row-title">Text Message Notifications</div>
+          <div class="row-subtitle">Receive optional SMS updates for account and task activity.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input id="textNotifications" type="checkbox" onchange="saveNotificationSettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row">
+      <div class="row-left">
+        <div class="row-icon">🏷️</div>
+        <div>
+          <div class="row-title">Marketing Emails</div>
+          <div class="row-subtitle">Deals, platform updates, promotions, and TaskMint news.</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input id="marketingEmails" type="checkbox" onchange="saveNotificationSettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Quick Preferences</div>
+
+    <div class="quick-actions">
+      <div class="quick-box">
+        <div class="quick-icon">✅</div>
+        <div class="quick-title">Task Updates</div>
+      </div>
+
+      <div class="quick-box">
+        <div class="quick-icon">💬</div>
+        <div class="quick-title">Messages</div>
+      </div>
+
+      <div class="quick-box">
+        <div class="quick-icon">💳</div>
+        <div class="quick-title">Payments</div>
+      </div>
+
+      <div class="quick-box">
+        <div class="quick-icon">⚠️</div>
+        <div class="quick-title">Disputes</div>
+      </div>
+    </div>
+
+    <button class="secondary-btn" onclick="turnOnRecommended()">
+      Turn On Recommended Optional Alerts
+    </button>
+  </div>
+
+  <div class="note">
+    Required task notifications cannot be turned off because they help customers and workers stay updated on active jobs. Optional alerts can be changed anytime.
+  </div>
+
+  <div id="status"></div>
 
 </div>
 
 <div class="nav">
-<div class="nav-inner">
-<a href="customer-home.html">Home</a>
-<a href="my-jobs.html">My Jobs</a>
-<a href="messages.html">Messages</a>
-<a href="profile.html" class="active">Profile</a>
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Tasks</a>
+  <a href="browse-workers.html"><span class="nav-icon">👷</span>Workers</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="profile.html" class="active"><span class="nav-icon">👤</span>Profile</a>
 </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const supabaseClient = window.supabase.createClient(
-"https://dbcthtjmtlumidpbucrc.supabase.co",
-"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
-async function loadNotificationSettings() {
-const userId = localStorage.getItem("taskmintUserId");
+let currentUserId = "";
 
-if (!userId) {
-window.location.href = "login.html";
-return;
+function setStatus(message, isError = false) {
+  const status =
+    document.getElementById("status");
+
+  status.className =
+    isError ? "error" : "";
+
+  status.innerText =
+    message;
 }
 
-const { data, error } = await supabaseClient
-.from("profiles")
-.select("marketing_emails, text_notifications")
-.eq("id", userId)
-.single();
+async function getCurrentUser() {
+  const { data } =
+    await supabaseClient.auth.getSession();
 
-if (error || !data) return;
+  if (data.session && data.session.user) {
+    currentUserId =
+      data.session.user.id;
 
-document.getElementById("marketingEmails").checked = data.marketing_emails === true;
-document.getElementById("textNotifications").checked = data.text_notifications === true;
+    localStorage.setItem("taskmintUserId", currentUserId);
+    return data.session.user;
+  }
+
+  const savedUserId =
+    localStorage.getItem("taskmintUserId");
+
+  if (savedUserId) {
+    currentUserId =
+      savedUserId;
+
+    return { id: savedUserId };
+  }
+
+  window.location.href = "login.html";
+  return null;
+}
+
+function setChecked(id, value) {
+  const el =
+    document.getElementById(id);
+
+  if (el) {
+    el.checked = value === true;
+  }
+}
+
+async function loadNotificationSettings() {
+  setStatus("");
+
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient
+      .from("profiles")
+      .select(`
+        marketing_emails,
+        text_notifications,
+        message_notifications,
+        quote_notifications,
+        schedule_reminders,
+        payment_notifications,
+        dispute_notifications
+      `)
+      .eq("id", currentUserId)
+      .maybeSingle();
+
+  if (error || !data) {
+    setStatus(error?.message || "Could not load notification settings.", true);
+    return;
+  }
+
+  setChecked("marketingEmails", data.marketing_emails);
+  setChecked("textNotifications", data.text_notifications);
+  setChecked("messageNotifications", data.message_notifications);
+  setChecked("quoteNotifications", data.quote_notifications);
+  setChecked("scheduleReminders", data.schedule_reminders);
+  setChecked("paymentNotifications", data.payment_notifications);
+  setChecked("disputeNotifications", data.dispute_notifications);
 }
 
 async function saveNotificationSettings() {
-const userId = localStorage.getItem("taskmintUserId");
-const status = document.getElementById("status");
+  const user =
+    await getCurrentUser();
 
-const marketingEmails = document.getElementById("marketingEmails").checked;
-const textNotifications = document.getElementById("textNotifications").checked;
+  if (!user) {
+    return;
+  }
 
-const { error } = await supabaseClient
-.from("profiles")
-.update({
-marketing_emails: marketingEmails,
-text_notifications: textNotifications,
-task_push_required: true,
-task_email_required: true
-})
-.eq("id", userId);
+  const marketingEmails =
+    document.getElementById("marketingEmails").checked;
 
-if (error) {
-status.innerText = "Could not save settings.";
-return;
+  const textNotifications =
+    document.getElementById("textNotifications").checked;
+
+  const messageNotifications =
+    document.getElementById("messageNotifications").checked;
+
+  const quoteNotifications =
+    document.getElementById("quoteNotifications").checked;
+
+  const scheduleReminders =
+    document.getElementById("scheduleReminders").checked;
+
+  const paymentNotifications =
+    document.getElementById("paymentNotifications").checked;
+
+  const disputeNotifications =
+    document.getElementById("disputeNotifications").checked;
+
+  const { error } =
+    await supabaseClient
+      .from("profiles")
+      .update({
+        marketing_emails: marketingEmails,
+        text_notifications: textNotifications,
+        message_notifications: messageNotifications,
+        quote_notifications: quoteNotifications,
+        schedule_reminders: scheduleReminders,
+        payment_notifications: paymentNotifications,
+        dispute_notifications: disputeNotifications,
+        task_push_required: true,
+        task_email_required: true
+      })
+      .eq("id", currentUserId);
+
+  if (error) {
+    setStatus("Could not save settings. " + error.message, true);
+    return;
+  }
+
+  setStatus("Notification settings saved.");
+
+  setTimeout(() => {
+    setStatus("");
+  }, 1500);
 }
 
-status.innerText = "Settings saved.";
+function turnOnRecommended() {
+  document.getElementById("messageNotifications").checked = true;
+  document.getElementById("quoteNotifications").checked = true;
+  document.getElementById("scheduleReminders").checked = true;
+  document.getElementById("paymentNotifications").checked = true;
+  document.getElementById("disputeNotifications").checked = true;
 
-setTimeout(() => {
-status.innerText = "";
-}, 1500);
+  saveNotificationSettings();
 }
 
 loadNotificationSettings();
