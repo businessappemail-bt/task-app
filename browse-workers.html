@@ -689,15 +689,17 @@ function renderWorkers(workers) {
           src="${escapeHTML(photo)}"
         >
 
-        <div class="worker-info">
+       <div class="worker-info">
 
-          <div class="worker-name">
-            ${escapeHTML(
-              worker.full_name ||
-              worker.display_name ||
-              "Worker"
-            )}
-          </div>
+  <div class="worker-name">
+    ${escapeHTML(
+      worker.full_name ||
+      worker.display_name ||
+      `${worker.first_name || ""} ${worker.last_name || ""}`.trim() ||
+      worker.name ||
+      "Worker"
+    )}
+  </div>
 
           <div class="worker-location">
             ${escapeHTML(worker.city || "")},
