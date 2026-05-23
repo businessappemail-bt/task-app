@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Worker Public Profile - TaskMint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+ 
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #e9f7ee 0%, #f5f5f5 100%);
+      color: #111;
+      padding-bottom: 80px;
+      overflow-x: hidden;
+    }
+ 
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+ 
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+ 
+    .back {
+      color: #0b7a28;
+      font-weight: 900;
+      text-decoration: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+ 
+    .share-link {
+      color: #0b7a28;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+ 
+    .hero {
+      background: linear-gradient(135deg, #0b7a28, #19a447);
+      color: white;
+      border-radius: 28px;
+      padding: 22px;
+      box-shadow: 0 10px 28px rgba(11,122,40,0.22);
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.35s ease;
+    }
+ 
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      right: -80px;
+      top: -70px;
+    }
+ 
+    .profile-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
+    }
+ 
+    .profile-photo {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: rgba(255,255,255,0.18);
+      border: 4px solid rgba(255,255,255,0.85);
+      flex-shrink: 0;
+    }
+ 
+    .worker-name {
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+ 
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+ 
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+    }
+ 
+    .hero-sub {
+      font-size: 13px;
+      line-height: 1.45;
+      opacity: 0.95;
+      margin-top: 10px;
+      position: relative;
+      z-index: 2;
+    }
+ 
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+ 
+    .stat-box {
+      background: white;
+      border-radius: 18px;
+      padding: 13px 10px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border: 1px solid #edf1ee;
+      min-height: 78px;
+    }
+ 
+    .stat-number {
+      color: #0b7a28;
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+ 
+    .stat-label {
+      color: #666;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+ 
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 17px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border: 1px solid #edf1ee;
+      animation: fadeUp 0.45s ease;
+    }
+ 
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+ 
+    .section-title {
+      font-size: 17px;
+      font-weight: 900;
+      color: #111;
+    }
+ 
+    .section-note {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+ 
+    .about-text {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+ 
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+ 
+    .chip {
+      background: #e7f7ec;
+      color: #0b7a28;
+      border: 1px solid #cfead7;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+    }
+ 
+    .info-list {
+      display: grid;
+      gap: 9px;
+    }
+ 
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #f7faf8;
+      border: 1px solid #e3eee6;
+      border-radius: 16px;
+      padding: 12px;
+    }
+ 
+    .info-main {
+      font-size: 14px;
+      font-weight: 900;
+      color: #111;
+    }
+ 
+    .info-sub {
+      font-size: 12px;
+      color: #666;
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+ 
+    .status-pill {
+      background: #e7f7ec;
+      color: #0b7a28;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+ 
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+ 
+    .portfolio-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      object-fit: cover;
+      background: #f1f1f1;
+      border: 1px solid #e8e8e8;
+      cursor: pointer;
+    }
+
+    .work-photo-upload-box {
+      display: none;
+      background: #f7faf8;
+      border: 1px solid #e3eee6;
+      border-radius: 16px;
+      padding: 13px;
+      margin-bottom: 12px;
+    }
+
+    .work-photo-upload-box.show {
+      display: block;
+    }
+
+    .upload-note {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+      margin-top: 7px;
+    }
+
+    .upload-status {
+      font-size: 13px;
+      font-weight: 900;
+      margin-top: 9px;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .pending-photo-card {
+      background: #fff7e6;
+      border: 1px solid #ffd27a;
+      color: #7a4b00;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+ 
+    .review-card {
+      background: #f7faf8;
+      border: 1px solid #e3eee6;
+      border-radius: 16px;
+      padding: 13px;
+      margin-top: 10px;
+    }
+ 
+    .review-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+ 
+    .review-name {
+      font-size: 13px;
+      font-weight: 900;
+      color: #111;
+    }
+ 
+    .review-stars {
+      color: #0b7a28;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+ 
+    .review-text {
+      font-size: 13px;
+      color: #444;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+ 
+    .review-date {
+      font-size: 11px;
+      color: #777;
+      margin-top: 6px;
+    }
+ 
+    .empty {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.45;
+      background: #f7faf8;
+      border: 1px solid #e3eee6;
+      border-radius: 16px;
+      padding: 13px;
+    }
+ 
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(245,245,245,0), #f5f5f5 35%);
+      padding-top: 16px;
+      padding-bottom: 4px;
+      z-index: 10;
+    }
+ 
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 15px;
+      background: #0b7a28;
+      color: white;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+ 
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.10);
+    }
+ 
+    button.secondary {
+      background: white;
+      color: #111;
+      border: 1px solid #dfe5e0;
+    }
+ 
+    .loading {
+      background: white;
+      border-radius: 22px;
+      padding: 28px;
+      text-align: center;
+      color: #666;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+ 
+    .loading-spinner {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 3px solid #dfe5e0;
+      border-top-color: #0b7a28;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+ 
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+ 
+    .modal img {
+      max-width: 100%;
+      max-height: 82vh;
+      border-radius: 18px;
+      background: white;
+    }
+ 
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+ 
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+ 
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+ 
+<body>
+ 
+<div class="container">
+ 
+  <div class="top-bar">
+    <a class="back" onclick="goBack()">← Back</a>
+    <div class="share-link" onclick="copyProfileLink()">Copy Link</div>
+  </div>
+ 
+  <div id="profilePage">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      Loading worker profile...
+    </div>
+  </div>
+ 
+</div>
+ 
+<div class="modal" id="photoModal" onclick="closePhotoModal()">
+  <img id="modalImage" src="" alt="Work photo preview">
+</div>
+ 
+<script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+ 
+const DEFAULT_PROFILE_PHOTO =
+  "https://github.com/businessappemail-bt/task-app/blob/main/taskmintlogo.png?raw=true";
+ 
+let selectedWorkerId = null;
+let selectedWorkerProfile = null;
+let currentUser = null;
+ 
+function cleanText(value, fallback = "Not listed") {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+ 
+  const text = String(value).trim();
+ 
+  return text === "" ? fallback : text;
+}
+ 
+function escapeHTML(value) {
+  return cleanText(value, "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+ 
+function getFirstAvailable(record, keys, fallback = "") {
+  if (!record) {
+    return fallback;
+  }
+ 
+  for (const key of keys) {
+    if (
+      record[key] !== null &&
+      record[key] !== undefined &&
+      String(record[key]).trim() !== ""
+    ) {
+      return record[key];
+    }
+  }
+ 
+  return fallback;
+}
+ 
+function getUrlWorkerId() {
+  const params = new URLSearchParams(window.location.search);
+
+  return (
+    params.get("worker_id") ||
+    params.get("workerId") ||
+    params.get("worker_profile_id") ||
+    params.get("profile_id") ||
+    params.get("id") ||
+    ""
+  );
+}
+ 
+async function resolveWorkerId() {
+  selectedWorkerId =
+    getUrlWorkerId() ||
+    localStorage.getItem("selectedWorkerId") ||
+    localStorage.getItem("selectedWorkerProfileId") ||
+    localStorage.getItem("selectedWorkerUserId") ||
+    "";
+ 
+  const { data } = await supabaseClient.auth.getUser();
+  currentUser = data && data.user ? data.user : null;
+ 
+  if (!selectedWorkerId && currentUser) {
+    selectedWorkerId = currentUser.id;
+  }
+ 
+  return selectedWorkerId;
+}
+
+function isOwnWorkerProfile(profile) {
+  if (!currentUser || !profile) {
+    return false;
+  }
+
+  return (
+    String(profile.id || "") === String(currentUser.id || "") ||
+    String(profile.auth_user_id || "") === String(currentUser.id || "") ||
+    String(profile.email || "").toLowerCase() ===
+      String(currentUser.email || "").toLowerCase()
+  );
+}
+ 
+function getDisplayName(profile) {
+  const firstName = getFirstAvailable(profile, [
+    "first_name",
+    "firstName"
+  ], "Worker");
+ 
+  const lastName = getFirstAvailable(profile, [
+    "last_name",
+    "lastName"
+  ], "");
+ 
+  const lastInitial = lastName
+    ? `${String(lastName).trim().charAt(0)}.`
+    : "";
+ 
+  return `${firstName} ${lastInitial}`.trim();
+}
+ 
+function getMemberSince(profile) {
+  const dateValue = getFirstAvailable(profile, [
+    "created_at",
+    "member_since",
+    "approved_at"
+  ], "");
+ 
+  if (!dateValue) {
+    return "New member";
+  }
+ 
+  const date = new Date(dateValue);
+ 
+  if (Number.isNaN(date.getTime())) {
+    return "New member";
+  }
+ 
+  return `Member since ${date.getFullYear()}`;
+}
+ 
+function splitList(value) {
+  if (!value) {
+    return [];
+  }
+ 
+  if (Array.isArray(value)) {
+    return value
+      .map(item => String(item).trim())
+      .filter(Boolean);
+  }
+ 
+  return String(value)
+    .split(/,|\n|;/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+ 
+function renderChips(items, emptyText) {
+  if (!items || items.length === 0) {
+    return `<div class="empty">${escapeHTML(emptyText)}</div>`;
+  }
+ 
+  return `
+    <div class="chip-list">
+      ${items.map(item => `<span class="chip">${escapeHTML(item)}</span>`).join("")}
+    </div>
+  `;
+}
+ 
+function formatRating(value) {
+  const number = Number(value || 0);
+ 
+  if (Number.isNaN(number) || number === 0) {
+    return "0.0";
+  }
+ 
+  return number.toFixed(1);
+}
+ 
+function formatDate(value) {
+  if (!value) {
+    return "";
+  }
+ 
+  const date = new Date(value);
+ 
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+ 
+  return date.toLocaleDateString([], {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function formatTime(value) {
+  if (!value) {
+    return "Time not set";
+  }
+
+  const parts = String(value).split(":");
+  const hour = Number(parts[0]);
+  const minute = Number(parts[1] || 0);
+
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return value;
+  }
+
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const displayHour = hour % 12 || 12;
+  const displayMinute = String(minute).padStart(2, "0");
+
+  return `${displayHour}:${displayMinute} ${suffix}`;
+}
+ 
+function normalizeStatus(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replaceAll("_", " ");
+}
+ 
+async function loadWorkerProfile(workerId) {
+  const possibleIds = [
+    workerId,
+    localStorage.getItem("selectedWorkerId"),
+    localStorage.getItem("selectedWorkerProfileId"),
+    localStorage.getItem("selectedPublicWorkerId")
+  ].filter(Boolean);
+
+  for (const id of possibleIds) {
+    const { data: workerRecord } = await supabaseClient
+      .from("workers")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (workerRecord) {
+      let profileRecord = null;
+
+      if (workerRecord.auth_user_id) {
+        const { data: profileByAuthId } = await supabaseClient
+          .from("profiles")
+          .select("*")
+          .eq("id", workerRecord.auth_user_id)
+          .maybeSingle();
+
+        profileRecord = profileByAuthId || null;
+      }
+
+      if (!profileRecord && workerRecord.email) {
+        const { data: profileByEmail } = await supabaseClient
+          .from("profiles")
+          .select("*")
+          .eq("email", workerRecord.email)
+          .maybeSingle();
+
+        profileRecord = profileByEmail || null;
+      }
+
+      return Object.assign({}, profileRecord || {}, workerRecord || {}, {
+        worker_table_id: workerRecord.id,
+        profile_table_id: profileRecord?.id || ""
+      });
+    }
+
+    const { data: profileById } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (profileById) {
+      return profileById;
+    }
+  }
+
+  return null;
+}
+ 
+async function loadAvailability(workerId, profile) {
+
+  const { data, error } = await supabaseClient
+    .from("worker_availability")
+    .select("*")
+    .eq("worker_id", workerId)
+    .eq("is_available", true);
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+ 
+async function loadReviews(workerId) {
+  const { data, error } = await supabaseClient
+    .from("reviews")
+    .select("*")
+    .eq("worker_id", workerId)
+    .order("created_at", { ascending: false });
+ 
+  if (error || !data) {
+    return [];
+  }
+ 
+  return data;
+}
+ 
+async function loadCompletedJobs(workerId, profile) {
+  const profileTotal = Number(getFirstAvailable(profile, [
+    "total_jobs",
+    "completed_jobs",
+    "jobs_completed"
+  ], 0));
+ 
+  if (profileTotal > 0) {
+    return profileTotal;
+  }
+ 
+  const { data, error } = await supabaseClient
+    .from("tasks")
+    .select("id")
+    .eq("accepted_worker_id", workerId)
+    .in("status", ["completed", "paid"]);
+ 
+  if (error || !data) {
+    return 0;
+  }
+ 
+  return data.length;
+}
+ 
+async function loadPortfolio(workerId) {
+  const { data, error } = await supabaseClient
+    .from("worker_portfolio")
+    .select("*")
+    .eq("worker_id", workerId)
+    .eq("approval_status", "approved")
+    .order("created_at", { ascending: false });
+ 
+  if (!error && data) {
+    return data;
+  }
+ 
+  return [];
+}
+
+async function loadPendingPortfolio(workerId, profile) {
+  if (!isOwnWorkerProfile(profile)) {
+    return [];
+  }
+
+  const { data, error } = await supabaseClient
+    .from("worker_portfolio")
+    .select("*")
+    .eq("worker_id", workerId)
+    .eq("approval_status", "pending")
+    .order("created_at", { ascending: false });
+
+  if (!error && data) {
+    return data;
+  }
+
+  return [];
+}
+ 
+function calculateAverageRating(reviews) {
+  if (!reviews || reviews.length === 0) {
+    return 0;
+  }
+ 
+  let total = 0;
+ 
+  reviews.forEach(review => {
+    total += Number(review.rating || 0);
+  });
+ 
+  return total / reviews.length;
+}
+ 
+function renderAvailability(availability) {
+  if (!availability || availability.length === 0) {
+    return `<div class="empty">Availability has not been added yet.</div>`;
+  }
+ 
+  const dayOrder = {
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+    Sunday: 7
+  };
+ 
+  const rows = [...availability].sort((a, b) => {
+    return (dayOrder[a.day_of_week] || 99) - (dayOrder[b.day_of_week] || 99);
+  });
+ 
+  return `
+    <div class="info-list">
+      ${rows.map(row => `
+        <div class="info-row">
+          <div>
+            <div class="info-main">${escapeHTML(row.day_of_week || "Available Day")}</div>
+            <div class="info-sub">
+              ${escapeHTML(formatTime(row.start_time))} - ${escapeHTML(formatTime(row.end_time))}
+            </div>
+          </div>
+          <div class="status-pill">Available</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+ 
+function renderPortfolio(portfolio) {
+  if (!portfolio || portfolio.length === 0) {
+    return `<div class="empty">No work photos have been uploaded yet.</div>`;
+  }
+ 
+  return `
+    <div class="portfolio-grid">
+      ${portfolio.map(item => {
+        const url = getFirstAvailable(item, [
+          "photo_url",
+          "image_url",
+          "work_photo_url",
+          "url"
+        ], "");
+ 
+        if (!url) {
+          return "";
+        }
+ 
+        return `
+          <img
+            class="portfolio-img"
+            src="${escapeHTML(url)}"
+            alt="Worker portfolio photo"
+            onclick="openPhotoModal('${escapeHTML(url)}')"
+          >
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderWorkPhotoUpload(profile) {
+  if (!isOwnWorkerProfile(profile)) {
+    return "";
+  }
+
+  return `
+    <div class="work-photo-upload-box show">
+      <input
+        type="file"
+        id="workPhotoInput"
+        accept="image/*"
+        style="display:none;"
+        onchange="uploadWorkPhoto(event)"
+      >
+
+      <button
+        type="button"
+        onclick="document.getElementById('workPhotoInput').click()">
+        Upload Work Photo
+      </button>
+
+      <div class="upload-note">
+        Photos must be manually approved by TaskMint before customers can see them.
+      </div>
+
+      <div id="workPhotoUploadStatus" class="upload-status"></div>
+    </div>
+  `;
+}
+
+function renderPendingPortfolio(pendingPortfolio, profile) {
+  if (!isOwnWorkerProfile(profile) || !pendingPortfolio || pendingPortfolio.length === 0) {
+    return "";
+  }
+
+  return `
+    <div class="pending-photo-card">
+      ${pendingPortfolio.length} work photo${pendingPortfolio.length === 1 ? "" : "s"} pending TaskMint approval.
+    </div>
+  `;
+}
+ 
+function getReviewCustomerName(review) {
+  const customerName = getFirstAvailable(review, [
+    "customer_name",
+    "reviewer_name",
+    "first_name"
+  ], "Customer");
+ 
+  return customerName;
+}
+ 
+function renderReviews(reviews) {
+  if (!reviews || reviews.length === 0) {
+    return `<div class="empty">No customer reviews yet.</div>`;
+  }
+ 
+  const visibleReviews = reviews.slice(0, 5);
+ 
+  return visibleReviews.map(review => {
+    const rating = Number(review.rating || 0);
+    const stars = "★".repeat(Math.max(0, Math.min(5, Math.round(rating))));
+    const reviewText = getFirstAvailable(review, [
+      "review_text",
+      "comment",
+      "notes",
+      "feedback"
+    ], "No written review provided.");
+ 
+    return `
+      <div class="review-card">
+        <div class="review-top">
+          <div class="review-name">${escapeHTML(getReviewCustomerName(review))}</div>
+          <div class="review-stars">${escapeHTML(stars || "★")}</div>
+        </div>
+        <div class="review-text">${escapeHTML(reviewText)}</div>
+        <div class="review-date">${escapeHTML(formatDate(review.created_at))}</div>
+      </div>
+    `;
+  }).join("");
+}
+ 
+function getServiceAreaText(profile) {
+  const area = getFirstAvailable(profile, [
+    "service_area",
+    "primary_service_area",
+    "city"
+  ], "");
+ 
+  const radius = getFirstAvailable(profile, [
+    "service_radius",
+    "radius"
+  ], "");
+ 
+  if (area && radius) {
+    return `${area} • within ${radius} miles`;
+  }
+ 
+  return area || "Service area not added yet";
+}
+ 
+function getApprovalBadge(profile) {
+  const approved =
+    profile.is_worker_approved === true ||
+    normalizeStatus(profile.worker_status) === "approved" ||
+    normalizeStatus(profile.approval_status) === "approved";
+ 
+  return approved ? "Verified Worker" : "Worker Profile";
+}
+ 
+function renderProfile(profile, availability, reviews, completedJobs, portfolio, pendingPortfolio) {
+  const averageRating = calculateAverageRating(reviews);
+  const services = splitList(getFirstAvailable(profile, ["skills", "services", "services_offered"], ""));
+  const serviceArea = getServiceAreaText(profile);
+  const aboutText = getFirstAvailable(profile, [
+    "experience",
+    "experience_description",
+    "bio",
+    "about"
+  ], "This worker has not added an experience description yet.");
+  const photo = getFirstAvailable(profile, [
+    "profile_photo_url",
+    "photo_url",
+    "avatar_url"
+  ], DEFAULT_PROFILE_PHOTO);
+ 
+  return `
+    <div class="hero">
+      <div class="profile-head">
+        <img
+          class="profile-photo"
+          src="${escapeHTML(photo)}"
+          alt="Worker profile photo"
+          onerror="this.src='${DEFAULT_PROFILE_PHOTO}'"
+        >
+ 
+        <div>
+          <div class="worker-name">${escapeHTML(getDisplayName(profile))}</div>
+ 
+          <div class="badge-row">
+            <span class="badge">${escapeHTML(getApprovalBadge(profile))}</span>
+            <span class="badge">${escapeHTML(getMemberSince(profile))}</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="hero-sub">
+        ${escapeHTML(serviceArea)}
+      </div>
+    </div>
+ 
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-number">${escapeHTML(formatRating(averageRating))}</div>
+        <div class="stat-label">Rating</div>
+      </div>
+ 
+      <div class="stat-box">
+        <div class="stat-number">${escapeHTML(String(reviews.length))}</div>
+        <div class="stat-label">Reviews</div>
+      </div>
+ 
+      <div class="stat-box">
+        <div class="stat-number">${escapeHTML(String(completedJobs))}</div>
+        <div class="stat-label">Jobs Done</div>
+      </div>
+    </div>
+ 
+    <div class="card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">About</div>
+          <div class="section-note">Skills & Experience</div>
+        </div>
+      </div>
+ 
+      <div class="about-text">${escapeHTML(aboutText)}</div>
+    </div>
+ 
+    <div class="card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Services Offered</div>
+          <div class="section-note"></div>
+        </div>
+      </div>
+ 
+      ${renderChips(services, "Services have not been added yet.")}
+    </div>
+ 
+    <div class="card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Service Area</div>
+          <div class="section-note">Coverage subject to change by worker</div>
+        </div>
+      </div>
+ 
+      <div class="info-row">
+        <div>
+          <div class="info-main">${escapeHTML(serviceArea)}</div>
+          <div class="info-sub">The distance is an estimate.</div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Availability</div>
+          <div class="section-note">Available work windows</div>
+        </div>
+      </div>
+ 
+      ${renderAvailability(availability)}
+    </div>
+ 
+    <div class="card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Work Photos</div>
+          <div class="section-note">Photos uploaded by this worker</div>
+        </div>
+      </div>
+ 
+      ${renderWorkPhotoUpload(profile)}
+      ${renderPendingPortfolio(pendingPortfolio, profile)}
+      ${renderPortfolio(portfolio)}
+    </div>
+ 
+    <div class="card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Ratings & Reviews</div>
+          <div class="section-note">Customer feedback</div>
+        </div>
+      </div>
+ 
+      ${renderReviews(reviews)}
+    </div>
+ 
+    <div class="button-grid">
+      <button class="secondary" onclick="messageWorker()">Message</button>
+      <button onclick="requestQuote()">Request Quote</button>
+    </div>
+  `;
+}
+ 
+async function loadPublicProfile() {
+  const page = document.getElementById("profilePage");
+ 
+  try {
+    const workerId = await resolveWorkerId();
+ 
+    if (!workerId) {
+      page.innerHTML = `
+        <div class="card">
+          <div class="empty">
+            No worker profile was selected.
+          </div>
+        </div>
+      `;
+      return;
+    }
+ 
+    const profile = await loadWorkerProfile(workerId);
+ 
+    if (!profile) {
+      page.innerHTML = `
+        <div class="card">
+          <div class="empty">
+            Worker profile could not be found.
+          </div>
+        </div>
+      `;
+      return;
+    }
+ 
+    selectedWorkerProfile = profile;
+    selectedWorkerId = profile.id || workerId;
+ 
+    const availability = await loadAvailability(selectedWorkerId, profile);
+    const reviews = await loadReviews(selectedWorkerId);
+    const completedJobs = await loadCompletedJobs(selectedWorkerId, profile);
+    const portfolio = await loadPortfolio(selectedWorkerId);
+    const pendingPortfolio = await loadPendingPortfolio(selectedWorkerId, profile);
+ 
+    page.innerHTML = renderProfile(
+      profile,
+      availability,
+      reviews,
+      completedJobs,
+      portfolio,
+      pendingPortfolio
+    );
+  } catch (error) {
+    console.error(error);
+    page.innerHTML = `
+      <div class="card">
+        <div class="empty">
+          Error loading worker profile.
+        </div>
+      </div>
+    `;
+  }
+}
+
+async function uploadWorkPhoto(event) {
+  const file = event.target.files[0];
+  const status = document.getElementById("workPhotoUploadStatus");
+
+  if (!file) {
+    return;
+  }
+
+  if (!currentUser || !selectedWorkerProfile || !isOwnWorkerProfile(selectedWorkerProfile)) {
+    if (status) {
+      status.style.color = "#b00020";
+      status.innerText = "Only the worker can upload photos to this profile.";
+    }
+    return;
+  }
+
+  if (status) {
+    status.style.color = "#666";
+    status.innerText = "Uploading photo for review...";
+  }
+
+  const fileExt = file.name.split(".").pop();
+  const filePath = `worker-portfolio/${currentUser.id}-${Date.now()}.${fileExt}`;
+
+  const { error: uploadError } = await supabaseClient.storage
+    .from("worker-portfolio")
+    .upload(filePath, file);
+
+  if (uploadError) {
+    if (status) {
+      status.style.color = "#b00020";
+      status.innerText = uploadError.message;
+    }
+    return;
+  }
+
+  const { data: publicUrlData } = supabaseClient.storage
+    .from("worker-portfolio")
+    .getPublicUrl(filePath);
+
+  const { error: insertError } = await supabaseClient
+    .from("worker_portfolio")
+    .insert({
+      worker_id: selectedWorkerId,
+      photo_url: publicUrlData.publicUrl,
+      approval_status: "pending"
+    });
+
+  if (insertError) {
+    if (status) {
+      status.style.color = "#b00020";
+      status.innerText = insertError.message;
+    }
+    return;
+  }
+
+  if (status) {
+    status.style.color = "#0b7a28";
+    status.innerText = "Photo uploaded. It will appear after TaskMint approves it.";
+  }
+
+  event.target.value = "";
+  await loadPublicProfile();
+}
+
+function messageWorker() {
+  localStorage.setItem("selectedWorkerId", selectedWorkerId || "");
+  localStorage.setItem("selectedWorkerProfileId", selectedWorkerId || "");
+  localStorage.setItem("messageContext", "worker-profile");
+ 
+  window.location.href = "customer-worker-message.html";
+}
+ 
+function requestQuote() {
+  localStorage.setItem("selectedWorkerId", selectedWorkerId || "");
+  localStorage.setItem("selectedWorkerProfileId", selectedWorkerId || "");
+ 
+  window.location.href = "request-worker-quote.html";
+}
+ 
+function openPhotoModal(url) {
+  document.getElementById("modalImage").src = url;
+  document.getElementById("photoModal").style.display = "flex";
+}
+ 
+function closePhotoModal() {
+  document.getElementById("photoModal").style.display = "none";
+  document.getElementById("modalImage").src = "";
+}
+ 
+function copyProfileLink() {
+  const url = `${window.location.origin}${window.location.pathname}?worker_id=${selectedWorkerId}`;
+ 
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url);
+    alert("Profile link copied.");
+    return;
+  }
+ 
+  prompt("Copy this profile link:", url);
+}
+ 
+function goBack() {
+  if (document.referrer) {
+    history.back();
+    return;
+  }
+ 
+  window.location.href = "worker-dashboard.html";
+}
+ 
+loadPublicProfile();
+</script>
+ 
+</body>
+</html>
