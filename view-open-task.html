@@ -565,6 +565,142 @@ function getQuoteAmount(app) {
   );
 }
 
+function uniqueValues(values) {
+  return values
+    .filter(value => value !== null && value !== undefined && value !== "")
+    .map(value => String(value))
+    .filter((value, index, array) => array.indexOf(value) === index);
+}
+
+async function fetchSingleByColumn(tableName, columnName, value) {
+  if (!value) {
+    return null;
+  }
+
+  const { data, error } =
+    await supabaseClient
+      .from(tableName)
+      .select("*")
+      .eq(columnName, value)
+      .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
+}
+
+async function getWorkerData(app) {
+  const possibleWorkerIds =
+    uniqueValues([
+      app.worker_id,
+      app.worker_user_id,
+      app.user_id,
+      app.worker_profile_id,
+      app.profile_id,
+      app.submitted_by,
+      app.created_by
+    ]);
+
+  let workerProfile = null;
+  let profile = null;
+
+  for (const id of possibleWorkerIds) {
+    if (!workerProfile) {
+      workerProfile =
+        await fetchSingleByColumn("worker_profiles", "id", id) ||
+        await fetchSingleByColumn("worker_profiles", "user_id", id) ||
+        await fetchSingleByColumn("worker_profiles", "profile_id", id) ||
+        await fetchSingleByColumn("worker_profiles", "worker_id", id);
+    }
+
+    if (!profile) {
+      profile =
+        await fetchSingleByColumn("profiles", "id", id);
+    }
+
+    if (workerProfile && !profile) {
+      profile =
+        await fetchSingleByColumn("profiles", "id", workerProfile.user_id) ||
+        await fetchSingleByColumn("profiles", "id", workerProfile.profile_id) ||
+        await fetchSingleByColumn("profiles", "id", workerProfile.worker_id);
+    }
+
+    if (profile && !workerProfile) {
+      workerProfile =
+        await fetchSingleByColumn("worker_profiles", "user_id", profile.id) ||
+        await fetchSingleByColumn("worker_profiles", "profile_id", profile.id) ||
+        await fetchSingleByColumn("worker_profiles", "worker_id", profile.id);
+    }
+
+    if (workerProfile || profile) {
+      break;
+    }
+  }
+
+  return Object.assign({}, app || {}, profile || {}, workerProfile || {});
+}
+
+function getWorkerDisplayName(worker, app) {
+  const directName =
+    app.worker_display_name ||
+    app.worker_name ||
+    app.display_name ||
+    worker.worker_display_name ||
+    worker.worker_name ||
+    worker.display_name;
+
+  if (directName && String(directName).trim() && String(directName).trim() !== "Worker") {
+    return String(directName).trim();
+  }
+
+  const firstName =
+    worker.first_name ||
+    worker.first ||
+    app.first_name ||
+    app.worker_first_name ||
+    "";
+
+  const lastName =
+    worker.last_name ||
+    worker.last ||
+    app.last_name ||
+    app.worker_last_name ||
+    "";
+
+  const lastInitial =
+    lastName
+      ? `${String(lastName).trim().charAt(0).toUpperCase()}.`
+      : "";
+
+  const firstLastInitial =
+    `${firstName || ""} ${lastInitial}`.trim();
+
+  if (firstLastInitial) {
+    return firstLastInitial;
+  }
+
+  const fullName =
+    worker.full_name ||
+    app.full_name ||
+    app.worker_full_name ||
+    "";
+
+  if (fullName && String(fullName).trim() && String(fullName).trim() !== "Worker") {
+    const parts =
+      String(fullName).trim().split(/\s+/);
+
+    if (parts.length > 1) {
+      return `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`;
+    }
+
+    return parts[0];
+  }
+
+  return "Worker";
+}
+
 function getStatusStep(status) {
   if (status === "accepted") return "accepted";
   if (status === "in_progress") return "in_progress";
@@ -894,50 +1030,21 @@ async function toggleApplicants(taskId) {
       app.user_id ||
       app.worker_user_id;
 
-    let workerProfile = null;
-
-    const { data: workerProfileById } =
-      await supabaseClient
-        .from("worker_profiles")
-        .select("*")
-        .eq("id", workerId)
-        .maybeSingle();
-
-    workerProfile =
-      workerProfileById;
-
-    if (!workerProfile) {
-      const { data: workerProfileByUserId } =
-        await supabaseClient
-          .from("worker_profiles")
-          .select("*")
-          .eq("user_id", workerId)
-          .maybeSingle();
-
-      workerProfile =
-        workerProfileByUserId;
-    }
-
-    const profileId =
-      workerProfile?.user_id ||
-      workerProfile?.profile_id ||
-      workerId;
-
-    const { data: profile } =
-      await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("id", profileId)
-        .maybeSingle();
-
     const worker =
-      Object.assign({}, profile || {}, workerProfile || {});
+      await getWorkerData(app);
+
+    const revieweeId =
+      worker.user_id ||
+      worker.profile_id ||
+      worker.worker_id ||
+      worker.id ||
+      workerId;
 
     const { data: reviews } =
       await supabaseClient
         .from("reviews")
         .select("*")
-        .eq("reviewee_user_id", workerId);
+        .eq("reviewee_user_id", revieweeId);
 
     let rating =
       "No rating yet";
@@ -956,29 +1063,8 @@ async function toggleApplicants(taskId) {
     const quoteStatus =
       app.status || "pending";
 
-    const firstName =
-      worker.first_name ||
-      worker.first ||
-      "";
-
-    const lastName =
-      worker.last_name ||
-      worker.last ||
-      "";
-
-    const lastInitial =
-      lastName
-        ? `${String(lastName).trim().charAt(0).toUpperCase()}.`
-        : "";
-
     const workerName =
-      worker.display_name ||
-      app.worker_name ||
-      app.worker_display_name ||
-      `${firstName} ${lastInitial}`.trim() ||
-      worker.business_name ||
-      worker.full_name ||
-      "Worker";
+      getWorkerDisplayName(worker, app);
 
     const workerPhoto =
       worker.profile_photo_url ||
