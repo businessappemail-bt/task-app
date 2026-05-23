@@ -1090,13 +1090,19 @@ async function toggleApplicants(taskId) {
     workerCard.className =
       "worker-card";
 
-    workerCard.onclick = function (event) {
+    const capturedDetailsId =
+      workerDetailsId;
+
+    workerCard.addEventListener("click", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
       if (event.target.closest("button")) {
         return;
       }
 
-      toggleWorkerDetails(workerDetailsId);
-    };
+      toggleWorkerDetails(capturedDetailsId);
+    });
 
     workerCard.innerHTML = `
       <div class="worker-summary">
