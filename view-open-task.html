@@ -1025,12 +1025,10 @@ async function toggleApplicants(taskId) {
   box.innerHTML = "";
 
   for (const app of applications) {
-    // FIX: always fall back to app.id so the DOM id is never "undefined"
     const workerId =
       app.worker_id ||
       app.user_id ||
-      app.worker_user_id ||
-      app.id;
+      app.worker_user_id;
 
     const worker =
       await getWorkerData(app);
@@ -1078,15 +1076,18 @@ async function toggleApplicants(taskId) {
     const workerCard =
       document.createElement("div");
 
-    // FIX: use the safe workerId (never undefined) for the details element id
     const workerDetailsId =
       `worker-details-${taskId}-${workerId}`;
 
     workerCard.className =
       "worker-card";
 
+    workerCard.onclick = function () {
+      toggleWorkerDetails(workerDetailsId);
+    };
+
     workerCard.innerHTML = `
-      <div class="worker-summary" onclick="event.stopPropagation(); toggleWorkerDetails('${workerDetailsId}')">
+      <div class="worker-summary">
         <div class="worker-header">
           <img
             src="${escapeHTML(workerPhoto)}"
@@ -1111,7 +1112,7 @@ async function toggleApplicants(taskId) {
       </div>
 
       <div class="tap-message">
-        Tap worker card to expand
+        Tap anywhere on this worker card to expand
       </div>
 
       <div class="worker-details" id="${workerDetailsId}">
@@ -1251,3 +1252,4 @@ loadOpenTasks();
 </script>
 </body>
 </html>
+  
