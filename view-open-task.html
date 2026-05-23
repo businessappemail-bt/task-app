@@ -512,13 +512,6 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
-function safeJS(value) {
-  return String(value || "")
-    .replaceAll("\\", "\\\\")
-    .replaceAll("'", "\\'")
-    .replaceAll('"', "\\&quot;");
-}
-
 function formatDate(value) {
   if (!value) {
     return "Not listed";
@@ -1086,21 +1079,6 @@ async function toggleApplicants(taskId) {
     const workerDetailsId =
       `worker-details-${taskId}-${workerId}`;
 
-    const publicWorkerId =
-      workerId ||
-      app.worker_id ||
-      app.user_id ||
-      app.worker_user_id ||
-      "";
-
-    const publicWorkerProfileId =
-      worker.worker_profile_id ||
-      worker.profile_id ||
-      worker.user_id ||
-      worker.worker_id ||
-      worker.id ||
-      publicWorkerId;
-
     workerCard.className =
       "worker-card";
 
@@ -1150,11 +1128,7 @@ async function toggleApplicants(taskId) {
         </div>
 
         <div class="worker-actions">
-          <button
-            class="public-profile-btn"
-            type="button"
-            onclick="event.stopPropagation(); viewWorkerPublicProfile('${safeJS(publicWorkerId)}', '${safeJS(publicWorkerProfileId)}')"
-          >
+          <button class="public-profile-btn" onclick="event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
             Public Profile
           </button>
 
@@ -1177,28 +1151,18 @@ async function toggleApplicants(taskId) {
   }
 }
 
-function viewWorkerPublicProfile(workerId, workerProfileId) {
-  const finalWorkerId =
-    workerId && workerId !== "undefined" && workerId !== "null"
-      ? workerId
-      : "";
-
-  const finalProfileId =
-    workerProfileId && workerProfileId !== "undefined" && workerProfileId !== "null"
-      ? workerProfileId
-      : finalWorkerId;
-
-  if (!finalWorkerId && !finalProfileId) {
+function viewWorkerPublicProfile(workerId) {
+  if (!workerId || workerId === "undefined" || workerId === "null") {
     alert("This worker profile could not be opened.");
     return;
   }
 
-  localStorage.setItem("selectedWorkerId", finalWorkerId || finalProfileId);
-  localStorage.setItem("selectedWorkerProfileId", finalProfileId || finalWorkerId);
-  localStorage.setItem("selectedPublicWorkerId", finalWorkerId || finalProfileId);
+  localStorage.setItem("selectedWorkerId", workerId);
+  localStorage.setItem("selectedWorkerProfileId", workerId);
+  localStorage.setItem("selectedPublicWorkerId", workerId);
 
   window.location.href =
-    `worker-public-profile.html?workerId=${encodeURIComponent(finalWorkerId || finalProfileId)}&worker_id=${encodeURIComponent(finalWorkerId || finalProfileId)}&worker_profile_id=${encodeURIComponent(finalProfileId || finalWorkerId)}`;
+    `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`;
 }
 
 function messageWorker(workerId, taskId) {
