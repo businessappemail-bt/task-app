@@ -1025,10 +1025,12 @@ async function toggleApplicants(taskId) {
   box.innerHTML = "";
 
   for (const app of applications) {
+    // FIX: always fall back to app.id so the DOM id is never "undefined"
     const workerId =
       app.worker_id ||
       app.user_id ||
-      app.worker_user_id;
+      app.worker_user_id ||
+      app.id;
 
     const worker =
       await getWorkerData(app);
@@ -1076,6 +1078,7 @@ async function toggleApplicants(taskId) {
     const workerCard =
       document.createElement("div");
 
+    // FIX: use the safe workerId (never undefined) for the details element id
     const workerDetailsId =
       `worker-details-${taskId}-${workerId}`;
 
