@@ -1142,7 +1142,7 @@ async function toggleApplicants(taskId) {
         </div>
 
         <div class="worker-actions">
-          <button class="public-profile-btn" onclick="event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
+          <button class="public-profile-btn" onclick="event.preventDefault(); event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
             Public Profile
           </button>
 
@@ -1166,10 +1166,18 @@ async function toggleApplicants(taskId) {
 }
 
 function viewWorkerPublicProfile(workerId) {
+  if (!workerId || workerId === "undefined" || workerId === "null") {
+    alert("This worker profile could not be opened.");
+    return;
+  }
+
   localStorage.setItem("selectedWorkerId", workerId);
   localStorage.setItem("selectedWorkerProfileId", workerId);
-  window.location.href =
-    `worker-public-profile.html?workerId=${encodeURIComponent(workerId)}`;
+  localStorage.setItem("selectedPublicWorkerId", workerId);
+
+  window.location.assign(
+    `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`
+  );
 }
 
 function messageWorker(workerId, taskId) {
