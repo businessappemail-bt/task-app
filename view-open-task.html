@@ -1086,6 +1086,14 @@ async function toggleApplicants(taskId) {
       toggleWorkerDetails(workerDetailsId);
     };
 
+    const publicWorkerProfileId =
+      worker.worker_profile_id ||
+      worker.profile_id ||
+      worker.user_id ||
+      worker.worker_id ||
+      worker.id ||
+      workerId;
+
     workerCard.innerHTML = `
       <div class="worker-summary">
         <div class="worker-header">
@@ -1124,7 +1132,7 @@ async function toggleApplicants(taskId) {
         </div>
 
         <div class="worker-actions">
-          <button class="public-profile-btn" onclick="event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
+          <button class="public-profile-btn" onclick="event.stopPropagation(); viewWorkerPublicProfile('${publicWorkerProfileId}')">
             Public Profile
           </button>
 
@@ -1148,10 +1156,17 @@ async function toggleApplicants(taskId) {
 }
 
 function viewWorkerPublicProfile(workerId) {
+  if (!workerId || workerId === "undefined" || workerId === "null") {
+    alert("This worker profile could not be opened.");
+    return;
+  }
+
   localStorage.setItem("selectedWorkerId", workerId);
   localStorage.setItem("selectedWorkerProfileId", workerId);
+  localStorage.setItem("selectedPublicWorkerId", workerId);
+
   window.location.href =
-    `worker-public-profile.html?workerId=${encodeURIComponent(workerId)}`;
+    `worker-public-profile.html?workerId=${encodeURIComponent(workerId)}&worker_id=${encodeURIComponent(workerId)}`;
 }
 
 function messageWorker(workerId, taskId) {
@@ -1252,4 +1267,3 @@ loadOpenTasks();
 </script>
 </body>
 </html>
-  
