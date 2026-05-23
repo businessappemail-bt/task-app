@@ -894,18 +894,40 @@ async function toggleApplicants(taskId) {
       app.user_id ||
       app.worker_user_id;
 
-    const { data: workerProfile } =
+    let workerProfile = null;
+
+    const { data: workerProfileById } =
       await supabaseClient
         .from("worker_profiles")
         .select("*")
         .eq("id", workerId)
         .maybeSingle();
 
+    workerProfile =
+      workerProfileById;
+
+    if (!workerProfile) {
+      const { data: workerProfileByUserId } =
+        await supabaseClient
+          .from("worker_profiles")
+          .select("*")
+          .eq("user_id", workerId)
+          .maybeSingle();
+
+      workerProfile =
+        workerProfileByUserId;
+    }
+
+    const profileId =
+      workerProfile?.user_id ||
+      workerProfile?.profile_id ||
+      workerId;
+
     const { data: profile } =
       await supabaseClient
         .from("profiles")
         .select("*")
-        .eq("id", workerId)
+        .eq("id", profileId)
         .maybeSingle();
 
     const worker =
@@ -934,10 +956,28 @@ async function toggleApplicants(taskId) {
     const quoteStatus =
       app.status || "pending";
 
+    const firstName =
+      worker.first_name ||
+      worker.first ||
+      "";
+
+    const lastName =
+      worker.last_name ||
+      worker.last ||
+      "";
+
+    const lastInitial =
+      lastName
+        ? `${String(lastName).trim().charAt(0).toUpperCase()}.`
+        : "";
+
     const workerName =
-      worker.full_name ||
       worker.display_name ||
-      `${worker.first_name || ""} ${worker.last_name || ""}`.trim() ||
+      app.worker_name ||
+      app.worker_display_name ||
+      `${firstName} ${lastInitial}`.trim() ||
+      worker.business_name ||
+      worker.full_name ||
       "Worker";
 
     const workerPhoto =
