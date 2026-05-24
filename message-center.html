@@ -569,6 +569,28 @@ let currentUser = null;
 let currentConversationMessages = [];
 let allInboxConversations = [];
 
+function getHiddenConversationIds() {
+  try {
+    return JSON.parse(localStorage.getItem("taskmintHiddenConversations") || "[]");
+  } catch (error) {
+    return [];
+  }
+}
+
+function hideConversationLocally(conversationIdValue) {
+  const hiddenIds = getHiddenConversationIds();
+
+  if (!hiddenIds.includes(conversationIdValue)) {
+    hiddenIds.push(conversationIdValue);
+  }
+
+  localStorage.setItem("taskmintHiddenConversations", JSON.stringify(hiddenIds));
+}
+
+function isConversationHidden(conversationIdValue) {
+  return getHiddenConversationIds().includes(conversationIdValue);
+}
+
 if (!isValidUUID(receiverId)) {
   receiverId = "";
 }
@@ -973,8 +995,6 @@ async function loadConversations() {
       .from("task_conversations")
       .select("*")
       .or(`customer_id.eq.${currentUser.id},worker_id.eq.${currentUser.id}`)
-      .neq("customer_deleted", true)
-      .neq("customer_blocked", true)
       .order("updated_at", { ascending: false });
 
   if (error) {
@@ -984,7 +1004,10 @@ async function loadConversations() {
     return;
   }
 
-  if (!conversations || conversations.length === 0) {
+  const visibleConversations =
+    (conversations || []).filter(convo => !isConversationHidden(convo.id));
+
+  if (!visibleConversations || visibleConversations.length === 0) {
     allInboxConversations = [];
     renderInbox([]);
     return;
@@ -992,7 +1015,7 @@ async function loadConversations() {
 
   const hydrated = [];
 
-  for (const convo of conversations) {
+  for (const convo of visibleConversations) {
     hydrated.push(await hydrateConversation(convo));
   }
 
@@ -1255,24 +1278,19 @@ async function blockConversation(conversationIdValue) {
   }
 
   const confirmBlock =
-    confirm("Block this worker and hide this conversation?");
+    confirm("Block this worker and hide this conversation from your inbox?");
 
   if (!confirmBlock) {
     return;
   }
 
-  const { error } =
-    await supabaseClient
-      .from("task_conversations")
-      .update({
-        customer_blocked: true
-      })
-      .eq("id", conversationIdValue);
+  hideConversationLocally(conversationIdValue);
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  await supabaseClient
+    .from("task_messages")
+    .update({ is_blocked: true })
+    .eq("conversation_id", conversationIdValue)
+    .neq("sender_id", currentUser.id);
 
   await loadConversations();
 }
@@ -1290,18 +1308,7 @@ async function deleteConversation(conversationIdValue) {
     return;
   }
 
-  const { error } =
-    await supabaseClient
-      .from("task_conversations")
-      .update({
-        customer_deleted: true
-      })
-      .eq("id", conversationIdValue);
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  hideConversationLocally(conversationIdValue);
 
   await loadConversations();
 }
