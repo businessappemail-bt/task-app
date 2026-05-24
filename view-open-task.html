@@ -723,7 +723,31 @@ function getTaskDetails(task) {
       .join("\n")
   }
 
-  return task.description || "No details listed.";
+  return task.description || task.additional_notes || "No details listed.";
+}
+
+function getTaskSourceLabel(task) {
+  return task.is_direct_request ? "Direct Quote Request" : "Open Task";
+}
+
+function getTaskQuoteFilter(query, task) {
+  if (task.is_direct_request) {
+    return query.eq("direct_request_id", task.id);
+  }
+
+  return query.eq("task_id", task.id);
+}
+
+function getApplicantsId(task) {
+  return task.is_direct_request
+    ? `applicants-direct-${task.id}`
+    : `applicants-${task.id}`;
+}
+
+function getDetailsId(task) {
+  return task.is_direct_request
+    ? `details-direct-${task.id}`
+    : `details-${task.id}`;
 }
 
 async function loadOpenTasks() {
@@ -746,7 +770,7 @@ async function loadOpenTasks() {
     return;
   }
 
-  const { data: tasks, error } =
+  const { data: publicTasks, error } =
     await supabaseClient
       .from("tasks")
       .select("*")
@@ -759,6 +783,34 @@ async function loadOpenTasks() {
       `<div class="empty">${escapeHTML(error.message)}</div>`;
     return;
   }
+
+  const { data: directRequests, error: directError } =
+    await supabaseClient
+      .from("direct_task_requests")
+      .select("*")
+      .eq("customer_id", customerId)
+      .in("status", ["requested", "quoted", "accepted", "in_progress"])
+      .order("created_at", { ascending: false });
+
+  if (directError) {
+    tasksList.innerHTML =
+      `<div class="empty">${escapeHTML(directError.message)}</div>`;
+    return;
+  }
+
+  const tasks =
+    [
+      ...(publicTasks || []).map(task => ({
+        ...task,
+        is_direct_request: false
+      })),
+      ...(directRequests || []).map(task => ({
+        ...task,
+        is_direct_request: true
+      }))
+    ].sort((a, b) => {
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+    });
 
   if (!tasks || tasks.length === 0) {
     document.getElementById("openCount").innerText = "0";
@@ -777,12 +829,17 @@ async function loadOpenTasks() {
   let totalInterest = 0;
 
   for (const task of tasks) {
-    const { count } =
-      await supabaseClient
+    let countQuery =
+      supabaseClient
         .from("worker_quotes")
         .select("*", { count: "exact", head: true })
-        .eq("task_id", task.id)
         .neq("status", "declined");
+
+    countQuery =
+      getTaskQuoteFilter(countQuery, task);
+
+    const { count } =
+      await countQuery;
 
     totalInterest += Number(count || 0);
 
@@ -797,10 +854,10 @@ async function loadOpenTasks() {
     card.className = "task-card";
 
     const detailsId =
-      `details-${task.id}`;
+      getDetailsId(task);
 
     const applicantsId =
-      `applicants-${task.id}`;
+      getApplicantsId(task);
 
     const dateDisplay =
       task.date_flexible
@@ -851,9 +908,9 @@ async function loadOpenTasks() {
         </div>
 
         <div class="info-box">
-          <div class="info-label">Zip Code</div>
+          <div class="info-label">Request Type</div>
           <div class="info-value">
-            ${escapeHTML(task.zip_code || "Not listed")}
+            ${escapeHTML(getTaskSourceLabel(task))}
           </div>
         </div>
       </div>
@@ -893,11 +950,11 @@ async function loadOpenTasks() {
       ${statusBar(task.status)}
 
       <div class="action-row">
-        <button class="edit-btn" onclick="event.stopPropagation(); editTask('${task.id}')">
+        <button class="edit-btn" onclick="event.stopPropagation(); editTask('${task.id}', ${task.is_direct_request ? "true" : "false"})">
           Edit Task
         </button>
 
-        <button class="cancel-btn" onclick="event.stopPropagation(); cancelTask('${task.id}')">
+        <button class="cancel-btn" onclick="event.stopPropagation(); cancelTask('${task.id}', ${task.is_direct_request ? "true" : "false"})">
           Cancel Task
         </button>
       </div>
@@ -912,7 +969,7 @@ async function loadOpenTasks() {
         </button>
       `}
 
-      <button class="primary-btn" onclick="event.stopPropagation(); toggleApplicants('${task.id}')">
+      <button class="primary-btn" onclick="event.stopPropagation(); toggleApplicants('${task.id}', ${task.is_direct_request ? "true" : "false"})">
         View Interested Workers
       </button>
 
@@ -952,9 +1009,13 @@ function toggleWorkerDetails(detailsId) {
     box.style.display === "block" ? "none" : "block";
 }
 
-async function toggleApplicants(taskId) {
+async function toggleApplicants(taskId, isDirectRequest = false) {
   const box =
-    document.getElementById(`applicants-${taskId}`);
+    document.getElementById(
+      isDirectRequest
+        ? `applicants-direct-${taskId}`
+        : `applicants-${taskId}`
+    );
 
   if (!box) {
     return;
@@ -968,12 +1029,22 @@ async function toggleApplicants(taskId) {
   box.style.display = "block";
   box.innerHTML = "Loading interested workers...";
 
-  const { data: applications, error } =
-    await supabaseClient
+  let applicationsQuery =
+    supabaseClient
       .from("worker_quotes")
       .select("*")
-      .eq("task_id", taskId)
       .neq("status", "declined");
+
+  if (isDirectRequest) {
+    applicationsQuery =
+      applicationsQuery.eq("direct_request_id", taskId);
+  } else {
+    applicationsQuery =
+      applicationsQuery.eq("task_id", taskId);
+  }
+
+  const { data: applications, error } =
+    await applicationsQuery;
 
   if (error) {
     box.innerHTML =
@@ -1100,11 +1171,11 @@ async function toggleApplicants(taskId) {
             Message
           </button>
 
-          <button class="accept-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}', '${quoteAmount}')">
+          <button class="accept-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}', '${quoteAmount}', isDirectRequest)">
             Accept Quote
           </button>
 
-          <button class="decline-btn" onclick="event.stopPropagation(); declineQuote('${app.id || ""}', '${taskId}')">
+          <button class="decline-btn" onclick="event.stopPropagation(); declineQuote('${app.id || ""}', '${taskId}', isDirectRequest)">
             Decline Quote
           </button>
         </div>
@@ -1132,12 +1203,18 @@ function openDispute(taskId, workerId) {
     `dispute-center.html?task_id=${taskId}&worker_id=${workerId || ""}`;
 }
 
-function editTask(taskId) {
+function editTask(taskId, isDirectRequest = false) {
+  if (isDirectRequest) {
+    window.location.href =
+      `request-worker-quote.html?direct_request_id=${encodeURIComponent(taskId)}`;
+    return;
+  }
+
   window.location.href =
     `post-job.html?edit_task_id=${encodeURIComponent(taskId)}`;
 }
 
-function acceptQuote(taskId, workerId, quoteId, quoteAmount) {
+function acceptQuote(taskId, workerId, quoteId, quoteAmount, isDirectRequest = false) {
   const confirmAccept =
     confirm("Continue to payment and assign this worker if payment succeeds?");
 
@@ -1145,11 +1222,14 @@ function acceptQuote(taskId, workerId, quoteId, quoteAmount) {
     return;
   }
 
+  const sourceType =
+    isDirectRequest ? "direct_task_request" : "public_task";
+
   window.location.href =
-    `customer-pay-quote.html?task_id=${encodeURIComponent(taskId)}&worker_id=${encodeURIComponent(workerId)}&quote_id=${encodeURIComponent(quoteId)}&quote_amount=${encodeURIComponent(quoteAmount || 0)}`;
+    `customer-pay-quote.html?task_id=${encodeURIComponent(taskId)}&worker_id=${encodeURIComponent(workerId)}&quote_id=${encodeURIComponent(quoteId)}&quote_amount=${encodeURIComponent(quoteAmount || 0)}&source_type=${encodeURIComponent(sourceType)}`;
 }
 
-async function declineQuote(quoteId, taskId) {
+async function declineQuote(quoteId, taskId, isDirectRequest = false) {
   if (!quoteId) {
     alert("This quote could not be found.");
     return;
@@ -1183,7 +1263,11 @@ async function declineQuote(quoteId, taskId) {
   status.innerText = "Quote declined and removed from your view.";
 
   const applicantsBox =
-    document.getElementById(`applicants-${taskId}`);
+    document.getElementById(
+      isDirectRequest
+        ? `applicants-direct-${taskId}`
+        : `applicants-${taskId}`
+    );
 
   if (applicantsBox) {
     applicantsBox.style.display = "none";
@@ -1193,7 +1277,7 @@ async function declineQuote(quoteId, taskId) {
   await loadOpenTasks();
 }
 
-async function cancelTask(taskId) {
+async function cancelTask(taskId, isDirectRequest = false) {
   const confirmCancel =
     confirm("Cancel this task? Workers will no longer be able to send quotes.");
 
@@ -1207,9 +1291,12 @@ async function cancelTask(taskId) {
   status.style.color = "#b00020";
   status.innerText = "";
 
+  const tableName =
+    isDirectRequest ? "direct_task_requests" : "tasks";
+
   const { error } =
     await supabaseClient
-      .from("tasks")
+      .from(tableName)
       .update({ status: "cancelled" })
       .eq("id", taskId);
 
