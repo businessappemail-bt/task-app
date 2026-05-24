@@ -83,6 +83,7 @@ body {
 
 .notice,
 .card,
+.inbox-section,
 .conversation-card {
   background: white;
   border-radius: 22px;
@@ -100,102 +101,119 @@ body {
   line-height: 1.45;
 }
 
-.section-title {
-  font-size: 16px;
-  font-weight: 900;
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  font-family: Arial, sans-serif;
+  outline: none;
+  background: white;
+}
+
+input,
+select {
+  padding: 12px;
+  font-size: 13px;
+}
+
+textarea {
+  padding: 13px;
+  margin-top: 10px;
+  font-size: 15px;
+  min-height: 90px;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
 
-.conversation-card {
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.conversation-card:hover {
-  transform: translateY(-2px);
-}
-
-.conversation-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: flex-start;
-}
-
-.conversation-title {
-  font-size: 15px;
+.section-title {
+  font-size: 16px;
   font-weight: 900;
-  margin-bottom: 4px;
 }
 
-.worker-row {
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
+.section-count {
+  background: #e7f7ec;
+  color: #0b7a28;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.conversation-card {
+  padding: 12px;
+  border-radius: 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.conversation-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 10px;
+  align-items: start;
 }
 
 .worker-pic {
-  width:52px;
-  height:52px;
-  border-radius:16px;
-  object-fit:cover;
-  border:2px solid #e7f7ec;
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  object-fit: cover;
+  border: 2px solid #e7f7ec;
+  background: #f1f4f2;
 }
 
-.quote-pill {
-  display:inline-block;
-  margin-top:6px;
-  background:#e7f7ec;
-  color:#0b7a28;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:900;
+.conversation-title {
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 3px;
 }
 
-.compact-actions {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-top:10px;
-}
-
-.compact-btn {
-  padding:10px;
-  border:none;
-  border-radius:12px;
-  font-size:11px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.accept-btn {
-  background:#0b7a28;
-  color:white;
-}
-
-.report-btn {
-  background:#b00020;
-  color:white;
-}
-
-.block-btn {
-  background:#333;
-  color:white;
-}
-
-.conversation-sub {
-  color: #666;
+.worker-name {
   font-size: 12px;
+  font-weight: 900;
+  color: #0b7a28;
+  margin-bottom: 3px;
+}
+
+.message-preview {
+  font-size: 12px;
+  color: #666;
   line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .badge {
   background: #e7f7ec;
   color: #0b7a28;
   border-radius: 999px;
-  padding: 7px 10px;
-  font-size: 11px;
+  padding: 6px 9px;
+  font-size: 10px;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -203,6 +221,100 @@ body {
 .unread-badge {
   background: #b00020;
   color: white;
+}
+
+.quote-pill {
+  display: inline-block;
+  margin-top: 7px;
+  background: #fff7e6;
+  color: #7a4b00;
+  border: 1px solid #ffd27a;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.conversation-details {
+  display: none;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1ee;
+}
+
+.conversation-details.open {
+  display: block;
+}
+
+.preview-messages {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 14px;
+  padding: 10px;
+  max-height: 170px;
+  overflow: auto;
+}
+
+.preview-message {
+  font-size: 12px;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+
+.preview-message strong {
+  color: #0b7a28;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.09);
+}
+
+.reply-btn,
+.send,
+.accept-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.block-btn {
+  background: #333;
+  color: white;
+}
+
+.report-btn {
+  background: #b00020;
+  color: white;
+}
+
+.delete-btn {
+  background: white;
+  color: #b00020;
+  border: 1px solid #ffb7b7;
+}
+
+.secondary {
+  background: white;
+  color: #111;
+  border: 1px solid #d9dfda;
 }
 
 .thread-header {
@@ -261,25 +373,6 @@ body {
   margin-top: 6px;
 }
 
-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 13px;
-  margin-top: 10px;
-  border: 1px solid #d9dfda;
-  border-radius: 14px;
-  font-size: 15px;
-  font-family: Arial, sans-serif;
-  outline: none;
-  min-height: 100px;
-  resize: vertical;
-}
-
-textarea:focus {
-  border-color: #0b7a28;
-  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
-}
-
 .file-wrap {
   margin-top: 10px;
 }
@@ -298,12 +391,6 @@ textarea:focus {
   font-size: 14px;
   font-weight: 900;
   cursor: pointer;
-  transition: 0.2s;
-}
-
-.file-label:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(0,0,0,0.08);
 }
 
 .file-label input {
@@ -315,50 +402,6 @@ textarea:focus {
   color: #666;
   margin-top: 7px;
   line-height: 1.35;
-}
-
-.action-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-button {
-  width: 100%;
-  padding: 13px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 14px;
-  font-size: 14px;
-  cursor: pointer;
-  font-weight: 900;
-  transition: 0.2s;
-}
-
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
-}
-
-.send {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
-  color: white;
-}
-
-.report {
-  background: #b00020;
-  color: white;
-}
-
-.block {
-  background: #333;
-  color: white;
-}
-
-.secondary {
-  background: white;
-  color: #111;
-  border: 1px solid #d9dfda;
 }
 
 .error {
@@ -384,7 +427,9 @@ button:hover {
 .empty {
   text-align: center;
   color: #666;
-  padding: 18px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 @keyframes fadeUp {
@@ -417,68 +462,82 @@ button:hover {
 
   <div class="hero">
     <h1>Message Center</h1>
-    <p>Keep each conversation tied to the task it belongs to so quotes, updates, and photos stay organized.</p>
+    <p>Inbox-style conversations grouped by direct quote requests and messages from workers.</p>
   </div>
 
   <div class="notice">
-    Messages are monitored for safety. Keep payments inside TaskMint and only upload job-related images.
+    Keep payments inside TaskMint. Use Reply for task updates, Block for unwanted contact, Report Conversation for safety issues, and Delete Conversation to remove it from your inbox.
   </div>
 
-  <div class="card">
-    <div class="section-title">Filter Conversations</div>
+  <div id="inboxView">
+    <div class="card">
+      <div class="section-title">Search Inbox</div>
+      <div class="filter-grid">
+        <input id="searchInput" placeholder="Search worker or task" oninput="filterConversations()">
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <input
-        id="searchInput"
-        placeholder="Search tasks"
-        oninput="filterConversations()"
-        style="padding:12px;border:1px solid #d9dfda;border-radius:14px;font-size:13px;"
-      >
+        <select id="filterSelect" onchange="filterConversations()">
+          <option value="">All</option>
+          <option value="unread">Unread</option>
+          <option value="quotes">Quotes Pending</option>
+          <option value="direct">Direct Quotes</option>
+          <option value="task">Task Messages</option>
+        </select>
+      </div>
+    </div>
 
-      <select
-        id="filterSelect"
-        onchange="filterConversations()"
-        style="padding:12px;border:1px solid #d9dfda;border-radius:14px;font-size:13px;"
-      >
-        <option value="">All</option>
-        <option value="unread">Unread</option>
-        <option value="quotes">Quotes Pending</option>
-      </select>
+    <div id="directQuoteSection" class="inbox-section">
+      <div class="section-head">
+        <div class="section-title">Direct Quotes</div>
+        <div class="section-count" id="directCount">0</div>
+      </div>
+      <div id="directQuoteList">
+        <div class="empty">Loading direct quotes...</div>
+      </div>
+    </div>
+
+    <div id="taskMessageSection" class="inbox-section">
+      <div class="section-head">
+        <div class="section-title">Task Messages</div>
+        <div class="section-count" id="taskCount">0</div>
+      </div>
+      <div id="taskMessageList">
+        <div class="empty">Loading task messages...</div>
+      </div>
     </div>
   </div>
 
-  <div id="conversationList" class="card">
-    Loading conversations...
-  </div>
+  <div id="threadView" class="hidden">
+    <div id="threadCard" class="card">
+      <div class="thread-header">
+        <div class="thread-title" id="threadTitle">Task Conversation</div>
+        <div class="thread-sub" id="threadSub">Messages for this task</div>
+      </div>
 
-  <div id="threadCard" class="card hidden">
-    <div class="thread-header">
-      <div class="thread-title" id="threadTitle">Task Conversation</div>
-      <div class="thread-sub" id="threadSub">Messages for this task</div>
+      <div id="messagesList">Loading messages...</div>
     </div>
 
-    <div id="messagesList">Loading messages...</div>
-  </div>
+    <div id="composeCard" class="card">
+      <textarea id="messageInput" placeholder="Type your reply..."></textarea>
 
-  <div id="composeCard" class="card hidden">
-    <textarea id="messageInput" placeholder="Type your message..."></textarea>
+      <div class="file-wrap">
+        <label class="file-label">
+          📎 Attach job photo
+          <input id="imageInput" type="file" accept="image/*" onchange="showSelectedFile()">
+        </label>
+        <div id="fileName" class="file-name">No image selected.</div>
+      </div>
 
-    <div class="file-wrap">
-      <label class="file-label">
-        📎 Attach job photo
-        <input id="imageInput" type="file" accept="image/*" onchange="showSelectedFile()">
-      </label>
-      <div id="fileName" class="file-name">No image selected.</div>
+      <button class="send" onclick="sendMessage()">Send Reply</button>
+
+      <div class="action-grid">
+        <button class="block-btn" onclick="blockCurrentConversation()">Block</button>
+        <button class="report-btn" onclick="reportCurrentConversation()">Report Conversation</button>
+        <button class="delete-btn" onclick="deleteCurrentConversation()">Delete Conversation</button>
+        <button class="secondary" onclick="window.location.href='message-center.html'">Back to Inbox</button>
+      </div>
+
+      <p id="status"></p>
     </div>
-
-    <button class="send" onclick="sendMessage()">Send Message</button>
-
-    <div class="action-row">
-      <button class="report" onclick="reportUser()">Report</button>
-      <button class="block" onclick="blockUser()">Block</button>
-    </div>
-
-    <p id="status"></p>
   </div>
 
 </div>
@@ -506,6 +565,9 @@ let conversationId =
   params.get("conversation_id") || "";
 
 let customerId = "";
+let currentUser = null;
+let currentConversationMessages = [];
+let allInboxConversations = [];
 
 if (!isValidUUID(receiverId)) {
   receiverId = "";
@@ -518,9 +580,6 @@ if (!isValidUUID(taskId)) {
 if (!isValidUUID(conversationId)) {
   conversationId = "";
 }
-
-let currentUser = null;
-let currentConversationMessages = [];
 
 const blockedWords = [
   "fuck",
@@ -552,7 +611,6 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
-
 function isValidUUID(value) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ""));
 }
@@ -566,16 +624,91 @@ function containsBlockedWords(text) {
   );
 }
 
+function formatMoney(value) {
+  const numberValue =
+    Number(value || 0);
+
+  if (isNaN(numberValue) || numberValue <= 0) {
+    return "";
+  }
+
+  return "$" + numberValue.toFixed(2);
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "";
+  }
+
+  const date =
+    new Date(value);
+
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleDateString();
+}
+
+function getDisplayName(person) {
+  const firstName =
+    person.first_name ||
+    person.first ||
+    "";
+
+  const lastName =
+    person.last_name ||
+    person.last ||
+    "";
+
+  const fullName =
+    person.full_name ||
+    person.display_name ||
+    person.worker_name ||
+    "";
+
+  if (firstName) {
+    const initial =
+      lastName ? `${String(lastName).trim().charAt(0).toUpperCase()}.` : "";
+    return `${firstName} ${initial}`.trim();
+  }
+
+  if (fullName) {
+    const parts =
+      String(fullName).trim().split(/\s+/);
+
+    if (parts.length > 1) {
+      return `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`;
+    }
+
+    return parts[0];
+  }
+
+  return "Worker";
+}
+
+function getConversationType(convo) {
+  const rawType =
+    String(convo.conversation_type || convo.source_type || "").toLowerCase();
+
+  if (
+    rawType.includes("direct") ||
+    convo.is_direct_request ||
+    convo.direct_request_id ||
+    convo.request_type === "direct_quote"
+  ) {
+    return "direct";
+  }
+
+  return "task";
+}
+
 async function getCurrentUser() {
   const { data } =
     await supabaseClient.auth.getSession();
 
   if (data.session && data.session.user) {
-    localStorage.setItem(
-      "taskmintUserId",
-      data.session.user.id
-    );
-
+    localStorage.setItem("taskmintUserId", data.session.user.id);
     return data.session.user;
   }
 
@@ -591,7 +724,7 @@ async function getCurrentUser() {
 }
 
 function goBack() {
-  if (taskId || receiverId) {
+  if (conversationId || taskId || receiverId) {
     window.location.href = "message-center.html";
     return;
   }
@@ -615,33 +748,152 @@ function showSelectedFile() {
   }
 }
 
-function getOtherPersonId(message, userId) {
-  return message.sender_id === userId
-    ? message.receiver_id
-    : message.sender_id;
+async function fetchWorkerProfile(workerId) {
+  if (!isValidUUID(workerId)) {
+    return {};
+  }
+
+  let person = {};
+
+  const { data: workerByUserId } =
+    await supabaseClient
+      .from("worker_profiles")
+      .select("*")
+      .eq("user_id", workerId)
+      .maybeSingle();
+
+  if (workerByUserId) {
+    person = Object.assign(person, workerByUserId);
+  }
+
+  const { data: workerById } =
+    await supabaseClient
+      .from("worker_profiles")
+      .select("*")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  if (workerById) {
+    person = Object.assign(person, workerById);
+  }
+
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  if (profile) {
+    person = Object.assign(person, profile);
+  }
+
+  return person;
 }
 
-function conversationKey(message, userId) {
-  const otherUser =
-    getOtherPersonId(message, userId) || "unknown";
-
-  return `${message.task_id || "no-task"}_${otherUser}`;
-}
-
-
-async function getTaskCustomerId(taskIdValue) {
+async function fetchTaskInfo(taskIdValue) {
   if (!isValidUUID(taskIdValue)) {
-    return "";
+    return {};
   }
 
   const { data: task } =
     await supabaseClient
       .from("tasks")
-      .select("customer_id")
+      .select("*")
       .eq("id", taskIdValue)
       .maybeSingle();
 
-  return task?.customer_id || currentUser.id;
+  return task || {};
+}
+
+async function fetchLatestMessages(conversationIdValue, limitCount = 3) {
+  if (!isValidUUID(conversationIdValue)) {
+    return [];
+  }
+
+  const { data: messages } =
+    await supabaseClient
+      .from("task_messages")
+      .select("*")
+      .eq("conversation_id", conversationIdValue)
+      .order("created_at", { ascending: false })
+      .limit(limitCount);
+
+  return messages || [];
+}
+
+async function hydrateConversation(convo) {
+  const workerId =
+    convo.worker_id ||
+    convo.receiver_id ||
+    "";
+
+  const workerProfile =
+    await fetchWorkerProfile(workerId);
+
+  const task =
+    await fetchTaskInfo(convo.task_id);
+
+  const messages =
+    await fetchLatestMessages(convo.id, 3);
+
+  const latestMessage =
+    messages.length > 0 ? messages[0] : null;
+
+  const unreadCount =
+    Number(convo.customer_unread_count || convo.unread_count || 0);
+
+  const quoteAmount =
+    convo.quote_amount ||
+    convo.accepted_quote_amount ||
+    convo.amount ||
+    convo.price ||
+    "";
+
+  const taskTitle =
+    convo.task_title ||
+    task.category ||
+    task.title ||
+    "Task";
+
+  return {
+    ...convo,
+    hydrated_type: getConversationType(convo),
+    hydrated_worker_id: workerId,
+    hydrated_worker_name: getDisplayName(workerProfile),
+    hydrated_worker_photo:
+      workerProfile.profile_photo_url ||
+      workerProfile.photo_url ||
+      workerProfile.avatar_url ||
+      workerProfile.image_url ||
+      "taskmintlogo.png",
+    hydrated_task_title: taskTitle,
+    hydrated_latest_message:
+      latestMessage?.message ||
+      "No messages yet.",
+    hydrated_latest_date:
+      latestMessage?.created_at ||
+      convo.updated_at ||
+      convo.created_at ||
+      "",
+    hydrated_preview_messages: messages.reverse(),
+    hydrated_unread_count: unreadCount,
+    hydrated_quote_amount: quoteAmount,
+    hydrated_quote_status: convo.quote_status || "",
+    hydrated_search_text:
+      `${taskTitle} ${getDisplayName(workerProfile)} ${latestMessage?.message || ""}`.toLowerCase()
+  };
+}
+
+async function getTaskCustomerId(taskIdValue) {
+  if (!isValidUUID(taskIdValue)) {
+    return currentUser.id;
+  }
+
+  const task =
+    await fetchTaskInfo(taskIdValue);
+
+  return task.customer_id || currentUser.id;
 }
 
 async function ensureTaskConversation() {
@@ -656,7 +908,7 @@ async function ensureTaskConversation() {
   customerId =
     await getTaskCustomerId(taskId);
 
-  const { data: existingConversation, error: findError } =
+  const { data: existingConversation } =
     await supabaseClient
       .from("task_conversations")
       .select("*")
@@ -664,10 +916,6 @@ async function ensureTaskConversation() {
       .eq("customer_id", customerId)
       .eq("worker_id", receiverId)
       .maybeSingle();
-
-  if (findError) {
-    console.log(findError.message);
-  }
 
   if (existingConversation && existingConversation.id) {
     conversationId = existingConversation.id;
@@ -708,220 +956,239 @@ async function ensureTaskConversation() {
 }
 
 async function loadConversations() {
-  const box =
-    document.getElementById("conversationList");
+  const directBox =
+    document.getElementById("directQuoteList");
 
-  box.classList.remove("hidden");
+  const taskBox =
+    document.getElementById("taskMessageList");
 
-  box.innerHTML =
-    `<div class="empty">Loading conversations...</div>`;
+  directBox.innerHTML =
+    `<div class="empty">Loading direct quotes...</div>`;
+
+  taskBox.innerHTML =
+    `<div class="empty">Loading task messages...</div>`;
 
   const { data: conversations, error } =
     await supabaseClient
       .from("task_conversations")
       .select("*")
       .or(`customer_id.eq.${currentUser.id},worker_id.eq.${currentUser.id}`)
+      .neq("customer_deleted", true)
+      .neq("customer_blocked", true)
       .order("updated_at", { ascending: false });
 
   if (error) {
-    box.innerHTML =
+    directBox.innerHTML = "";
+    taskBox.innerHTML =
       `<p class="error">${escapeHTML(error.message)}</p>`;
     return;
   }
 
   if (!conversations || conversations.length === 0) {
-    box.innerHTML =
-      `<div class="empty">No conversations yet.</div>`;
+    allInboxConversations = [];
+    renderInbox([]);
     return;
   }
 
-  window.allConversations =
-    conversations;
+  const hydrated = [];
 
-  renderConversationCards(conversations);
+  for (const convo of conversations) {
+    hydrated.push(await hydrateConversation(convo));
+  }
+
+  allInboxConversations = hydrated;
+  renderInbox(hydrated);
 }
 
-
 function filterConversations() {
-  if (!window.allConversations) {
-    return;
-  }
-
   const search =
-    document.getElementById("searchInput").value.toLowerCase();
+    document.getElementById("searchInput").value.toLowerCase().trim();
 
   const filter =
     document.getElementById("filterSelect").value;
 
   let filtered =
-    window.allConversations;
+    allInboxConversations.slice();
 
   if (search) {
     filtered =
       filtered.filter(convo =>
-        String(convo.task_title || "")
-          .toLowerCase()
-          .includes(search)
+        String(convo.hydrated_search_text || "").includes(search)
       );
   }
 
   if (filter === "unread") {
     filtered =
       filtered.filter(convo =>
-        convo.customer_unread_count > 0
+        Number(convo.hydrated_unread_count || 0) > 0
       );
   }
 
   if (filter === "quotes") {
     filtered =
       filtered.filter(convo =>
-        convo.quote_status === "pending"
+        String(convo.hydrated_quote_status || "").toLowerCase() === "pending" ||
+        Boolean(convo.hydrated_quote_amount)
       );
   }
 
-  renderConversationCards(filtered);
+  if (filter === "direct") {
+    filtered =
+      filtered.filter(convo => convo.hydrated_type === "direct");
+  }
+
+  if (filter === "task") {
+    filtered =
+      filtered.filter(convo => convo.hydrated_type === "task");
+  }
+
+  renderInbox(filtered);
 }
 
-async function renderConversationCards(conversations) {
+function renderInbox(conversations) {
+  const directConversations =
+    conversations.filter(convo => convo.hydrated_type === "direct");
+
+  const taskConversations =
+    conversations.filter(convo => convo.hydrated_type !== "direct");
+
+  document.getElementById("directCount").innerText =
+    String(directConversations.length);
+
+  document.getElementById("taskCount").innerText =
+    String(taskConversations.length);
+
+  renderConversationGroup("directQuoteList", directConversations, "No direct quote conversations yet.");
+  renderConversationGroup("taskMessageList", taskConversations, "No task message conversations yet.");
+}
+
+function renderConversationGroup(elementId, conversations, emptyText) {
   const box =
-    document.getElementById("conversationList");
+    document.getElementById(elementId);
 
-  box.innerHTML =
-    `<div class="section-title">Conversations by Task</div>`;
+  if (!conversations || conversations.length === 0) {
+    box.innerHTML =
+      `<div class="empty">${escapeHTML(emptyText)}</div>`;
+    return;
+  }
 
-  for (const convo of conversations) {
+  box.innerHTML = "";
 
-    const workerId =
-      convo.worker_id;
-
-    let taskLabel =
-      convo.task_title || "Task";
-
-    let quoteAmount =
-      convo.quote_amount ||
-      convo.accepted_quote_amount ||
-      convo.amount ||
-      "";
-
-    let workerName =
-      "Worker";
-
-    let workerImage =
-      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-
-    let profile = null;
-
-    if (isValidUUID(workerId)) {
-      const { data: workerProfileData } =
-        await supabaseClient
-          .from("worker_profiles")
-          .select("*")
-          .eq("id", workerId)
-          .maybeSingle();
-
-      profile = workerProfileData;
-    }
-
-    if (profile) {
-      workerName =
-        profile.full_name ||
-        profile.display_name ||
-        "Worker";
-
-      workerImage =
-        profile.profile_photo_url ||
-        workerImage;
-    }
-
-    const { data: latestMessage } =
-      await supabaseClient
-        .from("task_messages")
-        .select("*")
-        .eq("conversation_id", convo.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
+  conversations.forEach(convo => {
     const card =
       document.createElement("div");
 
     card.className =
       "conversation-card";
 
-    card.innerHTML = `
-      <div class="worker-row">
+    const detailsId =
+      `details-${convo.id}`;
 
+    const unreadLabel =
+      Number(convo.hydrated_unread_count || 0) > 0
+        ? `${convo.hydrated_unread_count} new`
+        : "Open";
+
+    const quoteText =
+      formatMoney(convo.hydrated_quote_amount);
+
+    const previewMessages =
+      convo.hydrated_preview_messages.length > 0
+        ? convo.hydrated_preview_messages.map(msg => {
+            const sender =
+              msg.sender_id === currentUser.id ? "You" : convo.hydrated_worker_name;
+
+            return `
+              <div class="preview-message">
+                <strong>${escapeHTML(sender)}:</strong>
+                ${escapeHTML(msg.message || "Image attached.")}
+                <div class="small">${escapeHTML(formatDate(msg.created_at))}</div>
+              </div>
+            `;
+          }).join("")
+        : `<div class="empty">No messages yet.</div>`;
+
+    card.innerHTML = `
+      <div class="conversation-row" onclick="toggleConversation('${detailsId}')">
         <img
           class="worker-pic"
-          src="${escapeHTML(workerImage)}"
+          src="${escapeHTML(convo.hydrated_worker_photo)}"
+          onerror="this.src='taskmintlogo.png'"
         >
 
-        <div style="flex:1;">
-
+        <div>
           <div class="conversation-title">
-            ${escapeHTML(taskLabel)}
+            ${escapeHTML(convo.hydrated_task_title)}
           </div>
 
-          <div class="conversation-sub">
-            ${escapeHTML(workerName)}<br>
-            ${escapeHTML(latestMessage?.message || "No messages yet")}
+          <div class="worker-name">
+            ${escapeHTML(convo.hydrated_worker_name)}
+          </div>
+
+          <div class="message-preview">
+            ${escapeHTML(convo.hydrated_latest_message)}
           </div>
 
           ${
-            quoteAmount
-              ? `<div class="quote-pill">Quote: $${Number(quoteAmount).toFixed(2)}</div>`
+            quoteText
+              ? `<div class="quote-pill">Quote: ${escapeHTML(quoteText)}</div>`
               : ""
           }
+        </div>
 
-          <div class="compact-actions">
+        <div class="badge ${Number(convo.hydrated_unread_count || 0) > 0 ? "unread-badge" : ""}">
+          ${escapeHTML(unreadLabel)}
+        </div>
+      </div>
 
-            ${
-              convo.quote_status !== "accepted"
-                ? `
-                <button
-                  class="compact-btn accept-btn"
-                  onclick="acceptQuoteFromMessages('${convo.task_id || ""}','${workerId || ""}','${convo.quote_id || ""}','${quoteAmount || ""}')"
-                >
+      <div class="conversation-details" id="${detailsId}">
+        <div class="preview-messages">
+          ${previewMessages}
+        </div>
+
+        <div class="action-grid">
+          <button class="reply-btn" onclick="event.stopPropagation(); openConversation('${convo.id}','${convo.task_id || ""}','${convo.hydrated_worker_id || ""}')">
+            Reply
+          </button>
+
+          <button class="block-btn" onclick="event.stopPropagation(); blockConversation('${convo.id}')">
+            Block
+          </button>
+
+          <button class="report-btn" onclick="event.stopPropagation(); reportConversation('${convo.id}')">
+            Report Conversation
+          </button>
+
+          <button class="delete-btn" onclick="event.stopPropagation(); deleteConversation('${convo.id}')">
+            Delete Conversation
+          </button>
+
+          ${
+            quoteText && String(convo.hydrated_quote_status || "").toLowerCase() !== "accepted"
+              ? `
+                <button class="accept-btn" onclick="event.stopPropagation(); acceptQuoteFromMessages('${convo.task_id || ""}','${convo.hydrated_worker_id || ""}','${convo.quote_id || ""}','${convo.hydrated_quote_amount || ""}')">
                   Accept Quote
                 </button>
-                `
-                : ""
-            }
-
-            <button
-              class="compact-btn report-btn"
-              onclick="reportConversation('${convo.id}')"
-            >
-              Report
-            </button>
-
-            <button
-              class="compact-btn block-btn"
-              onclick="blockConversation('${convo.id}')"
-            >
-              Block
-            </button>
-
-          </div>
-
-        </div>
-
-        <div
-          class="badge ${convo.customer_unread_count > 0 ? "unread-badge" : ""}"
-          onclick="openConversation('${convo.id}','${convo.task_id}','${workerId}')"
-        >
-          ${
-            convo.customer_unread_count > 0
-              ? `${convo.customer_unread_count} new`
-              : "Open"
+              `
+              : ""
           }
         </div>
-
       </div>
     `;
 
     box.appendChild(card);
+  });
+}
+
+function toggleConversation(detailsId) {
+  const details =
+    document.getElementById(detailsId);
+
+  if (!details) {
+    return;
   }
+
+  details.classList.toggle("open");
 }
 
 function openConversation(conversationIdValue, taskIdValue, workerIdValue) {
@@ -952,12 +1219,31 @@ async function reportConversation(conversationIdValue) {
     return;
   }
 
+  const confirmReport =
+    confirm("Report this conversation?");
+
+  if (!confirmReport) {
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
+      .from("task_conversations")
+      .update({
+        customer_reported: true
+      })
+      .eq("id", conversationIdValue);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
   await supabaseClient
-    .from("task_conversations")
-    .update({
-      customer_reported: true
-    })
-    .eq("id", conversationIdValue);
+    .from("task_messages")
+    .update({ is_reported: true })
+    .eq("conversation_id", conversationIdValue)
+    .neq("sender_id", currentUser.id);
 
   alert("Conversation reported.");
 }
@@ -968,14 +1254,56 @@ async function blockConversation(conversationIdValue) {
     return;
   }
 
-  await supabaseClient
-    .from("task_conversations")
-    .update({
-      customer_blocked: true
-    })
-    .eq("id", conversationIdValue);
+  const confirmBlock =
+    confirm("Block this worker and hide this conversation?");
 
-  alert("Worker blocked.");
+  if (!confirmBlock) {
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
+      .from("task_conversations")
+      .update({
+        customer_blocked: true
+      })
+      .eq("id", conversationIdValue);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await loadConversations();
+}
+
+async function deleteConversation(conversationIdValue) {
+  if (!isValidUUID(conversationIdValue)) {
+    alert("Conversation not found.");
+    return;
+  }
+
+  const confirmDelete =
+    confirm("Delete this conversation from your inbox?");
+
+  if (!confirmDelete) {
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
+      .from("task_conversations")
+      .update({
+        customer_deleted: true
+      })
+      .eq("id", conversationIdValue);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await loadConversations();
 }
 
 function acceptQuoteFromMessages(taskIdValue, workerIdValue, quoteIdValue, quoteAmountValue) {
@@ -1004,23 +1332,18 @@ function acceptQuoteFromMessages(taskIdValue, workerIdValue, quoteIdValue, quote
   window.location.href = url;
 }
 
-
 async function loadMessages() {
+  const inboxView =
+    document.getElementById("inboxView");
+
+  const threadView =
+    document.getElementById("threadView");
+
   const messagesList =
     document.getElementById("messagesList");
 
-  const threadCard =
-    document.getElementById("threadCard");
-
-  const composeCard =
-    document.getElementById("composeCard");
-
-  const conversationList =
-    document.getElementById("conversationList");
-
-  conversationList.classList.add("hidden");
-  threadCard.classList.remove("hidden");
-  composeCard.classList.remove("hidden");
+  inboxView.classList.add("hidden");
+  threadView.classList.remove("hidden");
 
   messagesList.innerHTML =
     `<div class="empty">Loading messages...</div>`;
@@ -1029,8 +1352,27 @@ async function loadMessages() {
 
   if (!isValidUUID(conversationId)) {
     messagesList.innerHTML =
-      `<div class="empty">Conversation not found. Open this chat from the task card again.</div>`;
+      `<div class="empty">Conversation not found. Open this chat from the inbox again.</div>`;
     return;
+  }
+
+  const { data: conversation } =
+    await supabaseClient
+      .from("task_conversations")
+      .select("*")
+      .eq("id", conversationId)
+      .maybeSingle();
+
+  if (conversation) {
+    receiverId =
+      receiverId ||
+      conversation.worker_id ||
+      "";
+
+    taskId =
+      taskId ||
+      conversation.task_id ||
+      "";
   }
 
   const { data: messages, error } =
@@ -1075,28 +1417,24 @@ async function loadMessages() {
   }
 
   await markCurrentThreadRead();
-
   await loadThreadTitle();
 }
 
 async function markCurrentThreadRead() {
-  if (!receiverId) {
+  if (!isValidUUID(conversationId)) {
     return;
   }
 
-  let query =
-    supabaseClient
-      .from("task_messages")
-      .update({ is_read: true })
-      .eq("receiver_id", currentUser.id)
-      .eq("sender_id", receiverId);
+  await supabaseClient
+    .from("task_messages")
+    .update({ is_read: true })
+    .eq("conversation_id", conversationId)
+    .neq("sender_id", currentUser.id);
 
-  if (taskId) {
-    query =
-      query.eq("task_id", taskId);
-  }
-
-  await query;
+  await supabaseClient
+    .from("task_conversations")
+    .update({ customer_unread_count: 0 })
+    .eq("id", conversationId);
 }
 
 async function loadThreadTitle() {
@@ -1109,46 +1447,25 @@ async function loadThreadTitle() {
   let title =
     "Task Conversation";
 
-  if (taskId) {
-    const { data: task } =
-      await supabaseClient
-        .from("tasks")
-        .select("title, category")
-        .eq("id", taskId)
-        .maybeSingle();
+  if (isValidUUID(taskId)) {
+    const task =
+      await fetchTaskInfo(taskId);
 
-    if (task) {
-      title =
-        task.category || task.title || title;
-    }
+    title =
+      task.category ||
+      task.title ||
+      title;
   }
 
   let personName =
     "Worker";
 
-  if (receiverId) {
-    const { data: profile } =
-      await supabaseClient
-        .from("profiles")
-        .select("first_name, last_name, full_name, display_name")
-        .eq("id", receiverId)
-        .maybeSingle();
-
-    const { data: workerProfile } =
-      await supabaseClient
-        .from("worker_profiles")
-        .select("full_name, display_name")
-        .eq("id", receiverId)
-        .maybeSingle();
-
-    const person =
-      Object.assign({}, profile || {}, workerProfile || {});
+  if (isValidUUID(receiverId)) {
+    const profile =
+      await fetchWorkerProfile(receiverId);
 
     personName =
-      person.full_name ||
-      person.display_name ||
-      `${person.first_name || ""} ${person.last_name || ""}`.trim() ||
-      "Worker";
+      getDisplayName(profile);
   }
 
   threadTitle.innerText =
@@ -1244,6 +1561,7 @@ async function sendMessage() {
             task_id: taskId,
             sender_id: currentUser.id,
             sender_type: "customer",
+            receiver_id: receiverId,
             message: message,
             image_url: imageUrl,
             is_read: false
@@ -1269,7 +1587,7 @@ async function sendMessage() {
       "No image selected.";
 
     status.innerHTML =
-      `<span class="success">Message sent.</span>`;
+      `<span class="success">Reply sent.</span>`;
 
     await loadMessages();
 
@@ -1279,58 +1597,33 @@ async function sendMessage() {
   }
 }
 
-async function reportUser() {
-  const status =
-    document.getElementById("status");
-
+async function reportCurrentConversation() {
   if (!isValidUUID(conversationId)) {
-    status.innerHTML =
-      `<span class="error">No conversation selected to report.</span>`;
+    alert("No conversation selected to report.");
     return;
   }
 
-  const { error } =
-    await supabaseClient
-      .from("task_messages")
-      .update({ is_reported: true })
-      .eq("conversation_id", conversationId)
-      .neq("sender_id", currentUser.id);
-
-  if (error) {
-    status.innerHTML =
-      `<span class="error">${escapeHTML(error.message)}</span>`;
-    return;
-  }
-
-  status.innerHTML =
-    `<span class="success">Conversation reported.</span>`;
+  await reportConversation(conversationId);
 }
 
-async function blockUser() {
-  const status =
-    document.getElementById("status");
-
+async function blockCurrentConversation() {
   if (!isValidUUID(conversationId)) {
-    status.innerHTML =
-      `<span class="error">No conversation selected to block.</span>`;
+    alert("No conversation selected to block.");
     return;
   }
 
-  const { error } =
-    await supabaseClient
-      .from("task_messages")
-      .update({ is_blocked: true })
-      .eq("conversation_id", conversationId)
-      .neq("sender_id", currentUser.id);
+  await blockConversation(conversationId);
+  window.location.href = "message-center.html";
+}
 
-  if (error) {
-    status.innerHTML =
-      `<span class="error">${escapeHTML(error.message)}</span>`;
+async function deleteCurrentConversation() {
+  if (!isValidUUID(conversationId)) {
+    alert("No conversation selected to delete.");
     return;
   }
 
-  status.innerHTML =
-    `<span class="success">Worker blocked.</span>`;
+  await deleteConversation(conversationId);
+  window.location.href = "message-center.html";
 }
 
 async function loadPage() {
@@ -1341,18 +1634,11 @@ async function loadPage() {
     return;
   }
 
-  if (taskId && receiverId) {
+  if (conversationId || (taskId && receiverId)) {
     await loadMessages();
   } else {
-    document
-      .getElementById("threadCard")
-      .classList
-      .add("hidden");
-
-    document
-      .getElementById("composeCard")
-      .classList
-      .add("hidden");
+    document.getElementById("inboxView").classList.remove("hidden");
+    document.getElementById("threadView").classList.add("hidden");
 
     await loadConversations();
   }
