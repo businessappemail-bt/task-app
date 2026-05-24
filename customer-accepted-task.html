@@ -1,1 +1,1086 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Accepted Quotes - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 90px;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back,
+.refresh {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.summary-box {
+  background: white;
+  border: 1px solid #edf1ee;
+  border-radius: 18px;
+  padding: 13px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.summary-label {
+  color: #0b7a28;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.summary-value {
+  font-size: 18px;
+  font-weight: 900;
+  margin-top: 4px;
+}
+
+.task-card {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border: 1px solid #edf1ee;
+  animation: fadeUp 0.45s ease;
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.task-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.task-sub {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.status-pill {
+  background: #e7f7ec;
+  color: #0b7a28;
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.status-pill.closed {
+  background: #111;
+  color: white;
+}
+
+.status-pill.dispute {
+  background: #fff2f2;
+  color: #b00020;
+  border: 1px solid #ffb7b7;
+}
+
+.request-pill {
+  display: inline-block;
+  background: #fff7e6;
+  color: #7a4b00;
+  border: 1px solid #ffd27a;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 900;
+  margin-top: 6px;
+}
+
+.compact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.info-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  padding: 10px;
+  min-height: 72px;
+}
+
+.info-label {
+  color: #0b7a28;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 5px;
+}
+
+.info-value {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.worker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  padding: 11px;
+}
+
+.worker-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: #ddd;
+  flex-shrink: 0;
+}
+
+.worker-name {
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 3px;
+}
+
+.worker-sub {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.35;
+}
+
+.details-toggle {
+  margin-top: 12px;
+  color: #0b7a28;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.details-box {
+  display: none;
+  margin-top: 8px;
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 14px;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.details-box.open {
+  display: block;
+}
+
+.detail-item {
+  background: #ffffff;
+  border: 1px solid #e3eee6;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 8px;
+  line-height: 1.35;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.payment-box {
+  margin-top: 12px;
+  background: #ecfff1;
+  border: 1px solid #bce8c6;
+  color: #0b7a28;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.payment-box.unpaid {
+  background: #fff7e6;
+  border-color: #ffd27a;
+  color: #7a4b00;
+}
+
+.dispute-alert {
+  background: #fff2f2;
+  border: 1px solid #ffb7b7;
+  color: #8b0018;
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 900;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+button {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.09);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.secondary-btn {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
+}
+
+.empty {
+  background: white;
+  padding: 22px;
+  border-radius: 22px;
+  text-align: center;
+  color: #666;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+#status {
+  text-align: center;
+  color: #b00020;
+  font-size: 13px;
+  font-weight: 900;
+  margin: 10px 0;
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="top-bar">
+    <div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
+    <div class="refresh" onclick="loadAcceptedQuotes()">Refresh</div>
+  </div>
+
+  <div class="hero">
+    <h1>Accepted Quotes</h1>
+    <p>Review closed accepted quotes, completed work, worker details, task details, and payment status.</p>
+  </div>
+
+  <div class="summary-row">
+    <div class="summary-box">
+      <div class="summary-label">Closed Tasks</div>
+      <div class="summary-value" id="closedCount">0</div>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-label">Total Paid</div>
+      <div class="summary-value" id="paidTotal">$0.00</div>
+    </div>
+  </div>
+
+  <p id="status"></p>
+
+  <div id="acceptedList">
+    <div class="empty">Loading accepted quotes...</div>
+  </div>
+
+</div>
+
+<div class="nav">
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Open</a>
+  <a href="customer-accepted-quote.html" class="active"><span class="nav-icon">🧾</span>Accepted</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+</div>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+const DEFAULT_WORKER_PHOTO =
+  "https://github.com/businessappemail-bt/task-app/blob/main/taskmintlogo.png?raw=true";
+
+function escapeHTML(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "Not listed";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString();
+}
+
+function formatMoney(value) {
+  if (value === null || value === undefined || value === "") {
+    return "$0.00";
+  }
+
+  const numberValue = Number(value);
+
+  if (Number.isNaN(numberValue)) {
+    return String(value);
+  }
+
+  return "$" + numberValue.toFixed(2);
+}
+
+function formatStatus(value) {
+  return String(value || "closed").replaceAll("_", " ");
+}
+
+function getCustomerIdFromSession() {
+  return supabaseClient.auth.getSession()
+    .then(({ data }) => {
+      if (data.session && data.session.user) {
+        localStorage.setItem("taskmintUserId", data.session.user.id);
+        return data.session.user.id;
+      }
+
+      return localStorage.getItem("taskmintUserId");
+    });
+}
+
+function getFirstAvailable(record, keys, fallback = "") {
+  if (!record) {
+    return fallback;
+  }
+
+  for (const key of keys) {
+    if (
+      record[key] !== null &&
+      record[key] !== undefined &&
+      String(record[key]).trim() !== ""
+    ) {
+      return record[key];
+    }
+  }
+
+  return fallback;
+}
+
+function getTaskTitle(task) {
+  return getFirstAvailable(task, [
+    "title",
+    "task_title",
+    "category",
+    "service_type"
+  ], "Task");
+}
+
+function getTaskCategory(task) {
+  return getFirstAvailable(task, [
+    "category",
+    "task_category",
+    "service_type"
+  ], "Other");
+}
+
+function getTaskDate(task) {
+  return getFirstAvailable(task, [
+    "task_date",
+    "date_needed",
+    "needed_by",
+    "scheduled_date"
+  ], "");
+}
+
+function getTaskLocation(task) {
+  const address =
+    getFirstAvailable(task, [
+      "address",
+      "full_address",
+      "task_address",
+      "street_address"
+    ], "");
+
+  const city =
+    getFirstAvailable(task, [
+      "city",
+      "task_city"
+    ], "");
+
+  const state =
+    getFirstAvailable(task, [
+      "state",
+      "task_state"
+    ], "");
+
+  const zip =
+    getFirstAvailable(task, [
+      "zip_code",
+      "zip"
+    ], "");
+
+  if (address) {
+    return `${address}${city ? ", " + city : ""}${state ? ", " + state : ""}${zip ? " " + zip : ""}`;
+  }
+
+  return `${city}${state ? ", " + state : ""}${zip ? " " + zip : ""}`.trim() || "Location not listed";
+}
+
+function getTaskDetails(task) {
+  if (task.task_details && typeof task.task_details === "object") {
+    return Object.keys(task.task_details)
+      .map(key => {
+        const label =
+          key.replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase());
+
+        const value =
+          Array.isArray(task.task_details[key])
+            ? task.task_details[key].join(", ")
+            : task.task_details[key];
+
+        return `${label}: ${value || "Not answered"}`;
+      })
+      .join("\n");
+  }
+
+  return task.description || task.additional_notes || task.notes || "No task details listed.";
+}
+
+function getWorkerId(task) {
+  return (
+    task.assigned_worker_id ||
+    task.accepted_worker_id ||
+    task.worker_id ||
+    task.completed_by_worker_id ||
+    ""
+  );
+}
+
+function getQuoteId(task) {
+  return (
+    task.accepted_quote_id ||
+    task.paid_quote_id ||
+    task.selected_quote_id ||
+    task.quote_id ||
+    ""
+  );
+}
+
+function getAmountPaid(task, quote, payment) {
+  return (
+    payment?.amount ||
+    payment?.amount_paid ||
+    payment?.quote_amount ||
+    task.amount_paid ||
+    task.total_paid ||
+    task.quote_amount ||
+    quote?.quote_amount ||
+    quote?.amount ||
+    quote?.price ||
+    0
+  );
+}
+
+function getPaymentStatus(task, quote, payment) {
+  return (
+    payment?.payment_status ||
+    payment?.status ||
+    task.payment_status ||
+    task.quote_payment_status ||
+    task.escrow_status ||
+    quote?.payment_status ||
+    quote?.status ||
+    "Not listed"
+  );
+}
+
+function isPaymentCompleted(task, quote, payment) {
+  const status =
+    String(getPaymentStatus(task, quote, payment)).toLowerCase();
+
+  return (
+    status === "paid" ||
+    status === "completed" ||
+    status === "released" ||
+    status === "escrowed" ||
+    status === "held" ||
+    status === "succeeded"
+  );
+}
+
+function isClosedAcceptedTask(task) {
+  const status =
+    String(task.status || "").toLowerCase();
+
+  return [
+    "completed",
+    "paid",
+    "closed",
+    "resolved",
+    "dispute_closed",
+    "cancelled",
+    "canceled"
+  ].includes(status);
+}
+
+function isDisputeOpen(task) {
+  const status =
+    String(task.status || "").toLowerCase();
+
+  const disputeStatus =
+    String(task.dispute_status || "").toLowerCase();
+
+  return (
+    status === "dispute_open" ||
+    disputeStatus === "open" ||
+    disputeStatus === "reviewing"
+  );
+}
+
+function getWorkerName(worker, quote, task) {
+  const direct =
+    quote?.worker_display_name ||
+    task.worker_display_name ||
+    worker?.display_name ||
+    worker?.full_name;
+
+  if (direct) {
+    return direct;
+  }
+
+  const first =
+    worker?.first_name ||
+    "";
+
+  const last =
+    worker?.last_name ||
+    "";
+
+  const lastInitial =
+    last ? last.charAt(0).toUpperCase() + "." : "";
+
+  return first ? `${first} ${lastInitial}`.trim() : "Worker";
+}
+
+function getWorkerPhoto(worker) {
+  return (
+    worker?.profile_photo_url ||
+    worker?.photo_url ||
+    worker?.avatar_url ||
+    worker?.image_url ||
+    DEFAULT_WORKER_PHOTO
+  );
+}
+
+async function fetchSingleById(table, id) {
+  if (!id) {
+    return null;
+  }
+
+  const { data, error } =
+    await supabaseClient
+      .from(table)
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
+}
+
+async function fetchWorker(workerId) {
+  if (!workerId) {
+    return null;
+  }
+
+  const { data: workerRecord } =
+    await supabaseClient
+      .from("workers")
+      .select("*")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  if (workerRecord) {
+    return workerRecord;
+  }
+
+  const { data: workerProfile } =
+    await supabaseClient
+      .from("worker_profiles")
+      .select("*")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  return workerProfile || null;
+}
+
+async function fetchQuote(quoteId, taskId) {
+  if (quoteId) {
+    const foundById =
+      await fetchSingleById("worker_quotes", quoteId);
+
+    if (foundById) {
+      return foundById;
+    }
+  }
+
+  if (!taskId) {
+    return null;
+  }
+
+  const { data } =
+    await supabaseClient
+      .from("worker_quotes")
+      .select("*")
+      .eq("task_id", taskId)
+      .in("status", ["accepted", "paid", "completed"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+  return data || null;
+}
+
+async function fetchPayment(taskId, quoteId) {
+  let query =
+    supabaseClient
+      .from("payments")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+  if (quoteId) {
+    query = query.eq("quote_id", quoteId);
+  } else if (taskId) {
+    query = query.eq("task_id", taskId);
+  }
+
+  const { data } =
+    await query.maybeSingle();
+
+  return data || null;
+}
+
+function toggleDetails(id) {
+  const box =
+    document.getElementById(id);
+
+  if (!box) {
+    return;
+  }
+
+  box.classList.toggle("open");
+}
+
+async function loadAcceptedQuotes() {
+  const customerId =
+    await getCustomerIdFromSession();
+
+  const list =
+    document.getElementById("acceptedList");
+
+  const status =
+    document.getElementById("status");
+
+  status.innerText = "";
+  list.innerHTML =
+    `<div class="empty">Loading accepted quotes...</div>`;
+
+  if (!customerId) {
+    list.innerHTML =
+      `<div class="empty">You must be logged in.</div>`;
+    return;
+  }
+
+  const { data: marketplaceTasks, error: taskError } =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("customer_id", customerId)
+      .in("status", ["completed", "paid", "closed", "resolved", "dispute_closed", "cancelled", "canceled"])
+      .order("created_at", { ascending: false });
+
+  if (taskError) {
+    list.innerHTML =
+      `<div class="empty">${escapeHTML(taskError.message)}</div>`;
+    return;
+  }
+
+  const { data: directTasks } =
+    await supabaseClient
+      .from("direct_task_requests")
+      .select("*")
+      .eq("customer_id", customerId)
+      .in("status", ["completed", "paid", "closed", "resolved", "dispute_closed", "cancelled", "canceled"])
+      .order("created_at", { ascending: false });
+
+  const tasks =
+    [
+      ...(marketplaceTasks || []).map(task => ({
+        ...task,
+        source_type: "marketplace",
+        is_direct_request: false
+      })),
+      ...(directTasks || []).map(task => ({
+        ...task,
+        source_type: "direct_quote",
+        is_direct_request: true
+      }))
+    ]
+      .filter(isClosedAcceptedTask)
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+  if (tasks.length === 0) {
+    document.getElementById("closedCount").innerText = "0";
+    document.getElementById("paidTotal").innerText = "$0.00";
+
+    list.innerHTML =
+      `<div class="empty">No closed accepted quotes yet.</div>`;
+    return;
+  }
+
+  list.innerHTML = "";
+
+  let totalPaid = 0;
+
+  for (const task of tasks) {
+    const quoteId =
+      getQuoteId(task);
+
+    const quote =
+      await fetchQuote(quoteId, task.id);
+
+    const workerId =
+      getWorkerId(task) ||
+      quote?.worker_id ||
+      "";
+
+    const worker =
+      await fetchWorker(workerId);
+
+    const payment =
+      await fetchPayment(task.id, quote?.id || quoteId);
+
+    const amountPaid =
+      Number(getAmountPaid(task, quote, payment) || 0);
+
+    if (!Number.isNaN(amountPaid)) {
+      totalPaid += amountPaid;
+    }
+
+    const paymentCompleted =
+      isPaymentCompleted(task, quote, payment);
+
+    const paymentStatus =
+      getPaymentStatus(task, quote, payment);
+
+    const detailsId =
+      `details-${task.source_type}-${task.id}`;
+
+    const disputeOpen =
+      isDisputeOpen(task);
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "task-card";
+
+    card.innerHTML = `
+      <div class="task-top">
+        <div>
+          <div class="task-title">
+            ${escapeHTML(getTaskTitle(task))}
+          </div>
+
+          <div class="task-sub">
+            Order # TM-${String(task.id).slice(0, 8).toUpperCase()} •
+            Closed ${escapeHTML(formatDate(task.completed_at || task.paid_at || task.updated_at || task.created_at))}
+          </div>
+
+          <div class="request-pill">
+            ${task.is_direct_request ? "Direct Quote" : "Marketplace Request"}
+          </div>
+        </div>
+
+        <div class="status-pill ${disputeOpen ? "dispute" : "closed"}">
+          ${disputeOpen ? "Dispute Open" : "Closed"}
+        </div>
+      </div>
+
+      <div class="worker-row">
+        <img
+          class="worker-avatar"
+          src="${escapeHTML(getWorkerPhoto(worker))}"
+          onerror="this.src='${DEFAULT_WORKER_PHOTO}'"
+          alt="Worker photo"
+        >
+
+        <div>
+          <div class="worker-name">
+            ${escapeHTML(getWorkerName(worker, quote, task))}
+          </div>
+
+          <div class="worker-sub">
+            Worker who completed this task
+          </div>
+        </div>
+      </div>
+
+      <div class="compact-grid">
+        <div class="info-box">
+          <div class="info-label">Amount Paid</div>
+          <div class="info-value">
+            ${escapeHTML(formatMoney(amountPaid))}
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">Payment Status</div>
+          <div class="info-value">
+            ${paymentCompleted ? "Payment Completed" : escapeHTML(formatStatus(paymentStatus))}
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">Date Needed</div>
+          <div class="info-value">
+            ${escapeHTML(formatDate(getTaskDate(task)))}
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">Location</div>
+          <div class="info-value">
+            ${escapeHTML(getTaskLocation(task))}
+          </div>
+        </div>
+      </div>
+
+      <div class="payment-box ${paymentCompleted ? "" : "unpaid"}">
+        ${paymentCompleted
+          ? `Payment completed for ${escapeHTML(formatMoney(amountPaid))}.`
+          : `Payment status: ${escapeHTML(formatStatus(paymentStatus))}.`
+        }
+      </div>
+
+      ${disputeOpen ? `
+        <div class="dispute-alert">
+          A dispute is still open on this task. It should remain visible until the dispute is closed.
+        </div>
+      ` : ""}
+
+      <div class="details-toggle" onclick="toggleDetails('${detailsId}')">
+        View all task details
+      </div>
+
+      <div class="details-box" id="${detailsId}">
+        <div class="detail-item">
+          <strong>Category:</strong> ${escapeHTML(getTaskCategory(task))}
+        </div>
+
+        <div class="detail-item">
+          <strong>Task Details:</strong><br>
+          ${escapeHTML(getTaskDetails(task)).replaceAll("\n", "<br>")}
+        </div>
+
+        <div class="detail-item">
+          <strong>Worker Quote Message:</strong><br>
+          ${escapeHTML(quote?.message || "No quote message listed.")}
+        </div>
+
+        <div class="detail-item">
+          <strong>Quote ID:</strong> ${escapeHTML(quote?.id || quoteId || "Not listed")}
+        </div>
+
+        <div class="detail-item">
+          <strong>Task Status:</strong> ${escapeHTML(formatStatus(task.status))}
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="secondary-btn" onclick="window.location.href='message-center.html?worker_id=${encodeURIComponent(workerId)}&task_id=${encodeURIComponent(task.id)}'">
+          Message Worker
+        </button>
+
+        <button class="primary-btn" onclick="window.location.href='worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}'">
+          Worker Profile
+        </button>
+      </div>
+    `;
+
+    list.appendChild(card);
+  }
+
+  document.getElementById("closedCount").innerText =
+    String(tasks.length);
+
+  document.getElementById("paidTotal").innerText =
+    formatMoney(totalPaid);
+}
+
+loadAcceptedQuotes();
+</script>
+</body>
+</html>
