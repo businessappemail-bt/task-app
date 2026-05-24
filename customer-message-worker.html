@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Message Worker - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#eef8f1,#f5f5f5);color:#111;padding-bottom:30px}
+.container{max-width:430px;margin:0 auto;padding:18px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.back{color:#0b7a28;font-weight:900;cursor:pointer;font-size:14px}
+.hero{background:linear-gradient(135deg,#0b7a28,#19b64c);color:white;border-radius:26px;padding:20px;margin-bottom:14px;box-shadow:0 12px 28px rgba(11,122,40,.2)}
+.hero h1{margin:0 0 6px;font-size:28px}
+.hero p{margin:0;font-size:14px;line-height:1.45;opacity:.95}
+.card{background:white;border:1px solid #edf1ee;border-radius:22px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);margin-bottom:14px}
+.worker-row{display:flex;gap:12px;align-items:center}
+.avatar{width:56px;height:56px;border-radius:18px;object-fit:cover;background:#ddd}
+.name{font-weight:900;font-size:16px}
+.sub{font-size:12px;color:#666;margin-top:4px}
+textarea{width:100%;min-height:145px;padding:14px;border-radius:16px;border:1px solid #dfe5e0;font-size:15px;resize:none;outline:none}
+textarea:focus{border-color:#0b7a28;box-shadow:0 0 0 4px rgba(11,122,40,.1)}
+button{width:100%;border:none;border-radius:16px;padding:14px;background:#0b7a28;color:white;font-weight:900;font-size:15px;cursor:pointer}
+.status{text-align:center;font-size:13px;font-weight:900;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="top-bar">
+<div class="back" onclick="history.back()">← Back</div>
+</div>
+
+<div class="hero">
+<h1>Message Worker</h1>
+<p>Send a direct message to this worker about availability, services, or a task you may want help with.</p>
+</div>
+
+<div class="card">
+<div class="worker-row">
+<img id="workerPhoto" class="avatar" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+<div>
+<div class="name" id="workerName">Loading worker...</div>
+<div class="sub" id="workerSub">Worker profile</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<textarea id="messageText" maxlength="1000" placeholder="Type your message..."></textarea>
+<button onclick="sendMessage()">Send Message</button>
+<div id="status" class="status"></div>
+</div>
+</div>
+
+<script>
+const supabaseClient=window.supabase.createClient("https://dbcthtjmtlumidpbucrc.supabase.co","sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ");
+let workerId="";
+let currentUser=null;
+
+function getParam(name){return new URLSearchParams(window.location.search).get(name)||""}
+function escapeHTML(value){return String(value||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function getWorkerName(worker){const first=worker.first_name||"";const last=worker.last_name||"";const lastInitial=last?last.charAt(0).toUpperCase()+".":"";return first?`${first} ${lastInitial}`.trim():(worker.full_name||worker.display_name||"Worker")}
+
+async function loadPage(){
+workerId=getParam("worker_id")||localStorage.getItem("selectedWorkerId")||"";
+const{data}=await supabaseClient.auth.getUser();
+currentUser=data&&data.user?data.user:null;
+
+if(!workerId){document.getElementById("workerName").innerText="Worker not found";return}
+
+const{data:worker}=await supabaseClient.from("workers").select("*").eq("id",workerId).maybeSingle();
+if(worker){
+document.getElementById("workerName").innerText=getWorkerName(worker);
+document.getElementById("workerSub").innerText=worker.city||worker.email||"Worker profile";
+document.getElementById("workerPhoto").src=worker.profile_photo_url||worker.photo_url||worker.avatar_url||"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+}
+}
+
+async function sendMessage(){
+const status=document.getElementById("status");
+const text=document.getElementById("messageText").value.trim();
+status.innerText="";
+
+if(!currentUser){status.style.color="#b00020";status.innerText="Please log in to send a message.";return}
+if(!workerId){status.style.color="#b00020";status.innerText="Worker profile is missing.";return}
+if(text.length<2){status.style.color="#b00020";status.innerText="Enter a message.";return}
+
+const{error}=await supabaseClient.from("customer_worker_messages").insert({
+customer_id:currentUser.id,
+worker_id:workerId,
+sender_id:currentUser.id,
+sender_type:"customer",
+message:text,
+created_at:new Date().toISOString()
+});
+
+if(error){status.style.color="#b00020";status.innerText=error.message;return}
+
+status.style.color="#0b7a28";
+status.innerText="Message sent.";
+document.getElementById("messageText").value="";
+}
+
+loadPage();
+</script>
+</body>
+</html>
 
