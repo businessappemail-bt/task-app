@@ -203,6 +203,47 @@ button:hover {
   display: none;
 }
 
+.slide-screen {
+  display: none;
+}
+
+.slide-screen.active {
+  display: block;
+}
+
+.slide-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.progress-wrap {
+  margin-bottom: 16px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #dfe5e0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  transition: .25s;
+}
+
+.progress-text {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #0b7a28;
+  text-align: center;
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -230,71 +271,97 @@ button:hover {
     Loading selected worker...
   </div>
 
-  <div class="card">
-    <div class="section-title">Task Basics</div>
-    <div class="section-note">Tell the worker what you need help with.</div>
-
-    <label>Task Category</label>
-    <select id="category" onchange="renderQuestions()">
-      <option value="">Select category</option>
-      <option>Moving</option>
-      <option>TV Mounting</option>
-      <option>Furniture Assembly</option>
-      <option>Cleaning</option>
-      <option>Trash Removal</option>
-      <option>Errands</option>
-      <option>Handywork</option>
-      <option>Yard Work</option>
-      <option>Repairs</option>
-      <option>Other</option>
-    </select>
-
-    <label>Task Title</label>
-    <input id="title" placeholder="Example: Mount my living room TV">
-
-    <label>Preferred Date</label>
-    <input id="taskDate" type="date">
-
-    <label>Preferred Time</label>
-    <input id="taskTime" type="time">
+<div class="progress-wrap">
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
   </div>
 
-  <div class="card">
-    <div class="section-title">Location</div>
-    <div class="section-note">Add the task location for this direct request.</div>
-
-    <label>Street Address</label>
-    <input id="address" placeholder="Street address">
-
-    <label>City</label>
-    <input id="city" placeholder="City">
-
-    <label>State</label>
-    <input id="state" placeholder="State">
-
-    <label>Zip Code</label>
-    <input id="zipCode" placeholder="Zip code">
+  <div class="progress-text" id="progressText">
+    Step 1 of 4
   </div>
+</div>
 
-  <div class="card hidden" id="questionsCard">
-    <div class="section-title">Task Questions</div>
-    <div class="section-note">These questions help the worker understand the job before quoting.</div>
+<div class="card slide-screen active" id="slide1">
+  <div class="section-title">Task Basics</div>
+  <div class="section-note">Tell the worker what type of task you need completed.</div>
 
-    <div id="questionsArea"></div>
+  <label>Task Category</label>
+  <select id="category" onchange="renderQuestions()">
+    <option value="">Select category</option>
+    <option>Moving</option>
+    <option>TV Mounting</option>
+    <option>Furniture Assembly</option>
+    <option>Cleaning</option>
+    <option>Trash Removal</option>
+    <option>Errands</option>
+    <option>Handywork</option>
+    <option>Yard Work</option>
+    <option>Repairs</option>
+    <option>Other</option>
+  </select>
+
+  <label>Task Title</label>
+  <input id="title" placeholder="Example: Mount my living room TV">
+
+  <div class="slide-actions">
+    <button onclick="nextSlide(2)">Next</button>
   </div>
+</div>
 
-  <div class="card">
-    <div class="section-title">Extra Details</div>
-    <div class="section-note">Add anything else the worker should know.</div>
+<div class="card slide-screen" id="slide2">
+  <div class="section-title">Date & Location</div>
+  <div class="section-note">Add the task location and preferred timing.</div>
 
-    <label>Additional Notes</label>
-    <textarea id="additionalNotes" maxlength="1200" placeholder="Add timing, access info, special instructions, parking details, or anything else important."></textarea>
+  <label>Preferred Date</label>
+  <input id="taskDate" type="date">
 
+  <label>Preferred Time</label>
+  <input id="taskTime" type="time">
+
+  <label>Street Address</label>
+  <input id="address" placeholder="Street address">
+
+  <label>City</label>
+  <input id="city" placeholder="City">
+
+  <label>State</label>
+  <input id="state" placeholder="State">
+
+  <label>Zip Code</label>
+  <input id="zipCode" placeholder="Zip code">
+
+  <div class="slide-actions">
+    <button class="secondary" onclick="previousSlide(1)">Back</button>
+    <button onclick="nextSlide(3)">Next</button>
+  </div>
+</div>
+
+<div class="card slide-screen" id="slide3">
+  <div class="section-title">Task Questions</div>
+  <div class="section-note">Answer questions for this task category.</div>
+
+  <div id="questionsArea"></div>
+
+  <div class="slide-actions">
+    <button class="secondary" onclick="previousSlide(2)">Back</button>
+    <button onclick="nextSlide(4)">Next</button>
+  </div>
+</div>
+
+<div class="card slide-screen" id="slide4">
+  <div class="section-title">Extra Details</div>
+  <div class="section-note">Add anything else the worker should know.</div>
+
+  <label>Additional Notes</label>
+  <textarea id="additionalNotes" maxlength="1200" placeholder="Add timing, access info, parking details, or anything else important."></textarea>
+
+  <div class="slide-actions">
+    <button class="secondary" onclick="previousSlide(3)">Back</button>
     <button onclick="submitDirectRequest()">Send Direct Quote Request</button>
-    <button class="secondary" onclick="goBackToWorkerProfile()">Cancel</button>
-
-    <div id="status" class="status"></div>
   </div>
+
+  <div id="status" class="status"></div>
+</div>
 
 </div>
 
@@ -421,6 +488,47 @@ function getWorkerName(worker) {
 
   return worker.full_name || worker.display_name || "this worker";
 }
+
+
+function updateProgress(step) {
+  const fill = document.getElementById("progressFill");
+  const text = document.getElementById("progressText");
+
+  const percent = (step / 4) * 100;
+
+  fill.style.width = `${percent}%`;
+  text.innerText = `Step ${step} of 4`;
+}
+
+function showSlide(step) {
+  document.querySelectorAll(".slide-screen")
+    .forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+  const current =
+    document.getElementById(`slide${step}`);
+
+  if (current) {
+    current.classList.add("active");
+  }
+
+  updateProgress(step);
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function nextSlide(step) {
+  showSlide(step);
+}
+
+function previousSlide(step) {
+  showSlide(step);
+}
+
 
 async function loadPage() {
   workerId =
