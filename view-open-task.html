@@ -817,7 +817,8 @@ async function loadOpenTasks() {
       await supabaseClient
         .from("worker_quotes")
         .select("*", { count: "exact", head: true })
-        .eq("task_id", task.id);
+        .eq("task_id", task.id)
+        .neq("status", "declined");
 
     totalInterest += Number(count || 0);
 
@@ -1187,7 +1188,7 @@ async function declineQuote(quoteId, taskId) {
   }
 
   const confirmDecline =
-    confirm("Decline and remove this quote? This will remove it from your view and the worker's quote list.");
+    confirm("Decline and remove this quote from your view?");
 
   if (!confirmDecline) {
     return;
@@ -1202,7 +1203,7 @@ async function declineQuote(quoteId, taskId) {
   const { error } =
     await supabaseClient
       .from("worker_quotes")
-      .delete()
+      .update({ status: "declined" })
       .eq("id", quoteId);
 
   if (error) {
@@ -1211,7 +1212,15 @@ async function declineQuote(quoteId, taskId) {
   }
 
   status.style.color = "#0b7a28";
-  status.innerText = "Quote declined and removed.";
+  status.innerText = "Quote declined and removed from your view.";
+
+  const applicantsBox =
+    document.getElementById(`applicants-${taskId}`);
+
+  if (applicantsBox) {
+    applicantsBox.style.display = "none";
+    applicantsBox.innerHTML = "Loading applicants...";
+  }
 
   await loadOpenTasks();
 }
