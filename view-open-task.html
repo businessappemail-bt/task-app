@@ -146,35 +146,6 @@ body {
   line-height: 1.35;
 }
 
-.request-type-pill {
-  display: inline-block;
-  background: #111;
-  color: white;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 11px;
-  font-weight: 900;
-  margin-top: 6px;
-}
-
-.request-type-pill.direct {
-  background: #fff7e6;
-  color: #7a4b00;
-  border: 1px solid #ffd27a;
-}
-
-.dispute-alert {
-  background: #fff2f2;
-  border: 1px solid #ffb7b7;
-  color: #8b0018;
-  border-radius: 16px;
-  padding: 12px;
-  margin-top: 12px;
-  font-size: 13px;
-  line-height: 1.45;
-  font-weight: 900;
-}
-
 .status-pill {
   background: #e7f7ec;
   color: #0b7a28;
@@ -245,10 +216,6 @@ body {
   font-size: 12px;
   line-height: 1.3;
   white-space: normal;
-}
-
-.worker-details.open {
-  display: block;
 }
 
 .code-note {
@@ -735,11 +702,8 @@ function getWorkerDisplayName(worker, app) {
 }
 
 function getStatusStep(status) {
-  if (status === "requested") return "created";
-  if (status === "quoted") return "accepted";
   if (status === "accepted") return "accepted";
   if (status === "in_progress") return "in_progress";
-  if (status === "dispute_open") return "in_progress";
   if (status === "completed") return "completed";
   if (status === "paid") return "paid";
   return "created";
@@ -790,78 +754,12 @@ function getTaskDetails(task) {
         const label =
           key.replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase());
 
-        const value =
-          Array.isArray(task.task_details[key])
-            ? task.task_details[key].join(", ")
-            : task.task_details[key];
-
-        return `${label}: ${value || "Not answered"}`;
+        return `${label}: ${task.task_details[key]}`;
       })
       .join("\n")
   }
 
-  return task.description || task.additional_notes || "No details listed.";
-}
-
-function getTaskTitle(task) {
-  return task.category || task.title || "Task";
-}
-
-function getTaskDateValue(task) {
-  return task.task_date || task.date_needed || task.needed_by || "";
-}
-
-function getTaskTypeLabel(task) {
-  return task.is_direct_request ? "Direct Quote Request" : "Marketplace Request";
-}
-
-function getTaskTypeClass(task) {
-  return task.is_direct_request ? "direct" : "";
-}
-
-function isTaskActiveForOpenPage(task) {
-  const status =
-    String(task.status || "open").toLowerCase();
-
-  const closedStatuses = [
-    "completed",
-    "paid",
-    "cancelled",
-    "canceled",
-    "closed",
-    "dispute_closed",
-    "resolved"
-  ];
-
-  return !closedStatuses.includes(status);
-}
-
-function isDisputeOpen(task) {
-  const status =
-    String(task.status || "").toLowerCase();
-
-  const disputeStatus =
-    String(task.dispute_status || "").toLowerCase();
-
-  return (
-    status === "dispute_open" ||
-    status === "open_dispute" ||
-    disputeStatus === "open" ||
-    disputeStatus === "reviewing"
-  );
-}
-
-function getAcceptedWorkerId(task) {
-  return (
-    task.assigned_worker_id ||
-    task.accepted_worker_id ||
-    task.worker_id ||
-    ""
-  );
-}
-
-function getTaskSource(task) {
-  return task.is_direct_request ? "direct_task_request" : "public_task";
+  return task.description || "No details listed.";
 }
 
 async function loadOpenTasks() {
@@ -884,53 +782,19 @@ async function loadOpenTasks() {
     return;
   }
 
-  const { data: marketplaceTasks, error: marketplaceError } =
+  const { data: tasks, error } =
     await supabaseClient
       .from("tasks")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["open", "accepted", "in_progress", "dispute_open"])
+      .in("status", ["open", "accepted", "in_progress"])
       .order("created_at", { ascending: false });
 
-  if (marketplaceError) {
+  if (error) {
     tasksList.innerHTML =
-      `<div class="empty">${escapeHTML(marketplaceError.message)}</div>`;
+      `<div class="empty">${escapeHTML(error.message)}</div>`;
     return;
   }
-
-  const { data: directRequests, error: directError } =
-    await supabaseClient
-      .from("direct_task_requests")
-      .select("*")
-      .eq("customer_id", customerId)
-      .order("created_at", { ascending: false });
-
-  if (directError) {
-    console.warn("Direct task requests could not be loaded.", directError);
-  }
-
-  const normalizedMarketplace =
-    (marketplaceTasks || []).map(task => ({
-      ...task,
-      is_direct_request: false,
-      source_type: "public_task"
-    }));
-
-  const normalizedDirect =
-    (directRequests || [])
-      .filter(isTaskActiveForOpenPage)
-      .map(task => ({
-        ...task,
-        is_direct_request: true,
-        source_type: "direct_task_request",
-        request_type: "direct_quote"
-      }));
-
-  const tasks =
-    [...normalizedDirect, ...normalizedMarketplace]
-      .sort((a, b) => {
-        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-      });
 
   if (!tasks || tasks.length === 0) {
     document.getElementById("openCount").innerText = "0";
@@ -958,7 +822,9 @@ async function loadOpenTasks() {
     totalInterest += Number(count || 0);
 
     const assignedWorkerId =
-      getAcceptedWorkerId(task);
+      task.assigned_worker_id ||
+      task.assigned_worker_j ||
+      "";
 
     const card =
       document.createElement("div");
@@ -966,41 +832,34 @@ async function loadOpenTasks() {
     card.className = "task-card";
 
     const detailsId =
-      `details-${task.source_type}-${task.id}`;
+      `details-${task.id}`;
 
     const applicantsId =
-      `applicants-${task.source_type}-${task.id}`;
+      `applicants-${task.id}`;
 
     const dateDisplay =
       task.date_flexible
         ? "Flexible"
-        : formatDate(getTaskDateValue(task));
+        : formatDate(task.task_date || task.date_needed);
 
     const arrivalCode =
       task.arrival_code || "Not generated";
-
-    const disputeOpen =
-      isDisputeOpen(task);
 
     card.innerHTML = `
       <div class="task-top">
         <div>
           <div class="task-title">
-            ${escapeHTML(getTaskTitle(task))}
+            ${escapeHTML(task.category || task.title || "Task")}
           </div>
 
           <div class="task-sub">
             Order # TM-${String(task.id).slice(0, 8).toUpperCase()} •
             ${task.created_at ? new Date(task.created_at).toLocaleDateString() : ""}
           </div>
-
-          <div class="request-type-pill ${escapeHTML(getTaskTypeClass(task))}">
-            ${escapeHTML(getTaskTypeLabel(task))}
-          </div>
         </div>
 
         <div class="status-pill">
-          ${escapeHTML(formatStatus(task.status || (task.is_direct_request ? "requested" : "open")))}
+          ${escapeHTML(formatStatus(task.status || "open"))}
         </div>
       </div>
 
@@ -1020,16 +879,16 @@ async function loadOpenTasks() {
         </div>
 
         <div class="info-box">
-          <div class="info-label">Quotes</div>
+          <div class="info-label">Interested</div>
           <div class="info-value">
-            ${count || 0} quote${Number(count || 0) === 1 ? "" : "s"}
+            ${count || 0} worker${Number(count || 0) === 1 ? "" : "s"}
           </div>
         </div>
 
         <div class="info-box">
-          <div class="info-label">Request Type</div>
+          <div class="info-label">Zip Code</div>
           <div class="info-value">
-            ${escapeHTML(getTaskTypeLabel(task))}
+            ${escapeHTML(task.zip_code || "Not listed")}
           </div>
         </div>
       </div>
@@ -1039,56 +898,48 @@ async function loadOpenTasks() {
       </div>
 
       <div class="details-box" id="${detailsId}">
-        ${
-          getTaskDetails(task)
-            .split("\n")
-            .map(detail => `
-              <div style="
-                background:#ffffff;
-                border:1px solid #e3eee6;
-                border-radius:12px;
-                padding:10px;
-                margin-bottom:8px;
-                line-height:1.35;
-                font-size:12px;
-                font-weight:700;
-              ">
-                ${escapeHTML(detail)}
-              </div>
-            `)
-            .join("")
-        }
+  ${
+    getTaskDetails(task)
+      .split("\n")
+      .map(detail => `
+        <div style="
+          background:#ffffff;
+          border:1px solid #e3eee6;
+          border-radius:12px;
+          padding:10px;
+          margin-bottom:8px;
+          line-height:1.35;
+          font-size:12px;
+          font-weight:700;
+        ">
+          ${escapeHTML(detail)}
+        </div>
+      `)
+      .join("")
+  }
+</div>
+
+      <div class="code-note">
+        <div>Arrival Code</div>
+        <div class="arrival-code">${escapeHTML(arrivalCode)}</div>
+        Only give this code to the worker once they have arrived for the work.
       </div>
 
-      ${disputeOpen ? `
-        <div class="dispute-alert">
-          A dispute is currently open on this task. This task will stay in Open Tasks until the dispute is closed.
-        </div>
-      ` : ""}
-
-      ${task.status === "accepted" || task.status === "in_progress" || disputeOpen ? `
-        <div class="code-note">
-          <div>Arrival Code</div>
-          <div class="arrival-code">${escapeHTML(arrivalCode)}</div>
-          Only give this code to the worker once they have arrived for the work.
-        </div>
-      ` : ""}
-
-      ${statusBar(task.status || (task.is_direct_request ? "requested" : "open"))}
+      ${statusBar(task.status)}
 
       <div class="action-row">
-        <button class="edit-btn" onclick="event.stopPropagation(); editTask('${task.id}', '${getTaskSource(task)}')">
+        <button class="edit-btn" onclick="event.stopPropagation(); editTask('${task.id}')">
           Edit Task
         </button>
 
-        <button class="cancel-btn" onclick="event.stopPropagation(); cancelTask('${task.id}', '${getTaskSource(task)}')">
+        <button class="cancel-btn" onclick="event.stopPropagation(); cancelTask('${task.id}')">
           Cancel Task
         </button>
       </div>
 
-      ${task.status === "in_progress" || task.status === "accepted" || disputeOpen ? `
-        <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${assignedWorkerId}', '${getTaskSource(task)}')">
-          ${disputeOpen ? "View Open Dispute" : "Open Dispute"}
+      ${task.status === "in_progress" || task.status === "completed" || task.status === "paid" ? `
+        <button class="dispute-btn" onclick="event.stopPropagation(); openDispute('${task.id}', '${assignedWorkerId}')">
+          Open Dispute
         </button>
       ` : `
         <button class="dispute-btn" disabled onclick="event.stopPropagation();">
@@ -1096,14 +947,12 @@ async function loadOpenTasks() {
         </button>
       `}
 
-      ${task.status === "completed" || task.status === "paid" ? "" : `
-        <button class="primary-btn" onclick="event.stopPropagation(); toggleApplicants('${task.id}', '${getTaskSource(task)}')">
-          View Worker Quotes
-        </button>
-      `}
+      <button class="primary-btn" onclick="event.stopPropagation(); toggleApplicants('${task.id}')">
+        View Interested Workers
+      </button>
 
       <div class="applicants" id="${applicantsId}">
-        Loading quotes...
+        Loading applicants...
       </div>
     `;
 
@@ -1134,12 +983,13 @@ function toggleWorkerDetails(detailsId) {
     return;
   }
 
-  box.classList.toggle("open");
+  box.style.display =
+    box.style.display === "block" ? "none" : "block";
 }
 
-async function toggleApplicants(taskId, sourceType = "public_task") {
+async function toggleApplicants(taskId) {
   const box =
-    document.getElementById(`applicants-${sourceType}-${taskId}`);
+    document.getElementById(`applicants-${taskId}`);
 
   if (!box) {
     return;
@@ -1175,10 +1025,12 @@ async function toggleApplicants(taskId, sourceType = "public_task") {
   box.innerHTML = "";
 
   for (const app of applications) {
+    // FIX: always fall back to app.id so the DOM id is never "undefined"
     const workerId =
       app.worker_id ||
       app.user_id ||
-      app.worker_user_id;
+      app.worker_user_id ||
+      app.id;
 
     const worker =
       await getWorkerData(app);
@@ -1226,33 +1078,15 @@ async function toggleApplicants(taskId, sourceType = "public_task") {
     const workerCard =
       document.createElement("div");
 
-    const quoteRowId =
-      app.id ||
-      app.quote_id ||
-      `${workerId || "worker"}-${Math.random().toString(36).slice(2)}`;
-
+    // FIX: use the safe workerId (never undefined) for the details element id
     const workerDetailsId =
-      `worker-details-${taskId}-${quoteRowId}`;
+      `worker-details-${taskId}-${workerId}`;
 
     workerCard.className =
       "worker-card";
 
-    const capturedDetailsId =
-      workerDetailsId;
-
-    workerCard.addEventListener("click", function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (event.target.closest("button")) {
-        return;
-      }
-
-      toggleWorkerDetails(capturedDetailsId);
-    });
-
     workerCard.innerHTML = `
-      <div class="worker-summary">
+      <div class="worker-summary" onclick="event.stopPropagation(); toggleWorkerDetails('${workerDetailsId}')">
         <div class="worker-header">
           <img
             src="${escapeHTML(workerPhoto)}"
@@ -1277,7 +1111,7 @@ async function toggleApplicants(taskId, sourceType = "public_task") {
       </div>
 
       <div class="tap-message">
-        Tap anywhere on this worker card to expand
+        Tap worker card to expand
       </div>
 
       <div class="worker-details" id="${workerDetailsId}">
@@ -1289,15 +1123,15 @@ async function toggleApplicants(taskId, sourceType = "public_task") {
         </div>
 
         <div class="worker-actions">
-          <button class="public-profile-btn" onclick="event.preventDefault(); event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
+          <button class="public-profile-btn" onclick="event.stopPropagation(); viewWorkerPublicProfile('${workerId}')">
             Public Profile
           </button>
 
-          <button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}', sourceType)">
+          <button class="message-btn" onclick="event.stopPropagation(); messageWorker('${workerId}', '${taskId}')">
             Message
           </button>
 
-          <button class="accept-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}', '${quoteAmount}', sourceType)">
+          <button class="accept-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}', '${quoteAmount}')">
             Accept Quote
           </button>
 
@@ -1313,42 +1147,28 @@ async function toggleApplicants(taskId, sourceType = "public_task") {
 }
 
 function viewWorkerPublicProfile(workerId) {
-  if (!workerId || workerId === "undefined" || workerId === "null") {
-    alert("This worker profile could not be opened.");
-    return;
-  }
-
   localStorage.setItem("selectedWorkerId", workerId);
   localStorage.setItem("selectedWorkerProfileId", workerId);
-  localStorage.setItem("selectedPublicWorkerId", workerId);
-
-  window.location.assign(
-    `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`
-  );
-}
-
-function messageWorker(workerId, taskId, sourceType = "public_task") {
   window.location.href =
-    `message-center.html?worker_id=${workerId}&task_id=${taskId}&source_type=${sourceType}`;
+    `worker-public-profile.html?workerId=${encodeURIComponent(workerId)}`;
 }
 
-function openDispute(taskId, workerId, sourceType = "public_task") {
+function messageWorker(workerId, taskId) {
   window.location.href =
-    `dispute-center.html?task_id=${taskId}&worker_id=${workerId || ""}&source_type=${sourceType}`;
+    `message-center.html?worker_id=${workerId}&task_id=${taskId}`;
 }
 
-function editTask(taskId, sourceType = "public_task") {
-  if (sourceType === "direct_task_request") {
-    window.location.href =
-      `request-worker-quote.html?direct_request_id=${encodeURIComponent(taskId)}`;
-    return;
-  }
+function openDispute(taskId, workerId) {
+  window.location.href =
+    `dispute-center.html?task_id=${taskId}&worker_id=${workerId || ""}`;
+}
 
+function editTask(taskId) {
   window.location.href =
     `post-job.html?edit_task_id=${encodeURIComponent(taskId)}`;
 }
 
-function acceptQuote(taskId, workerId, quoteId, quoteAmount, sourceType = "public_task") {
+function acceptQuote(taskId, workerId, quoteId, quoteAmount) {
   const confirmAccept =
     confirm("Continue to payment and assign this worker if payment succeeds?");
 
@@ -1357,7 +1177,7 @@ function acceptQuote(taskId, workerId, quoteId, quoteAmount, sourceType = "publi
   }
 
   window.location.href =
-    `customer-pay-quote.html?task_id=${encodeURIComponent(taskId)}&worker_id=${encodeURIComponent(workerId)}&quote_id=${encodeURIComponent(quoteId)}&quote_amount=${encodeURIComponent(quoteAmount || 0)}&source_type=${encodeURIComponent(sourceType)}`;
+    `customer-pay-quote.html?task_id=${encodeURIComponent(taskId)}&worker_id=${encodeURIComponent(workerId)}&quote_id=${encodeURIComponent(quoteId)}&quote_amount=${encodeURIComponent(quoteAmount || 0)}`;
 }
 
 async function declineQuote(quoteId, taskId) {
@@ -1396,7 +1216,7 @@ async function declineQuote(quoteId, taskId) {
   await loadOpenTasks();
 }
 
-async function cancelTask(taskId, sourceType = "public_task") {
+async function cancelTask(taskId) {
   const confirmCancel =
     confirm("Cancel this task? Workers will no longer be able to send quotes.");
 
@@ -1410,14 +1230,9 @@ async function cancelTask(taskId, sourceType = "public_task") {
   status.style.color = "#b00020";
   status.innerText = "";
 
-  const tableName =
-    sourceType === "direct_task_request"
-      ? "direct_task_requests"
-      : "tasks";
-
   const { error } =
     await supabaseClient
-      .from(tableName)
+      .from("tasks")
       .update({ status: "cancelled" })
       .eq("id", taskId);
 
