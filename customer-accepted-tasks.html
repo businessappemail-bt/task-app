@@ -409,12 +409,12 @@ button:hover {
 
   <div class="hero">
     <h1>Accepted Quotes</h1>
-    <p>Review closed accepted quotes, completed work, worker details, task details, and payment status.</p>
+    <p>Review paid accepted quotes, completed work, worker details, task details, and payment status.</p>
   </div>
 
   <div class="summary-row">
     <div class="summary-box">
-      <div class="summary-label">Closed Tasks</div>
+      <div class="summary-label">Paid Tasks</div>
       <div class="summary-value" id="closedCount">0</div>
     </div>
 
@@ -675,9 +675,7 @@ function isClosedAcceptedTask(task) {
     "paid",
     "closed",
     "resolved",
-    "dispute_closed",
-    "cancelled",
-    "canceled"
+    "dispute_closed"
   ].includes(status);
 }
 
@@ -858,7 +856,7 @@ async function loadAcceptedQuotes() {
       .from("tasks")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["completed", "paid", "closed", "resolved", "dispute_closed", "cancelled", "canceled"])
+      .in("status", ["completed", "paid", "closed", "resolved", "dispute_closed"])
       .order("created_at", { ascending: false });
 
   if (taskError) {
@@ -872,7 +870,7 @@ async function loadAcceptedQuotes() {
       .from("direct_task_requests")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["completed", "paid", "closed", "resolved", "dispute_closed", "cancelled", "canceled"])
+      .in("status", ["completed", "paid", "closed", "resolved", "dispute_closed"])
       .order("created_at", { ascending: false });
 
   const tasks =
@@ -896,13 +894,14 @@ async function loadAcceptedQuotes() {
     document.getElementById("paidTotal").innerText = "$0.00";
 
     list.innerHTML =
-      `<div class="empty">No closed accepted quotes yet.</div>`;
+      `<div class="empty">No paid accepted quotes yet.</div>`;
     return;
   }
 
   list.innerHTML = "";
 
   let totalPaid = 0;
+  let visiblePaidTasks = 0;
 
   for (const task of tasks) {
     const quoteId =
@@ -931,6 +930,12 @@ async function loadAcceptedQuotes() {
 
     const paymentCompleted =
       isPaymentCompleted(task, quote, payment);
+
+    if (!paymentCompleted) {
+      continue;
+    }
+
+    visiblePaidTasks += 1;
 
     const paymentStatus =
       getPaymentStatus(task, quote, payment);
@@ -1073,8 +1078,17 @@ async function loadAcceptedQuotes() {
     list.appendChild(card);
   }
 
+  if (visiblePaidTasks === 0) {
+    document.getElementById("closedCount").innerText = "0";
+    document.getElementById("paidTotal").innerText = "$0.00";
+
+    list.innerHTML =
+      `<div class="empty">No paid accepted quotes yet.</div>`;
+    return;
+  }
+
   document.getElementById("closedCount").innerText =
-    String(tasks.length);
+    String(visiblePaidTasks);
 
   document.getElementById("paidTotal").innerText =
     formatMoney(totalPaid);
