@@ -643,62 +643,43 @@ async function getWorkerData(app) {
 }
 
 function getWorkerDisplayName(worker, app) {
-  const directName =
-    app.worker_display_name ||
-    app.worker_name ||
-    app.display_name ||
-    worker.worker_display_name ||
-    worker.worker_name ||
-    worker.display_name;
-
-  if (directName && String(directName).trim() && String(directName).trim() !== "Worker") {
-    return String(directName).trim();
-  }
 
   const firstName =
     worker.first_name ||
     worker.first ||
-    app.first_name ||
+    worker.worker_first_name ||
     app.worker_first_name ||
-    "";
-
-  const lastName =
-    worker.last_name ||
-    worker.last ||
-    app.last_name ||
-    app.worker_last_name ||
+    app.first_name ||
     "";
 
   const lastInitial =
-    lastName
-      ? `${String(lastName).trim().charAt(0).toUpperCase()}.`
-      : "";
+    worker.worker_last_initial ||
+    app.worker_last_initial ||
+    (
+      worker.last_name
+        ? String(worker.last_name).charAt(0).toUpperCase()
+        : ""
+    );
 
-  const firstLastInitial =
-    `${firstName || ""} ${lastInitial}`.trim();
-
-  if (firstLastInitial) {
-    return firstLastInitial;
+  if (firstName) {
+    return `${firstName} ${lastInitial ? lastInitial + "." : ""}`.trim();
   }
 
   const fullName =
     worker.full_name ||
-    app.full_name ||
-    app.worker_full_name ||
-    "";
+    worker.display_name ||
+    app.worker_display_name ||
+    app.display_name ||
+    "Worker";
 
-  if (fullName && String(fullName).trim() && String(fullName).trim() !== "Worker") {
-    const parts =
-      String(fullName).trim().split(/\s+/);
+  const parts =
+    String(fullName).trim().split(/\s+/);
 
-    if (parts.length > 1) {
-      return `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`;
-    }
-
-    return parts[0];
+  if (parts.length > 1) {
+    return `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`;
   }
 
-  return "Worker";
+  return parts[0];
 }
 
 function getStatusStep(status) {
