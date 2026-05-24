@@ -1009,6 +1009,10 @@ async function toggleApplicants(taskId) {
   for (const app of applications) {
     // FIX: always fall back to app.id so the DOM id is never "undefined"
     const workerId =
+      worker.id ||
+      worker.user_id ||
+      worker.profile_id ||
+      worker.worker_id ||
       app.worker_id ||
       app.user_id ||
       app.worker_user_id ||
