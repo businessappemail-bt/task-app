@@ -1306,6 +1306,19 @@ function requestQuote() {
   window.location.href = "request-worker-quote.html";
 }
  
+function reportWorker() {
+  if (!selectedWorkerId) {
+    alert("Worker profile is not available.");
+    return;
+  }
+
+  localStorage.setItem("selectedWorkerId", selectedWorkerId || "");
+  localStorage.setItem("selectedWorkerProfileId", selectedWorkerId || "");
+
+  window.location.href =
+    `report-worker.html?worker_id=${encodeURIComponent(selectedWorkerId || "")}`;
+}
+
 function openPhotoModal(url) {
   document.getElementById("modalImage").src = url;
   document.getElementById("photoModal").style.display = "flex";
