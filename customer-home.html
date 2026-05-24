@@ -46,6 +46,7 @@
     }
     .section-title { font-size: 18px; font-weight: 900; margin-bottom: 12px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .wide-card { grid-column: 1 / -1; min-height: 118px; }
     .section .grid { margin-bottom: 0; }
     .action-card {
       background: white; border-radius: 22px; padding: 16px; border: 1px solid #edf1ee;
@@ -58,6 +59,7 @@
     .action-card:nth-child(4) { animation-delay: 1.5s; }
     .action-card:nth-child(5) { animation-delay: 2s; }
     .action-card:nth-child(6) { animation-delay: 2.5s; }
+    .action-card:nth-child(7) { animation-delay: 3s; }
     .icon {
       width: 42px; height: 42px; border-radius: 14px; background: #e7f7ec; color: #0b7a28;
       display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px;
@@ -106,13 +108,19 @@
     <div class="action-card" onclick="window.location.href='view-open-task.html'">
       <div class="icon">📌</div>
       <div class="title">Open Tasks</div>
-      <div class="sub">Track active jobs, quotes, and worker updates.</div>
+      <div class="sub">Review posted tasks, direct quote requests, and worker quotes.</div>
+    </div>
+
+    <div class="action-card wide-card" onclick="window.location.href='customer-accepted-tasks.html'">
+      <div class="icon">🧾</div>
+      <div class="title">Accepted Tasks</div>
+      <div class="sub">View tasks where a worker has been accepted, payment is active, work is in progress, or a dispute is open.</div>
     </div>
 
     <div class="action-card" onclick="window.location.href='view-past-task.html'">
       <div class="icon">✅</div>
       <div class="title">Past Tasks</div>
-      <div class="sub">View completed tasks and paid jobs.</div>
+      <div class="sub">View completed, paid, and resolved tasks.</div>
     </div>
 
     <div class="action-card" onclick="window.location.href='message-center.html'">
@@ -157,8 +165,8 @@
   <a href="customer-home.html" class="active"><span class="nav-icon">🏠</span>Home</a>
   <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
   <a href="view-open-task.html"><span class="nav-icon">📌</span>Open</a>
+  <a href="customer-accepted-tasks.html"><span class="nav-icon">🧾</span>Accepted</a>
   <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
-  <a href="profile.html"><span class="nav-icon">👤</span>Profile</a>
 </div>
 
 <script>
