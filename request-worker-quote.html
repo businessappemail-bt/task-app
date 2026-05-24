@@ -688,50 +688,6 @@ async function submitDirectRequest() {
     return;
   }
 
-  const { data: conversation } =
-  await supabaseClient
-    .from("task_conversations")
-    .insert([
-      {
-        customer_id: currentUser.id,
-        worker_id: workerId,
-        conversation_type: "quote_request",
-        updated_at: new Date().toISOString()
-      }
-    ])
-    .select()
-    .single();
-
-if (conversation && conversation.id) {
-
-  await supabaseClient
-    .from("task_messages")
-    .insert([
-      {
-        conversation_id: conversation.id,
-        sender_id: currentUser.id,
-        sender_type: "customer",
-        message:
-          `Direct Quote Request: ${title}\n\n${additionalNotes || "Customer requested a quote."}`,
-        is_read: false
-      }
-    ]);
-
-  await supabaseClient
-    .from("worker_inbox_items")
-    .insert([
-      {
-        worker_id: workerId,
-        customer_id: currentUser.id,
-        conversation_id: conversation.id,
-        item_type: "quote_request",
-        title: title,
-        preview: additionalNotes || "New direct quote request",
-        is_read: false
-      }
-    ]);
-}
-
   if (!workerId) {
     status.style.color = "#b00020";
     status.innerText = "Worker profile is missing.";
@@ -780,7 +736,7 @@ if (conversation && conversation.id) {
   const taskDetails =
     collectQuestionAnswers();
 
-  const { error } =
+  const { data: directRequest, error } =
     await supabaseClient
       .from("direct_task_requests")
       .insert({
@@ -799,13 +755,70 @@ if (conversation && conversation.id) {
         status: "requested",
         is_public: false,
         created_at: new Date().toISOString()
-      });
+      })
+      .select()
+      .single();
 
   if (error) {
     status.style.color = "#b00020";
     status.innerText = error.message;
     return;
   }
+
+  const { data: conversation, error: conversationError } =
+    await supabaseClient
+      .from("task_conversations")
+      .insert([
+        {
+          customer_id: currentUser.id,
+          worker_id: workerId,
+          quote_request_id: directRequest.id,
+          conversation_type: "quote_request",
+          updated_at: new Date().toISOString()
+        }
+      ])
+      .select()
+      .single();
+
+  if (conversationError) {
+    status.style.color = "#b00020";
+    status.innerText = conversationError.message;
+    return;
+  }
+
+  const { error: messageError } =
+    await supabaseClient
+      .from("task_messages")
+      .insert([
+        {
+          conversation_id: conversation.id,
+          sender_id: currentUser.id,
+          sender_type: "customer",
+          message: `Direct Quote Request: ${title}\n\n${additionalNotes || "Customer requested a quote."}`,
+          is_read: false
+        }
+      ]);
+
+  if (messageError) {
+    status.style.color = "#b00020";
+    status.innerText = messageError.message;
+    return;
+  }
+
+  await supabaseClient
+    .from("worker_inbox_items")
+    .insert([
+      {
+        worker_id: workerId,
+        customer_id: currentUser.id,
+        conversation_id: conversation.id,
+        quote_request_id: directRequest.id,
+        item_type: "quote_request",
+        title: title,
+        preview: additionalNotes || "New direct quote request",
+        is_read: false
+      }
+    ]);
 
   status.style.color = "#0b7a28";
   status.innerText = "Direct quote request sent.";
