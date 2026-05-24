@@ -394,6 +394,11 @@
       color: #111;
       border: 1px solid #dfe5e0;
     }
+
+    button.danger {
+      background: #b00020;
+      color: white;
+    }
  
     .loading {
       background: white;
@@ -1139,8 +1144,6 @@ function renderProfile(profile, availability, reviews, completedJobs, portfolio,
         </div>
       </div>
  
-      ${renderWorkPhotoUpload(profile)}
-      ${renderPendingPortfolio(pendingPortfolio, profile)}
       ${renderPortfolio(portfolio)}
     </div>
  
@@ -1158,6 +1161,8 @@ function renderProfile(profile, availability, reviews, completedJobs, portfolio,
     <div class="button-grid">
       <button class="secondary" onclick="messageWorker()">Message</button>
       <button onclick="requestQuote()">Request Quote</button>
+      <button class="secondary" onclick="saveWorker()">Save Worker</button>
+      <button class="danger" onclick="reportWorker()">Report Worker</button>
     </div>
   `;
 }
