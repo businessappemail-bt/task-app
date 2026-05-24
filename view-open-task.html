@@ -595,10 +595,10 @@ async function getWorkerData(app) {
   const possibleWorkerIds =
     uniqueValues([
       app.worker_id,
-      app.worker_user_id,
-      app.user_id,
       app.worker_profile_id,
       app.profile_id,
+      app.worker_user_id,
+      app.user_id,
       app.submitted_by,
       app.created_by
     ]);
@@ -609,29 +609,12 @@ async function getWorkerData(app) {
   for (const id of possibleWorkerIds) {
     if (!workerProfile) {
       workerProfile =
-        await fetchSingleByColumn("worker_profiles", "id", id) ||
-        await fetchSingleByColumn("worker_profiles", "user_id", id) ||
-        await fetchSingleByColumn("worker_profiles", "profile_id", id) ||
-        await fetchSingleByColumn("worker_profiles", "worker_id", id);
+        await fetchSingleByColumn("worker_profiles", "id", id);
     }
 
     if (!profile) {
       profile =
         await fetchSingleByColumn("profiles", "id", id);
-    }
-
-    if (workerProfile && !profile) {
-      profile =
-        await fetchSingleByColumn("profiles", "id", workerProfile.user_id) ||
-        await fetchSingleByColumn("profiles", "id", workerProfile.profile_id) ||
-        await fetchSingleByColumn("profiles", "id", workerProfile.worker_id);
-    }
-
-    if (profile && !workerProfile) {
-      workerProfile =
-        await fetchSingleByColumn("worker_profiles", "user_id", profile.id) ||
-        await fetchSingleByColumn("worker_profiles", "profile_id", profile.id) ||
-        await fetchSingleByColumn("worker_profiles", "worker_id", profile.id);
     }
 
     if (workerProfile || profile) {
@@ -1007,19 +990,19 @@ async function toggleApplicants(taskId) {
   box.innerHTML = "";
 
   for (const app of applications) {
-    // FIX: always fall back to app.id so the DOM id is never "undefined"
+    const worker =
+      await getWorkerData(app);
+
     const workerId =
+      app.worker_id ||
+      app.worker_profile_id ||
       worker.id ||
-      worker.user_id ||
       worker.profile_id ||
       worker.worker_id ||
-      app.worker_id ||
+      worker.user_id ||
       app.user_id ||
       app.worker_user_id ||
       app.id;
-
-    const worker =
-      await getWorkerData(app);
 
     const revieweeId =
       worker.user_id ||
