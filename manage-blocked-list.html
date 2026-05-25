@@ -1,1 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manage Blocked List - TaskMint</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#f4f4f4;
+}
+
+.container{
+  max-width:420px;
+  margin:0 auto;
+  background:white;
+  min-height:100vh;
+  padding-bottom:100px;
+}
+
+.header{
+  background:#287a32;
+  color:white;
+  padding:18px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.back-btn{
+  margin:15px;
+  color:#287a32;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.section-title{
+  padding:0 20px;
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+.empty-state{
+  text-align:center;
+  padding:40px 20px;
+  color:#777;
+  font-size:15px;
+}
+
+.blocked-card{
+  margin:15px 20px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:15px;
+  background:#fff;
+}
+
+.top-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.avatar{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #287a32;
+}
+
+.user-info{
+  flex:1;
+}
+
+.user-name{
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:4px;
+}
+
+.user-details{
+  font-size:13px;
+  color:#666;
+}
+
+.unblock-btn{
+  width:100%;
+  margin-top:15px;
+  background:#d32f2f;
+  color:white;
+  border:none;
+  border-radius:10px;
+  padding:12px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.unblock-btn:hover{
+  opacity:0.9;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    Manage Blocked List
+  </div>
+
+  <div class="back-btn" onclick="window.history.back()">
+    ← Back
+  </div>
+
+  <div class="section-title">
+    Blocked Workers
+  </div>
+
+  <div id="blockedList"></div>
+
+</div>
+
+<script>
+
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+const blockedList = document.getElementById("blockedList");
+
+async function loadBlockedUsers() {
+
+  blockedList.innerHTML = "";
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    blockedList.innerHTML = `
+      <div class="empty-state">
+        No active session found.
+      </div>
+    `;
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("blocked_users")
+    .select(`
+      id,
+      blocked_user_id,
+      created_at,
+      worker_profiles (
+        id,
+        full_name,
+        profile_photo,
+        services_offered,
+        work_area
+      )
+    `)
+    .eq("customer_id", user.id)
+    .order("created_at", { ascending:false });
+
+  if (error) {
+    console.log(error);
+
+    blockedList.innerHTML = `
+      <div class="empty-state">
+        Unable to load blocked users.
+      </div>
+    `;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    blockedList.innerHTML = `
+      <div class="empty-state">
+        You have not blocked anyone.
+      </div>
+    `;
+    return;
+  }
+
+  data.forEach(blocked => {
+
+    const worker = blocked.worker_profiles || {};
+
+    const card = document.createElement("div");
+    card.className = "blocked-card";
+
+    card.innerHTML = `
+      <div class="top-row">
+
+        <img
+          class="avatar"
+          src="${worker.profile_photo || 'https://via.placeholder.com/60'}"
+        />
+
+        <div class="user-info">
+
+          <div class="user-name">
+            ${worker.full_name || "Worker"}
+          </div>
+
+          <div class="user-details">
+            ${worker.services_offered || "TaskMint Worker"}
+          </div>
+
+          <div class="user-details">
+            ${worker.work_area || ""}
+          </div>
+
+        </div>
+
+      </div>
+
+      <button class="unblock-btn">
+        Remove From Blocked List
+      </button>
+    `;
+
+    card.querySelector(".unblock-btn")
+      .addEventListener("click", async () => {
+
+      const confirmUnblock = confirm(
+        "Remove this worker from your blocked list?"
+      );
+
+      if (!confirmUnblock) return;
+
+      const { error: deleteError } = await supabaseClient
+        .from("blocked_users")
+        .delete()
+        .eq("id", blocked.id);
+
+      if (deleteError) {
+        alert("Unable to unblock user.");
+        console.log(deleteError);
+        return;
+      }
+
+      alert("Worker removed from blocked list.");
+
+      loadBlockedUsers();
+
+    });
+
+    blockedList.appendChild(card);
+
+  });
+
+}
+
+loadBlockedUsers();
+
+</script>
+
+</body>
+</html>
