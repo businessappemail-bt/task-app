@@ -1,636 +1,800 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Manage Blocked List - TaskMint</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<title>How TaskMint Works</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{
-  box-sizing:border-box;
+* {
+  box-sizing: border-box;
 }
 
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#eef3ef;
-  color:#1f2933;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 30px;
 }
 
-.app{
-  max-width:430px;
-  margin:0 auto;
-  min-height:100vh;
-  background:#f7faf7;
-  padding-bottom:90px;
+.container {
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 18px;
 }
 
-.hero{
-  background:linear-gradient(135deg,#1f6f2a,#2f8f3a);
-  color:white;
-  padding:22px 18px 30px;
-  border-bottom-left-radius:28px;
-  border-bottom-right-radius:28px;
-  box-shadow:0 8px 22px rgba(0,0,0,0.16);
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
-.hero-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:22px;
+.back,
+.skip-top {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.back-btn{
-  background:rgba(255,255,255,0.16);
-  color:white;
-  border:1px solid rgba(255,255,255,0.35);
-  border-radius:999px;
-  padding:9px 13px;
-  font-size:14px;
-  font-weight:bold;
-  cursor:pointer;
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
 }
 
-.page-label{
-  font-size:13px;
-  opacity:0.9;
-  letter-spacing:0.3px;
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
 }
 
-.hero h1{
-  margin:0;
-  font-size:26px;
-  line-height:1.15;
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
 }
 
-.hero p{
-  margin:9px 0 0;
-  font-size:14px;
-  line-height:1.45;
-  opacity:0.95;
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
 }
 
-.content{
-  padding:18px;
+.slider-card,
+.search-card,
+.faq-card {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
 }
 
-.summary-card{
-  background:white;
-  margin-top:-30px;
-  border-radius:22px;
-  padding:18px;
-  box-shadow:0 8px 24px rgba(31,111,42,0.14);
-  border:1px solid #e2ece3;
+.slide {
+  display: none;
+  text-align: center;
+  animation: slideFade 0.35s ease;
 }
 
-.summary-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
+.slide.active {
+  display: block;
 }
 
-.summary-title{
-  font-size:14px;
-  color:#667085;
-  margin-bottom:5px;
+.image-bubble {
+  width: 118px;
+  height: 118px;
+  margin: 0 auto 18px;
+  border-radius: 34px;
+  background: linear-gradient(135deg, #e7f7ec, #ffffff);
+  border: 4px solid white;
+  box-shadow: 0 12px 24px rgba(11,122,40,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  animation: floatCard 4s ease-in-out infinite;
 }
 
-.summary-count{
-  font-size:30px;
-  font-weight:800;
-  color:#1f6f2a;
+.slide h2 {
+  font-size: 24px;
+  margin: 0 0 10px;
 }
 
-.summary-note{
-  margin-top:12px;
-  font-size:13px;
-  color:#5d6b60;
-  line-height:1.45;
+.slide p {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #555;
+  margin: 0;
 }
 
-.shield{
-  width:52px;
-  height:52px;
-  border-radius:17px;
-  background:#e8f6ea;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:25px;
+.green {
+  color: #0b7a28;
+  font-weight: 900;
 }
 
-.section-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin:24px 2px 12px;
+.dots {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0 16px;
+  gap: 8px;
 }
 
-.section-title{
-  font-size:18px;
-  font-weight:800;
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d6d6d6;
+  transition: 0.2s;
 }
 
-.refresh-btn{
-  border:none;
-  background:#e8f6ea;
-  color:#1f6f2a;
-  font-weight:bold;
-  border-radius:999px;
-  padding:8px 12px;
-  cursor:pointer;
+.dot.active {
+  width: 24px;
+  border-radius: 10px;
+  background: #0b7a28;
 }
 
-.blocked-card{
-  background:white;
-  border:1px solid #e1e8e2;
-  border-radius:22px;
-  padding:16px;
-  margin-bottom:14px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.worker-top{
-  display:flex;
-  gap:13px;
-  align-items:center;
+button {
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.avatar-wrap{
-  position:relative;
-  width:62px;
-  height:62px;
-  flex:0 0 62px;
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
 }
 
-.avatar{
-  width:62px;
-  height:62px;
-  border-radius:50%;
-  object-fit:cover;
-  border:3px solid #e8f6ea;
-  background:#f1f5f1;
+.skip {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
 }
 
-.block-badge{
-  position:absolute;
-  right:-3px;
-  bottom:-3px;
-  width:24px;
-  height:24px;
-  border-radius:50%;
-  background:#d93025;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:13px;
-  border:2px solid white;
+.next {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
 }
 
-.worker-main{
-  flex:1;
-  min-width:0;
+.section-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 8px;
 }
 
-.worker-name{
-  font-size:17px;
-  font-weight:800;
-  margin-bottom:5px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+.section-sub {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 12px;
 }
 
-.worker-meta{
-  font-size:13px;
-  color:#667085;
-  line-height:1.35;
+.search-wrap {
+  position: relative;
 }
 
-.status-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  background:#fff0ef;
-  color:#b42318;
-  border:1px solid #ffd7d3;
-  border-radius:999px;
-  padding:6px 9px;
-  font-size:12px;
-  font-weight:bold;
-  margin-top:10px;
+.search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #0b7a28;
+  font-weight: 900;
 }
 
-.details{
-  margin-top:14px;
-  display:grid;
-  gap:8px;
+input {
+  width: 100%;
+  padding: 13px 13px 13px 38px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  font-size: 14px;
+  outline: none;
 }
 
-.detail-row{
-  background:#f7faf7;
-  border:1px solid #edf2ed;
-  border-radius:14px;
-  padding:10px 12px;
-  font-size:13px;
-  color:#46534a;
+input:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
 }
 
-.detail-label{
-  display:block;
-  font-size:11px;
-  color:#7a897d;
-  font-weight:bold;
-  margin-bottom:3px;
-  text-transform:uppercase;
-  letter-spacing:0.3px;
+.faq-item {
+  border: 1px solid #edf1ee;
+  border-radius: 18px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  background: #f7faf8;
 }
 
-.action-row{
-  display:flex;
-  gap:10px;
-  margin-top:15px;
+.faq-question {
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-.unblock-btn{
-  flex:1;
-  background:#1f6f2a;
-  color:white;
-  border:none;
-  border-radius:15px;
-  padding:13px 12px;
-  font-size:15px;
-  font-weight:800;
-  cursor:pointer;
+.faq-answer {
+  display: none;
+  padding: 0 14px 14px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
-.unblock-btn:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
+.faq-item.open .faq-answer {
+  display: block;
 }
 
-.small-btn{
-  background:white;
-  color:#1f6f2a;
-  border:1px solid #bddbc2;
-  border-radius:15px;
-  padding:13px 12px;
-  font-size:14px;
-  font-weight:bold;
-  cursor:pointer;
+.faq-item.open .faq-arrow {
+  transform: rotate(90deg);
 }
 
-.state-box{
-  background:white;
-  border:1px solid #e1e8e2;
-  border-radius:22px;
-  padding:30px 20px;
-  text-align:center;
-  box-shadow:0 6px 18px rgba(0,0,0,0.05);
+.faq-arrow {
+  color: #0b7a28;
+  font-size: 20px;
+  transition: 0.2s;
 }
 
-.state-icon{
-  width:58px;
-  height:58px;
-  border-radius:20px;
-  background:#e8f6ea;
-  color:#1f6f2a;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  margin:0 auto 14px;
+.empty {
+  display: none;
+  background: #fff8e6;
+  color: #6f4b00;
+  border: 1px solid #ffe0a3;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
 }
 
-.state-title{
-  font-size:18px;
-  font-weight:800;
-  margin-bottom:7px;
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.state-text{
-  font-size:14px;
-  color:#667085;
-  line-height:1.45;
+.quick-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+  text-align: center;
 }
 
-.loading{
-  padding:24px;
-  text-align:center;
-  color:#667085;
-  font-size:14px;
+.quick-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
 }
 
-.toast{
-  position:fixed;
-  left:50%;
-  bottom:22px;
-  transform:translateX(-50%);
-  width:calc(100% - 34px);
-  max-width:396px;
-  background:#1f2933;
-  color:white;
-  border-radius:16px;
-  padding:13px 15px;
-  font-size:14px;
-  display:none;
-  box-shadow:0 10px 25px rgba(0,0,0,0.22);
-  z-index:20;
+.quick-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: #0b7a28;
 }
 
-.toast.show{
-  display:block;
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 </style>
 </head>
+
 <body>
 
-<div class="app">
+<div class="container">
 
-  <div class="hero">
-    <div class="hero-top">
-      <button class="back-btn" onclick="window.history.back()">← Back</button>
-      <div class="page-label">Customer Safety</div>
-    </div>
-
-    <h1>Manage Blocked List</h1>
-    <p>
-      Workers listed here cannot message you or send quotes while they remain blocked.
-    </p>
+  <div class="top-bar">
+    <div class="back" onclick="goBack()">← Back</div>
+    <div class="skip-top" onclick="finishOnboarding()">Skip</div>
   </div>
 
-  <div class="content">
+  <div class="hero">
+    <h1>How TaskMint Works</h1>
+    <p>Post tasks, compare worker quotes, pay securely, and keep everything organized from start to finish.</p>
+  </div>
 
-    <div class="summary-card">
-      <div class="summary-row">
-        <div>
-          <div class="summary-title">Blocked workers</div>
-          <div class="summary-count" id="blockedCount">0</div>
-        </div>
-        <div class="shield">🛡️</div>
+    <div class="search-card">
+    <div class="section-title">Search Help Questions</div>
+    <div class="section-sub">Search by keyword like quotes, payment, disputes, worker, arrival code, or cancel.</div>
+
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input id="faqSearch" placeholder="Search questions..." oninput="filterFAQ()">
+    </div>
+  </div>
+
+  <div class="faq-card">
+
+    <div class="section-title">Getting Started</div>
+
+    <div id="emptyMessage" class="empty">
+      No matching questions found.
+    </div>
+
+    <div class="faq-item" data-keywords="post task create job order questions address date">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        How do I post a task?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        Tap Post, choose the task type, answer the questions, add the task address and date needed, then review and post.
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="quotes offers workers accept quote price amount">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        How do worker quotes work?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        Workers review your task and send quote offers. You can compare the worker, rating, message, and quote amount before accepting.
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="payment pay card saved payment accepted quote stripe">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        When do I pay?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        You pay after accepting a worker quote. If you saved a default payment method, the payment page can pull those saved display details.
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="arrival code worker arrived safety confirm job">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        What is the arrival code?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        The arrival code confirms the worker arrived for the job. Only give the code to the assigned worker once they are actually there.
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="message worker chat file photo image">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        Can I message workers?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        Yes. Messages are tied to the task so conversations stay organized. Keep payments and job updates inside TaskMint.
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:26px;">Tasks & Scheduling</div>
+
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        Can I edit or cancel a task?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        You can edit open tasks before they are completed. Cancel options depend on the task status and whether a worker has already been accepted. Please note that there is a cancellation policy that is strictly enforced to protect workers.
+      </div>
+    </div>
+
+       <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        what is your cancellation policy?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+If no worker is assigned you may cancel for free. If a worker is assigned, a cancellation fee may apply depending on how close the cancellation is to the scheduled task time.
+      <p>Cancel more 7+ days or more - no fee.</p>
+      <p>Cancel 3-7 days before the scheduled task - 10% cancellation fee.</p>
+      <p>Cancel 24-72 hours  before the scheduled task - 20% cancellation fee.</p>
+      <p>Same day cancellations - 30% cancellation fee.</p>
+      
+      A portion of the cancellation will be paid to the worker for reserved time and scheduling impact.</div>
+    </div>
+
+       <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        What happens if the worker cancels?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        If a worker cancels or does not show up, you will receive a full refund. 
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="dispute issue problem completed task review 7 10 business days">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        Can I reschedule instead of canceling?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+        Yes. Reschedule request must be approved by both the customer and worker.
+    </div>
       </div>
 
-      <div class="summary-note">
-        Removing someone from this list allows them to message you again and send quotes on your open tasks.
+   <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        Can cancellation fees be waived?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+Yes. Taskmint may waive cancellation fees for safety concerns, fraudulent activity, or approved special circumstances. All cases will be investigated before a final decision is made.
       </div>
     </div>
 
-    <div class="section-header">
-      <div class="section-title">Blocked People</div>
-      <button class="refresh-btn" onclick="loadBlockedUsers()">Refresh</button>
+<div class="section-title" style="margin-top:26px;">Payments & Refunds</div>
+
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+        How do payments work?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
     </div>
 
-    <div id="blockedList">
-      <div class="loading">Loading blocked users...</div>
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Why is my payment being held?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
     </div>
 
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+How do I mark a task complete?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+What if I'm unhappy with the work?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Can I request a refund?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:26px;">Workers & Task Issues</div>
+
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+What happens if a worker is late?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+    
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Can I report a worker?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Can I upload photos of my task?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:26px;">Account & Safety</div>
+
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Why was my account restricted or suspended?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Can workers see my exact address before I accept them?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Can I post task for someone else?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Can multiple workers send quotes?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Do I have to accept the lowest quote?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Can I reopen a cancelled task?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+What types of task are not allowed?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+What items or services are not prohibited?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+How long do refunds take?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+What happens if there is property damage?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+What happens if a worker ask off platform payment?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+
+    <div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+Is my payment infotmation secure?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+    
+<div class="section-title" style="margin-top:26px;">Support</div>
+
+<div class="faq-item" data-keywords="cancel edit task scheduled open change details">
+      <div class="faq-question" onclick="toggleFAQ(this)">
+How do I contact support?
+        <span class="faq-arrow">›</span>
+      </div>
+      <div class="faq-answer">
+****
+      </div>
+    </div>
+      
+
+  <div class="faq-card">
+    <div class="section-title">Quick Guide</div>
+
+    <div class="quick-grid">
+      <div class="quick-box">
+        <div class="quick-icon">📝</div>
+        <div class="quick-title">Post</div>
+      </div>
+
+      <div class="quick-box">
+        <div class="quick-icon">💬</div>
+        <div class="quick-title">Compare Quotes</div>
+      </div>
+
+      <div class="quick-box">
+        <div class="quick-icon">💳</div>
+        <div class="quick-title">Pay Securely</div>
+      </div>
+
+      <div class="quick-box">
+        <div class="quick-icon">✅</div>
+        <div class="quick-title">Complete Task</div>
+      </div>
+    </div>
   </div>
 
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
+function finishOnboarding() {
+  localStorage.setItem("seenHowItWorks", "true");
 
-const SUPABASE_URL = "https://dbcthtjmtlumidpbucrc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ";
+  const previousPage =
+    document.referrer || "";
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
-const blockedList = document.getElementById("blockedList");
-const blockedCount = document.getElementById("blockedCount");
-const toast = document.getElementById("toast");
-
-function showToast(message){
-  toast.textContent = message;
-  toast.classList.add("show");
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 2500);
-}
-
-function formatDate(value){
-  if (!value) return "Not available";
-
-  const date = new Date(value);
-
-  if (isNaN(date.getTime())) {
-    return "Not available";
-  }
-
-  return date.toLocaleDateString(undefined, {
-    month:"short",
-    day:"numeric",
-    year:"numeric"
-  });
-}
-
-function renderState(icon, title, text){
-  blockedList.innerHTML = `
-    <div class="state-box">
-      <div class="state-icon">${icon}</div>
-      <div class="state-title">${title}</div>
-      <div class="state-text">${text}</div>
-    </div>
-  `;
-}
-
-async function getActiveUser() {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  const sessionUser = sessionData && sessionData.session ? sessionData.session.user : null;
-
-  if (!sessionUser) {
-    window.location.href = "login.html";
-    return null;
-  }
-
-  localStorage.setItem("taskmintUserId", sessionUser.id);
-
-  const { data: profile, error: profileError } = await supabaseClient
-    .from("profiles")
-    .select("id, account_status, status, is_deactivated, deactivated_at")
-    .eq("id", sessionUser.id)
-    .maybeSingle();
-
-  if (profileError) {
-    console.log(profileError);
-    renderState(
-      "!",
-      "Unable to verify account",
-      "Your account could not be verified right now. Try again after checking your connection."
-    );
-    return null;
-  }
-
-  const accountStatus = String(profile?.account_status || profile?.status || "").toLowerCase();
-  const isDeactivated =
-    profile?.is_deactivated === true ||
-    !!profile?.deactivated_at ||
-    accountStatus === "deactivated" ||
-    accountStatus === "inactive" ||
-    accountStatus === "disabled";
-
-  if (isDeactivated) {
-    await supabaseClient.auth.signOut();
-    localStorage.removeItem("taskmintUserId");
-    window.location.href = "login.html?account=deactivated";
-    return null;
-  }
-
-  return sessionUser;
-}
-
-async function loadBlockedUsers() {
-
-  blockedList.innerHTML = `<div class="loading">Loading blocked users...</div>`;
-  blockedCount.textContent = "0";
-
-  const user = await getActiveUser();
-
-  if (!user) {
+  if (previousPage.includes("profile.html")) {
+    window.location.href = "profile.html";
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("blocked_users")
-    .select(`
-      id,
-      customer_id,
-      blocked_user_id,
-      created_at,
-      worker_profiles (
-        id,
-        full_name,
-        profile_photo,
-        services_offered,
-        work_area
-      )
-    `)
-    .eq("customer_id", user.id)
-    .order("created_at", { ascending:false });
+  window.location.href = "signup.html";
+}
 
-  if (error) {
-    console.log(error);
-
-    renderState(
-      "!",
-      "Unable to load blocked users",
-      "Check your blocked_users table, Supabase keys, and table relationship to worker_profiles."
-    );
+function goBack() {
+  if (document.referrer) {
+    history.back();
     return;
   }
 
-  blockedCount.textContent = data ? data.length : 0;
+  window.location.href = "profile.html";
+}
 
-  if (!data || data.length === 0) {
-    renderState(
-      "✓",
-      "No blocked workers",
-      "Anyone you block from messages or a worker profile will appear here."
-    );
-    return;
-  }
+function toggleFAQ(questionEl) {
+  const item =
+    questionEl.parentElement;
 
-  blockedList.innerHTML = "";
+  item.classList.toggle("open");
+}
 
-  data.forEach(blocked => {
+function filterFAQ() {
+  const search =
+    document.getElementById("faqSearch")
+      .value
+      .toLowerCase()
+      .trim();
 
-    const worker = blocked.worker_profiles || {};
-    const workerName = worker.full_name || "Worker";
-    const services = worker.services_offered || "Services not listed";
-    const area = worker.work_area || "Work area not listed";
-    const photo = worker.profile_photo || "https://via.placeholder.com/120?text=TM";
+  const items =
+    document.querySelectorAll(".faq-item");
 
-    const card = document.createElement("div");
-    card.className = "blocked-card";
+  let visibleCount = 0;
 
-    card.innerHTML = `
-      <div class="worker-top">
+  items.forEach(item => {
+    const text =
+      item.innerText.toLowerCase();
 
-        <div class="avatar-wrap">
-          <img class="avatar" src="${photo}" alt="${workerName}">
-          <div class="block-badge">×</div>
-        </div>
+    const keywords =
+      item.dataset.keywords || "";
 
-        <div class="worker-main">
-          <div class="worker-name">${workerName}</div>
-          <div class="worker-meta">${services}</div>
-          <div class="status-pill">Blocked</div>
-        </div>
+    const match =
+      !search ||
+      text.includes(search) ||
+      keywords.includes(search);
 
-      </div>
+    item.style.display =
+      match ? "block" : "none";
 
-      <div class="details">
-
-        <div class="detail-row">
-          <span class="detail-label">Work Area</span>
-          ${area}
-        </div>
-
-        <div class="detail-row">
-          <span class="detail-label">Blocked Since</span>
-          ${formatDate(blocked.created_at)}
-        </div>
-
-      </div>
-
-      <div class="action-row">
-        <button class="unblock-btn">Remove Block</button>
-        <button class="small-btn" type="button">Details</button>
-      </div>
-    `;
-
-    card.querySelector(".small-btn").addEventListener("click", () => {
-      showToast("This worker is currently blocked from messaging or quoting you.");
-    });
-
-    card.querySelector(".unblock-btn").addEventListener("click", async (event) => {
-
-      const confirmUnblock = confirm(
-        "Remove this worker from your blocked list? They will be able to message you and send quotes again."
-      );
-
-      if (!confirmUnblock) return;
-
-      event.target.disabled = true;
-      event.target.textContent = "Removing...";
-
-      const { error: deleteError } = await supabaseClient
-        .from("blocked_users")
-        .delete()
-        .eq("id", blocked.id)
-        .eq("customer_id", user.id);
-
-      if (deleteError) {
-        console.log(deleteError);
-        event.target.disabled = false;
-        event.target.textContent = "Remove Block";
-        showToast("Unable to remove this worker from your blocked list.");
-        return;
-      }
-
-      showToast("Worker removed from blocked list.");
-      loadBlockedUsers();
-
-    });
-
-    blockedList.appendChild(card);
-
+    if (match) {
+      visibleCount++;
+    }
   });
 
+  document.getElementById("emptyMessage").style.display =
+    visibleCount === 0 ? "block" : "none";
 }
-
-loadBlockedUsers();
-
 </script>
 
 </body>
