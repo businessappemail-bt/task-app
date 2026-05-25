@@ -1,1 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Customer Notifications - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 90px;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.back {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.header-card {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-card::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+}
+
+.header-card h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.header-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 24px;
+  padding: 18px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.summary-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  margin-bottom: 12px;
+}
+
+.summary-number {
+  font-size: 34px;
+  font-weight: 900;
+  color: #111;
+  line-height: 1;
+}
+
+.summary-label {
+  margin-top: 7px;
+  color: #666;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.notice-card {
+  background: white;
+  border-radius: 24px;
+  padding: 18px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  margin-bottom: 16px;
+}
+
+.notice-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.notice-text {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.quick-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.message-btn {
+  background: #0b7a28;
+  color: white;
+}
+
+.quote-btn {
+  background: #111;
+  color: white;
+}
+
+.status {
+  text-align: center;
+  margin-top: 12px;
+  color: #0b7a28;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.error {
+  color: #b00020;
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div class="back" onclick="goBack()">← Back</div>
+  </div>
+
+  <div class="header-card">
+    <h1>Notifications</h1>
+    <p>See how many new messages and quotes are waiting for you.</p>
+  </div>
+
+  <div class="summary-grid">
+
+    <div class="summary-card">
+      <div class="summary-icon">💬</div>
+      <div class="summary-number" id="messageCount">0</div>
+      <div class="summary-label">New Messages</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-icon">💸</div>
+      <div class="summary-number" id="quoteCount">0</div>
+      <div class="summary-label">New Quotes</div>
+    </div>
+
+  </div>
+
+  <div class="notice-card">
+    <div class="notice-title" id="noticeTitle">Checking updates...</div>
+    <div class="notice-text" id="noticeText">
+      TaskMint is checking your unread messages and new quotes.
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <button class="action-btn message-btn" onclick="goToPage('message-center.html')">
+      View Messages
+    </button>
+
+    <button class="action-btn quote-btn" onclick="goToPage('view-open-task.html')">
+      View Quotes
+    </button>
+  </div>
+
+  <div id="status" class="status"></div>
+
+</div>
+
+<div class="nav">
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Tasks</a>
+  <a href="browse-workers.html"><span class="nav-icon">👷</span>Workers</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="profile.html" class="active"><span class="nav-icon">👤</span>Profile</a>
+</div>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+let currentUserId = "";
+
+function goBack() {
+  window.location.href = "profile.html";
+}
+
+function goToPage(page) {
+  window.location.href = page;
+}
+
+async function getCurrentUser() {
+  const { data } =
+    await supabaseClient.auth.getSession();
+
+  if (data.session && data.session.user) {
+    currentUserId =
+      data.session.user.id;
+
+    localStorage.setItem("taskmintUserId", currentUserId);
+    return data.session.user;
+  }
+
+  const savedUserId =
+    localStorage.getItem("taskmintUserId");
+
+  if (savedUserId) {
+    currentUserId =
+      savedUserId;
+
+    return { id: savedUserId };
+  }
+
+  window.location.href = "login.html";
+  return null;
+}
+
+async function countRows(tableName, filters) {
+  let query =
+    supabaseClient
+      .from(tableName)
+      .select("id", {
+        count: "exact",
+        head: true
+      });
+
+  filters.forEach(function(filter) {
+    if (filter.type === "eq") {
+      query =
+        query.eq(filter.column, filter.value);
+    }
+
+    if (filter.type === "in") {
+      query =
+        query.in(filter.column, filter.value);
+    }
+  });
+
+  const { count, error } =
+    await query;
+
+  if (error) {
+    return null;
+  }
+
+  return count || 0;
+}
+
+async function getFirstWorkingCount(options) {
+  for (const option of options) {
+    const result =
+      await countRows(option.table, option.filters);
+
+    if (result !== null) {
+      return result;
+    }
+  }
+
+  return 0;
+}
+
+async function loadNotifications() {
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const status =
+    document.getElementById("status");
+
+  status.className = "status";
+  status.innerText = "Loading notifications...";
+
+  const messageCount =
+    await getFirstWorkingCount([
+      {
+        table: "messages",
+        filters: [
+          { type: "eq", column: "receiver_id", value: currentUserId },
+          { type: "eq", column: "is_read", value: false }
+        ]
+      },
+      {
+        table: "messages",
+        filters: [
+          { type: "eq", column: "recipient_id", value: currentUserId },
+          { type: "eq", column: "is_read", value: false }
+        ]
+      },
+      {
+        table: "messages",
+        filters: [
+          { type: "eq", column: "to_user_id", value: currentUserId },
+          { type: "eq", column: "is_read", value: false }
+        ]
+      },
+      {
+        table: "messages",
+        filters: [
+          { type: "eq", column: "customer_id", value: currentUserId },
+          { type: "eq", column: "is_read", value: false }
+        ]
+      }
+    ]);
+
+  const quoteCount =
+    await getFirstWorkingCount([
+      {
+        table: "quotes",
+        filters: [
+          { type: "eq", column: "customer_id", value: currentUserId },
+          { type: "in", column: "status", value: ["new", "pending", "sent"] }
+        ]
+      },
+      {
+        table: "task_quotes",
+        filters: [
+          { type: "eq", column: "customer_id", value: currentUserId },
+          { type: "in", column: "status", value: ["new", "pending", "sent"] }
+        ]
+      },
+      {
+        table: "job_quotes",
+        filters: [
+          { type: "eq", column: "customer_id", value: currentUserId },
+          { type: "in", column: "status", value: ["new", "pending", "sent"] }
+        ]
+      },
+      {
+        table: "quotes",
+        filters: [
+          { type: "eq", column: "created_for", value: currentUserId },
+          { type: "in", column: "status", value: ["new", "pending", "sent"] }
+        ]
+      }
+    ]);
+
+  document.getElementById("messageCount").innerText =
+    messageCount;
+
+  document.getElementById("quoteCount").innerText =
+    quoteCount;
+
+  const total =
+    messageCount + quoteCount;
+
+  if (total > 0) {
+    document.getElementById("noticeTitle").innerText =
+      "You have new activity";
+
+    document.getElementById("noticeText").innerText =
+      "You have " + messageCount + " new messages and " + quoteCount + " new quotes.";
+  } else {
+    document.getElementById("noticeTitle").innerText =
+      "No new activity";
+
+    document.getElementById("noticeText").innerText =
+      "You do not have any new messages or quotes right now.";
+  }
+
+  status.innerText =
+    "Updated just now.";
+}
+
+loadNotifications();
+</script>
+
+</body>
+</html>
 
