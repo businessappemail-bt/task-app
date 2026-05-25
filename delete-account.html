@@ -29,35 +29,39 @@
     }
 
     .header {
-      position: relative;
       min-height: 72px;
-      padding: 18px 18px 16px;
+      padding: 16px 18px;
       border-bottom: 1px solid #e5e7eb;
       background: #ffffff;
-      display: flex;
+      display: grid;
+      grid-template-columns: 80px 1fr 80px;
       align-items: center;
-      justify-content: center;
+      column-gap: 8px;
     }
 
     .back-btn {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
       color: #287a32;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       border: none;
       background: transparent;
       padding: 0;
+      text-align: left;
+      width: auto;
+      border-radius: 0;
     }
 
     .header-title {
-      font-size: 20px;
-      font-weight: 800;
+      font-size: 21px;
+      font-weight: 900;
       color: #111827;
       text-align: center;
+      white-space: nowrap;
+    }
+
+    .header-spacer {
+      width: 80px;
     }
 
     .content {
@@ -154,15 +158,20 @@
       background: #ffffff;
     }
 
+    input:focus {
+      border-color: #287a32;
+      box-shadow: 0 0 0 3px rgba(40, 122, 50, 0.12);
+    }
+
     .button-row {
       display: grid;
       gap: 12px;
       margin-top: 18px;
     }
 
-    button {
+    .delete-btn,
+    .cancel-btn {
       width: 100%;
-      border: none;
       border-radius: 14px;
       padding: 15px 16px;
       font-size: 15px;
@@ -171,6 +180,7 @@
     }
 
     .delete-btn {
+      border: none;
       background: #dc2626;
       color: #ffffff;
     }
@@ -221,91 +231,314 @@
 
 <body>
 
-<div class="page">
+  <div class="page">
 
-  <div class="header">
-    <button class="back-btn" onclick="goBack()">← Back</button>
-    <div class="header-title">Delete Account</div>
-  </div>
-
-  <div class="content">
-
-    <div class="warning-card">
-
-      <div class="warning-icon">!</div>
-
-      <h1>Deactivate your customer profile?</h1>
-
-      <p>
-        Deleting your account will deactivate your customer profile in TaskMint.
-        Your profile record will stay securely stored for history,
-        payment records, completed task records, dispute records,
-        and legal/security purposes.
-      </p>
-
-      <p class="danger-text">
-        This action cannot be undone.
-      </p>
-
+    <div class="header">
+      <button class="back-btn" type="button" onclick="goBack()">← Back</button>
+      <div class="header-title">Delete Account</div>
+      <div class="header-spacer"></div>
     </div>
 
-    <div class="info-box">
+    <div class="content">
 
-      <h2>What happens after deletion?</h2>
+      <div class="warning-card">
+        <div class="warning-icon">!</div>
 
-      <ul>
-        <li>Your customer profile will show as deactivated.</li>
-        <li>You will not be able to post new tasks.</li>
-        <li>Workers should no longer be able to send quotes to your profile.</li>
-        <li>Your past task, payment, dispute, and message history can remain saved.</li>
-        <li>You will be signed out after the account is deactivated.</li>
-      </ul>
+        <h1>Deactivate your customer profile?</h1>
 
-    </div>
+        <p>
+          Deleting your account will deactivate your customer profile in TaskMint.
+          Your profile record will stay securely stored for history,
+          payment records, completed task records, dispute records, and legal/security purposes.
+        </p>
 
-    <div class="confirm-box">
-
-      <label for="confirmText">
-        Type DELETE to confirm
-      </label>
-
-      <input
-        id="confirmText"
-        type="text"
-        placeholder="Type DELETE"
-        autocomplete="off"
-      />
-
-      <div class="button-row">
-
-        <button
-          id="deleteBtn"
-          class="delete-btn"
-          disabled
-          onclick="deactivateCustomerAccount()">
-          Deactivate My Account
-        </button>
-
-        <button
-          class="cancel-btn"
-          onclick="goBack()">
-          Cancel
-        </button>
-
+        <p class="danger-text">
+          This action cannot be undone.
+        </p>
       </div>
 
-      <div id="messageBox" class="message"></div>
+      <div class="info-box">
+        <h2>What happens after deletion?</h2>
 
-      <p class="small-note">
-        Your account row will not be deleted from the database.
-        It will only be marked as deactivated.
-      </p>
+        <ul>
+          <li>Your customer profile will show as deactivated.</li>
+          <li>You will not be able to post new tasks.</li>
+          <li>Workers should no longer be able to send quotes to your profile.</li>
+          <li>Your past task, payment, dispute, and message history can remain saved.</li>
+          <li>You will be signed out after the account is deactivated.</li>
+        </ul>
+      </div>
+
+      <div class="confirm-box">
+        <label for="confirmText">Type DELETE to confirm</label>
+
+        <input
+          id="confirmText"
+          type="text"
+          placeholder="Type DELETE"
+          autocomplete="off"
+        />
+
+        <div class="button-row">
+          <button
+            id="deleteBtn"
+            class="delete-btn"
+            type="button"
+            disabled
+            onclick="deactivateCustomerAccount()"
+          >
+            Deactivate My Account
+          </button>
+
+          <button
+            class="cancel-btn"
+            type="button"
+            onclick="goBack()"
+          >
+            Cancel
+          </button>
+        </div>
+
+        <div id="messageBox" class="message"></div>
+
+        <p class="small-note">
+          Your account will not be deleted from the database.
+          It will only be marked as deactivated.
+        </p>
+      </div>
 
     </div>
-
   </div>
 
-</div>
+  <script>
+    const SUPABASE_URL =
+      "https://dbcthtjmtlumidpbucrc.supabase.co";
+
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+    const confirmInput =
+      document.getElementById("confirmText");
+
+    const deleteBtn =
+      document.getElementById("deleteBtn");
+
+    const messageBox =
+      document.getElementById("messageBox");
+
+    confirmInput.addEventListener("input", function () {
+      deleteBtn.disabled =
+        confirmInput.value.trim().toUpperCase() !== "DELETE";
+    });
+
+    function showMessage(type, text) {
+      messageBox.className =
+        "message " + type;
+
+      messageBox.textContent =
+        text;
+    }
+
+    function goBack() {
+      window.location.href =
+        "profile.html";
+    }
+
+    async function getCurrentUser() {
+      const { data, error } =
+        await supabaseClient.auth.getSession();
+
+      if (error) {
+        throw error;
+      }
+
+      if (
+        data &&
+        data.session &&
+        data.session.user
+      ) {
+        return data.session.user;
+      }
+
+      return null;
+    }
+
+    async function tryUpdateProfile(userId, now) {
+      const updateAttempts = [
+        {
+          status: "deactivated",
+          is_deactivated: true,
+          deactivated_at: now,
+          updated_at: now
+        },
+        {
+          status: "deactivated",
+          deactivated_at: now
+        },
+        {
+          account_status: "deactivated",
+          is_deactivated: true,
+          deactivated_at: now,
+          updated_at: now
+        },
+        {
+          account_status: "deactivated",
+          deactivated_at: now
+        }
+      ];
+
+      let lastError = null;
+
+      for (const updateData of updateAttempts) {
+        const { error } =
+          await supabaseClient
+            .from("profiles")
+            .update(updateData)
+            .eq("id", userId);
+
+        if (!error) {
+          return true;
+        }
+
+        lastError = error;
+      }
+
+      throw lastError;
+    }
+
+    async function saveDeletedAccountRecord(user, now) {
+      const { data: customerProfile } =
+        await supabaseClient
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
+
+      const { data: workerProfile } =
+        await supabaseClient
+          .from("worker_profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+      const accountType =
+        workerProfile ? "worker" : "customer";
+
+      await supabaseClient
+        .from("deleted_accounts")
+        .insert([
+          {
+            user_id: user.id,
+            account_type: accountType,
+            first_name: customerProfile?.first_name || "",
+            last_name: customerProfile?.last_name || "",
+            email: customerProfile?.email || user.email || "",
+            phone: customerProfile?.phone || "",
+            original_profile_id: customerProfile?.id || null,
+            worker_profile_id: workerProfile?.id || null,
+            deleted_reason: "User requested account deletion",
+            account_status: "deactivated",
+            deleted_at: now
+          }
+        ]);
+    }
+
+    async function deactivateCustomerAccount() {
+      try {
+        if (
+          confirmInput.value.trim().toUpperCase() !== "DELETE"
+        ) {
+          showMessage(
+            "error",
+            "Type DELETE to confirm account deactivation."
+          );
+
+          return;
+        }
+
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = "Deactivating...";
+
+        const user =
+          await getCurrentUser();
+
+        if (!user) {
+          showMessage(
+            "error",
+            "No active session found. Please log in again before deleting your account."
+          );
+
+          deleteBtn.textContent =
+            "Deactivate My Account";
+
+          deleteBtn.disabled = false;
+
+          return;
+        }
+
+        const confirmed =
+          window.confirm(
+            "This cannot be undone. Your customer profile will be marked as deactivated but will remain stored in Supabase. Do you want to continue?"
+          );
+
+        if (!confirmed) {
+          deleteBtn.textContent =
+            "Deactivate My Account";
+
+          deleteBtn.disabled = false;
+
+          return;
+        }
+
+        const now =
+          new Date().toISOString();
+
+        await saveDeletedAccountRecord(user, now);
+
+        await tryUpdateProfile(user.id, now);
+
+        await supabaseClient
+          .from("tasks")
+          .update({
+            task_status: "customer_deactivated",
+            updated_at: now
+          })
+          .eq("customer_id", user.id)
+          .in("task_status", ["open", "posted", "pending"]);
+
+        showMessage(
+          "success",
+          "Your customer profile has been deactivated. You will now be signed out."
+        );
+
+        setTimeout(async function () {
+          await supabaseClient.auth.signOut();
+          localStorage.clear();
+          window.location.href = "login.html";
+        }, 1800);
+
+      } catch (error) {
+        console.error("Deactivate account error:", error);
+
+        showMessage(
+          "error",
+          error.message || "Something went wrong while deactivating your account."
+        );
+
+        deleteBtn.textContent =
+          "Deactivate My Account";
+
+        deleteBtn.disabled =
+          confirmInput.value.trim().toUpperCase() !== "DELETE";
+      }
+    }
+  </script>
 
 </body>
 </html>
