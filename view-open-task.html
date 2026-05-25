@@ -941,11 +941,17 @@ async function loadOpenTasks() {
   }
 </div>
 
+      ${
+  ["accepted", "in_progress", "completed", "paid"].includes(task.status)
+    ? `
       <div class="code-note">
         <div>Arrival Code</div>
         <div class="arrival-code">${escapeHTML(arrivalCode)}</div>
         Only give this code to the worker once they have arrived for the work.
       </div>
+    `
+    : ""
+}
 
       ${statusBar(task.status)}
 
