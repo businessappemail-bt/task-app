@@ -1,214 +1,311 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Customer Home - TaskMint</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delete Account - TaskMint</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
-      color: #111;
-      padding-bottom: 90px;
+      background: #f3f7f3;
+      color: #1f2937;
+      padding-bottom: 40px;
     }
-    .container { max-width: 430px; margin: 0 auto; padding: 18px; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .brand { display: flex; align-items: center; }
-    .notification-wrap { position: relative; }
-    .notification-btn {
-      width: 48px; height: 48px; border-radius: 16px; border: none; background: white;
-      font-size: 22px; cursor: pointer; box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+
+    .page {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: #ffffff;
+      box-shadow: 0 0 18px rgba(0, 0, 0, 0.08);
     }
-    .notification-count {
-      position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px;
-      background: #b00020; color: white; border-radius: 999px; font-size: 11px;
-      font-weight: bold; display: flex; align-items: center; justify-content: center;
-      border: 2px solid white;
+
+    .header {
+      position: relative;
+      min-height: 72px;
+      padding: 18px 18px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .hero {
-      background: linear-gradient(135deg, #0b7a28, #19b64c);
-      border-radius: 28px; padding: 22px; color: white; margin-bottom: 16px;
-      position: relative; overflow: hidden; box-shadow: 0 14px 28px rgba(11,122,40,0.20);
-      animation: fadeUp 0.5s ease;
+
+    .back-btn {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #287a32;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      padding: 0;
     }
-    .hero::before {
-      content: ""; position: absolute; width: 180px; height: 180px;
-      background: rgba(255,255,255,0.12); border-radius: 50%;
-      top: -70px; right: -60px; animation: pulseGlow 5s infinite;
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #111827;
+      text-align: center;
     }
-    .hero h1 { margin: 0 0 8px; font-size: 30px; position: relative; z-index: 2; }
-    .hero p { margin: 0; line-height: 1.5; position: relative; z-index: 2; }
-    .section {
-      background: white; border-radius: 24px; padding: 16px; margin-bottom: 16px;
-      border: 1px solid #edf1ee; box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+
+    .content {
+      padding: 22px 18px 28px;
     }
-    .section-title { font-size: 18px; font-weight: 900; margin-bottom: 12px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .wide-card { grid-column: 1 / -1; min-height: 118px; }
-    .section .grid { margin-bottom: 0; }
-    .action-card {
-      background: white; border-radius: 22px; padding: 16px; border: 1px solid #edf1ee;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.07); cursor: pointer; transition: 0.2s;
-      animation: floatCard 4s ease-in-out infinite; min-height: 142px;
+
+    .warning-card {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 18px;
     }
-    .action-card:hover { transform: translateY(-2px); }
-    .action-card:nth-child(2) { animation-delay: 0.5s; }
-    .action-card:nth-child(3) { animation-delay: 1s; }
-    .action-card:nth-child(4) { animation-delay: 1.5s; }
-    .action-card:nth-child(5) { animation-delay: 2s; }
-    .action-card:nth-child(6) { animation-delay: 2.5s; }
-    .action-card:nth-child(7) { animation-delay: 3s; }
-    .icon {
-      width: 42px; height: 42px; border-radius: 14px; background: #e7f7ec; color: #0b7a28;
-      display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px;
+
+    .warning-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffedd5;
+      color: #c2410c;
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 12px;
     }
-    .title { font-size: 15px; font-weight: 900; margin-bottom: 4px; }
-    .sub { font-size: 12px; color: #666; line-height: 1.4; }
-    .nav {
-      position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto;
-      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-top: 1px solid #ddd;
-      display: grid; grid-template-columns: repeat(5, 1fr); padding: 10px 6px;
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      color: #111827;
+      line-height: 1.25;
     }
-    .nav a { text-decoration: none; color: #555; font-size: 11px; font-weight: bold; text-align: center; }
-    .nav-icon { display: block; font-size: 20px; margin-bottom: 3px; }
-    .active { color: #0b7a28 !important; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes floatCard { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
-    @keyframes pulseGlow { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.55;
+    }
+
+    .danger-text {
+      color: #991b1b;
+      font-weight: 800;
+      margin-top: 12px;
+    }
+
+    .info-box {
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .info-box h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+      color: #111827;
+    }
+
+    .info-box ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .confirm-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid #fee2e2;
+      background: #fef2f2;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .button-row {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 15px 16px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      background: #dc2626;
+      color: #ffffff;
+    }
+
+    .delete-btn:disabled {
+      background: #fca5a5;
+      cursor: not-allowed;
+    }
+
+    .cancel-btn {
+      background: #ffffff;
+      color: #287a32;
+      border: 1px solid #287a32;
+    }
+
+    .message {
+      display: none;
+      margin-top: 14px;
+      padding: 13px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .message.success {
+      display: block;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .message.error {
+      display: block;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .small-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #6b7280;
+      text-align: center;
+      line-height: 1.45;
+    }
   </style>
 </head>
 
 <body>
-<div class="container">
 
-  <div class="top-bar">
-    <div class="brand">
-      <img src="taskmintlogo-transparent.png" style="width:180px;height:auto;background:transparent;box-shadow:none;border-radius:0;padding:0;object-fit:contain;">
-    </div>
-    <div class="notification-wrap">
-      <button class="notification-btn">🔔</button>
-      <div class="notification-count">2</div>
-    </div>
+<div class="page">
+
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <div class="header-title">Delete Account</div>
   </div>
 
-  <div class="hero">
-    <h1 id="welcomeText">Welcome Back</h1>
-    <p>Post tasks, manage quotes, browse workers, and keep everything organized in one place.</p>
-  </div>
+  <div class="content">
 
-  <div class="grid">
-    <div class="action-card" onclick="window.location.href='post-job.html'">
-      <div class="icon">＋</div>
-      <div class="title">Post a Task</div>
-      <div class="sub">Create a task and receive quotes from local workers.</div>
+    <div class="warning-card">
+
+      <div class="warning-icon">!</div>
+
+      <h1>Deactivate your customer profile?</h1>
+
+      <p>
+        Deleting your account will deactivate your customer profile in TaskMint.
+        Your profile record will stay securely stored for history,
+        payment records, completed task records, dispute records,
+        and legal/security purposes.
+      </p>
+
+      <p class="danger-text">
+        This action cannot be undone.
+      </p>
+
     </div>
 
-    <div class="action-card" onclick="window.location.href='view-open-task.html'">
-      <div class="icon">📌</div>
-      <div class="title">Open Tasks</div>
-      <div class="sub">Review posted tasks, direct quote requests, and worker quotes.</div>
+    <div class="info-box">
+
+      <h2>What happens after deletion?</h2>
+
+      <ul>
+        <li>Your customer profile will show as deactivated.</li>
+        <li>You will not be able to post new tasks.</li>
+        <li>Workers should no longer be able to send quotes to your profile.</li>
+        <li>Your past task, payment, dispute, and message history can remain saved.</li>
+        <li>You will be signed out after the account is deactivated.</li>
+      </ul>
+
     </div>
 
-    <div class="action-card wide-card" onclick="window.location.href='customer-accepted-tasks.html'">
-      <div class="icon">🧾</div>
-      <div class="title">Accepted Tasks</div>
-      <div class="sub">View tasks where a worker has been accepted, payment is active, work is in progress, or a dispute is open.</div>
-    </div>
+    <div class="confirm-box">
 
-    <div class="action-card" onclick="window.location.href='view-past-task.html'">
-      <div class="icon">✅</div>
-      <div class="title">Past Tasks</div>
-      <div class="sub">View completed, paid, and resolved tasks.</div>
-    </div>
+      <label for="confirmText">
+        Type DELETE to confirm
+      </label>
 
-    <div class="action-card" onclick="window.location.href='message-center.html'">
-      <div class="icon">💬</div>
-      <div class="title">Messages</div>
-      <div class="sub">View quote conversations and worker messages.</div>
-    </div>
+      <input
+        id="confirmText"
+        type="text"
+        placeholder="Type DELETE"
+        autocomplete="off"
+      />
 
-    <div class="action-card" onclick="window.location.href='browse-workers.html'">
-      <div class="icon">👷</div>
-      <div class="title">Browse Workers</div>
-      <div class="sub">View worker profiles, services, ratings, and photos.</div>
-    </div>
+      <div class="button-row">
 
-    <div class="action-card" onclick="window.location.href='saved-workers.html'">
-      <div class="icon">⭐</div>
-      <div class="title">Saved Workers</div>
-      <div class="sub">Quickly view workers you've saved or hired before.</div>
-    </div>
-  </div>
+        <button
+          id="deleteBtn"
+          class="delete-btn"
+          disabled
+          onclick="deactivateCustomerAccount()">
+          Deactivate My Account
+        </button>
 
-  <div class="section">
-    <div class="section-title">Account & Support</div>
-    <div class="grid">
-      <div class="action-card" onclick="window.location.href='dispute-center.html'">
-        <div class="icon">⚠️</div>
-        <div class="title">Disputes</div>
-        <div class="sub">Review active disputes and TaskMint updates.</div>
+        <button
+          class="cancel-btn"
+          onclick="goBack()">
+          Cancel
+        </button>
+
       </div>
 
-      <div class="action-card" onclick="window.location.href='profile.html'">
-        <div class="icon">👤</div>
-        <div class="title">Profile</div>
-        <div class="sub">Manage your customer profile and account settings.</div>
-      </div>
+      <div id="messageBox" class="message"></div>
+
+      <p class="small-note">
+        Your account row will not be deleted from the database.
+        It will only be marked as deactivated.
+      </p>
+
     </div>
+
   </div>
 
 </div>
 
-<div class="nav">
-  <a href="customer-home.html" class="active"><span class="nav-icon">🏠</span>Home</a>
-  <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
-  <a href="view-open-task.html"><span class="nav-icon">📌</span>Open</a>
-  <a href="customer-accepted-tasks.html"><span class="nav-icon">🧾</span>Accepted</a>
-  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
-</div>
-
-<script>
-const supabaseClient = window.supabase.createClient(
-  "https://dbcthtjmtlumidpbucrc.supabase.co",
-  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
-);
-
-async function loadProfile() {
-  const { data } = await supabaseClient.auth.getSession();
-
-  if (!data.session) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  const user = data.session.user;
-
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile) {
-    return;
-  }
-
-  if (profile.account_type && profile.account_type !== "customer") {
-    await supabaseClient.auth.signOut();
-    window.location.href = "login.html";
-    return;
-  }
-
-  if (profile.first_name) {
-    document.getElementById("welcomeText").innerText =
-      `Welcome back, ${profile.first_name}`;
-  }
-}
-
-loadProfile();
-</script>
 </body>
 </html>
-
