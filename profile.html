@@ -456,42 +456,6 @@ button:hover,
   color: #0b7a28 !important;
 }
 
-.notification-count {
-  background: #0b7a28;
-  color: white;
-  border-radius: 999px;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 7px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 900;
-  margin-left: 8px;
-}
-
-.notification-bell-wrap {
-  position: relative;
-}
-
-.notification-dot {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 11px;
-  height: 11px;
-  background: #dc2626;
-  border: 2px solid white;
-  border-radius: 50%;
-  display: none;
-}
-
-.notification-dot.show {
-  display: block;
-}
-
-
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -658,18 +622,12 @@ button:hover,
       <div class="arrow">›</div>
     </div>
 
-    <div class="row" onclick="goToPage('customer-notifications.html')">
+    <div class="row" onclick="goToPage('notifications.html')">
       <div class="row-left">
-        <div class="row-icon notification-bell-wrap">
-          🔔
-          <span id="notificationDot" class="notification-dot"></span>
-        </div>
+        <div class="row-icon">🔔</div>
         <div>
-          <div class="row-title">
-            Notifications
-            <span id="notificationTotal" class="notification-count">0</span>
-          </div>
-          <div class="row-sub" id="notificationSummary">Checking messages and quotes...</div>
+          <div class="row-title">Notifications</div>
+          <div class="row-sub">Manage task and message alerts.</div>
         </div>
       </div>
       <div class="arrow">›</div>
@@ -716,10 +674,6 @@ button:hover,
       Log Out
     </button>
   </div>
-
-  <button class="logout-btn" onclick="goToPage('delete-account.html')">
-  Delete Account
-</button>
 
 </div>
 
@@ -1015,161 +969,13 @@ async function updateEmail() {
   }, 1200);
 }
 
-async function countRows(tableName, filters) {
-  let query =
-    supabaseClient
-      .from(tableName)
-      .select("id", {
-        count: "exact",
-        head: true
-      });
-
-  filters.forEach(function(filter) {
-    if (filter.type === "eq") {
-      query =
-        query.eq(filter.column, filter.value);
-    }
-
-    if (filter.type === "in") {
-      query =
-        query.in(filter.column, filter.value);
-    }
-  });
-
-  const { count, error } =
-    await query;
-
-  if (error) {
-    return null;
-  }
-
-  return count || 0;
-}
-
-async function getFirstWorkingCount(options) {
-  for (const option of options) {
-    const result =
-      await countRows(option.table, option.filters);
-
-    if (result !== null) {
-      return result;
-    }
-  }
-
-  return 0;
-}
-
-async function loadNotificationCounts() {
-  if (!currentUserId) {
-    return;
-  }
-
-  const messageCount =
-    await getFirstWorkingCount([
-      {
-        table: "messages",
-        filters: [
-          { type: "eq", column: "receiver_id", value: currentUserId },
-          { type: "eq", column: "is_read", value: false }
-        ]
-      },
-      {
-        table: "messages",
-        filters: [
-          { type: "eq", column: "recipient_id", value: currentUserId },
-          { type: "eq", column: "is_read", value: false }
-        ]
-      },
-      {
-        table: "messages",
-        filters: [
-          { type: "eq", column: "to_user_id", value: currentUserId },
-          { type: "eq", column: "is_read", value: false }
-        ]
-      },
-      {
-        table: "messages",
-        filters: [
-          { type: "eq", column: "customer_id", value: currentUserId },
-          { type: "eq", column: "is_read", value: false }
-        ]
-      }
-    ]);
-
-  const quoteCount =
-    await getFirstWorkingCount([
-      {
-        table: "quotes",
-        filters: [
-          { type: "eq", column: "customer_id", value: currentUserId },
-          { type: "in", column: "status", value: ["new", "pending", "sent"] }
-        ]
-      },
-      {
-        table: "task_quotes",
-        filters: [
-          { type: "eq", column: "customer_id", value: currentUserId },
-          { type: "in", column: "status", value: ["new", "pending", "sent"] }
-        ]
-      },
-      {
-        table: "job_quotes",
-        filters: [
-          { type: "eq", column: "customer_id", value: currentUserId },
-          { type: "in", column: "status", value: ["new", "pending", "sent"] }
-        ]
-      },
-      {
-        table: "quotes",
-        filters: [
-          { type: "eq", column: "created_for", value: currentUserId },
-          { type: "in", column: "status", value: ["new", "pending", "sent"] }
-        ]
-      }
-    ]);
-
-  const total =
-    messageCount + quoteCount;
-
-  const totalBox =
-    document.getElementById("notificationTotal");
-
-  const summaryBox =
-    document.getElementById("notificationSummary");
-
-  const dot =
-    document.getElementById("notificationDot");
-
-  if (totalBox) {
-    totalBox.innerText =
-      total;
-  }
-
-  if (summaryBox) {
-    summaryBox.innerText =
-      messageCount + " new messages • " + quoteCount + " new quotes";
-  }
-
-  if (dot) {
-    if (total > 0) {
-      dot.classList.add("show");
-    } else {
-      dot.classList.remove("show");
-    }
-  }
-}
-
-
-
 function logoutUser() {
   localStorage.clear();
   supabaseClient.auth.signOut();
   window.location.href = "login.html";
 }
 
-loadProfile().then(function() {
-  loadNotificationCounts();
-});
+loadProfile();
 </script>
 
 </body>
