@@ -8,125 +8,392 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#f4f4f4;
+  background:#eef3ef;
+  color:#1f2933;
 }
 
-.container{
-  max-width:420px;
+.app{
+  max-width:430px;
   margin:0 auto;
-  background:white;
   min-height:100vh;
-  padding-bottom:100px;
+  background:#f7faf7;
+  padding-bottom:90px;
 }
 
-.header{
-  background:#287a32;
+.hero{
+  background:linear-gradient(135deg,#1f6f2a,#2f8f3a);
   color:white;
-  padding:18px;
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
+  padding:22px 18px 30px;
+  border-bottom-left-radius:28px;
+  border-bottom-right-radius:28px;
+  box-shadow:0 8px 22px rgba(0,0,0,0.16);
+}
+
+.hero-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:22px;
 }
 
 .back-btn{
-  margin:15px;
-  color:#287a32;
+  background:rgba(255,255,255,0.16);
+  color:white;
+  border:1px solid rgba(255,255,255,0.35);
+  border-radius:999px;
+  padding:9px 13px;
+  font-size:14px;
   font-weight:bold;
   cursor:pointer;
-  font-size:15px;
+}
+
+.page-label{
+  font-size:13px;
+  opacity:0.9;
+  letter-spacing:0.3px;
+}
+
+.hero h1{
+  margin:0;
+  font-size:26px;
+  line-height:1.15;
+}
+
+.hero p{
+  margin:9px 0 0;
+  font-size:14px;
+  line-height:1.45;
+  opacity:0.95;
+}
+
+.content{
+  padding:18px;
+}
+
+.summary-card{
+  background:white;
+  margin-top:-30px;
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 8px 24px rgba(31,111,42,0.14);
+  border:1px solid #e2ece3;
+}
+
+.summary-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.summary-title{
+  font-size:14px;
+  color:#667085;
+  margin-bottom:5px;
+}
+
+.summary-count{
+  font-size:30px;
+  font-weight:800;
+  color:#1f6f2a;
+}
+
+.summary-note{
+  margin-top:12px;
+  font-size:13px;
+  color:#5d6b60;
+  line-height:1.45;
+}
+
+.shield{
+  width:52px;
+  height:52px;
+  border-radius:17px;
+  background:#e8f6ea;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:25px;
+}
+
+.section-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:24px 2px 12px;
 }
 
 .section-title{
-  padding:0 20px;
   font-size:18px;
-  font-weight:bold;
-  margin-bottom:15px;
+  font-weight:800;
 }
 
-.empty-state{
-  text-align:center;
-  padding:40px 20px;
-  color:#777;
-  font-size:15px;
+.refresh-btn{
+  border:none;
+  background:#e8f6ea;
+  color:#1f6f2a;
+  font-weight:bold;
+  border-radius:999px;
+  padding:8px 12px;
+  cursor:pointer;
 }
 
 .blocked-card{
-  margin:15px 20px;
-  border:1px solid #ddd;
-  border-radius:12px;
-  padding:15px;
-  background:#fff;
+  background:white;
+  border:1px solid #e1e8e2;
+  border-radius:22px;
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
 }
 
-.top-row{
+.worker-top{
   display:flex;
+  gap:13px;
   align-items:center;
-  gap:12px;
+}
+
+.avatar-wrap{
+  position:relative;
+  width:62px;
+  height:62px;
+  flex:0 0 62px;
 }
 
 .avatar{
-  width:60px;
-  height:60px;
+  width:62px;
+  height:62px;
   border-radius:50%;
   object-fit:cover;
-  border:2px solid #287a32;
+  border:3px solid #e8f6ea;
+  background:#f1f5f1;
 }
 
-.user-info{
-  flex:1;
-}
-
-.user-name{
-  font-size:16px;
-  font-weight:bold;
-  margin-bottom:4px;
-}
-
-.user-details{
+.block-badge{
+  position:absolute;
+  right:-3px;
+  bottom:-3px;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:#d93025;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   font-size:13px;
-  color:#666;
+  border:2px solid white;
+}
+
+.worker-main{
+  flex:1;
+  min-width:0;
+}
+
+.worker-name{
+  font-size:17px;
+  font-weight:800;
+  margin-bottom:5px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.worker-meta{
+  font-size:13px;
+  color:#667085;
+  line-height:1.35;
+}
+
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:#fff0ef;
+  color:#b42318;
+  border:1px solid #ffd7d3;
+  border-radius:999px;
+  padding:6px 9px;
+  font-size:12px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.details{
+  margin-top:14px;
+  display:grid;
+  gap:8px;
+}
+
+.detail-row{
+  background:#f7faf7;
+  border:1px solid #edf2ed;
+  border-radius:14px;
+  padding:10px 12px;
+  font-size:13px;
+  color:#46534a;
+}
+
+.detail-label{
+  display:block;
+  font-size:11px;
+  color:#7a897d;
+  font-weight:bold;
+  margin-bottom:3px;
+  text-transform:uppercase;
+  letter-spacing:0.3px;
+}
+
+.action-row{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
 }
 
 .unblock-btn{
-  width:100%;
-  margin-top:15px;
-  background:#d32f2f;
+  flex:1;
+  background:#1f6f2a;
   color:white;
   border:none;
-  border-radius:10px;
-  padding:12px;
+  border-radius:15px;
+  padding:13px 12px;
   font-size:15px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.unblock-btn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}
+
+.small-btn{
+  background:white;
+  color:#1f6f2a;
+  border:1px solid #bddbc2;
+  border-radius:15px;
+  padding:13px 12px;
+  font-size:14px;
   font-weight:bold;
   cursor:pointer;
 }
 
-.unblock-btn:hover{
-  opacity:0.9;
+.state-box{
+  background:white;
+  border:1px solid #e1e8e2;
+  border-radius:22px;
+  padding:30px 20px;
+  text-align:center;
+  box-shadow:0 6px 18px rgba(0,0,0,0.05);
+}
+
+.state-icon{
+  width:58px;
+  height:58px;
+  border-radius:20px;
+  background:#e8f6ea;
+  color:#1f6f2a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  margin:0 auto 14px;
+}
+
+.state-title{
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:7px;
+}
+
+.state-text{
+  font-size:14px;
+  color:#667085;
+  line-height:1.45;
+}
+
+.loading{
+  padding:24px;
+  text-align:center;
+  color:#667085;
+  font-size:14px;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%);
+  width:calc(100% - 34px);
+  max-width:396px;
+  background:#1f2933;
+  color:white;
+  border-radius:16px;
+  padding:13px 15px;
+  font-size:14px;
+  display:none;
+  box-shadow:0 10px 25px rgba(0,0,0,0.22);
+  z-index:20;
+}
+
+.toast.show{
+  display:block;
 }
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="app">
 
-  <div class="header">
-    Manage Blocked List
+  <div class="hero">
+    <div class="hero-top">
+      <button class="back-btn" onclick="window.history.back()">← Back</button>
+      <div class="page-label">Customer Safety</div>
+    </div>
+
+    <h1>Manage Blocked List</h1>
+    <p>
+      Workers listed here cannot message you or send quotes while they remain blocked.
+    </p>
   </div>
 
-  <div class="back-btn" onclick="window.history.back()">
-    ← Back
-  </div>
+  <div class="content">
 
-  <div class="section-title">
-    Blocked Workers
-  </div>
+    <div class="summary-card">
+      <div class="summary-row">
+        <div>
+          <div class="summary-title">Blocked workers</div>
+          <div class="summary-count" id="blockedCount">0</div>
+        </div>
+        <div class="shield">🛡️</div>
+      </div>
 
-  <div id="blockedList"></div>
+      <div class="summary-note">
+        Removing someone from this list allows them to message you again and send quotes on your open tasks.
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Blocked People</div>
+      <button class="refresh-btn" onclick="loadBlockedUsers()">Refresh</button>
+    </div>
+
+    <div id="blockedList">
+      <div class="loading">Loading blocked users...</div>
+    </div>
+
+  </div>
 
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 
@@ -139,21 +406,60 @@ const supabaseClient = supabase.createClient(
 );
 
 const blockedList = document.getElementById("blockedList");
+const blockedCount = document.getElementById("blockedCount");
+const toast = document.getElementById("toast");
+
+function showToast(message){
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
+}
+
+function formatDate(value){
+  if (!value) return "Not available";
+
+  const date = new Date(value);
+
+  if (isNaN(date.getTime())) {
+    return "Not available";
+  }
+
+  return date.toLocaleDateString(undefined, {
+    month:"short",
+    day:"numeric",
+    year:"numeric"
+  });
+}
+
+function renderState(icon, title, text){
+  blockedList.innerHTML = `
+    <div class="state-box">
+      <div class="state-icon">${icon}</div>
+      <div class="state-title">${title}</div>
+      <div class="state-text">${text}</div>
+    </div>
+  `;
+}
 
 async function loadBlockedUsers() {
 
-  blockedList.innerHTML = "";
+  blockedList.innerHTML = `<div class="loading">Loading blocked users...</div>`;
+  blockedCount.textContent = "0";
 
   const {
-    data: { user }
+    data: { user },
+    error: userError
   } = await supabaseClient.auth.getUser();
 
-  if (!user) {
-    blockedList.innerHTML = `
-      <div class="empty-state">
-        No active session found.
-      </div>
-    `;
+  if (userError || !user) {
+    renderState(
+      "!",
+      "No active session found",
+      "Log in again to view and manage your blocked list."
+    );
     return;
   }
 
@@ -161,6 +467,7 @@ async function loadBlockedUsers() {
     .from("blocked_users")
     .select(`
       id,
+      customer_id,
       blocked_user_id,
       created_at,
       worker_profiles (
@@ -177,84 +484,104 @@ async function loadBlockedUsers() {
   if (error) {
     console.log(error);
 
-    blockedList.innerHTML = `
-      <div class="empty-state">
-        Unable to load blocked users.
-      </div>
-    `;
+    renderState(
+      "!",
+      "Unable to load blocked users",
+      "Check your blocked_users table, Supabase keys, and table relationship to worker_profiles."
+    );
     return;
   }
+
+  blockedCount.textContent = data ? data.length : 0;
 
   if (!data || data.length === 0) {
-
-    blockedList.innerHTML = `
-      <div class="empty-state">
-        You have not blocked anyone.
-      </div>
-    `;
+    renderState(
+      "✓",
+      "No blocked workers",
+      "Anyone you block from messages or a worker profile will appear here."
+    );
     return;
   }
+
+  blockedList.innerHTML = "";
 
   data.forEach(blocked => {
 
     const worker = blocked.worker_profiles || {};
+    const workerName = worker.full_name || "Worker";
+    const services = worker.services_offered || "Services not listed";
+    const area = worker.work_area || "Work area not listed";
+    const photo = worker.profile_photo || "https://via.placeholder.com/120?text=TM";
 
     const card = document.createElement("div");
     card.className = "blocked-card";
 
     card.innerHTML = `
-      <div class="top-row">
+      <div class="worker-top">
 
-        <img
-          class="avatar"
-          src="${worker.profile_photo || 'https://via.placeholder.com/60'}"
-        />
+        <div class="avatar-wrap">
+          <img class="avatar" src="${photo}" alt="${workerName}">
+          <div class="block-badge">×</div>
+        </div>
 
-        <div class="user-info">
-
-          <div class="user-name">
-            ${worker.full_name || "Worker"}
-          </div>
-
-          <div class="user-details">
-            ${worker.services_offered || "TaskMint Worker"}
-          </div>
-
-          <div class="user-details">
-            ${worker.work_area || ""}
-          </div>
-
+        <div class="worker-main">
+          <div class="worker-name">${workerName}</div>
+          <div class="worker-meta">${services}</div>
+          <div class="status-pill">Blocked</div>
         </div>
 
       </div>
 
-      <button class="unblock-btn">
-        Remove From Blocked List
-      </button>
+      <div class="details">
+
+        <div class="detail-row">
+          <span class="detail-label">Work Area</span>
+          ${area}
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Blocked Since</span>
+          ${formatDate(blocked.created_at)}
+        </div>
+
+      </div>
+
+      <div class="action-row">
+        <button class="unblock-btn">Remove Block</button>
+        <button class="small-btn" type="button">Details</button>
+      </div>
     `;
 
-    card.querySelector(".unblock-btn")
-      .addEventListener("click", async () => {
+    card.querySelector(".small-btn").addEventListener("click", () => {
+      showToast("This worker is currently blocked from messaging or quoting you.");
+    });
+
+    card.querySelector(".unblock-btn").addEventListener("click", async (event) => {
 
       const confirmUnblock = confirm(
-        "Remove this worker from your blocked list?"
+        "Remove this worker from your blocked list? They will be able to message you and send quotes again."
       );
 
       if (!confirmUnblock) return;
 
+      event.target.disabled = true;
+      event.target.textContent = "Removing...";
+
       const { error: deleteError } = await supabaseClient
         .from("blocked_users")
         .delete()
-        .eq("id", blocked.id);
+        .eq("id", blocked.id)
+        .eq("customer_id", user.id);
 
       if (deleteError) {
-        alert("Unable to unblock user.");
         console.log(deleteError);
+        event.target.disabled = false;
+        event.target.textContent = "Remove Block";
+        showToast("Unable to remove this worker from your blocked list.");
         return;
       }
 
-      alert("Worker removed from blocked list.");
-
+      showToast("Worker removed from blocked list.");
       loadBlockedUsers();
 
     });
