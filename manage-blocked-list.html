@@ -1,1 +1,982 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Profile - TaskMint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
+    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
+  color: #111;
+  padding-bottom: 90px;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back,
+.quick-link {
+  color: #0b7a28;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.45s ease;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  top: -70px;
+  right: -60px;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.96;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-card,
+.section-card,
+.email-card {
+  background: white;
+  border-radius: 24px;
+  padding: 18px;
+  margin-bottom: 16px;
+  border: 1px solid #edf1ee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  animation: fadeUp 0.45s ease;
+}
+
+.profile-top {
+  text-align: center;
+}
+
+.avatar-wrap {
+  position: relative;
+  width: 118px;
+  height: 118px;
+  margin: 0 auto 12px;
+}
+
+.avatar {
+  width: 118px;
+  height: 118px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, #e7f7ec, #f8fff9);
+  border: 4px solid white;
+  box-shadow: 0 12px 24px rgba(11,122,40,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 42px;
+  cursor: pointer;
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-badge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  background: #0b7a28;
+  color: white;
+  border: 3px solid white;
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.upload-text {
+  font-size: 13px;
+  color: #0b7a28;
+  cursor: pointer;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+#photoInput {
+  display: none;
+}
+
+.name {
+  font-size: 24px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.member-text {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.stat-box {
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.stat-label {
+  color: #0b7a28;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 900;
+  margin-top: 5px;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf1ee;
+  cursor: pointer;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.row-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: #e7f7ec;
+  color: #0b7a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.row-title {
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.row-sub {
+  font-size: 12px;
+  color: #666;
+  margin-top: 3px;
+}
+
+.arrow {
+  color: #0b7a28;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.email-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.email-display {
+  font-size: 13px;
+  color: #555;
+  word-break: break-word;
+}
+
+.edit-email-btn {
+  background: #0b7a28;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.email-edit-box {
+  margin-top: 12px;
+  display: none;
+}
+
+.email-edit-box.show {
+  display: block;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  font-size: 14px;
+  outline: none;
+}
+
+input:focus {
+  border-color: #0b7a28;
+  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+button {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover,
+.row:hover {
+  transform: translateY(-1px);
+}
+
+.primary-btn,
+.secondary-btn,
+.worker-btn,
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.secondary-btn {
+  background: white;
+  color: #0b7a28;
+  border: 1px solid #cdebd5;
+}
+
+.worker-btn {
+  background: #111;
+  color: white;
+  margin-top: 8px;
+}
+
+.logout-btn {
+  background: #b00020;
+  color: white;
+  margin-top: 8px;
+}
+
+#status,
+#emailStatus {
+  text-align: center;
+  color: #0b7a28;
+  font-size: 13px;
+  font-weight: 900;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.error {
+  color: #b00020 !important;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.download-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.download-popup-content {
+  background: white;
+  width: 100%;
+  max-width: 360px;
+  border-radius: 24px;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  animation: fadeUp 0.3s ease;
+}
+
+.download-popup-content h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.download-popup-content p {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.store-btn {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.store-btn img {
+  width: 100%;
+  max-width: 260px;
+  border-radius: 12px;
+}
+
+.close-popup {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 6px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.active {
+  color: #0b7a28 !important;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div class="back" onclick="goBack()">← Back</div>
+    <div class="quick-link" onclick="document.getElementById('workerDownloadPopup').classList.remove('hidden')">Worker App</div>
+  </div>
+
+  <div class="hero">
+    <h1>Your Profile</h1>
+    <p>Manage your account, payment settings, notifications, and TaskMint preferences in one place.</p>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-top">
+
+      <div class="avatar-wrap">
+        <div class="avatar" onclick="document.getElementById('photoInput').click()">
+          <span id="avatarPlaceholder">👤</span>
+          <img id="profilePhoto" style="display:none;">
+        </div>
+
+        <div class="photo-badge" onclick="document.getElementById('photoInput').click()">
+          📷
+        </div>
+      </div>
+
+      <div class="upload-text" onclick="document.getElementById('photoInput').click()">
+        Add / Change Photo
+      </div>
+
+      <input id="photoInput" type="file" accept="image/*" onchange="uploadProfilePhoto()">
+
+      <div class="name" id="profileName">Loading...</div>
+      <div class="member-text" id="welcomeText">Welcome back to TaskMint.</div>
+      <div id="status"></div>
+
+      <div class="profile-stats">
+        <div class="stat-box">
+          <div class="stat-label">Account</div>
+          <div class="stat-value">Customer</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-label">Status</div>
+          <div class="stat-value">Active</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="section-title">Login Email</div>
+
+    <div class="email-row">
+      <div>
+        <div class="email-display" id="profileEmail">Loading...</div>
+        <div class="row-sub">This email is used for login and account updates.</div>
+      </div>
+
+      <button class="edit-email-btn" onclick="toggleEmailEditor()">Edit</button>
+    </div>
+
+    <div id="emailEditBox" class="email-edit-box">
+      <label for="newEmail" class="row-title">New Email</label>
+      <input id="newEmail" type="email" placeholder="Enter new email address">
+
+      <div class="button-row">
+        <button class="primary-btn" onclick="updateEmail()">Save Email</button>
+        <button class="secondary-btn" onclick="toggleEmailEditor()">Cancel</button>
+      </div>
+
+      <div id="emailStatus"></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Account Settings</div>
+
+    <div class="row" onclick="goToPage('customer-account.html')">
+      <div class="row-left">
+        <div class="row-icon">👤</div>
+        <div>
+          <div class="row-title">Account</div>
+          <div class="row-sub">View your personal account details.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="row" onclick="goToPage('account-security.html')">
+      <div class="row-left">
+        <div class="row-icon">🔐</div>
+        <div>
+          <div class="row-title">Account Security</div>
+          <div class="row-sub">Review security and login settings.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="row" onclick="goToPage('change-password.html')">
+      <div class="row-left">
+        <div class="row-icon">🔑</div>
+        <div>
+          <div class="row-title">Change Password</div>
+          <div class="row-sub">Update your account password.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="row" onclick="goToPage('add-payment.html')">
+      <div class="row-left">
+        <div class="row-icon">💳</div>
+        <div>
+          <div class="row-title">Add Payment</div>
+          <div class="row-sub">Manage saved cards and payment options.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Help & Preferences</div>
+
+    <div class="row" onclick="goToPage('how-info.html')">
+      <div class="row-left">
+        <div class="row-icon">📘</div>
+        <div>
+          <div class="row-title">How TaskMint Works</div>
+          <div class="row-sub">Learn how posting, quotes, and payments work.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="row" onclick="goToPage('notifications.html')">
+      <div class="row-left">
+        <div class="row-icon">🔔</div>
+        <div>
+          <div class="row-title">Notifications</div>
+          <div class="row-sub">Manage task and message alerts.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="row" onclick="goToPage('manage-blocked-list.html')">
+      <div class="row-left">
+        <div class="row-icon">🚫</div>
+        <div>
+          <div class="row-title">Manage Blocked List</div>
+          <div class="row-sub">View and manage blocked users.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="row" onclick="goToPage('support.html')">
+      <div class="row-left">
+        <div class="row-icon">💬</div>
+        <div>
+          <div class="row-title">Support</div>
+          <div class="row-sub">Get help with tasks, payments, or disputes.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="row" onclick="goToPage('about.html')">
+      <div class="row-left">
+        <div class="row-icon">ℹ️</div>
+        <div>
+          <div class="row-title">About</div>
+          <div class="row-sub">Learn more about TaskMint.</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <button class="worker-btn" onclick="document.getElementById('workerDownloadPopup').classList.remove('hidden')">
+      I want to accept tasks
+    </button>
+
+    <button class="logout-btn" onclick="logoutUser()">
+      Log Out
+    </button>
+  </div>
+
+</div>
+
+<div class="nav">
+  <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
+  <a href="view-open-task.html"><span class="nav-icon">📌</span>Tasks</a>
+  <a href="browse-workers.html"><span class="nav-icon">👷</span>Workers</a>
+  <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
+  <a href="profile.html" class="active"><span class="nav-icon">👤</span>Profile</a>
+</div>
+
+<div id="workerDownloadPopup" class="download-popup hidden">
+  <div class="download-popup-content">
+
+    <div class="close-popup"
+         onclick="document.getElementById('workerDownloadPopup').classList.add('hidden')">
+      ✕
+    </div>
+
+    <h2>Download TaskMint Worker</h2>
+
+    <p>
+      Accept tasks and earn money through the TaskMint Worker app.
+    </p>
+
+    <a href="https://apps.apple.com/" class="store-btn">
+      <img src="app-store.png" alt="App Store">
+    </a>
+
+    <a href="https://play.google.com/store" class="store-btn">
+      <img src="google-play.png" alt="Google Play">
+    </a>
+
+  </div>
+</div>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+let currentUserId = "";
+let currentEmail = "";
+
+function goBack() {
+  window.location.href = "customer-home.html";
+}
+
+function goToPage(page) {
+  window.location.href = page;
+}
+
+async function getCurrentUser() {
+  const { data } =
+    await supabaseClient.auth.getSession();
+
+  if (data.session && data.session.user) {
+    currentUserId =
+      data.session.user.id;
+
+    localStorage.setItem("taskmintUserId", currentUserId);
+    return data.session.user;
+  }
+
+  const savedUserId =
+    localStorage.getItem("taskmintUserId");
+
+  if (savedUserId) {
+    currentUserId =
+      savedUserId;
+
+    return { id: savedUserId };
+  }
+
+  window.location.href = "login.html";
+  return null;
+}
+
+async function loadProfile() {
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const { data: profile, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("first_name, last_name, email, profile_photo_url, created_at")
+      .eq("id", currentUserId)
+      .maybeSingle();
+
+  if (error || !profile) {
+    document.getElementById("status").className = "error";
+    document.getElementById("status").innerText =
+      error?.message || "Profile not found.";
+    return;
+  }
+
+  const firstName =
+    profile.first_name || "";
+
+  const fullName =
+    `${profile.first_name || ""} ${profile.last_name || ""}`.trim();
+
+  document.getElementById("profileName").innerText =
+    fullName || "TaskMint Customer";
+
+  document.getElementById("welcomeText").innerText =
+    firstName
+      ? `Welcome back, ${firstName}.`
+      : "Welcome back to TaskMint.";
+
+  currentEmail =
+    profile.email || user.email || "";
+
+  document.getElementById("profileEmail").innerText =
+    currentEmail || "No email found";
+
+  document.getElementById("newEmail").value =
+    currentEmail || "";
+
+  if (profile.profile_photo_url) {
+    document.getElementById("avatarPlaceholder").style.display = "none";
+    document.getElementById("profilePhoto").src =
+      profile.profile_photo_url + "?t=" + Date.now();
+    document.getElementById("profilePhoto").style.display = "block";
+  }
+}
+
+async function uploadProfilePhoto() {
+  const file =
+    document.getElementById("photoInput").files[0];
+
+  const status =
+    document.getElementById("status");
+
+  status.className = "";
+  status.innerText = "";
+
+  if (!file) {
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    status.className = "error";
+    status.innerText =
+      "Only image files allowed.";
+    return;
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    status.className = "error";
+    status.innerText =
+      "Max file size is 2MB.";
+    return;
+  }
+
+  status.innerText =
+    "Uploading photo...";
+
+  const safeFileName =
+    file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+
+  const filePath =
+    `customers/${currentUserId}/${Date.now()}_${safeFileName}`;
+
+  const { error: uploadError } =
+    await supabaseClient.storage
+      .from("profile-photos")
+      .upload(filePath, file);
+
+  if (uploadError) {
+    status.className = "error";
+    status.innerText =
+      uploadError.message;
+    return;
+  }
+
+  const { data } =
+    supabaseClient.storage
+      .from("profile-photos")
+      .getPublicUrl(filePath);
+
+  const photoUrl =
+    data.publicUrl;
+
+  const { error: updateError } =
+    await supabaseClient
+      .from("profiles")
+      .update({
+        profile_photo_url: photoUrl
+      })
+      .eq("id", currentUserId);
+
+  if (updateError) {
+    status.className = "error";
+    status.innerText =
+      updateError.message;
+    return;
+  }
+
+  document.getElementById("avatarPlaceholder").style.display = "none";
+  document.getElementById("profilePhoto").src =
+    photoUrl + "?t=" + Date.now();
+  document.getElementById("profilePhoto").style.display = "block";
+
+  status.className = "";
+  status.innerText =
+    "Photo updated.";
+}
+
+function toggleEmailEditor() {
+  const box =
+    document.getElementById("emailEditBox");
+
+  box.classList.toggle("show");
+
+  document.getElementById("emailStatus").innerText = "";
+  document.getElementById("emailStatus").className = "";
+}
+
+async function updateEmail() {
+  const emailStatus =
+    document.getElementById("emailStatus");
+
+  const newEmail =
+    document.getElementById("newEmail").value.trim();
+
+  emailStatus.className = "";
+  emailStatus.innerText = "";
+
+  if (!newEmail || !newEmail.includes("@")) {
+    emailStatus.className = "error";
+    emailStatus.innerText =
+      "Enter a valid email address.";
+    return;
+  }
+
+  if (newEmail === currentEmail) {
+    emailStatus.innerText =
+      "This is already your current email.";
+    return;
+  }
+
+  /*
+    This updates Supabase Auth email.
+    Supabase may send a confirmation email depending on your Auth settings.
+  */
+  const { error: authError } =
+    await supabaseClient.auth.updateUser({
+      email: newEmail
+    });
+
+  if (authError) {
+    emailStatus.className = "error";
+    emailStatus.innerText =
+      authError.message;
+    return;
+  }
+
+  /*
+    This updates your profiles table so the app display changes too.
+  */
+  const { error: profileError } =
+    await supabaseClient
+      .from("profiles")
+      .update({
+        email: newEmail
+      })
+      .eq("id", currentUserId);
+
+  if (profileError) {
+    emailStatus.className = "error";
+    emailStatus.innerText =
+      profileError.message;
+    return;
+  }
+
+  currentEmail =
+    newEmail;
+
+  document.getElementById("profileEmail").innerText =
+    newEmail;
+
+  emailStatus.innerText =
+    "Email updated. Check your inbox if Supabase requires confirmation.";
+
+  setTimeout(() => {
+    document.getElementById("emailEditBox").classList.remove("show");
+  }, 1200);
+}
+
+function logoutUser() {
+  localStorage.clear();
+  supabaseClient.auth.signOut();
+  window.location.href = "login.html";
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>
