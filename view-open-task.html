@@ -941,17 +941,11 @@ async function loadOpenTasks() {
   }
 </div>
 
-      ${
-  ["accepted", "in_progress", "completed", "paid"].includes(task.status)
-    ? `
       <div class="code-note">
         <div>Arrival Code</div>
         <div class="arrival-code">${escapeHTML(arrivalCode)}</div>
         Only give this code to the worker once they have arrived for the work.
       </div>
-    `
-    : ""
-}
 
       ${statusBar(task.status)}
 
@@ -1177,11 +1171,11 @@ async function toggleApplicants(taskId, isDirectRequest = false) {
             Message
           </button>
 
-          <button class="accept-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}', '${quoteAmount}', isDirectRequest)">
+          <button class="accept-btn" onclick="event.stopPropagation(); acceptQuote('${taskId}', '${workerId}', '${app.id || ""}', '${quoteAmount}', ${isDirectRequest ? "true" : "false"})">
             Accept Quote
           </button>
 
-          <button class="decline-btn" onclick="event.stopPropagation(); declineQuote('${app.id || ""}', '${taskId}', isDirectRequest)">
+          <button class="decline-btn" onclick="event.stopPropagation(); declineQuote('${app.id || ""}', '${taskId}', ${isDirectRequest ? "true" : "false"})">
             Decline Quote
           </button>
         </div>
@@ -1333,7 +1327,7 @@ async function cancelTask(taskId, isDirectRequest = false) {
   }
 
   status.style.color = "#0b7a28";
-  status.innerText = "Task cancelled and related quotes removed.";
+  status.innerText = "Task cancelled.";
 
   await loadOpenTasks();
 }
