@@ -494,22 +494,23 @@ async function login() {
     return;
   }
 
-  if (
-    profile &&
-    profile.account_type &&
-    profile.account_type !== "customer"
-  ) {
+ if (
+  profile &&
+  profile.account_type === "worker"
+) {
 
-    await supabaseClient.auth.signOut();
+  await supabaseClient.auth.signOut();
 
-    status.innerText =
-      "Please use your customer login or create a customer account.";
+  localStorage.clear();
 
-    loginButton.disabled = false;
-    loginButton.innerText = "Log In";
+  status.innerText =
+    "This is the customer login. Please log in through the worker app or create a customer account.";
 
-    return;
-  }
+  loginButton.disabled = false;
+  loginButton.innerText = "Log In";
+
+  return;
+}
 
   status.style.color = "#0b7a28";
   status.innerText = "Login successful.";
