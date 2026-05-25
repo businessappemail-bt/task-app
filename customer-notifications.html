@@ -282,7 +282,11 @@ const supabaseClient = window.supabase.createClient(
 let currentUserId = "";
 
 function goBack() {
-  window.location.href = "profile.html";
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.location.href = "customer-home.html";
+  }
 }
 
 function goToPage(page) {
