@@ -566,8 +566,9 @@ async function loadPage() {
 
 function goBackToWorkerProfile() {
   if (workerId) {
-    window.location.href =
-      `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`;
+   window.location.replace(
+  `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`
+);
     return;
   }
 
