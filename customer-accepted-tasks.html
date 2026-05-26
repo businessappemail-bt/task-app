@@ -642,6 +642,37 @@ function getTaskDate(task) {
   ], "");
 }
 
+function getDaysUntilTask(task) {
+  const dateValue =
+    getTaskDate(task);
+
+  if (!dateValue) {
+    return null;
+  }
+
+  const taskDate =
+    new Date(dateValue);
+
+  if (Number.isNaN(taskDate.getTime())) {
+    return null;
+  }
+
+  const today =
+    new Date();
+
+  today.setHours(0, 0, 0, 0);
+  taskDate.setHours(0, 0, 0, 0);
+
+  return Math.ceil((taskDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function canShowFullAddress(task) {
+  const daysUntil =
+    getDaysUntilTask(task);
+
+  return daysUntil !== null && daysUntil <= 7;
+}
+
 function getTaskLocation(task) {
   const address =
     getFirstAvailable(task, [
@@ -668,6 +699,13 @@ function getTaskLocation(task) {
       "zip_code",
       "zip"
     ], "");
+
+  const generalLocation =
+    `${city}${state ? ", " + state : ""}`.trim() || "Location not listed";
+
+  if (!canShowFullAddress(task)) {
+    return `${generalLocation} — full address unlocks 7 days before the scheduled task date.`;
+  }
 
   if (address) {
     return `${address}${city ? ", " + city : ""}${state ? ", " + state : ""}${zip ? " " + zip : ""}`;
