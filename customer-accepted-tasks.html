@@ -802,11 +802,9 @@ function isAcceptedActiveTask(task) {
 
   return [
     "accepted",
+    "scheduled",
     "in_progress",
-    "completed",
-    "paid",
-    "closed",
-    "resolved",
+    "worker_completed",
     "dispute_open",
     "dispute_closed"
   ].includes(status);
@@ -840,25 +838,44 @@ function getLiveTaskStatus(task, quote, assignment, paymentCompleted) {
   const assignmentStatus =
     String(assignment?.assignment_status || "").toLowerCase();
 
-  if (paymentCompleted || taskStatus === "paid" || quoteStatus === "paid") {
-    return "Paid";
+  if (
+    taskStatus === "completed" ||
+    taskStatus === "customer_completed" ||
+    quoteStatus === "completed" ||
+    quoteStatus === "customer_completed"
+  ) {
+    return "Completed";
   }
 
-  if (taskStatus === "completed" || quoteStatus === "completed") {
-    return "Completed";
+  if (
+    taskStatus === "worker_completed" ||
+    quoteStatus === "worker_completed"
+  ) {
+    return "Worker Completed";
   }
 
   if (
     taskStatus === "in_progress" ||
     quoteStatus === "in_progress" ||
     assignmentStatus === "in_progress" ||
-    assignment?.arrival_verified === true
+    assignment?.arrival_verified === true ||
+    task.worker_arrival_confirmed === true ||
+    task.arrival_verified === true
   ) {
     return "In Progress";
   }
 
   if (taskStatus === "closed" || taskStatus === "resolved" || taskStatus === "dispute_closed") {
     return "Closed";
+  }
+
+  if (
+    taskStatus === "accepted" ||
+    taskStatus === "scheduled" ||
+    quoteStatus === "accepted" ||
+    paymentCompleted
+  ) {
+    return "Accepted";
   }
 
   return "Accepted";
@@ -872,7 +889,7 @@ function getStatusPillClass(statusText) {
     return "dispute";
   }
 
-  if (status === "paid" || status === "closed") {
+  if (status === "completed" || status === "closed") {
     return "closed";
   }
 
@@ -883,11 +900,11 @@ function getProgressIndex(statusText) {
   const status =
     String(statusText || "").toLowerCase();
 
-  if (status === "paid" || status === "closed") {
+  if (status === "completed" || status === "closed") {
     return 4;
   }
 
-  if (status === "completed") {
+  if (status === "worker completed") {
     return 3;
   }
 
@@ -905,8 +922,8 @@ function renderProgressTracker(statusText) {
   const steps = [
     "Accepted",
     "In Progress",
-    "Completed",
-    "Paid"
+    "Worker Done",
+    "Completed"
   ];
 
   return `
@@ -941,7 +958,12 @@ function renderArrivalCodeBox(arrivalCode, statusText) {
   const status =
     String(statusText || "").toLowerCase();
 
-  if (!arrivalCode || status === "paid" || status === "closed") {
+  if (
+    !arrivalCode ||
+    status === "closed" ||
+    status === "completed" ||
+    status === "worker completed"
+  ) {
     return "";
   }
 
@@ -963,16 +985,24 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText) {
   if (status === "completed") {
     return `
       <div class="complete-note">
-        You marked this task complete. Payment release will be handled from the payout flow.
+        You marked this task complete. This task will move to your past tasks.
       </div>
     `;
   }
 
-  if (status === "paid" || status === "closed" || status.includes("dispute")) {
+  if (status === "closed" || status.includes("dispute")) {
     return "";
   }
 
-  if (status !== "in progress") {
+  if (status === "in progress") {
+    return `
+      <div class="complete-note">
+        The worker has started this task. The customer completion button unlocks after the worker marks the task complete.
+      </div>
+    `;
+  }
+
+  if (status !== "worker completed") {
     return "";
   }
 
@@ -980,7 +1010,7 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText) {
     <button
       class="complete-btn"
       onclick="markTaskComplete('${escapeHTML(task.source_type)}', '${escapeHTML(task.id)}', '${escapeHTML(quote?.id || getQuoteId(task) || "")}', '${escapeHTML(assignment?.id || "")}')">
-      Mark Task Complete
+      Confirm Task Complete
     </button>
   `;
 }
@@ -1085,7 +1115,7 @@ async function fetchQuote(quoteId, taskId) {
       .from("worker_quotes")
       .select("*")
       .eq("task_id", taskId)
-      .in("status", ["accepted", "in_progress", "completed", "paid"])
+      .in("status", ["accepted", "in_progress", "worker_completed", "completed", "paid"])
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -1149,7 +1179,7 @@ function toggleDetails(id) {
 
 async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
   const confirmed =
-    confirm("Mark this task complete? Only do this after the worker has finished the work.");
+    confirm("Confirm this task is complete? Only do this after the worker has finished the work.");
 
   if (!confirmed) {
     return;
@@ -1175,6 +1205,8 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
       .from(taskTable)
       .update({
         status: "completed",
+        customer_completed: true,
+        customer_completed_at: completedAt,
         completed_at: completedAt,
         updated_at: completedAt
       })
@@ -1193,6 +1225,7 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
       .from("worker_quotes")
       .update({
         status: "completed",
+        customer_completed_at: completedAt,
         completed_at: completedAt,
         updated_at: completedAt
       })
@@ -1204,6 +1237,7 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
       .from("task_assignments")
       .update({
         assignment_status: "completed",
+        customer_completed_at: completedAt,
         completed_at: completedAt
       })
       .eq("id", assignmentId);
@@ -1212,6 +1246,7 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
       .from("task_assignments")
       .update({
         assignment_status: "completed",
+        customer_completed_at: completedAt,
         completed_at: completedAt
       })
       .eq("task_id", taskId);
@@ -1221,7 +1256,7 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
     status.innerText = "";
   }
 
-  alert("Task marked complete.");
+  alert("Task marked complete. It will now move to past tasks.");
   loadAcceptedQuotes();
 }
 
@@ -1250,7 +1285,7 @@ async function loadAcceptedQuotes() {
       .from("tasks")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["accepted", "in_progress", "completed", "paid", "closed", "resolved", "dispute_open", "dispute_closed"])
+      .in("status", ["accepted", "scheduled", "in_progress", "worker_completed", "dispute_open", "dispute_closed"])
       .order("created_at", { ascending: false });
 
   if (taskError) {
@@ -1264,7 +1299,7 @@ async function loadAcceptedQuotes() {
       .from("direct_task_requests")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["accepted", "in_progress", "completed", "paid", "closed", "resolved", "dispute_open", "dispute_closed"])
+      .in("status", ["accepted", "scheduled", "in_progress", "worker_completed", "dispute_open", "dispute_closed"])
       .order("created_at", { ascending: false });
 
   const tasks =
@@ -1360,7 +1395,7 @@ async function loadAcceptedQuotes() {
 
           <div class="task-sub">
             Order # TM-${String(task.id).slice(0, 8).toUpperCase()} •
-            Closed ${escapeHTML(formatDate(task.completed_at || task.paid_at || task.updated_at || task.created_at))}
+            Accepted ${escapeHTML(formatDate(task.accepted_at || task.paid_at || task.updated_at || task.created_at))}
           </div>
 
           <div class="request-pill">
@@ -1387,7 +1422,7 @@ async function loadAcceptedQuotes() {
           </div>
 
           <div class="worker-sub">
-            Worker who completed this task
+            Accepted worker for this task
           </div>
         </div>
       </div>
