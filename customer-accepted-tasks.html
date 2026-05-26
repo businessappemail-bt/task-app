@@ -271,6 +271,79 @@ body {
   font-weight: 700;
 }
 
+.progress-box {
+  margin-top: 12px;
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.progress-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: #111;
+  margin-bottom: 10px;
+}
+
+.progress-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.progress-step {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 900;
+  color: #777;
+}
+
+.progress-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ddd;
+  margin: 0 auto 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 11px;
+}
+
+.progress-step.active {
+  color: #0b7a28;
+}
+
+.progress-step.active .progress-dot {
+  background: #0b7a28;
+}
+
+.arrival-code-box {
+  margin-top: 12px;
+  background: #fff7e6;
+  border: 1px solid #ffd27a;
+  color: #7a4b00;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.arrival-code {
+  display: inline-block;
+  margin-top: 6px;
+  background: white;
+  color: #111;
+  border: 1px solid #ffd27a;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
 .payment-box {
   margin-top: 12px;
   background: #ecfff1;
@@ -333,6 +406,24 @@ button:hover {
   background: white;
   color: #0b7a28;
   border: 1px solid #cdebd5;
+}
+
+.complete-btn {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  color: white;
+}
+
+.complete-note {
+  grid-column: 1 / -1;
+  background: #e7f7ec;
+  color: #0b7a28;
+  border: 1px solid #bde8ca;
+  border-radius: 14px;
+  padding: 11px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.4;
 }
 
 .empty {
@@ -409,17 +500,17 @@ button:hover {
 
   <div class="hero">
     <h1>Accepted Quotes</h1>
-    <p>Review paid accepted quotes, completed work, worker details, task details, and payment status.</p>
+    <p>View active accepted tasks, arrival codes, live status, worker details, task details, and payment status.</p>
   </div>
 
   <div class="summary-row">
     <div class="summary-box">
-      <div class="summary-label">Paid Tasks</div>
+      <div class="summary-label">Active Tasks</div>
       <div class="summary-value" id="closedCount">0</div>
     </div>
 
     <div class="summary-box">
-      <div class="summary-label">Total Paid</div>
+      <div class="summary-label">Total Accepted</div>
       <div class="summary-value" id="paidTotal">$0.00</div>
     </div>
   </div>
@@ -427,7 +518,7 @@ button:hover {
   <p id="status"></p>
 
   <div id="acceptedList">
-    <div class="empty">Loading accepted quotes...</div>
+    <div class="empty">Loading active accepted quotes...</div>
   </div>
 
 </div>
@@ -546,7 +637,8 @@ function getTaskDate(task) {
     "task_date",
     "date_needed",
     "needed_by",
-    "scheduled_date"
+    "scheduled_date",
+    "scheduled_start"
   ], "");
 }
 
@@ -666,15 +758,18 @@ function isPaymentCompleted(task, quote, payment) {
   );
 }
 
-function isClosedAcceptedTask(task) {
+function isAcceptedActiveTask(task) {
   const status =
     String(task.status || "").toLowerCase();
 
   return [
+    "accepted",
+    "in_progress",
     "completed",
     "paid",
     "closed",
     "resolved",
+    "dispute_open",
     "dispute_closed"
   ].includes(status);
 }
@@ -692,6 +787,166 @@ function isDisputeOpen(task) {
     disputeStatus === "reviewing"
   );
 }
+
+function getLiveTaskStatus(task, quote, assignment, paymentCompleted) {
+  if (isDisputeOpen(task)) {
+    return "Dispute Open";
+  }
+
+  const taskStatus =
+    String(task.status || "").toLowerCase();
+
+  const quoteStatus =
+    String(quote?.status || "").toLowerCase();
+
+  const assignmentStatus =
+    String(assignment?.assignment_status || "").toLowerCase();
+
+  if (paymentCompleted || taskStatus === "paid" || quoteStatus === "paid") {
+    return "Paid";
+  }
+
+  if (taskStatus === "completed" || quoteStatus === "completed") {
+    return "Completed";
+  }
+
+  if (
+    taskStatus === "in_progress" ||
+    quoteStatus === "in_progress" ||
+    assignmentStatus === "in_progress" ||
+    assignment?.arrival_verified === true
+  ) {
+    return "In Progress";
+  }
+
+  if (taskStatus === "closed" || taskStatus === "resolved" || taskStatus === "dispute_closed") {
+    return "Closed";
+  }
+
+  return "Accepted";
+}
+
+function getStatusPillClass(statusText) {
+  const status =
+    String(statusText || "").toLowerCase();
+
+  if (status.includes("dispute")) {
+    return "dispute";
+  }
+
+  if (status === "paid" || status === "closed") {
+    return "closed";
+  }
+
+  return "";
+}
+
+function getProgressIndex(statusText) {
+  const status =
+    String(statusText || "").toLowerCase();
+
+  if (status === "paid" || status === "closed") {
+    return 4;
+  }
+
+  if (status === "completed") {
+    return 3;
+  }
+
+  if (status === "in progress") {
+    return 2;
+  }
+
+  return 1;
+}
+
+function renderProgressTracker(statusText) {
+  const progressIndex =
+    getProgressIndex(statusText);
+
+  const steps = [
+    "Accepted",
+    "In Progress",
+    "Completed",
+    "Paid"
+  ];
+
+  return `
+    <div class="progress-box">
+      <div class="progress-title">Task Progress</div>
+      <div class="progress-steps">
+        ${steps.map((step, index) => {
+          const active = index + 1 <= progressIndex;
+
+          return `
+            <div class="progress-step ${active ? "active" : ""}">
+              <div class="progress-dot">${active ? "✓" : ""}</div>
+              ${step}
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function getArrivalCode(assignment, task) {
+  return (
+    assignment?.arrival_code ||
+    task.arrival_code ||
+    task.customer_arrival_code ||
+    ""
+  );
+}
+
+function renderArrivalCodeBox(arrivalCode, statusText) {
+  const status =
+    String(statusText || "").toLowerCase();
+
+  if (!arrivalCode || status === "paid" || status === "closed") {
+    return "";
+  }
+
+  return `
+    <div class="arrival-code-box">
+      Arrival Code
+      <div class="arrival-code">${escapeHTML(arrivalCode)}</div>
+      <div style="font-size:12px;font-weight:700;margin-top:6px;">
+        Give this code to the worker when they arrive so the task can move to In Progress.
+      </div>
+    </div>
+  `;
+}
+
+function renderCustomerCompletionButton(task, quote, assignment, statusText) {
+  const status =
+    String(statusText || "").toLowerCase();
+
+  if (status === "completed") {
+    return `
+      <div class="complete-note">
+        You marked this task complete. Payment release will be handled from the payout flow.
+      </div>
+    `;
+  }
+
+  if (status === "paid" || status === "closed" || status.includes("dispute")) {
+    return "";
+  }
+
+  if (status !== "in progress") {
+    return "";
+  }
+
+  return `
+    <button
+      class="complete-btn"
+      onclick="markTaskComplete('${escapeHTML(task.source_type)}', '${escapeHTML(task.id)}', '${escapeHTML(quote?.id || getQuoteId(task) || "")}', '${escapeHTML(assignment?.id || "")}')">
+      Mark Task Complete
+    </button>
+  `;
+}
+
 
 function getWorkerName(worker, quote, task) {
   const direct =
@@ -792,7 +1047,7 @@ async function fetchQuote(quoteId, taskId) {
       .from("worker_quotes")
       .select("*")
       .eq("task_id", taskId)
-      .in("status", ["accepted", "paid", "completed"])
+      .in("status", ["accepted", "in_progress", "completed", "paid"])
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -820,6 +1075,29 @@ async function fetchPayment(taskId, quoteId) {
   return data || null;
 }
 
+async function fetchAssignment(taskId, workerId) {
+  if (!taskId) {
+    return null;
+  }
+
+  let query =
+    supabaseClient
+      .from("task_assignments")
+      .select("*")
+      .eq("task_id", taskId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+  if (workerId) {
+    query = query.or(`worker_id.eq.${workerId},worker_user_id.eq.${workerId}`);
+  }
+
+  const { data } =
+    await query.maybeSingle();
+
+  return data || null;
+}
+
 function toggleDetails(id) {
   const box =
     document.getElementById(id);
@@ -829,6 +1107,84 @@ function toggleDetails(id) {
   }
 
   box.classList.toggle("open");
+}
+
+async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
+  const confirmed =
+    confirm("Mark this task complete? Only do this after the worker has finished the work.");
+
+  if (!confirmed) {
+    return;
+  }
+
+  const status =
+    document.getElementById("status");
+
+  if (status) {
+    status.innerText = "Updating task status...";
+  }
+
+  const taskTable =
+    sourceType === "direct_quote"
+      ? "direct_task_requests"
+      : "tasks";
+
+  const completedAt =
+    new Date().toISOString();
+
+  const { error: taskError } =
+    await supabaseClient
+      .from(taskTable)
+      .update({
+        status: "completed",
+        completed_at: completedAt,
+        updated_at: completedAt
+      })
+      .eq("id", taskId);
+
+  if (taskError) {
+    if (status) {
+      status.innerText = taskError.message;
+    }
+    alert(taskError.message);
+    return;
+  }
+
+  if (quoteId) {
+    await supabaseClient
+      .from("worker_quotes")
+      .update({
+        status: "completed",
+        completed_at: completedAt,
+        updated_at: completedAt
+      })
+      .eq("id", quoteId);
+  }
+
+  if (assignmentId) {
+    await supabaseClient
+      .from("task_assignments")
+      .update({
+        assignment_status: "completed",
+        completed_at: completedAt
+      })
+      .eq("id", assignmentId);
+  } else {
+    await supabaseClient
+      .from("task_assignments")
+      .update({
+        assignment_status: "completed",
+        completed_at: completedAt
+      })
+      .eq("task_id", taskId);
+  }
+
+  if (status) {
+    status.innerText = "";
+  }
+
+  alert("Task marked complete.");
+  loadAcceptedQuotes();
 }
 
 async function loadAcceptedQuotes() {
@@ -856,7 +1212,7 @@ async function loadAcceptedQuotes() {
       .from("tasks")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["completed", "paid", "closed", "resolved", "dispute_closed"])
+      .in("status", ["accepted", "in_progress", "completed", "paid", "closed", "resolved", "dispute_open", "dispute_closed"])
       .order("created_at", { ascending: false });
 
   if (taskError) {
@@ -870,7 +1226,7 @@ async function loadAcceptedQuotes() {
       .from("direct_task_requests")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["completed", "paid", "closed", "resolved", "dispute_closed"])
+      .in("status", ["accepted", "in_progress", "completed", "paid", "closed", "resolved", "dispute_open", "dispute_closed"])
       .order("created_at", { ascending: false });
 
   const tasks =
@@ -886,7 +1242,7 @@ async function loadAcceptedQuotes() {
         is_direct_request: true
       }))
     ]
-      .filter(isClosedAcceptedTask)
+      .filter(isAcceptedActiveTask)
       .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
   if (tasks.length === 0) {
@@ -894,7 +1250,7 @@ async function loadAcceptedQuotes() {
     document.getElementById("paidTotal").innerText = "$0.00";
 
     list.innerHTML =
-      `<div class="empty">No paid accepted quotes yet.</div>`;
+      `<div class="empty">No active accepted quotes yet.</div>`;
     return;
   }
 
@@ -931,14 +1287,19 @@ async function loadAcceptedQuotes() {
     const paymentCompleted =
       isPaymentCompleted(task, quote, payment);
 
-    if (!paymentCompleted) {
-      continue;
-    }
-
     visiblePaidTasks += 1;
 
     const paymentStatus =
       getPaymentStatus(task, quote, payment);
+
+    const assignment =
+      await fetchAssignment(task.id, workerId);
+
+    const liveStatus =
+      getLiveTaskStatus(task, quote, assignment, paymentCompleted);
+
+    const arrivalCode =
+      getArrivalCode(assignment, task);
 
     const detailsId =
       `details-${task.source_type}-${task.id}`;
@@ -969,8 +1330,8 @@ async function loadAcceptedQuotes() {
           </div>
         </div>
 
-        <div class="status-pill ${disputeOpen ? "dispute" : "closed"}">
-          ${disputeOpen ? "Dispute Open" : "Closed"}
+        <div class="status-pill ${getStatusPillClass(liveStatus)}">
+          ${escapeHTML(liveStatus)}
         </div>
       </div>
 
@@ -1023,6 +1384,10 @@ async function loadAcceptedQuotes() {
         </div>
       </div>
 
+      ${renderProgressTracker(liveStatus)}
+
+      ${renderArrivalCodeBox(arrivalCode, liveStatus)}
+
       <div class="payment-box ${paymentCompleted ? "" : "unpaid"}">
         ${paymentCompleted
           ? `Payment completed for ${escapeHTML(formatMoney(amountPaid))}.`
@@ -1060,7 +1425,11 @@ async function loadAcceptedQuotes() {
         </div>
 
         <div class="detail-item">
-          <strong>Task Status:</strong> ${escapeHTML(formatStatus(task.status))}
+          <strong>Task Status:</strong> ${escapeHTML(liveStatus)}
+        </div>
+
+        <div class="detail-item">
+          <strong>Arrival Code:</strong> ${escapeHTML(arrivalCode || "Not generated yet")}
         </div>
       </div>
 
@@ -1072,6 +1441,8 @@ async function loadAcceptedQuotes() {
         <button class="primary-btn" onclick="window.location.href='worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}'">
           Worker Profile
         </button>
+
+        ${renderCustomerCompletionButton(task, quote, assignment, liveStatus)}
       </div>
     `;
 
@@ -1083,7 +1454,7 @@ async function loadAcceptedQuotes() {
     document.getElementById("paidTotal").innerText = "$0.00";
 
     list.innerHTML =
-      `<div class="empty">No paid accepted quotes yet.</div>`;
+      `<div class="empty">No active accepted quotes yet.</div>`;
     return;
   }
 
