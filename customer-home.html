@@ -202,43 +202,63 @@ async function safeCount(tableName, selectColumn, filters) {
 async function loadNotificationCounts(userId) {
   const notificationCount = document.getElementById("notificationCount");
 
-  let unreadMessages = await safeCount("messages", "id", [
-    { type: "eq", column: "receiver_id", value: userId },
-    { type: "eq", column: "is_read", value: false }
-  ]);
+  let unreadMessages = 0;
+  let newQuotes = 0;
 
-  if (unreadMessages === null) {
-    unreadMessages = await safeCount("messages", "id", [
-      { type: "eq", column: "recipient_id", value: userId },
-      { type: "eq", column: "is_read", value: false }
+  const { count: taskMessageCount } = await supabaseClient
+    .from("task_messages")
+    .select("id", {
+      count: "exact",
+      head: true
+    })
+    .eq("receiver_id", userId)
+    .eq("is_read", false);
+
+  if (taskMessageCount) {
+    unreadMessages += taskMessageCount;
+  }
+
+  const { count: generalMessageCount } = await supabaseClient
+    .from("messages")
+    .select("id", {
+      count: "exact",
+      head: true
+    })
+    .eq("receiver_id", userId)
+    .eq("is_read", false);
+
+  if (generalMessageCount) {
+    unreadMessages += generalMessageCount;
+  }
+
+  const { count: conversationUnreadCount } = await supabaseClient
+    .from("task_conversations")
+    .select("id", {
+      count: "exact",
+      head: true
+    })
+    .eq("customer_id", userId)
+    .gt("customer_unread_count", 0);
+
+  if (conversationUnreadCount) {
+    unreadMessages += conversationUnreadCount;
+  }
+
+  const { count: workerQuoteCount } = await supabaseClient
+    .from("worker_quotes")
+    .select("id", {
+      count: "exact",
+      head: true
+    })
+    .eq("customer_id", userId)
+    .in("status", [
+      "pending",
+      "sent",
+      "new"
     ]);
-  }
 
-  if (unreadMessages === null) {
-    unreadMessages = 0;
-  }
-
-  let newQuotes = await safeCount("quotes", "id", [
-    { type: "eq", column: "customer_id", value: userId },
-    { type: "in", column: "status", value: ["pending", "sent", "new"] }
-  ]);
-
-  if (newQuotes === null) {
-    newQuotes = await safeCount("task_quotes", "id", [
-      { type: "eq", column: "customer_id", value: userId },
-      { type: "in", column: "status", value: ["pending", "sent", "new"] }
-    ]);
-  }
-
-  if (newQuotes === null) {
-    newQuotes = await safeCount("worker_quotes", "id", [
-      { type: "eq", column: "customer_id", value: userId },
-      { type: "in", column: "status", value: ["pending", "sent", "new"] }
-    ]);
-  }
-
-  if (newQuotes === null) {
-    newQuotes = 0;
+  if (workerQuoteCount) {
+    newQuotes += workerQuoteCount;
   }
 
   const totalNotifications = unreadMessages + newQuotes;
