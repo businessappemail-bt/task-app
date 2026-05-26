@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html>
 <head>
 <title>Past Tasks - TaskMint</title>
@@ -359,17 +359,17 @@ button:hover {
 
   <div class="hero">
     <h1>Past Tasks</h1>
-    <p>View completed jobs that have been marked paid, including worker details, payment amount, and task history.</p>
+    <p>View completed jobs after the customer confirms completion, including worker details, payment amount, and task history.</p>
   </div>
 
   <div class="summary-row">
     <div class="summary-box">
-      <div class="summary-label">Paid Tasks</div>
+      <div class="summary-label">Completed Tasks</div>
       <div class="summary-value" id="paidCount">0</div>
     </div>
 
     <div class="summary-box">
-      <div class="summary-label">Total Paid</div>
+      <div class="summary-label">Total Completed</div>
       <div class="summary-value" id="totalPaid">$0.00</div>
     </div>
   </div>
@@ -451,8 +451,9 @@ function formatDate(value) {
 
 function getTaskPaidDate(task) {
   return (
-    task.paid_at ||
+    task.customer_completed_at ||
     task.completed_at ||
+    task.paid_at ||
     task.created_at ||
     ""
   );
@@ -632,7 +633,7 @@ async function loadPastTasks() {
 
   status.innerText = "";
   tasksList.innerHTML =
-    `<div class="empty">Loading paid tasks...</div>`;
+    `<div class="empty">Loading completed tasks...</div>`;
 
   const user =
     await getCurrentUser();
@@ -649,7 +650,8 @@ async function loadPastTasks() {
       .from("tasks")
       .select("*")
       .eq("customer_id", currentUserId)
-      .eq("status", "paid")
+      .eq("status", "completed")
+      .eq("customer_completed", true)
       .order("created_at", { ascending: false });
 
   if (error) {
@@ -753,7 +755,7 @@ async function renderTasks(tasks) {
 
   if (!tasks || tasks.length === 0) {
     tasksList.innerHTML =
-      `<div class="empty">No paid tasks match this filter.</div>`;
+      `<div class="empty">No completed tasks match this filter.</div>`;
     return;
   }
 
@@ -793,12 +795,12 @@ async function renderTasks(tasks) {
 
           <div class="task-sub">
             Order # TM-${String(task.id).slice(0, 8).toUpperCase()} •
-            Paid ${escapeHTML(formatDate(getTaskPaidDate(task)))}
+            Completed ${escapeHTML(formatDate(getTaskPaidDate(task)))}
           </div>
         </div>
 
         <div class="status-pill">
-          Paid
+          Completed
         </div>
       </div>
 
@@ -811,7 +813,7 @@ async function renderTasks(tasks) {
         </div>
 
         <div class="info-box">
-          <div class="info-label">Amount Paid</div>
+          <div class="info-label">Amount</div>
           <div class="info-value">
             ${escapeHTML(formatMoney(getTaskAmount(task)))}
           </div>
