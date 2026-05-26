@@ -377,69 +377,68 @@ async function loadNotifications() {
   status.className = "status";
   status.innerText = "Loading notifications...";
 
-  const messageCount =
-    await getFirstWorkingCount([
-      {
-        table: "messages",
-        filters: [
-          { type: "eq", column: "receiver_id", value: currentUserId },
-          { type: "eq", column: "is_read", value: false }
-        ]
-      },
-      {
-        table: "messages",
-        filters: [
-          { type: "eq", column: "recipient_id", value: currentUserId },
-          { type: "eq", column: "is_read", value: false }
-        ]
-      },
-      {
-        table: "messages",
-        filters: [
-          { type: "eq", column: "to_user_id", value: currentUserId },
-          { type: "eq", column: "is_read", value: false }
-        ]
-      },
-      {
-        table: "messages",
-        filters: [
-          { type: "eq", column: "customer_id", value: currentUserId },
-          { type: "eq", column: "is_read", value: false }
-        ]
-      }
-    ]);
+  let messageCount = 0;
+  let quoteCount = 0;
 
-  const quoteCount =
-    await getFirstWorkingCount([
-      {
-        table: "quotes",
-        filters: [
-          { type: "eq", column: "customer_id", value: currentUserId },
-          { type: "in", column: "status", value: ["new", "pending", "sent"] }
-        ]
-      },
-      {
-        table: "task_quotes",
-        filters: [
-          { type: "eq", column: "customer_id", value: currentUserId },
-          { type: "in", column: "status", value: ["new", "pending", "sent"] }
-        ]
-      },
-      {
-        table: "job_quotes",
-        filters: [
-          { type: "eq", column: "customer_id", value: currentUserId },
-          { type: "in", column: "status", value: ["new", "pending", "sent"] }
-        ]
-      },
-      {
-        table: "quotes",
-        filters: [
-          { type: "eq", column: "created_for", value: currentUserId },
-          { type: "in", column: "status", value: ["new", "pending", "sent"] }
-        ]
-      }
-    ]);
+  const { count: taskMessageCount } =
+    await supabaseClient
+      .from("task_messages")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("receiver_id", currentUserId)
+      .eq("is_read", false);
+
+  if (taskMessageCount) {
+    messageCount += taskMessageCount;
+  }
+
+  const { count: generalMessageCount } =
+    await supabaseClient
+      .from("messages")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("receiver_id", currentUserId)
+      .eq("is_read", false);
+
+  if (generalMessageCount) {
+    messageCount += generalMessageCount;
+  }
+
+  const { count: conversationUnreadCount } =
+    await supabaseClient
+      .from("task_conversations")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("customer_id", currentUserId)
+      .gt("customer_unread_count", 0);
+
+  if (conversationUnreadCount) {
+    messageCount += conversationUnreadCount;
+  }
+
+  const { count: workerQuoteCount } =
+    await supabaseClient
+      .from("worker_quotes")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("customer_id", currentUserId)
+      .in("status", [
+        "pending",
+        "sent",
+        "new"
+      ]);
+
+  if (workerQuoteCount) {
+    quoteCount += workerQuoteCount;
+  }
 
   document.getElementById("messageCount").innerText =
     messageCount;
@@ -468,9 +467,9 @@ async function loadNotifications() {
     "Updated just now.";
 }
 
+
 loadNotifications();
 </script>
 
 </body>
 </html>
-
