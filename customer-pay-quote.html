@@ -589,25 +589,44 @@ async function createPaymentIntent() {
   const amount =
     Number(getQuoteAmount(quoteData) || quoteAmountFromUrl || 0);
 
-  const { data, error } =
-    await supabaseClient.functions.invoke(
-      "create-payment-intent",
-      {
-        body: {
-          task_id: taskId,
-          worker_id: workerId,
-          quote_id: quoteId,
-          amount: amount
+  if (
+    !STRIPE_PUBLISHABLE_KEY ||
+    STRIPE_PUBLISHABLE_KEY.includes("REPLACE_WITH_YOUR_STRIPE_PUBLISHABLE_KEY")
+  ) {
+    throw new Error("Stripe is not connected yet. Add your real Stripe publishable key and deploy the create-payment-intent Edge Function before testing card payments.");
+  }
+
+  let response;
+
+  try {
+    response =
+      await supabaseClient.functions.invoke(
+        "create-payment-intent",
+        {
+          body: {
+            task_id: taskId,
+            worker_id: workerId,
+            quote_id: quoteId,
+            amount: amount
+          }
         }
-      }
-    );
+      );
+  } catch (functionError) {
+    throw new Error("Payment setup is not connected yet. Deploy the create-payment-intent Supabase Edge Function before testing card payments.");
+  }
+
+  const { data, error } =
+    response;
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(
+      error.message ||
+      "Payment setup is not connected yet. Check the create-payment-intent Edge Function."
+    );
   }
 
   if (!data || !data.clientSecret) {
-    throw new Error("Payment setup failed. Missing Stripe client secret.");
+    throw new Error("Payment setup failed. Missing Stripe client secret from the Edge Function.");
   }
 
   return data.clientSecret;
