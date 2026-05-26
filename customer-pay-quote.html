@@ -701,9 +701,14 @@ async function finalizeAcceptedQuote(paymentIntentId) {
       .update({
         status: "accepted",
         assigned_worker_id: workerId,
+        accepted_worker_id: workerId,
+        worker_id: workerId,
         accepted_quote_id: quoteId,
         payment_intent_id: paymentIntentId,
-        payment_status: "paid"
+        payment_status: "paid",
+        worker_arrival_confirmed: false,
+        worker_completed: false,
+        customer_completed: false
       })
       .eq("id", taskId)
       .eq("customer_id", customerId)
@@ -713,12 +718,17 @@ async function finalizeAcceptedQuote(paymentIntentId) {
     throw new Error(taskError.message);
   }
 
-  await supabaseClient
-    .from("worker_quotes")
-    .update({
-      status: "accepted"
-    })
-    .eq("id", quoteId);
+  const { error: quoteError } =
+    await supabaseClient
+      .from("worker_quotes")
+      .update({
+        status: "accepted"
+      })
+      .eq("id", quoteId);
+
+  if (quoteError) {
+    throw new Error(quoteError.message);
+  }
 
   await supabaseClient
     .from("worker_quotes")
@@ -752,7 +762,7 @@ async function finalizeAcceptedQuote(paymentIntentId) {
 
   setTimeout(() => {
     window.location.href =
-      "view-open-task.html";
+      "customer-accepted-tasks.html";
   }, 1200);
 }
 
