@@ -396,7 +396,7 @@ async function loadNotifications() {
 
   const { count: generalMessageCount } =
     await supabaseClient
-      .from("messages")
+      .from("task_messages")
       .select("id", {
         count: "exact",
         head: true
