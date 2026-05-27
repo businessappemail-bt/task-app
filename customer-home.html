@@ -219,7 +219,7 @@ async function loadNotificationCounts(userId) {
   }
 
   const { count: generalMessageCount } = await supabaseClient
-    .from("messages")
+    .from("task_messages")
     .select("id", {
       count: "exact",
       head: true
@@ -284,7 +284,7 @@ async function loadProfile() {
   await loadNotificationCounts(user.id);
 
   const { data: profile } = await supabaseClient
-    .from("profiles")
+    .from("customer_profiles")
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
