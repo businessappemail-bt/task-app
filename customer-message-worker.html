@@ -68,7 +68,7 @@ currentUser=data&&data.user?data.user:null;
 
 if(!workerId){document.getElementById("workerName").innerText="Worker not found";return}
 
-const{data:worker}=await supabaseClient.from("workers").select("*").eq("id",workerId).maybeSingle();
+const{data:worker}=await supabaseClient.from("worker_profiles").select("*").eq("id",workerId).maybeSingle();
 if(worker){
 document.getElementById("workerName").innerText=getWorkerName(worker);
 document.getElementById("workerSub").innerText=worker.city||worker.email||"Worker profile";
