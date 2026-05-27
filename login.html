@@ -470,7 +470,7 @@ async function login() {
 
   const { data: profile } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .select("account_type, status")
       .eq("id", authUser.id)
       .maybeSingle();
