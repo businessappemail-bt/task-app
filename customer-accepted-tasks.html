@@ -1077,7 +1077,7 @@ async function fetchWorker(workerId) {
 
   const { data: workerRecord } =
     await supabaseClient
-      .from("workers")
+      .from("worker_profiles")
       .select("*")
       .eq("id", workerId)
       .maybeSingle();
