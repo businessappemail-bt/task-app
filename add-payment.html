@@ -594,7 +594,7 @@ async function loadPaymentMethods() {
 
   const { data: savedMethod, error } =
     await supabaseClient
-      .from("customer_payment_methods")
+      .from("payments")
       .select("*")
       .eq("customer_id", currentUserId)
       .eq("is_default", true)
@@ -656,7 +656,7 @@ async function loadPaymentMethods() {
 
 async function clearExistingDefaults() {
   await supabaseClient
-    .from("customer_payment_methods")
+    .from("payments")
     .update({ is_default: false })
     .eq("customer_id", currentUserId);
 }
@@ -718,7 +718,7 @@ async function saveCardMethod() {
 
   const { error } =
     await supabaseClient
-      .from("customer_payment_methods")
+      .from("payments")
       .insert([paymentPayload]);
 
   if (error) {
@@ -740,7 +740,7 @@ async function setWalletMethod(methodLabel) {
 
   const { error } =
     await supabaseClient
-      .from("customer_payment_methods")
+      .from("payments")
       .insert([
         {
           customer_id: currentUserId,
@@ -776,7 +776,7 @@ async function removeDefaultPayment() {
 
   const { error } =
     await supabaseClient
-      .from("customer_payment_methods")
+      .from("payments")
       .delete()
       .eq("id", savedPaymentId)
       .eq("customer_id", currentUserId);
