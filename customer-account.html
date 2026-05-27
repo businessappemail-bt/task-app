@@ -521,7 +521,7 @@ async function loadAccount() {
 
   const { data: profile, error } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .select("*")
       .eq("id", currentUserId)
       .maybeSingle();
@@ -632,7 +632,7 @@ async function saveAccount() {
 
   const { error } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .update(updates)
       .eq("id", currentUserId);
 
