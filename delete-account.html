@@ -398,7 +398,7 @@
       for (const updateData of updateAttempts) {
         const { error } =
           await supabaseClient
-            .from("profiles")
+            .from("customer_profiles")
             .update(updateData)
             .eq("id", userId);
 
@@ -415,7 +415,7 @@
     async function saveDeletedAccountRecord(user, now) {
       const { data: customerProfile } =
         await supabaseClient
-          .from("profiles")
+          .from("customer_profiles")
           .select("*")
           .eq("id", user.id)
           .maybeSingle();
@@ -424,7 +424,7 @@
         await supabaseClient
           .from("worker_profiles")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("auth_user_id", user.id)
           .maybeSingle();
 
       const accountType =
