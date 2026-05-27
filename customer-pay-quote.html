@@ -511,7 +511,7 @@ async function loadCheckout() {
 
   const { data: profile } =
     await supabaseClient
-      .from("profiles")
+      .from("worker_profiles")
       .select("*")
       .eq("id", workerId)
       .maybeSingle();
