@@ -299,6 +299,7 @@ worker_id: workerId,
 task_id: null,
 quote_request_id: null,
 conversation_type: "direct_message",
+customer_unread_count: 0,
 updated_at: new Date().toISOString()
 })
 .select()
@@ -352,6 +353,8 @@ return;
 await supabaseClient
 .from("task_conversations")
 .update({
+customer_unread_count:
+Number(conversation.customer_unread_count || 0),
 updated_at: new Date().toISOString()
 })
 .eq("id", conversation.id);
