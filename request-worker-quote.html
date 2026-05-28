@@ -336,15 +336,31 @@ button:hover {
   </div>
 </div>
 
-<div class="card slide-screen" id="slide3">
-  <div class="section-title">Task Questions</div>
-  <div class="section-note">Answer questions for this task category.</div>
+<div
+  class="card slide-screen hidden"
+  id="questionsCard"
+>
+  <div class="section-title">
+    Task Questions
+  </div>
+
+  <div class="section-note">
+    Answer questions for this task category.
+  </div>
 
   <div id="questionsArea"></div>
 
   <div class="slide-actions">
-    <button class="secondary" onclick="previousSlide(2)">Back</button>
-    <button onclick="nextSlide(4)">Next</button>
+    <button
+      class="secondary"
+      onclick="previousSlide(2)"
+    >
+      Back
+    </button>
+
+    <button onclick="nextSlide(4)">
+      Next
+    </button>
   </div>
 </div>
 
@@ -550,7 +566,7 @@ async function loadPage() {
 
   const { data: worker } =
     await supabaseClient
-      .from("workers")
+      .from("worker_profiles")
       .select("*")
       .eq("id", workerId)
       .maybeSingle();
