@@ -489,6 +489,7 @@ button:hover {
           <option value="unread">Unread</option>
           <option value="quotes">Quotes Pending</option>
           <option value="direct">Direct Quotes</option>
+          <option value="worker_direct">Worker Direct Messages</option>
           <option value="task">Task Messages</option>
         </select>
       </div>
@@ -501,6 +502,16 @@ button:hover {
       </div>
       <div id="directQuoteList">
         <div class="empty">Loading direct quotes...</div>
+      </div>
+    </div>
+
+    <div id="workerDirectMessageSection" class="inbox-section">
+      <div class="section-head">
+        <div class="section-title">Worker Direct Messages</div>
+        <div class="section-count" id="workerDirectCount">0</div>
+      </div>
+      <div id="workerDirectMessageList">
+        <div class="empty">Loading worker direct messages...</div>
       </div>
     </div>
 
@@ -723,9 +734,24 @@ function getConversationType(convo) {
     String(convo.conversation_type || convo.source_type || "").toLowerCase();
 
   if (
+    rawType === "direct_message" ||
+    rawType === "worker_direct_message" ||
+    (
+      !convo.task_id &&
+      !convo.quote_request_id &&
+      !convo.direct_request_id &&
+      !convo.is_direct_request
+    )
+  ) {
+    return "worker_direct";
+  }
+
+  if (
     rawType.includes("direct") ||
+    rawType.includes("quote_request") ||
     convo.is_direct_request ||
     convo.direct_request_id ||
+    convo.quote_request_id ||
     convo.request_type === "direct_quote"
   ) {
     return "direct";
@@ -881,15 +907,20 @@ async function hydrateConversation(convo) {
     convo.price ||
     "";
 
+  const conversationType =
+    getConversationType(convo);
+
   const taskTitle =
-    convo.task_title ||
-    task.category ||
-    task.title ||
-    "Task";
+    conversationType === "worker_direct"
+      ? "Worker Direct Message"
+      : convo.task_title ||
+        task.category ||
+        task.title ||
+        "Task";
 
   return {
     ...convo,
-    hydrated_type: getConversationType(convo),
+    hydrated_type: conversationType,
     hydrated_worker_id: workerId,
     hydrated_worker_name: getDisplayName(workerProfile),
     hydrated_worker_photo:
@@ -990,11 +1021,17 @@ async function loadConversations() {
   const directBox =
     document.getElementById("directQuoteList");
 
+  const workerDirectBox =
+    document.getElementById("workerDirectMessageList");
+
   const taskBox =
     document.getElementById("taskMessageList");
 
   directBox.innerHTML =
     `<div class="empty">Loading direct quotes...</div>`;
+
+  workerDirectBox.innerHTML =
+    `<div class="empty">Loading worker direct messages...</div>`;
 
   taskBox.innerHTML =
     `<div class="empty">Loading task messages...</div>`;
@@ -1069,6 +1106,11 @@ function filterConversations() {
       filtered.filter(convo => convo.hydrated_type === "direct");
   }
 
+  if (filter === "worker_direct") {
+    filtered =
+      filtered.filter(convo => convo.hydrated_type === "worker_direct");
+  }
+
   if (filter === "task") {
     filtered =
       filtered.filter(convo => convo.hydrated_type === "task");
@@ -1081,16 +1123,23 @@ function renderInbox(conversations) {
   const directConversations =
     conversations.filter(convo => convo.hydrated_type === "direct");
 
+  const workerDirectConversations =
+    conversations.filter(convo => convo.hydrated_type === "worker_direct");
+
   const taskConversations =
-    conversations.filter(convo => convo.hydrated_type !== "direct");
+    conversations.filter(convo => convo.hydrated_type === "task");
 
   document.getElementById("directCount").innerText =
     String(directConversations.length);
+
+  document.getElementById("workerDirectCount").innerText =
+    String(workerDirectConversations.length);
 
   document.getElementById("taskCount").innerText =
     String(taskConversations.length);
 
   renderConversationGroup("directQuoteList", directConversations, "No direct quote conversations yet.");
+  renderConversationGroup("workerDirectMessageList", workerDirectConversations, "No worker direct messages yet.");
   renderConversationGroup("taskMessageList", taskConversations, "No task message conversations yet.");
 }
 
