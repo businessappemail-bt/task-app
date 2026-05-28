@@ -470,7 +470,7 @@ async function loadBlockedUsers() {
       customer_id,
       blocked_user_id,
       created_at,
-      worker_profiles (
+      worker_profiles!blocked_user_id (
         id,
         full_name,
         profile_photo,
