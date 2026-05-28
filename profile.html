@@ -767,7 +767,7 @@ async function loadProfile() {
 
   const { data: profile, error } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .select("first_name, last_name, email, profile_photo_url, created_at")
       .eq("id", currentUserId)
       .maybeSingle();
@@ -869,7 +869,7 @@ async function uploadProfilePhoto() {
 
   const { error: updateError } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .update({
         profile_photo_url: photoUrl
       })
@@ -946,7 +946,7 @@ async function updateEmail() {
   */
   const { error: profileError } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .update({
         email: newEmail
       })
