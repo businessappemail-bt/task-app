@@ -85,7 +85,7 @@ if(!currentUser){status.style.color="#b00020";status.innerText="Please log in to
 if(!workerId){status.style.color="#b00020";status.innerText="Worker profile is missing.";return}
 if(text.length<2){status.style.color="#b00020";status.innerText="Enter a message.";return}
 
-const{error}=await supabaseClient.from("customer_worker_messages").insert({
+const{error}=await supabaseClient.from("task_messages").insert({
 customer_id:currentUser.id,
 worker_id:workerId,
 sender_id:currentUser.id,
