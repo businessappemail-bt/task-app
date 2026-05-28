@@ -72,7 +72,7 @@ currentUser=data&&data.user?data.user:null;
 
 if(!workerId){document.getElementById("workerNotice").innerText="No worker was selected.";return}
 
-const{data:worker}=await supabaseClient.from("workers").select("*").eq("id",workerId).maybeSingle();
+const{data:worker}=await supabaseClient.from("worker_profiles").select("*").eq("id",workerId).maybeSingle();
 document.getElementById("workerNotice").innerText=worker?`Report for ${workerName(worker)}.`:"Report for selected worker.";
 }
 
@@ -89,7 +89,7 @@ const relatedTask=document.getElementById("relatedTask").value.trim();
 
 if(!reasonType||details.length<10){status.style.color="#b00020";status.innerText="Select a reason and enter report details.";return}
 
-const{error}=await supabaseClient.from("worker_reports").insert({
+const{error}=await supabaseClient.from("reports").insert({
 reporter_id:currentUser.id,
 worker_id:workerId,
 reason_type:reasonType,
