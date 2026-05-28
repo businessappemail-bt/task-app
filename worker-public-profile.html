@@ -790,18 +790,72 @@ async function loadWorkerProfile(workerId) {
 }
  
 async function loadAvailability(workerId, profile) {
+  const possibleAvailabilityIds = [
+    workerId,
+    profile?.worker_table_id,
+    profile?.worker_profile_table_id,
+    profile?.id,
+    profile?.auth_user_id,
+    profile?.profile_table_id,
+    profile?.user_id
+  ]
+    .filter(Boolean)
+    .map(id => String(id));
 
-  const { data, error } = await supabaseClient
-    .from("worker_availability")
-    .select("*")
-    .eq("worker_id", workerId)
-    .eq("is_available", true);
+  const uniqueAvailabilityIds = [...new Set(possibleAvailabilityIds)];
 
-  if (error || !data) {
-    return [];
+  for (const id of uniqueAvailabilityIds) {
+    const { data, error } = await supabaseClient
+      .from("worker_availability")
+      .select("*")
+      .eq("worker_id", id)
+      .eq("is_available", true);
+
+    if (!error && data && data.length > 0) {
+      return data;
+    }
   }
 
-  return data;
+  for (const id of uniqueAvailabilityIds) {
+    const { data, error } = await supabaseClient
+      .from("worker_availability")
+      .select("*")
+      .eq("worker_user_id", id)
+      .eq("is_available", true);
+
+    if (!error && data && data.length > 0) {
+      return data;
+    }
+  }
+
+  for (const id of uniqueAvailabilityIds) {
+    const { data, error } = await supabaseClient
+      .from("worker_availability")
+      .select("*")
+      .eq("user_id", id)
+      .eq("is_available", true);
+
+    if (!error && data && data.length > 0) {
+      return data;
+    }
+  }
+
+  const profileAvailability = splitList(getFirstAvailable(profile, [
+    "availability",
+    "available_days",
+    "work_availability"
+  ], ""));
+
+  if (profileAvailability.length > 0) {
+    return profileAvailability.map(item => ({
+      day_of_week: item,
+      start_time: "",
+      end_time: "",
+      is_available: true
+    }));
+  }
+
+  return [];
 }
  
 async function loadReviews(workerId) {
