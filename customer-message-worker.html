@@ -4,6 +4,7 @@
 <title>Message Worker - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#eef8f1,#f5f5f5);color:#111;padding-bottom:30px}
@@ -24,85 +25,328 @@ button{width:100%;border:none;border-radius:16px;padding:14px;background:#0b7a28
 .status{text-align:center;font-size:13px;font-weight:900;margin-top:10px}
 </style>
 </head>
+
 <body>
+
 <div class="container">
+
 <div class="top-bar">
 <div class="back" onclick="history.back()">← Back</div>
 </div>
 
 <div class="hero">
 <h1>Message Worker</h1>
-<p>Send a direct message to this worker about availability, services, or a task you may want help with.</p>
+<p>
+Send a direct message to this worker about availability, services, or a task you may want help with.
+</p>
 </div>
 
 <div class="card">
+
 <div class="worker-row">
-<img id="workerPhoto" class="avatar" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+
+<img
+id="workerPhoto"
+class="avatar"
+src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+>
+
 <div>
-<div class="name" id="workerName">Loading worker...</div>
-<div class="sub" id="workerSub">Worker profile</div>
+<div class="name" id="workerName">
+Loading worker...
 </div>
+
+<div class="sub" id="workerSub">
+Worker profile
 </div>
 </div>
 
-<div class="card">
-<textarea id="messageText" maxlength="1000" placeholder="Type your message..."></textarea>
-<button onclick="sendMessage()">Send Message</button>
-<div id="status" class="status"></div>
 </div>
+
+</div>
+
+<div class="card">
+
+<textarea
+id="messageText"
+maxlength="1000"
+placeholder="Type your message..."
+></textarea>
+
+<button onclick="sendMessage()">
+Send Message
+</button>
+
+<div id="status" class="status"></div>
+
+</div>
+
 </div>
 
 <script>
-const supabaseClient=window.supabase.createClient("https://dbcthtjmtlumidpbucrc.supabase.co","sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ");
-let workerId="";
-let currentUser=null;
 
-function getParam(name){return new URLSearchParams(window.location.search).get(name)||""}
-function escapeHTML(value){return String(value||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
-function getWorkerName(worker){const first=worker.first_name||"";const last=worker.last_name||"";const lastInitial=last?last.charAt(0).toUpperCase()+".":"";return first?`${first} ${lastInitial}`.trim():(worker.full_name||worker.display_name||"Worker")}
+const supabaseClient =
+window.supabase.createClient(
+"https://dbcthtjmtlumidpbucrc.supabase.co",
+"sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+let workerId = "";
+let currentUser = null;
+
+function getParam(name){
+return new URLSearchParams(window.location.search).get(name) || "";
+}
+
+function escapeHTML(value){
+return String(value || "")
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+}
+
+function getWorkerName(worker){
+
+const first =
+worker.first_name || "";
+
+const last =
+worker.last_name || "";
+
+const lastInitial =
+last
+? last.charAt(0).toUpperCase() + "."
+: "";
+
+return first
+? `${first} ${lastInitial}`.trim()
+: (
+worker.full_name ||
+worker.display_name ||
+"Worker"
+);
+
+}
 
 async function loadPage(){
-workerId=getParam("worker_id")||localStorage.getItem("selectedWorkerId")||"";
-const{data}=await supabaseClient.auth.getUser();
-currentUser=data&&data.user?data.user:null;
 
-if(!workerId){document.getElementById("workerName").innerText="Worker not found";return}
+workerId =
+getParam("worker_id") ||
+localStorage.getItem("selectedWorkerId") ||
+"";
 
-const{data:worker}=await supabaseClient.from("worker_profiles").select("*").eq("id",workerId).maybeSingle();
-if(worker){
-document.getElementById("workerName").innerText=getWorkerName(worker);
-document.getElementById("workerSub").innerText=worker.city||worker.email||"Worker profile";
-document.getElementById("workerPhoto").src=worker.profile_photo_url||worker.photo_url||worker.avatar_url||"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+const { data } =
+await supabaseClient.auth.getUser();
+
+currentUser =
+data && data.user
+? data.user
+: null;
+
+if(!workerId){
+
+document.getElementById("workerName").innerText =
+"Worker not found";
+
+return;
+
 }
+
+const { data: worker } =
+await supabaseClient
+.from("worker_profiles")
+.select("*")
+.eq("id", workerId)
+.maybeSingle();
+
+if(worker){
+
+document.getElementById("workerName").innerText =
+getWorkerName(worker);
+
+document.getElementById("workerSub").innerText =
+worker.city ||
+worker.email ||
+"Worker profile";
+
+document.getElementById("workerPhoto").src =
+worker.profile_photo_url ||
+worker.photo_url ||
+worker.avatar_url ||
+"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+}
+
 }
 
 async function sendMessage(){
-const status=document.getElementById("status");
-const text=document.getElementById("messageText").value.trim();
-status.innerText="";
 
-if(!currentUser){status.style.color="#b00020";status.innerText="Please log in to send a message.";return}
-if(!workerId){status.style.color="#b00020";status.innerText="Worker profile is missing.";return}
-if(text.length<2){status.style.color="#b00020";status.innerText="Enter a message.";return}
+const status =
+document.getElementById("status");
 
-const{error}=await supabaseClient.from("task_messages").insert({
-customer_id:currentUser.id,
-worker_id:workerId,
-sender_id:currentUser.id,
-sender_type:"customer",
-message:text,
-created_at:new Date().toISOString()
+const text =
+document.getElementById("messageText").value.trim();
+
+status.innerText = "";
+
+if(!currentUser){
+
+status.style.color = "#b00020";
+
+status.innerText =
+"Please log in to send a message.";
+
+return;
+
+}
+
+if(!workerId){
+
+status.style.color = "#b00020";
+
+status.innerText =
+"Worker profile is missing.";
+
+return;
+
+}
+
+if(text.length < 2){
+
+status.style.color = "#b00020";
+
+status.innerText =
+"Enter a message.";
+
+return;
+
+}
+
+status.style.color = "#666";
+
+status.innerText =
+"Sending...";
+
+try{
+
+let conversation = null;
+
+const { data: existingConversation } =
+await supabaseClient
+.from("task_conversations")
+.select("*")
+.eq("customer_id", currentUser.id)
+.eq("worker_id", workerId)
+.is("task_id", null)
+.is("quote_request_id", null)
+.maybeSingle();
+
+if(existingConversation){
+
+conversation =
+existingConversation;
+
+}else{
+
+const {
+data: newConversation,
+error: conversationError
+} =
+await supabaseClient
+.from("task_conversations")
+.insert({
+customer_id: currentUser.id,
+worker_id: workerId,
+task_id: null,
+quote_request_id: null,
+conversation_type: "direct_message",
+updated_at: new Date().toISOString()
+})
+.select()
+.single();
+
+if(conversationError){
+
+status.style.color = "#b00020";
+
+status.innerText =
+conversationError.message;
+
+return;
+
+}
+
+conversation =
+newConversation;
+
+}
+
+const {
+error: messageError
+} =
+await supabaseClient
+.from("task_messages")
+.insert({
+conversation_id: conversation.id,
+task_id: null,
+customer_id: currentUser.id,
+worker_id: workerId,
+receiver_id: workerId,
+sender_id: currentUser.id,
+sender_type: "customer",
+message: text,
+is_read: false,
+created_at: new Date().toISOString()
 });
 
-if(error){status.style.color="#b00020";status.innerText=error.message;return}
+if(messageError){
 
-status.style.color="#0b7a28";
-status.innerText="Message sent.";
-document.getElementById("messageText").value="";
+status.style.color = "#b00020";
+
+status.innerText =
+messageError.message;
+
+return;
+
+}
+
+await supabaseClient
+.from("task_conversations")
+.update({
+updated_at: new Date().toISOString()
+})
+.eq("id", conversation.id);
+
+localStorage.setItem(
+"selectedConversationId",
+conversation.id
+);
+
+status.style.color = "#0b7a28";
+
+status.innerText =
+"Message sent.";
+
+document.getElementById("messageText").value = "";
+
+}catch(error){
+
+console.error(error);
+
+status.style.color = "#b00020";
+
+status.innerText =
+error.message || "Unable to send message.";
+
+}
+
 }
 
 loadPage();
+
 </script>
+
 </body>
 </html>
-
