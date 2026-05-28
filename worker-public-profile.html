@@ -1292,11 +1292,17 @@ async function uploadWorkPhoto(event) {
 }
 
 function messageWorker() {
+  if (!selectedWorkerId) {
+    alert("Worker profile is not available.");
+    return;
+  }
+
   localStorage.setItem("selectedWorkerId", selectedWorkerId || "");
   localStorage.setItem("selectedWorkerProfileId", selectedWorkerId || "");
   localStorage.setItem("messageContext", "worker-profile");
- 
-  window.location.href = "customer-message-worker.html";
+
+  window.location.href =
+    `customer-message-worker.html?worker_id=${encodeURIComponent(selectedWorkerId || "")}`;
 }
  
 function requestQuote() {
@@ -1304,6 +1310,54 @@ function requestQuote() {
   localStorage.setItem("selectedWorkerProfileId", selectedWorkerId || "");
  
   window.location.href = "customer-message-worker.html";
+}
+
+async function saveWorker() {
+  if (!currentUser) {
+    alert("Please log in to save this worker.");
+    return;
+  }
+
+  if (!selectedWorkerId) {
+    alert("Worker profile is not available.");
+    return;
+  }
+
+  const { data: existingSave, error: existingError } =
+    await supabaseClient
+      .from("saved_workers")
+      .select("id")
+      .eq("customer_id", currentUser.id)
+      .eq("worker_id", selectedWorkerId)
+      .maybeSingle();
+
+  if (existingError) {
+    alert(existingError.message);
+    return;
+  }
+
+  if (existingSave) {
+    alert("This worker is already saved.");
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
+      .from("saved_workers")
+      .insert([
+        {
+          customer_id: currentUser.id,
+          worker_id: selectedWorkerId,
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Worker saved.");
 }
  
 function reportWorker() {
