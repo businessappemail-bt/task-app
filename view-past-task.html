@@ -609,7 +609,7 @@ async function getWorkerName(workerId) {
     await supabaseClient
       .from("worker_profiles")
       .select("full_name, display_name")
-      .eq("user_id", workerId)
+      .eq("auth_user_id", workerId)
       .maybeSingle();
 
   if (workerProfileByUserId) {
