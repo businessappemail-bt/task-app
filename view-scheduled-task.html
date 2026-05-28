@@ -675,6 +675,7 @@ function clearFilters() {
 }
 
 async function getWorkerName(workerId) {
+
   if (!workerId) {
     return "Assigned worker";
   }
@@ -693,8 +694,20 @@ async function getWorkerName(workerId) {
       .eq("id", workerId)
       .maybeSingle();
 
+  const { data: workerProfileByAuth } =
+    await supabaseClient
+      .from("worker_profiles")
+      .select("full_name, display_name")
+      .eq("auth_user_id", workerId)
+      .maybeSingle();
+
   const person =
-    Object.assign({}, profile || {}, workerProfile || {});
+    Object.assign(
+      {},
+      profile || {},
+      workerProfile || {},
+      workerProfileByAuth || {}
+    );
 
   return (
     person.full_name ||
@@ -702,6 +715,7 @@ async function getWorkerName(workerId) {
     `${person.first_name || ""} ${person.last_name || ""}`.trim() ||
     "Assigned worker"
   );
+
 }
 
 async function renderTasks(tasks) {
