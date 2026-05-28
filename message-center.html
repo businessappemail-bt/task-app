@@ -790,7 +790,7 @@ async function fetchWorkerProfile(workerId) {
     await supabaseClient
       .from("worker_profiles")
       .select("*")
-      .eq("user_id", workerId)
+      .eq("auth_user_id", workerId)
       .maybeSingle();
 
   if (workerByUserId) {
@@ -810,7 +810,7 @@ async function fetchWorkerProfile(workerId) {
 
   const { data: profile } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_rofiles")
       .select("*")
       .eq("id", workerId)
       .maybeSingle();
