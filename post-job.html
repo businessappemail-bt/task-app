@@ -1280,7 +1280,7 @@ async function getCustomerProfile() {
 
   const { data: profile } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .select("id, email, account_type")
       .eq("id", currentUser.id)
       .maybeSingle();
