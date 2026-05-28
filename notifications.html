@@ -655,7 +655,7 @@ async function loadNotificationSettings() {
 
   const { data, error } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .select(`
         marketing_emails,
         text_notifications,
@@ -713,7 +713,7 @@ async function saveNotificationSettings() {
 
   const { error } =
     await supabaseClient
-      .from("profiles")
+      .from("customer_profiles")
       .update({
         marketing_emails: marketingEmails,
         text_notifications: textNotifications,
