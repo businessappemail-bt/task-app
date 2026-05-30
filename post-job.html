@@ -305,6 +305,10 @@ gmp-place-autocomplete {
   margin-top: 12px;
 }
 
+  .pac-container {
+  z-index: 999999 !important;
+}
+
 gmp-place-autocomplete input {
   background: white !important;
   color: #111 !important;
@@ -611,8 +615,6 @@ window.initGoogleMaps = async function () {
   try {
     await google.maps.importLibrary("places");
     googleReady = true;
-    setupPlaceAutocomplete("pickupGoogleBox", "pickup");
-    setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
   } catch (error) {
     document.getElementById("status").innerText =
       "Google address search failed to load.";
