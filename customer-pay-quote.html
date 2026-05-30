@@ -375,16 +375,31 @@ const supabaseClient =
 
 /*
   Replace this with your real Stripe publishable key.
-  It starts with pk_test_ or pk_live_.
+  Use pk_test_ while testing.
+  Use pk_live_ only when TaskMint is ready for real payments.
 */
 const STRIPE_PUBLISHABLE_KEY =
   "pk_test_REPLACE_WITH_YOUR_STRIPE_PUBLISHABLE_KEY";
 
-const stripe =
-  Stripe(STRIPE_PUBLISHABLE_KEY);
-
+let stripe = null;
 let elements = null;
 let cardElement = null;
+
+function initializeStripe() {
+  if (
+    !STRIPE_PUBLISHABLE_KEY ||
+    STRIPE_PUBLISHABLE_KEY.includes("REPLACE_WITH_YOUR_STRIPE_PUBLISHABLE_KEY")
+  ) {
+    throw new Error("Stripe is not connected yet. Add your real Stripe publishable key before testing card payments.");
+  }
+
+  if (!stripe) {
+    stripe =
+      Stripe(STRIPE_PUBLISHABLE_KEY);
+  }
+
+  return stripe;
+}
 
 let taskId = "";
 let workerId = "";
@@ -429,6 +444,14 @@ function getQuoteAmount(app) {
     app.quote ??
     0
   );
+}
+
+function calculatePlatformFee(amount) {
+  return Number((Number(amount || 0) * 0.15).toFixed(2));
+}
+
+function calculateWorkerPayout(amount) {
+  return Number((Number(amount || 0) - calculatePlatformFee(amount)).toFixed(2));
 }
 
 function goBack() {
@@ -545,7 +568,11 @@ function showCardPayment() {
   section.classList.remove("hidden");
 
   if (!elements) {
-    elements = stripe.elements();
+    const stripeInstance =
+      initializeStripe();
+
+    elements =
+      stripeInstance.elements();
 
     cardElement =
       elements.create("card", {
@@ -589,12 +616,7 @@ async function createPaymentIntent() {
   const amount =
     Number(getQuoteAmount(quoteData) || quoteAmountFromUrl || 0);
 
-  if (
-    !STRIPE_PUBLISHABLE_KEY ||
-    STRIPE_PUBLISHABLE_KEY.includes("REPLACE_WITH_YOUR_STRIPE_PUBLISHABLE_KEY")
-  ) {
-    throw new Error("Stripe is not connected yet. Add your real Stripe publishable key and deploy the create-payment-intent Edge Function before testing card payments.");
-  }
+  initializeStripe();
 
   let response;
 
@@ -605,6 +627,7 @@ async function createPaymentIntent() {
         {
           body: {
             task_id: taskId,
+            customer_id: customerId,
             worker_id: workerId,
             quote_id: quoteId,
             amount: amount
@@ -661,8 +684,11 @@ async function payAndAssignWorker() {
     const clientSecret =
       await createPaymentIntent();
 
+    const stripeInstance =
+      initializeStripe();
+
     const result =
-      await stripe.confirmCardPayment(
+      await stripeInstance.confirmCardPayment(
         clientSecret,
         {
           payment_method: {
@@ -695,6 +721,21 @@ async function finalizeAcceptedQuote(paymentIntentId) {
   const status =
     document.getElementById("status");
 
+  const quoteAmount =
+    Number(getQuoteAmount(quoteData) || quoteAmountFromUrl || 0);
+
+  const platformFee =
+    calculatePlatformFee(quoteAmount);
+
+  const workerPayout =
+    calculateWorkerPayout(quoteAmount);
+
+  const workerName =
+    workerData.full_name ||
+    workerData.display_name ||
+    `${workerData.first_name || ""} ${workerData.last_name || ""}`.trim() ||
+    "Worker";
+
   const { error: taskError } =
     await supabaseClient
       .from("tasks")
@@ -706,6 +747,15 @@ async function finalizeAcceptedQuote(paymentIntentId) {
         accepted_quote_id: quoteId,
         payment_intent_id: paymentIntentId,
         payment_status: "paid",
+        quote_accepted: true,
+        paid_at: new Date().toISOString(),
+        paid_amount: quoteAmount,
+        amount_paid: quoteAmount,
+        task_amount: quoteAmount,
+        platform_fee: platformFee,
+        worker_payout_amount: workerPayout,
+        escrow_status: "held",
+        worker_name: workerName,
         worker_arrival_confirmed: false,
         worker_completed: false,
         customer_completed: false
@@ -738,23 +788,31 @@ async function finalizeAcceptedQuote(paymentIntentId) {
     .eq("task_id", taskId)
     .neq("id", quoteId);
 
-  /*
-    Optional: If you have a payments table, uncomment and match your table columns.
-
+  const { error: paymentRecordError } =
     await supabaseClient
       .from("payments")
       .insert([
         {
           task_id: taskId,
           customer_id: customerId,
+          customer_user_id: customerId,
           worker_id: workerId,
+          worker_user_id: workerId,
           quote_id: quoteId,
-          amount: Number(getQuoteAmount(quoteData) || quoteAmountFromUrl || 0),
-          stripe_payment_intent_id: paymentIntentId,
-          status: "paid"
+          amount: quoteAmount,
+          amount_paid: quoteAmount,
+          quote_amount: quoteAmount,
+          platform_fee: platformFee,
+          worker_payout: workerPayout,
+          payment_status: "paid",
+          status: "paid",
+          paid_at: new Date().toISOString()
         }
       ]);
-  */
+
+  if (paymentRecordError) {
+    throw new Error(paymentRecordError.message);
+  }
 
   status.style.color = "#0b7a28";
   status.innerText =
