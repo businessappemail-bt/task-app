@@ -414,6 +414,12 @@ button:hover {
   color: white;
 }
 
+.review-btn {
+  grid-column: 1 / -1;
+  background: #111;
+  color: white;
+}
+
 .complete-note {
   grid-column: 1 / -1;
   background: #e7f7ec;
@@ -978,6 +984,23 @@ function renderArrivalCodeBox(arrivalCode, statusText) {
   `;
 }
 
+function renderRateReviewButton(task, quote, workerId, statusText) {
+  const status =
+    String(statusText || "").toLowerCase();
+
+  if (status !== "worker completed") {
+    return "";
+  }
+
+  return `
+    <button
+      class="review-btn"
+      onclick="openRateReview('${escapeHTML(task.id)}', '${escapeHTML(workerId || "")}', '${escapeHTML(quote?.id || getQuoteId(task) || "")}')">
+      Rate & Review Worker
+    </button>
+  `;
+}
+
 function renderCustomerCompletionButton(task, quote, assignment, statusText) {
   const status =
     String(statusText || "").toLowerCase();
@@ -1175,6 +1198,16 @@ function toggleDetails(id) {
   }
 
   box.classList.toggle("open");
+}
+
+function openRateReview(taskId, workerId, quoteId) {
+  localStorage.setItem("selectedReviewTaskId", taskId);
+  localStorage.setItem("selectedTaskId", taskId);
+  localStorage.setItem("selectedWorkerId", workerId);
+  localStorage.setItem("selectedQuoteId", quoteId);
+
+  window.location.href =
+    `customer-rate-review.html?task_id=${encodeURIComponent(taskId)}&worker_id=${encodeURIComponent(workerId)}&quote_id=${encodeURIComponent(quoteId)}`;
 }
 
 async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
@@ -1543,6 +1576,8 @@ async function loadAcceptedQuotes() {
         <button class="primary-btn" onclick="window.location.href='worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}'">
           Worker Profile
         </button>
+
+        ${renderRateReviewButton(task, quote, workerId, liveStatus)}
 
         ${renderCustomerCompletionButton(task, quote, assignment, liveStatus)}
       </div>
