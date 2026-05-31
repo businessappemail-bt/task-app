@@ -1220,16 +1220,45 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
     return;
   }
 
+  let quoteUpdateError = null;
+
   if (quoteId) {
-    await supabaseClient
-      .from("worker_quotes")
-      .update({
-        status: "completed",
-        customer_completed_at: completedAt,
-        completed_at: completedAt,
-        updated_at: completedAt
-      })
-      .eq("id", quoteId);
+    const { error } =
+      await supabaseClient
+        .from("worker_quotes")
+        .update({
+          status: "completed",
+          customer_completed_at: completedAt,
+          completed_at: completedAt,
+          updated_at: completedAt
+        })
+        .eq("id", quoteId);
+
+    quoteUpdateError = error;
+  }
+
+  if (!quoteId || quoteUpdateError) {
+    const { error } =
+      await supabaseClient
+        .from("worker_quotes")
+        .update({
+          status: "completed",
+          customer_completed_at: completedAt,
+          completed_at: completedAt,
+          updated_at: completedAt
+        })
+        .eq("task_id", taskId)
+        .in("status", ["accepted", "in_progress", "worker_completed"]);
+
+    quoteUpdateError = error;
+  }
+
+  if (quoteUpdateError) {
+    if (status) {
+      status.innerText = quoteUpdateError.message;
+    }
+    alert(quoteUpdateError.message);
+    return;
   }
 
   if (assignmentId) {
