@@ -414,12 +414,6 @@ button:hover {
   color: white;
 }
 
-.review-btn {
-  grid-column: 1 / -1;
-  background: #111;
-  color: white;
-}
-
 .complete-note {
   grid-column: 1 / -1;
   background: #e7f7ec;
@@ -430,6 +424,46 @@ button:hover {
   font-size: 12px;
   font-weight: 900;
   line-height: 1.4;
+}
+
+.rating-review-box {
+  grid-column: 1 / -1;
+  background: #f7faf8;
+  border: 1px solid #e3eee6;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.rating-review-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.rating-review-help {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+.rating-select,
+.review-textarea {
+  width: 100%;
+  border: 1px solid #d9dfda;
+  border-radius: 13px;
+  padding: 11px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  font-family: Arial, sans-serif;
+  background: white;
+  outline: none;
+}
+
+.review-textarea {
+  min-height: 82px;
+  resize: vertical;
 }
 
 .empty {
@@ -984,24 +1018,7 @@ function renderArrivalCodeBox(arrivalCode, statusText) {
   `;
 }
 
-function renderRateReviewButton(task, quote, workerId, statusText) {
-  const status =
-    String(statusText || "").toLowerCase();
-
-  if (status !== "worker completed") {
-    return "";
-  }
-
-  return `
-    <button
-      class="review-btn"
-      onclick="openRateReview('${escapeHTML(task.id)}', '${escapeHTML(workerId || "")}', '${escapeHTML(quote?.id || getQuoteId(task) || "")}')">
-      Rate & Review Worker
-    </button>
-  `;
-}
-
-function renderCustomerCompletionButton(task, quote, assignment, statusText) {
+function renderCustomerCompletionButton(task, quote, assignment, statusText, workerId) {
   const status =
     String(statusText || "").toLowerCase();
 
@@ -1030,14 +1047,38 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText) {
   }
 
   return `
-    <button
-      class="complete-btn"
-      onclick="markTaskComplete('${escapeHTML(task.source_type)}', '${escapeHTML(task.id)}', '${escapeHTML(quote?.id || getQuoteId(task) || "")}', '${escapeHTML(assignment?.id || "")}')">
-      Confirm Task Complete
-    </button>
+    <div class="rating-review-box">
+      <div class="rating-review-title">
+        Rate the worker before completing this task
+      </div>
+
+      <div class="rating-review-help">
+        A rating is required. A written review is optional.
+      </div>
+
+      <select class="rating-select" id="rating-${escapeHTML(task.id)}">
+        <option value="">Select rating</option>
+        <option value="5">★★★★★ 5 - Excellent</option>
+        <option value="4">★★★★☆ 4 - Good</option>
+        <option value="3">★★★☆☆ 3 - Okay</option>
+        <option value="2">★★☆☆☆ 2 - Poor</option>
+        <option value="1">★☆☆☆☆ 1 - Bad</option>
+      </select>
+
+      <textarea
+        class="review-textarea"
+        id="review-${escapeHTML(task.id)}"
+        placeholder="Optional: leave a review about the worker">
+      </textarea>
+
+      <button
+        class="complete-btn"
+        onclick="markTaskComplete('${escapeHTML(task.source_type)}', '${escapeHTML(task.id)}', '${escapeHTML(quote?.id || getQuoteId(task) || "")}', '${escapeHTML(assignment?.id || "")}', '${escapeHTML(workerId || getWorkerId(task) || "")}')">
+        Submit Rating & Confirm Task Complete
+      </button>
+    </div>
   `;
 }
-
 
 function getWorkerName(worker, quote, task) {
   const direct =
@@ -1200,21 +1241,67 @@ function toggleDetails(id) {
   box.classList.toggle("open");
 }
 
-function openRateReview(taskId, workerId, quoteId) {
-  localStorage.setItem("selectedReviewTaskId", taskId);
-  localStorage.setItem("selectedTaskId", taskId);
-  localStorage.setItem("selectedWorkerId", workerId);
-  localStorage.setItem("selectedQuoteId", quoteId);
-
-  window.location.href =
-    `customer-rate-review.html?task_id=${encodeURIComponent(taskId)}&worker_id=${encodeURIComponent(workerId)}&quote_id=${encodeURIComponent(quoteId)}`;
-}
-
-async function markTaskComplete(sourceType, taskId, quoteId, assignmentId) {
+async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, workerId) {
   const confirmed =
     confirm("Confirm this task is complete? Only do this after the worker has finished the work.");
 
   if (!confirmed) {
+    return;
+  }
+
+  const ratingInput =
+    document.getElementById(`rating-${taskId}`);
+
+  const reviewInput =
+    document.getElementById(`review-${taskId}`);
+
+  const rating =
+    ratingInput ? ratingInput.value : "";
+
+  const reviewText =
+    reviewInput ? reviewInput.value.trim() : "";
+
+  if (!rating) {
+    alert("Please rate the worker before marking the task complete.");
+    return;
+  }
+
+  const customerId =
+    await getCustomerIdFromSession();
+
+  const reviewPayload =
+    {
+      task_id: taskId,
+      quote_id: quoteId || null,
+      worker_id: workerId || null,
+      customer_id: customerId || null,
+      rating: Number(rating),
+      review_text: reviewText || null
+    };
+
+  let { error: reviewError } =
+    await supabaseClient
+      .from("reviews")
+      .insert(reviewPayload);
+
+  if (reviewError) {
+    const fallbackPayload =
+      {
+        worker_id: workerId || null,
+        rating: Number(rating)
+      };
+
+    const fallbackResult =
+      await supabaseClient
+        .from("reviews")
+        .insert(fallbackPayload);
+
+    reviewError =
+      fallbackResult.error;
+  }
+
+  if (reviewError) {
+    alert(reviewError.message);
     return;
   }
 
@@ -1577,9 +1664,7 @@ async function loadAcceptedQuotes() {
           Worker Profile
         </button>
 
-        ${renderRateReviewButton(task, quote, workerId, liveStatus)}
-
-        ${renderCustomerCompletionButton(task, quote, assignment, liveStatus)}
+        ${renderCustomerCompletionButton(task, quote, assignment, liveStatus, workerId)}
       </div>
     `;
 
