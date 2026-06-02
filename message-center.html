@@ -1050,8 +1050,24 @@ async function loadConversations() {
     return;
   }
 
+  const { data: blockedWorkers } =
+    await supabaseClient
+      .from("blocked_users")
+      .select("worker_id")
+      .eq("customer_id", currentUser.id);
+
+  const blockedWorkerIds =
+    (blockedWorkers || [])
+      .map(block => String(block.worker_id || ""))
+      .filter(Boolean);
+
   const visibleConversations =
-    (conversations || []).filter(convo => !isConversationHidden(convo.id));
+    (conversations || []).filter(convo => {
+      return (
+        !isConversationHidden(convo.id) &&
+        !blockedWorkerIds.includes(String(convo.worker_id || ""))
+      );
+    });
 
   if (!visibleConversations || visibleConversations.length === 0) {
     allInboxConversations = [];
@@ -1344,7 +1360,42 @@ async function blockConversation(conversationIdValue) {
     return;
   }
 
-  hideConversationLocally(conversationIdValue);
+  const { data: conversation, error: conversationError } =
+    await supabaseClient
+      .from("task_conversations")
+      .select("id, customer_id, worker_id")
+      .eq("id", conversationIdValue)
+      .maybeSingle();
+
+  if (conversationError || !conversation || !conversation.worker_id) {
+    alert("Unable to block this worker.");
+    return;
+  }
+
+  const { data: existingBlock } =
+    await supabaseClient
+      .from("blocked_users")
+      .select("id")
+      .eq("customer_id", currentUser.id)
+      .eq("worker_id", conversation.worker_id)
+      .maybeSingle();
+
+  if (!existingBlock) {
+    const { error: blockError } =
+      await supabaseClient
+        .from("blocked_users")
+        .insert([
+          {
+            customer_id: currentUser.id,
+            worker_id: conversation.worker_id
+          }
+        ]);
+
+    if (blockError) {
+      alert(blockError.message);
+      return;
+    }
+  }
 
   await supabaseClient
     .from("task_messages")
