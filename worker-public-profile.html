@@ -1100,6 +1100,10 @@ function renderReviews(reviews) {
       "feedback"
     ], "No written review provided.");
  
+    const workerResponse = getFirstAvailable(review, [
+      "worker_response"
+    ], "");
+
     return `
       <div class="review-card">
         <div class="review-top">
@@ -1107,6 +1111,18 @@ function renderReviews(reviews) {
           <div class="review-stars">${escapeHTML(stars || "★")}</div>
         </div>
         <div class="review-text">${escapeHTML(reviewText)}</div>
+
+        ${
+          workerResponse
+            ? `
+              <div class="review-text" style="background:#e7f7ec;border-left:4px solid #0b7a28;border-radius:12px;padding:10px;margin-top:10px;">
+                <strong>Worker Response:</strong><br>
+                ${escapeHTML(workerResponse)}
+              </div>
+            `
+            : ""
+        }
+
         <div class="review-date">${escapeHTML(formatDate(review.created_at))}</div>
       </div>
     `;
