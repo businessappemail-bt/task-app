@@ -858,17 +858,36 @@ async function loadAvailability(workerId, profile) {
   return [];
 }
  
-async function loadReviews(workerId) {
+async function loadReviews(workerId, profile = null) {
+  const possibleWorkerIds = [
+    workerId,
+    profile?.worker_table_id,
+    profile?.worker_profile_table_id,
+    profile?.id,
+    profile?.auth_user_id,
+    profile?.profile_table_id,
+    profile?.user_id
+  ]
+    .filter(Boolean)
+    .map(id => String(id));
+
+  const uniqueWorkerIds =
+    [...new Set(possibleWorkerIds)];
+
+  if (uniqueWorkerIds.length === 0) {
+    return [];
+  }
+
   const { data, error } = await supabaseClient
     .from("reviews")
     .select("*")
-    .eq("worker_id", workerId)
+    .in("worker_id", uniqueWorkerIds)
     .order("created_at", { ascending: false });
- 
+
   if (error || !data) {
     return [];
   }
- 
+
   return data;
 }
  
@@ -1294,7 +1313,7 @@ async function loadPublicProfile() {
     selectedWorkerId = profile.id || workerId;
  
     const availability = await loadAvailability(selectedWorkerId, profile);
-    const reviews = await loadReviews(selectedWorkerId);
+    const reviews = await loadReviews(selectedWorkerId, profile);
     const completedJobs = await loadCompletedJobs(selectedWorkerId, profile);
     const portfolio = await loadPortfolio(selectedWorkerId);
     const pendingPortfolio = await loadPendingPortfolio(selectedWorkerId, profile);
