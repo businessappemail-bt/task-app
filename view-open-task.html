@@ -146,6 +146,20 @@ body {
   line-height: 1.35;
 }
 
+.customer-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #111;
+  font-size: 12px;
+  font-weight: 900;
+  margin-top: 5px;
+}
+
+.customer-line span {
+  color: #0b7a28;
+}
+
 .status-pill {
   background: #e7f7ec;
   color: #0b7a28;
@@ -730,6 +744,38 @@ function getTaskSourceLabel(task) {
   return task.is_direct_request ? "Direct Quote Request" : "Open Task";
 }
 
+function getCustomerDisplayName(task) {
+  const customerName =
+    task.customer_name ||
+    task.customer_full_name ||
+    task.client_name ||
+    task.posted_by_name ||
+    "";
+
+  if (customerName) {
+    return customerName;
+  }
+
+  const firstName =
+    task.customer_first_name ||
+    task.first_name ||
+    "";
+
+  const lastName =
+    task.customer_last_name ||
+    task.last_name ||
+    "";
+
+  const combinedName =
+    `${firstName} ${lastName}`.trim();
+
+  if (combinedName) {
+    return combinedName;
+  }
+
+  return "Customer";
+}
+
 function getTaskQuoteFilter(query, task) {
   if (task.is_direct_request) {
     return query.eq("direct_request_id", task.id);
@@ -877,6 +923,10 @@ async function loadOpenTasks() {
           <div class="task-sub">
             Order # TM-${String(task.id).slice(0, 8).toUpperCase()} •
             ${task.created_at ? new Date(task.created_at).toLocaleDateString() : ""}
+          </div>
+
+          <div class="customer-line">
+            Customer: <span>${escapeHTML(getCustomerDisplayName(task))}</span>
           </div>
         </div>
 
