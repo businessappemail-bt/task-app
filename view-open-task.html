@@ -821,7 +821,7 @@ async function loadOpenTasks() {
       .from("tasks")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["open", "accepted", "in_progress"])
+      .eq("status", "open")
       .order("created_at", { ascending: false });
 
   if (error) {
@@ -835,7 +835,7 @@ async function loadOpenTasks() {
       .from("direct_task_requests")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["requested", "quoted", "accepted", "in_progress"])
+      .in("status", ["requested", "quoted"])
       .order("created_at", { ascending: false });
 
   if (directError) {
