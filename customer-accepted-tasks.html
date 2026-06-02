@@ -637,6 +637,17 @@ function getCustomerIdFromSession() {
     });
 }
 
+async function getAuthenticatedCustomerId() {
+  const { data, error } =
+    await supabaseClient.auth.getUser();
+
+  if (error || !data || !data.user) {
+    return "";
+  }
+
+  return data.user.id;
+}
+
 function getFirstAvailable(record, keys, fallback = "") {
   if (!record) {
     return fallback;
@@ -1267,38 +1278,26 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
   }
 
   const customerId =
-    await getCustomerIdFromSession();
+    await getAuthenticatedCustomerId();
+
+  if (!customerId) {
+    alert("Your session expired. Please log in again before submitting a rating.");
+    return;
+  }
 
   const reviewPayload =
     {
       task_id: taskId,
-      quote_id: quoteId || null,
-      worker_id: workerId || null,
-      customer_id: customerId || null,
+      customer_id: customerId,
       rating: Number(rating),
-      review_text: reviewText || null
+      review_text: reviewText || null,
+      comment: reviewText || null
     };
 
-  let { error: reviewError } =
+  const { error: reviewError } =
     await supabaseClient
       .from("reviews")
       .insert(reviewPayload);
-
-  if (reviewError) {
-    const fallbackPayload =
-      {
-        worker_id: workerId || null,
-        rating: Number(rating)
-      };
-
-    const fallbackResult =
-      await supabaseClient
-        .from("reviews")
-        .insert(fallbackPayload);
-
-    reviewError =
-      fallbackResult.error;
-  }
 
   if (reviewError) {
     alert(reviewError.message);
