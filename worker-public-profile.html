@@ -888,7 +888,52 @@ async function loadReviews(workerId, profile = null) {
     return [];
   }
 
-  return data;
+  const customerIds =
+    [...new Set(
+      data
+        .map(review => review.customer_id)
+        .filter(Boolean)
+        .map(id => String(id))
+    )];
+
+  if (customerIds.length === 0) {
+    return data;
+  }
+
+  const { data: customers } = await supabaseClient
+    .from("profiles")
+    .select("id, first_name, last_name, full_name")
+    .in("id", customerIds);
+
+  const customerMap = {};
+
+  (customers || []).forEach(customer => {
+    customerMap[String(customer.id)] = customer;
+  });
+
+  return data.map(review => {
+    const customer = customerMap[String(review.customer_id)] || null;
+
+    let customerName =
+      review.customer_name ||
+      review.reviewer_name ||
+      "";
+
+    if (!customerName && customer) {
+      if (customer.full_name) {
+        customerName = customer.full_name;
+      } else if (customer.first_name && customer.last_name) {
+        customerName = `${customer.first_name} ${customer.last_name}`;
+      } else if (customer.first_name) {
+        customerName = customer.first_name;
+      }
+    }
+
+    return {
+      ...review,
+      customer_name: customerName || "Customer"
+    };
+  });
 }
  
 async function loadCompletedJobs(workerId, profile) {
@@ -1100,10 +1145,6 @@ function renderReviews(reviews) {
       "feedback"
     ], "No written review provided.");
  
-    const workerResponse = getFirstAvailable(review, [
-      "worker_response"
-    ], "");
-
     return `
       <div class="review-card">
         <div class="review-top">
@@ -1111,18 +1152,6 @@ function renderReviews(reviews) {
           <div class="review-stars">${escapeHTML(stars || "★")}</div>
         </div>
         <div class="review-text">${escapeHTML(reviewText)}</div>
-
-        ${
-          workerResponse
-            ? `
-              <div class="review-text" style="background:#e7f7ec;border-left:4px solid #0b7a28;border-radius:12px;padding:10px;margin-top:10px;">
-                <strong>Worker Response:</strong><br>
-                ${escapeHTML(workerResponse)}
-              </div>
-            `
-            : ""
-        }
-
         <div class="review-date">${escapeHTML(formatDate(review.created_at))}</div>
       </div>
     `;
