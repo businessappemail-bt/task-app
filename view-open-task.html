@@ -535,7 +535,19 @@ function formatDate(value) {
     return "Flexible";
   }
 
-  const date = new Date(value);
+  const rawValue = String(value).trim();
+
+  const dateOnlyMatch =
+    rawValue.match(/^\d{4}-\d{2}-\d{2}$/);
+
+  if (dateOnlyMatch) {
+    const [year, month, day] =
+      rawValue.split("-");
+
+    return `${Number(month)}/${Number(day)}/${year}`;
+  }
+
+  const date = new Date(rawValue);
 
   if (isNaN(date.getTime())) {
     return value;
