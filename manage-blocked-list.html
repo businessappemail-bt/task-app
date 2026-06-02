@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -397,8 +398,8 @@ body{
 
 <script>
 
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://dbcthtjmtlumidpbucrc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -444,6 +445,107 @@ function renderState(icon, title, text){
   `;
 }
 
+function escapeHTML(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getBlockedWorkerId(blocked) {
+  return (
+    blocked.blocked_user_id ||
+    blocked.worker_id ||
+    blocked.blocked_worker_id ||
+    blocked.blocked_id ||
+    ""
+  );
+}
+
+async function getWorkerProfile(workerId) {
+  if (!workerId) {
+    return null;
+  }
+
+  const { data: workerById } = await supabaseClient
+    .from("worker_profiles")
+    .select("*")
+    .eq("id", workerId)
+    .maybeSingle();
+
+  if (workerById) {
+    return workerById;
+  }
+
+  const { data: profileById } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id", workerId)
+    .maybeSingle();
+
+  return profileById || null;
+}
+
+function getWorkerName(worker) {
+  if (!worker) {
+    return "Worker";
+  }
+
+  if (worker.full_name) {
+    return worker.full_name;
+  }
+
+  const firstName =
+    worker.first_name || "";
+
+  const lastName =
+    worker.last_name || "";
+
+  if (firstName && lastName) {
+    return `${firstName} ${lastName.charAt(0)}.`;
+  }
+
+  if (firstName) {
+    return firstName;
+  }
+
+  return "Worker";
+}
+
+function getWorkerPhoto(worker) {
+  return (
+    worker?.profile_photo ||
+    worker?.profile_photo_url ||
+    worker?.photo_url ||
+    worker?.avatar_url ||
+    "https://github.com/businessappemail-bt/task-app/blob/main/taskmintlogo.png?raw=true"
+  );
+}
+
+function getWorkerServices(worker) {
+  return (
+    worker?.services_offered ||
+    worker?.services ||
+    worker?.skills ||
+    "Services not listed"
+  );
+}
+
+function getWorkerArea(worker) {
+  return (
+    worker?.work_area ||
+    worker?.service_area ||
+    worker?.city ||
+    "Work area not listed"
+  );
+}
+
 async function loadBlockedUsers() {
 
   blockedList.innerHTML = `<div class="loading">Loading blocked users...</div>`;
@@ -465,19 +567,7 @@ async function loadBlockedUsers() {
 
   const { data, error } = await supabaseClient
     .from("blocked_users")
-    .select(`
-      id,
-      customer_id,
-      blocked_user_id,
-      created_at,
-      worker_profiles!blocked_user_id (
-        id,
-        full_name,
-        profile_photo,
-        services_offered,
-        work_area
-      )
-    `)
+    .select("*")
     .eq("customer_id", user.id)
     .order("created_at", { ascending:false });
 
@@ -487,7 +577,7 @@ async function loadBlockedUsers() {
     renderState(
       "!",
       "Unable to load blocked users",
-      "Check your blocked_users table, Supabase keys, and table relationship to worker_profiles."
+      "Check your blocked_users table and RLS policies."
     );
     return;
   }
@@ -505,13 +595,14 @@ async function loadBlockedUsers() {
 
   blockedList.innerHTML = "";
 
-  data.forEach(blocked => {
+  for (const blocked of data) {
 
-    const worker = blocked.worker_profiles || {};
-    const workerName = worker.full_name || "Worker";
-    const services = worker.services_offered || "Services not listed";
-    const area = worker.work_area || "Work area not listed";
-    const photo = worker.profile_photo || "https://via.placeholder.com/120?text=TM";
+    const workerId = getBlockedWorkerId(blocked);
+    const worker = await getWorkerProfile(workerId);
+    const workerName = getWorkerName(worker);
+    const services = getWorkerServices(worker);
+    const area = getWorkerArea(worker);
+    const photo = getWorkerPhoto(worker);
 
     const card = document.createElement("div");
     card.className = "blocked-card";
@@ -520,13 +611,13 @@ async function loadBlockedUsers() {
       <div class="worker-top">
 
         <div class="avatar-wrap">
-          <img class="avatar" src="${photo}" alt="${workerName}">
+          <img class="avatar" src="${escapeHTML(photo)}" alt="${escapeHTML(workerName)}">
           <div class="block-badge">×</div>
         </div>
 
         <div class="worker-main">
-          <div class="worker-name">${workerName}</div>
-          <div class="worker-meta">${services}</div>
+          <div class="worker-name">${escapeHTML(workerName)}</div>
+          <div class="worker-meta">${escapeHTML(services)}</div>
           <div class="status-pill">Blocked</div>
         </div>
 
@@ -536,12 +627,12 @@ async function loadBlockedUsers() {
 
         <div class="detail-row">
           <span class="detail-label">Work Area</span>
-          ${area}
+          ${escapeHTML(area)}
         </div>
 
         <div class="detail-row">
           <span class="detail-label">Blocked Since</span>
-          ${formatDate(blocked.created_at)}
+          ${escapeHTML(formatDate(blocked.created_at))}
         </div>
 
       </div>
@@ -588,7 +679,7 @@ async function loadBlockedUsers() {
 
     blockedList.appendChild(card);
 
-  });
+  }
 
 }
 
