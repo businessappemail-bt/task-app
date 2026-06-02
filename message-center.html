@@ -1063,10 +1063,7 @@ async function loadConversations() {
 
   const visibleConversations =
     (conversations || []).filter(convo => {
-      return (
-        !isConversationHidden(convo.id) &&
-        !blockedWorkerIds.includes(String(convo.worker_id || ""))
-      );
+      return !blockedWorkerIds.includes(String(convo.worker_id || ""));
     });
 
   if (!visibleConversations || visibleConversations.length === 0) {
@@ -1745,6 +1742,8 @@ async function deleteCurrentConversation() {
 }
 
 async function loadPage() {
+  localStorage.removeItem("taskmintHiddenConversations");
+
   currentUser =
     await getCurrentUser();
 
