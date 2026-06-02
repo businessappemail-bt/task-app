@@ -911,7 +911,7 @@ function showDateNeeded() {
 
 function saveDateNeeded() {
   const dateNeeded =
-    document.getElementById("dateNeeded").value;
+    normalizeDateInputValue(document.getElementById("dateNeeded").value);
 
   const flexible =
     document.getElementById("dateFlexible").checked;
@@ -1208,6 +1208,24 @@ function generateArrivalCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
+function normalizeDateInputValue(value) {
+  if (!value) {
+    return "";
+  }
+
+  const rawValue =
+    String(value).trim();
+
+  const dateOnlyMatch =
+    rawValue.match(/^\d{4}-\d{2}-\d{2}/);
+
+  if (dateOnlyMatch) {
+    return dateOnlyMatch[0];
+  }
+
+  return rawValue;
+}
+
 function calculateDistanceMiles(lat1, lng1, lat2, lng2) {
   if (!lat1 || !lng1 || !lat2 || !lng2) {
     return null;
@@ -1334,8 +1352,8 @@ async function submitTask() {
     category: selectedCategory,
     description: buildDescription(),
     task_details: answers,
-    task_date: answers.date_needed === "Flexible" ? null : answers.date_needed,
-    date_needed: answers.date_needed || null,
+    task_date: answers.date_needed === "Flexible" ? null : normalizeDateInputValue(answers.date_needed),
+    date_needed: answers.date_needed === "Flexible" ? "Flexible" : normalizeDateInputValue(answers.date_needed),
     date_flexible: answers.date_flexible === "Yes",
     distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),
     location_address: pickupAddress.address || null,
@@ -1529,7 +1547,7 @@ async function loadTaskForEdit() {
     answers.date_flexible = "Yes";
   } else {
     answers.date_needed =
-      task.date_needed || task.task_date || "";
+      normalizeDateInputValue(task.date_needed || task.task_date || "");
     answers.date_flexible = "No";
   }
 
