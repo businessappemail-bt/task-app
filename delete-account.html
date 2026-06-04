@@ -1,81 +1,101 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Delete Account - TaskMint</title>
-
+ 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ 
   <style>
-    * {
-      box-sizing: border-box;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --bg:      #ffffff;
+      --surface: #f2f7f4;
+      --surface2:#e6f4eb;
+      --border:  #e2ebe5;
+      --accent:  #0b7a28;
+      --text:    #111111;
+      --muted:   #6b7870;
+      --danger:  #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --warn-bg: #fff7ed;
+      --warn-border: #fed7aa;
+      --warn-text: #c2410c;
     }
-
+ 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f7f3;
-      color: #1f2937;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       padding-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-
-    .page {
-      max-width: 430px;
-      min-height: 100vh;
-      margin: 0 auto;
-      background: #ffffff;
-      box-shadow: 0 0 18px rgba(0, 0, 0, 0.08);
+ 
+    .top-bar, .content {
+      width: 100%;
+      max-width: 470px;
     }
-
-    .header {
-      min-height: 72px;
-      padding: 16px 18px;
-      border-bottom: 1px solid #e5e7eb;
-      background: #ffffff;
+ 
+    /* ── TOP BAR ── */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
       display: grid;
       grid-template-columns: 80px 1fr 80px;
       align-items: center;
-      column-gap: 8px;
+      padding: 13px 20px;
     }
-
+ 
     .back-btn {
-      color: #287a32;
+      color: var(--accent);
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
       border: none;
       background: transparent;
       padding: 0;
       text-align: left;
-      width: auto;
-      border-radius: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
-
+ 
     .header-title {
-      font-size: 21px;
-      font-weight: 900;
-      color: #111827;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
       text-align: center;
       white-space: nowrap;
     }
-
-    .header-spacer {
-      width: 80px;
-    }
-
+ 
+    .header-spacer { width: 80px; }
+ 
+    /* ── CONTENT ── */
     .content {
-      padding: 22px 18px 28px;
+      padding: 20px 16px 30px;
     }
-
+ 
+    /* ── WARNING CARD ── */
     .warning-card {
-      background: #fff7ed;
-      border: 1px solid #fed7aa;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
       border-radius: 18px;
       padding: 18px;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: riseIn 0.35s 0.05s forwards;
     }
-
+ 
     .warning-icon {
       width: 46px;
       height: 46px;
@@ -84,280 +104,302 @@
       align-items: center;
       justify-content: center;
       background: #ffedd5;
-      color: #c2410c;
-      font-size: 24px;
+      color: var(--warn-text);
+      font-size: 22px;
       font-weight: 900;
       margin-bottom: 12px;
     }
-
+ 
     h1 {
-      font-size: 22px;
+      font-size: 20px;
+      font-weight: 800;
       margin: 0 0 8px;
-      color: #111827;
+      color: var(--text);
       line-height: 1.25;
     }
-
+ 
     p {
       margin: 0;
-      font-size: 14px;
-      color: #4b5563;
+      font-size: 13px;
+      color: var(--muted);
       line-height: 1.55;
     }
-
+ 
     .danger-text {
-      color: #991b1b;
-      font-weight: 800;
-      margin-top: 12px;
+      color: var(--danger);
+      font-weight: 700;
+      margin-top: 10px;
+      font-size: 13px;
     }
-
+ 
+    /* ── INFO BOX ── */
     .info-box {
-      border: 1px solid #e5e7eb;
-      background: #f9fafb;
+      border: 1px solid var(--border);
+      background: var(--surface);
       border-radius: 16px;
       padding: 16px;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: riseIn 0.35s 0.1s forwards;
     }
-
+ 
     .info-box h2 {
-      font-size: 16px;
+      font-size: 14px;
+      font-weight: 800;
       margin: 0 0 10px;
-      color: #111827;
+      color: var(--text);
     }
-
+ 
     .info-box ul {
       margin: 0;
       padding-left: 18px;
-      color: #4b5563;
-      font-size: 14px;
-      line-height: 1.6;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
     }
-
+ 
+    /* ── CONFIRM BOX ── */
     .confirm-box {
-      margin-top: 18px;
       padding: 16px;
       border-radius: 16px;
-      border: 1px solid #fee2e2;
-      background: #fef2f2;
+      border: 1px solid var(--danger-border);
+      background: var(--danger-bg);
+      opacity: 0;
+      animation: riseIn 0.35s 0.15s forwards;
     }
-
+ 
     label {
       display: block;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 700;
-      color: #374151;
+      color: var(--danger);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
       margin-bottom: 8px;
     }
-
+ 
     input {
       width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      padding: 13px 14px;
-      font-size: 15px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 12px 14px;
+      font-size: 14px;
       outline: none;
-      background: #ffffff;
+      background: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
     }
-
+ 
     input:focus {
-      border-color: #287a32;
-      box-shadow: 0 0 0 3px rgba(40, 122, 50, 0.12);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(11,122,40,0.10);
     }
-
+ 
     .button-row {
       display: grid;
-      gap: 12px;
-      margin-top: 18px;
+      gap: 10px;
+      margin-top: 14px;
     }
-
+ 
     .delete-btn,
     .cancel-btn {
       width: 100%;
-      border-radius: 14px;
-      padding: 15px 16px;
-      font-size: 15px;
-      font-weight: 800;
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 13.5px;
+      font-weight: 700;
       cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: opacity 0.18s, transform 0.18s;
     }
-
+ 
+    .delete-btn:hover,
+    .cancel-btn:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+ 
     .delete-btn {
       border: none;
-      background: #dc2626;
-      color: #ffffff;
+      background: var(--danger);
+      color: #fff;
     }
-
+ 
     .delete-btn:disabled {
       background: #fca5a5;
       cursor: not-allowed;
+      transform: none;
+      opacity: 1;
     }
-
+ 
     .cancel-btn {
-      background: #ffffff;
-      color: #287a32;
-      border: 1px solid #287a32;
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--border);
     }
-
+ 
     .message {
       display: none;
-      margin-top: 14px;
-      padding: 13px 14px;
-      border-radius: 12px;
-      font-size: 14px;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 600;
       line-height: 1.45;
     }
-
+ 
     .message.success {
       display: block;
       background: #ecfdf5;
       color: #065f46;
       border: 1px solid #a7f3d0;
     }
-
+ 
     .message.error {
       display: block;
-      background: #fef2f2;
+      background: var(--danger-bg);
       color: #991b1b;
-      border: 1px solid #fecaca;
+      border: 1px solid var(--danger-border);
     }
-
+ 
     .small-note {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #6b7280;
+      margin-top: 10px;
+      font-size: 11.5px;
+      color: var(--muted);
       text-align: center;
       line-height: 1.45;
     }
+ 
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
-
+ 
 <body>
-
-  <div class="page">
-
-    <div class="header">
-      <button class="back-btn" type="button" onclick="goBack()">← Back</button>
-      <div class="header-title">Delete Account</div>
-      <div class="header-spacer"></div>
-    </div>
-
-    <div class="content">
-
-      <div class="warning-card">
-        <div class="warning-icon">!</div>
-
-        <h1>Deactivate your customer profile?</h1>
-
-        <p>
-          Deleting your account will deactivate your customer profile in TaskMint.
-          Your profile record will stay securely stored for history,
-          payment records, completed task records, dispute records, and legal/security purposes.
-        </p>
-
-        <p class="danger-text">
-          This action cannot be undone.
-        </p>
-      </div>
-
-      <div class="info-box">
-        <h2>What happens after deletion?</h2>
-
-        <ul>
-          <li>Your customer profile will show as deactivated.</li>
-          <li>You will not be able to post new tasks.</li>
-          <li>Workers should no longer be able to send quotes to your profile.</li>
-          <li>Your past task, payment, dispute, and message history can remain saved.</li>
-          <li>You will be signed out after the account is deactivated.</li>
-        </ul>
-      </div>
-
-      <div class="confirm-box">
-        <label for="confirmText">Type DELETE to confirm</label>
-
-        <input
-          id="confirmText"
-          type="text"
-          placeholder="Type DELETE"
-          autocomplete="off"
-        />
-
-        <div class="button-row">
-          <button
-            id="deleteBtn"
-            class="delete-btn"
-            type="button"
-            disabled
-            onclick="deactivateCustomerAccount()"
-          >
-            Deactivate My Account
-          </button>
-
-          <button
-            class="cancel-btn"
-            type="button"
-            onclick="goBack()"
-          >
-            Cancel
-          </button>
-        </div>
-
-        <div id="messageBox" class="message"></div>
-
-        <p class="small-note">
-          Your account will not be deleted from the database.
-          It will only be marked as deactivated.
-        </p>
-      </div>
-
-    </div>
+ 
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <button class="back-btn" type="button" onclick="goBack()">← Back</button>
+    <div class="header-title">Delete Account</div>
+    <div class="header-spacer"></div>
   </div>
-
+ 
+  <div class="content">
+ 
+    <!-- WARNING CARD -->
+    <div class="warning-card">
+      <div class="warning-icon">!</div>
+      <h1>Deactivate your customer profile?</h1>
+      <p>
+        Deleting your account will deactivate your customer profile in TaskMint.
+        Your profile record will stay securely stored for history,
+        payment records, completed task records, dispute records, and legal/security purposes.
+      </p>
+      <p class="danger-text">This action cannot be undone.</p>
+    </div>
+ 
+    <!-- INFO BOX -->
+    <div class="info-box">
+      <h2>What happens after deletion?</h2>
+      <ul>
+        <li>Your customer profile will show as deactivated.</li>
+        <li>You will not be able to post new tasks.</li>
+        <li>Workers should no longer be able to send quotes to your profile.</li>
+        <li>Your past task, payment, dispute, and message history can remain saved.</li>
+        <li>You will be signed out after the account is deactivated.</li>
+      </ul>
+    </div>
+ 
+    <!-- CONFIRM BOX -->
+    <div class="confirm-box">
+      <label for="confirmText">Type DELETE to confirm</label>
+      <input
+        id="confirmText"
+        type="text"
+        placeholder="Type DELETE"
+        autocomplete="off"
+      />
+ 
+      <div class="button-row">
+        <button
+          id="deleteBtn"
+          class="delete-btn"
+          type="button"
+          disabled
+          onclick="deactivateCustomerAccount()"
+        >
+          Deactivate My Account
+        </button>
+ 
+        <button
+          class="cancel-btn"
+          type="button"
+          onclick="goBack()"
+        >
+          Cancel
+        </button>
+      </div>
+ 
+      <div id="messageBox" class="message"></div>
+ 
+      <p class="small-note">
+        Your account will not be deleted from the database.
+        It will only be marked as deactivated.
+      </p>
+    </div>
+ 
+  </div>
+ 
   <script>
     const SUPABASE_URL =
       "https://dbcthtjmtlumidpbucrc.supabase.co";
-
+ 
     const SUPABASE_ANON_KEY =
       "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ";
-
+ 
     const supabaseClient =
       window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_ANON_KEY
       );
-
+ 
     const confirmInput =
       document.getElementById("confirmText");
-
+ 
     const deleteBtn =
       document.getElementById("deleteBtn");
-
+ 
     const messageBox =
       document.getElementById("messageBox");
-
+ 
     confirmInput.addEventListener("input", function () {
       deleteBtn.disabled =
         confirmInput.value.trim().toUpperCase() !== "DELETE";
     });
-
+ 
     function showMessage(type, text) {
       messageBox.className =
         "message " + type;
-
+ 
       messageBox.textContent =
         text;
     }
-
+ 
     function goBack() {
       window.location.href =
         "profile.html";
     }
-
+ 
     async function getCurrentUser() {
       const { data, error } =
         await supabaseClient.auth.getSession();
-
+ 
       if (error) {
         throw error;
       }
-
+ 
       if (
         data &&
         data.session &&
@@ -365,10 +407,10 @@
       ) {
         return data.session.user;
       }
-
+ 
       return null;
     }
-
+ 
     async function tryUpdateProfile(userId, now) {
       const updateAttempts = [
         {
@@ -392,26 +434,26 @@
           deactivated_at: now
         }
       ];
-
+ 
       let lastError = null;
-
+ 
       for (const updateData of updateAttempts) {
         const { error } =
           await supabaseClient
             .from("customer_profiles")
             .update(updateData)
             .eq("id", userId);
-
+ 
         if (!error) {
           return true;
         }
-
+ 
         lastError = error;
       }
-
+ 
       throw lastError;
     }
-
+ 
     async function saveDeletedAccountRecord(user, now) {
       const { data: customerProfile } =
         await supabaseClient
@@ -419,17 +461,17 @@
           .select("*")
           .eq("id", user.id)
           .maybeSingle();
-
+ 
       const { data: workerProfile } =
         await supabaseClient
           .from("worker_profiles")
           .select("*")
           .eq("auth_user_id", user.id)
           .maybeSingle();
-
+ 
       const accountType =
         workerProfile ? "worker" : "customer";
-
+ 
       await supabaseClient
         .from("deleted_accounts")
         .insert([
@@ -448,7 +490,7 @@
           }
         ]);
     }
-
+ 
     async function deactivateCustomerAccount() {
       try {
         if (
@@ -458,51 +500,51 @@
             "error",
             "Type DELETE to confirm account deactivation."
           );
-
+ 
           return;
         }
-
+ 
         deleteBtn.disabled = true;
         deleteBtn.textContent = "Deactivating...";
-
+ 
         const user =
           await getCurrentUser();
-
+ 
         if (!user) {
           showMessage(
             "error",
             "No active session found. Please log in again before deleting your account."
           );
-
+ 
           deleteBtn.textContent =
             "Deactivate My Account";
-
+ 
           deleteBtn.disabled = false;
-
+ 
           return;
         }
-
+ 
         const confirmed =
           window.confirm(
             "This cannot be undone. Your customer profile will be marked as deactivated but will remain stored in Supabase. Do you want to continue?"
           );
-
+ 
         if (!confirmed) {
           deleteBtn.textContent =
             "Deactivate My Account";
-
+ 
           deleteBtn.disabled = false;
-
+ 
           return;
         }
-
+ 
         const now =
           new Date().toISOString();
-
+ 
         await saveDeletedAccountRecord(user, now);
-
+ 
         await tryUpdateProfile(user.id, now);
-
+ 
         await supabaseClient
           .from("tasks")
           .update({
@@ -511,34 +553,34 @@
           })
           .eq("customer_id", user.id)
           .in("task_status", ["open", "posted", "pending"]);
-
+ 
         showMessage(
           "success",
           "Your customer profile has been deactivated. You will now be signed out."
         );
-
+ 
         setTimeout(async function () {
           await supabaseClient.auth.signOut();
           localStorage.clear();
           window.location.href = "login.html";
         }, 1800);
-
+ 
       } catch (error) {
         console.error("Deactivate account error:", error);
-
+ 
         showMessage(
           "error",
           error.message || "Something went wrong while deactivating your account."
         );
-
+ 
         deleteBtn.textContent =
           "Deactivate My Account";
-
+ 
         deleteBtn.disabled =
           confirmInput.value.trim().toUpperCase() !== "DELETE";
       }
     }
   </script>
-
+ 
 </body>
 </html>
