@@ -56,7 +56,6 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 13px 20px;
-  margin-bottom: 0;
 }
 
 .back,
@@ -75,7 +74,6 @@ body {
 /* ── HERO ── */
 .hero {
   background: var(--accent);
-  color: #fff;
   border-radius: 20px;
   padding: 22px 20px;
   margin-bottom: 16px;
@@ -100,6 +98,50 @@ body {
   color: rgba(255,255,255,0.80);
 }
 
+/* ── SUMMARY GRID ── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+  opacity: 0;
+  animation: riseIn 0.35s 0.1s forwards;
+}
+
+.summary-card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.summary-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.summary-number {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.15;
+}
+
+.summary-label {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 /* ── CARDS ── */
 .card,
 .dispute-card {
@@ -109,7 +151,7 @@ body {
   margin-bottom: 12px;
   border: 1px solid var(--border);
   opacity: 0;
-  animation: riseIn 0.35s 0.12s forwards;
+  animation: riseIn 0.35s 0.15s forwards;
 }
 
 .card h3 {
@@ -129,13 +171,35 @@ body {
   font-weight: 600;
   margin-bottom: 12px;
   opacity: 0;
-  animation: riseIn 0.35s 0.1s forwards;
+  animation: riseIn 0.35s 0.12s forwards;
+}
+
+.notice.compact {
+  margin-top: 12px;
 }
 
 .section-title {
   font-size: 15px;
   font-weight: 800;
   margin: 18px 0 10px;
+}
+
+.section-header-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin: 18px 0 10px;
+  opacity: 0;
+  animation: riseIn 0.35s 0.18s forwards;
+}
+
+.section-header-card .section-title {
+  margin: 0 0 4px;
+}
+
+.section-header-card .small {
+  margin: 0;
 }
 
 /* ── STATUS ── */
@@ -162,6 +226,16 @@ body {
 }
 
 /* ── FORM ── */
+.form-card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  opacity: 0;
+  animation: riseIn 0.35s 0.18s forwards;
+}
+
 label {
   display: block;
   font-size: 11px;
@@ -277,26 +351,7 @@ button:disabled {
   line-height: 1.45;
 }
 
-/* ── DISPUTE CARDS ── */
-.dispute-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.dispute-title {
-  font-size: 15px;
-  font-weight: 800;
-  margin-bottom: 4px;
-}
-
-.dispute-sub {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.4;
-}
-
+/* ── TASK INFO GRID ── */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -327,7 +382,35 @@ button:disabled {
   line-height: 1.35;
 }
 
+/* ── DISPUTE CARDS ── */
+.dispute-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.dispute-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.dispute-sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
 /* ── MESSAGE THREAD ── */
+.message-card-header {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 13px;
+  margin-bottom: 12px;
+}
+
 .message-thread {
   background: #fff;
   border: 1px solid var(--border);
@@ -399,8 +482,8 @@ button:disabled {
 <body>
 
 <div class="top-bar">
-    <div class="back" onclick="goBack()">← Back</div>
-    <div class="refresh" onclick="loadDisputes()">Refresh</div>
+  <div class="back" onclick="goBack()">← Back</div>
+  <div class="refresh" onclick="loadDisputes()">Refresh</div>
 </div>
 
 <div class="container">
@@ -412,6 +495,20 @@ button:disabled {
 
   <div id="dashboardSection">
 
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon">🧾</div>
+        <div class="summary-number">Open</div>
+        <div class="summary-label">Track active dispute reviews</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-icon">💬</div>
+        <div class="summary-number">Message</div>
+        <div class="summary-label">Send updates to TaskMint</div>
+      </div>
+    </div>
+
     <div class="notice">
       Disputes can take anywhere between <strong>7–10 business days</strong> depending on the information provided and the investigation process.
     </div>
@@ -422,16 +519,25 @@ button:disabled {
         If you opened this page from a task card, the task will link automatically. You can also search by TaskMint order number or task ID.
       </p>
 
+      <label for="taskSearchInput">TaskMint Order Number or Task ID</label>
       <input id="taskSearchInput" placeholder="Example: TM-12345678 or full task ID">
       <button class="secondary-btn" onclick="searchTask()">Search Task</button>
 
       <div id="taskSearchResult"></div>
     </div>
 
-    <div class="section-title">Open Disputes</div>
+    <div class="section-header-card">
+      <div class="section-title">Open Disputes</div>
+      <p class="small">Active dispute reviews that are still open, pending, or in review.</p>
+    </div>
+
     <div id="openDisputesList">Loading open disputes...</div>
 
-    <div class="section-title">Past Disputes</div>
+    <div class="section-header-card">
+      <div class="section-title">Past Disputes</div>
+      <p class="small">Closed, resolved, rejected, or cancelled dispute history.</p>
+    </div>
+
     <div id="pastDisputesList">Loading past disputes...</div>
   </div>
 
@@ -441,18 +547,43 @@ button:disabled {
       Disputes can take anywhere between <strong>7–10 business days</strong>. Submit clear details, screenshots, and job-related evidence to help TaskMint review the issue.
     </div>
 
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon">📌</div>
+        <div class="summary-number">Open</div>
+        <div class="summary-label">Dispute status</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-icon">🔒</div>
+        <div class="summary-number">Private</div>
+        <div class="summary-label">Customer and TaskMint thread</div>
+      </div>
+    </div>
+
     <div class="card">
-      <p><strong>Dispute Status:</strong> <span class="status-pill">Open</span></p>
-      <p class="small">Customer and worker messages are kept separate. You will only see your messages with TaskMint.</p>
+      <h3>Dispute Status</h3>
+      <p><span class="status-pill">Open</span></p>
+      <p class="small" style="margin-top:8px;">Customer and worker messages are kept separate. You will only see your messages with TaskMint.</p>
     </div>
 
     <div class="card">
       <h3>Task Information</h3>
-      <p><strong>Task ID:</strong> <span id="taskIdText">Not linked</span></p>
-      <p><strong>Worker ID:</strong> <span id="workerIdText">Not linked</span></p>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-label">Task ID</div>
+          <div class="info-value" id="taskIdText">Not linked</div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">Worker ID</div>
+          <div class="info-value" id="workerIdText">Not linked</div>
+        </div>
+      </div>
     </div>
 
-    <div class="card">
+    <div class="form-card">
       <h3>Open a Dispute</h3>
 
       <label for="reason">Reason</label>
@@ -476,7 +607,7 @@ button:disabled {
       <label for="evidenceFile">Upload Evidence</label>
       <input id="evidenceFile" type="file" accept="image/*">
 
-      <p class="small">Photos may include damaged property, incomplete work, screenshots, or job-related proof.</p>
+      <p class="small" style="margin-top:8px;">Photos may include damaged property, incomplete work, screenshots, or job-related proof.</p>
 
       <button class="primary-btn" onclick="submitDispute()">Submit Dispute</button>
 
@@ -492,16 +623,18 @@ button:disabled {
   <div id="messageSection" class="hidden">
 
     <div class="card">
-      <div class="dispute-top">
-        <div>
-          <div class="dispute-title" id="messageDisputeTitle">Dispute Messages</div>
-          <div class="dispute-sub" id="messageDisputeSub">Messages between you and TaskMint.</div>
-        </div>
+      <div class="message-card-header">
+        <div class="dispute-top">
+          <div>
+            <div class="dispute-title" id="messageDisputeTitle">Dispute Messages</div>
+            <div class="dispute-sub" id="messageDisputeSub">Messages between you and TaskMint.</div>
+          </div>
 
-        <span id="messageDisputeStatus" class="status-pill">Open</span>
+          <span id="messageDisputeStatus" class="status-pill">Open</span>
+        </div>
       </div>
 
-      <div class="notice" style="margin-top:12px;">
+      <div class="notice compact">
         Only you and TaskMint can see this message thread. Worker messages are separate and are not shown here.
       </div>
 
