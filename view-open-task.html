@@ -1148,7 +1148,7 @@ async function toggleApplicants(taskId, isDirectRequest = false) {
       await supabaseClient
         .from("reviews")
         .select("*")
-        .eq("reviewee_user_id", revieweeId);
+        .eq("worker_id", workerId);
 
     let rating =
       "No rating yet";
