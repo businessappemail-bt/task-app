@@ -6,115 +6,207 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #ffffff;
+  --surface: #f2f7f4;
+  --surface2: #e6f4eb;
+  --card: #ffffff;
+  --border: #e2ebe5;
+  --accent: #0b7a28;
+  --accent2: #19b64c;
+  --text: #111111;
+  --muted: #6b7870;
+  --danger: #b00020;
+  --warn-bg: #fffbeb;
+  --warn-border: #f0c040;
+  --warn-text: #7a4f00;
 }
 
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
-    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
-  color: #111;
-  padding-bottom: 35px;
+    radial-gradient(circle at top left, rgba(11,122,40,0.10), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f7faf8 100%);
+  color: var(--text);
+  padding-bottom: 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .container {
-  max-width: 430px;
-  margin: 0 auto;
-  padding: 18px;
+  width: 100%;
+  max-width: 470px;
+  padding: 20px 16px 30px;
+}
+
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  max-width: 470px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 20px;
+  margin: -20px -16px 20px;
 }
 
 .back {
-  color: #0b7a28;
-  font-weight: 900;
+  color: var(--accent);
+  font-weight: 800;
   cursor: pointer;
   font-size: 14px;
-  margin-bottom: 14px;
 }
 
 .hero {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  background: var(--accent);
   color: white;
-  border-radius: 28px;
-  padding: 22px;
-  margin-bottom: 16px;
-  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  border-radius: 22px;
+  padding: 24px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(11,122,40,0.22);
   position: relative;
   overflow: hidden;
-  animation: fadeUp 0.45s ease;
+  opacity: 0;
+  animation: riseIn 0.35s 0.05s forwards;
 }
 
 .hero::before {
   content: "";
   position: absolute;
-  width: 165px;
-  height: 165px;
+  width: 155px;
+  height: 155px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  top: -72px;
-  right: -58px;
+  background: rgba(255,255,255,0.10);
+  top: -65px;
+  right: -55px;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  bottom: -45px;
+  left: -35px;
 }
 
 .hero h1 {
-  margin: 0 0 8px;
-  font-size: 30px;
-  line-height: 1.1;
+  margin: 0 0 7px;
+  font-size: 29px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
   position: relative;
   z-index: 2;
 }
 
 .hero p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
-  opacity: 0.96;
+  color: rgba(255,255,255,0.82);
   position: relative;
   z-index: 2;
 }
 
 .notice,
 .card {
-  background: white;
-  border-radius: 22px;
+  background: var(--surface);
+  border-radius: 20px;
   padding: 16px;
   margin-bottom: 14px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  border: 1px solid #edf1ee;
-  animation: fadeUp 0.45s ease;
+  border: 1px solid var(--border);
+  opacity: 0;
+  animation: riseIn 0.35s 0.12s forwards;
 }
 
 .notice {
-  background: #fff7e6;
-  border: 1px solid #ffd27a;
-  color: #7a4b00;
-  font-size: 13px;
-  line-height: 1.45;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.progress-wrap {
+  margin-bottom: 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 13px;
+  opacity: 0;
+  animation: riseIn 0.35s 0.16s forwards;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #dceee2;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: .25s;
+}
+
+.progress-text {
+  margin-top: 8px;
+  font-size: 12px;
   font-weight: 800;
+  color: var(--accent);
+  text-align: center;
 }
 
 .section-title {
-  font-size: 18px;
-  font-weight: 900;
-  margin-bottom: 5px;
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
 }
 
 .section-note {
   font-size: 13px;
-  color: #666;
-  line-height: 1.4;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.form-panel,
+.question-block,
+.address-panel,
+.time-panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
   margin-bottom: 12px;
 }
 
 label {
   display: block;
-  color: #0b7a28;
+  color: var(--accent);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: .4px;
-  margin: 13px 0 6px;
+  letter-spacing: .5px;
+  margin: 0 0 7px;
 }
 
 input,
@@ -122,81 +214,92 @@ select,
 textarea {
   width: 100%;
   padding: 13px;
-  border-radius: 15px;
-  border: 1px solid #dfe5e0;
-  font-size: 15px;
+  border-radius: 13px;
+  border: 1px solid var(--border);
+  font-size: 14px;
   outline: none;
   background: white;
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8b9790;
 }
 
 textarea {
   min-height: 115px;
   resize: vertical;
+  line-height: 1.45;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: #0b7a28;
-  box-shadow: 0 0 0 4px rgba(11,122,40,.10);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(11,122,40,.10);
 }
 
-.question-block {
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 16px;
-  padding: 12px;
-  margin-bottom: 10px;
+.field-help {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 7px;
 }
 
 .checkbox-option {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   background: white;
-  border: 1px solid #e3eee6;
-  border-radius: 12px;
-  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 11px;
   margin-top: 8px;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
 }
 
 .checkbox-option input {
   width: auto;
   box-shadow: none;
+  accent-color: var(--accent);
 }
 
 button {
   width: 100%;
   border: none;
-  border-radius: 16px;
+  border-radius: 13px;
   padding: 14px;
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  background: var(--accent);
   color: white;
-  font-weight: 900;
-  font-size: 15px;
+  font-weight: 800;
+  font-size: 14px;
   cursor: pointer;
-  margin-top: 14px;
-  transition: .2s;
+  margin-top: 10px;
+  transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
+  font-family: Arial, sans-serif;
 }
 
 button:hover {
+  opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 5px 12px rgba(0,0,0,.10);
+  box-shadow: 0 6px 14px rgba(11,122,40,0.12);
 }
 
 .secondary {
   background: white;
-  color: #0b7a28;
-  border: 1px solid #cdebd5;
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
 
 .status {
   text-align: center;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 800;
   margin-top: 10px;
+  line-height: 1.4;
 }
 
 .hidden {
@@ -212,46 +315,241 @@ button:hover {
 }
 
 .slide-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
-.progress-wrap {
-  margin-bottom: 16px;
+.slide-actions.single {
+  grid-template-columns: 1fr;
 }
 
-.progress-bar {
-  width: 100%;
-  height: 10px;
-  border-radius: 999px;
-  background: #dfe5e0;
-  overflow: hidden;
+.date-icon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
-  transition: .25s;
+.step-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
-.progress-text {
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 900;
-  color: #0b7a28;
+.time-picker-modern {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.time-display-card {
+  background: var(--surface2);
+  border: 1px solid #cdebd5;
+  color: var(--accent);
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 800;
   text-align: center;
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
+.time-chip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.time-chip {
+  margin-top: 0;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 13px 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.time-chip.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.custom-time-row {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.custom-time-label,
+.address-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.custom-time-input {
+  margin-top: 0;
+}
+
+.native-time-hidden,
+.native-address-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.address-help {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  margin-top: 8px;
+}
+
+.selected-address {
+  background: var(--surface2);
+  border: 1px solid #cdebd5;
+  padding: 12px;
+  border-radius: 14px;
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.required-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+gmp-place-autocomplete {
+  width: 100%;
+  display: block;
+  margin-top: 10px;
+  color-scheme: light;
+  --gmpx-color-surface: #ffffff;
+  --gmpx-color-on-surface: #111111;
+  --gmpx-color-primary: #0b7a28;
+  --gmpx-color-outline: #e2ebe5;
+  --gmpx-font-family-base: Arial, sans-serif;
+}
+
+gmp-place-autocomplete input {
+  background: #fff !important;
+  color: #111 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 13px !important;
+  padding: 13px !important;
+  font-size: 14px !important;
+  font-family: Arial, sans-serif !important;
+  box-shadow: none !important;
+}
+
+gmp-place-autocomplete::part(input) {
+  background: #fff !important;
+  color: #111 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 13px !important;
+  padding: 13px !important;
+  font-size: 14px !important;
+  font-family: Arial, sans-serif !important;
+}
+
+gmp-place-autocomplete::part(input-field) {
+  background: #fff !important;
+  color: #111 !important;
+}
+
+gmp-place-autocomplete::part(prediction-list),
+gmp-place-autocomplete::part(listbox),
+gmp-place-autocomplete::part(panel) {
+  background: #fff !important;
+  color: #111 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.14) !important;
+  overflow: hidden !important;
+}
+
+gmp-place-autocomplete::part(prediction-row),
+gmp-place-autocomplete::part(option),
+gmp-place-autocomplete::part(place-title),
+gmp-place-autocomplete::part(place-address) {
+  background: #fff !important;
+  color: #111 !important;
+}
+
+.pac-container {
+  z-index: 999999 !important;
+  background: #fff !important;
+  color: #111 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.14) !important;
+  overflow: hidden !important;
+  font-family: Arial, sans-serif !important;
+}
+
+.pac-item {
+  background: #fff !important;
+  color: #111 !important;
+  border-top: 1px solid #edf1ee !important;
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+}
+
+.pac-item:hover {
+  background: var(--surface) !important;
+}
+
+.pac-item-query,
+.pac-matched,
+.pac-item span {
+  color: #111 !important;
+}
+
+.pac-icon {
+  filter: none !important;
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 360px) {
+  .hero h1 {
+    font-size: 25px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .slide-actions,
+  .field-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -260,7 +558,9 @@ button:hover {
 <body>
 <div class="container">
 
-  <div class="back" onclick="goBackToWorkerProfile()">← Back to Worker Profile</div>
+  <div class="top-bar">
+    <div class="back" onclick="goBackToWorkerProfile()">← Back to Worker Profile</div>
+  </div>
 
   <div class="hero">
     <h1>Request a Quote</h1>
@@ -271,113 +571,156 @@ button:hover {
     Loading selected worker...
   </div>
 
-<div class="progress-wrap">
-  <div class="progress-bar">
-    <div class="progress-fill" id="progressFill"></div>
+  <div class="progress-wrap">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="progress-text" id="progressText">
+      Step 1 of 4
+    </div>
   </div>
 
-  <div class="progress-text" id="progressText">
-    Step 1 of 4
-  </div>
-</div>
+  <div class="card slide-screen active" id="slide1">
+    <div class="section-title">Task Basics</div>
+    <div class="section-note">Tell the worker what type of task you need completed. All fields are required.</div>
 
-<div class="card slide-screen active" id="slide1">
-  <div class="section-title">Task Basics</div>
-  <div class="section-note">Tell the worker what type of task you need completed.</div>
+    <div class="form-panel">
+      <label>Task Category</label>
+      <select id="category" onchange="renderQuestions()">
+        <option value="">Select category</option>
+        <option>Moving</option>
+        <option>TV Mounting</option>
+        <option>Furniture Assembly</option>
+        <option>Cleaning</option>
+        <option>Trash Removal</option>
+        <option>Errands</option>
+        <option>Handywork</option>
+        <option>Yard Work</option>
+        <option>Repairs</option>
+        <option>Other</option>
+      </select>
+    </div>
 
-  <label>Task Category</label>
-  <select id="category" onchange="renderQuestions()">
-    <option value="">Select category</option>
-    <option>Moving</option>
-    <option>TV Mounting</option>
-    <option>Furniture Assembly</option>
-    <option>Cleaning</option>
-    <option>Trash Removal</option>
-    <option>Errands</option>
-    <option>Handywork</option>
-    <option>Yard Work</option>
-    <option>Repairs</option>
-    <option>Other</option>
-  </select>
+    <div class="form-panel">
+      <label>Task Title</label>
+      <input id="title" placeholder="Example: Mount my living room TV">
+      <div class="field-help">Use a clear title so the worker understands the request quickly.</div>
+    </div>
 
-  <label>Task Title</label>
-  <input id="title" placeholder="Example: Mount my living room TV">
-
-  <div class="slide-actions">
-    <button onclick="nextSlide(2)">Next</button>
-  </div>
-</div>
-
-<div class="card slide-screen" id="slide2">
-  <div class="section-title">Date & Location</div>
-  <div class="section-note">Add the task location and preferred timing.</div>
-
-  <label>Preferred Date</label>
-  <input id="taskDate" type="date">
-
-  <label>Preferred Time</label>
-  <input id="taskTime" type="time">
-
-  <label>Street Address</label>
-  <input id="address" placeholder="Street address">
-
-  <label>City</label>
-  <input id="city" placeholder="City">
-
-  <label>State</label>
-  <input id="state" placeholder="State">
-
-  <label>Zip Code</label>
-  <input id="zipCode" placeholder="Zip code">
-
-  <div class="slide-actions">
-    <button class="secondary" onclick="previousSlide(1)">Back</button>
-    <button onclick="nextSlide(3)">Next</button>
-  </div>
-</div>
-
-<div
-  class="card slide-screen hidden"
-  id="slide3"
->
-  <div class="section-title">
-    Task Questions
+    <div class="slide-actions single">
+      <button onclick="nextSlide(2)">Next</button>
+    </div>
   </div>
 
-  <div class="section-note">
-    Answer questions for this task category.
+  <div class="card slide-screen" id="slide2">
+    <div class="section-title">Date & Location</div>
+    <div class="section-note">Add the task location and preferred timing. All fields are required.</div>
+
+    <div class="form-panel">
+      <div class="date-icon-row">
+        <div class="step-icon">📅</div>
+        <div>
+          <label>Preferred Date</label>
+          <input id="taskDate" type="date">
+        </div>
+      </div>
+    </div>
+
+    <div class="time-panel">
+      <div class="date-icon-row">
+        <div class="step-icon">⏰</div>
+        <div>
+          <label>Preferred Time</label>
+          <div class="field-help">Choose a preset time or enter a custom time.</div>
+        </div>
+      </div>
+
+      <input id="taskTime" class="native-time-hidden" type="time">
+
+      <div class="time-picker-modern">
+        <div class="time-display-card" id="selectedTimeDisplay">
+          No time selected
+        </div>
+
+        <div class="time-chip-grid">
+          <button type="button" class="time-chip" onclick="selectPresetTime('09:00', this)">9:00 AM</button>
+          <button type="button" class="time-chip" onclick="selectPresetTime('12:00', this)">12:00 PM</button>
+          <button type="button" class="time-chip" onclick="selectPresetTime('15:00', this)">3:00 PM</button>
+          <button type="button" class="time-chip" onclick="selectPresetTime('18:00', this)">6:00 PM</button>
+        </div>
+
+        <div class="custom-time-row">
+          <div class="custom-time-label">Or choose a custom time</div>
+          <input id="customTaskTime" class="custom-time-input" type="time" onchange="selectCustomTime()">
+        </div>
+      </div>
+    </div>
+
+    <div class="address-panel">
+      <div class="date-icon-row">
+        <div class="step-icon">📍</div>
+        <div>
+          <label>Task Address</label>
+          <div class="field-help">Start typing and select the address from Google.</div>
+        </div>
+      </div>
+
+      <div class="address-label">Google address search</div>
+      <div id="googleAddressBox"></div>
+      <div class="address-help">Selecting a Google suggestion fills in the address, city, state, and zip code.</div>
+      <div id="selectedAddress" class="selected-address hidden"></div>
+
+      <input id="address" class="native-address-hidden" placeholder="Street address">
+    </div>
+
+    <div class="form-panel">
+      <label>Address Details</label>
+      <div class="field-grid">
+        <input id="city" placeholder="City">
+        <input id="state" placeholder="State">
+      </div>
+      <input id="zipCode" placeholder="Zip code">
+      <div class="required-note">City, state, and zip are required before moving forward.</div>
+    </div>
+
+    <div class="slide-actions">
+      <button class="secondary" onclick="previousSlide(1)">Back</button>
+      <button onclick="nextSlide(3)">Next</button>
+    </div>
   </div>
 
-  <div id="questionsArea"></div>
+  <div class="card slide-screen" id="slide3">
+    <div class="section-title">Task Questions</div>
 
-  <div class="slide-actions">
-    <button
-      class="secondary"
-      onclick="previousSlide(2)"
-    >
-      Back
-    </button>
+    <div class="section-note">
+      Answer every question for this task category before moving forward.
+    </div>
 
-    <button onclick="nextSlide(4)">
-      Next
-    </button>
-  </div>
-</div>
+    <div id="questionsArea"></div>
 
-<div class="card slide-screen" id="slide4">
-  <div class="section-title">Extra Details</div>
-  <div class="section-note">Add anything else the worker should know.</div>
-
-  <label>Additional Notes</label>
-  <textarea id="additionalNotes" maxlength="1200" placeholder="Add timing, access info, parking details, or anything else important."></textarea>
-
-  <div class="slide-actions">
-    <button class="secondary" onclick="previousSlide(3)">Back</button>
-    <button onclick="submitDirectRequest()">Send Direct Quote Request</button>
+    <div class="slide-actions">
+      <button class="secondary" onclick="previousSlide(2)">Back</button>
+      <button onclick="nextSlide(4)">Next</button>
+    </div>
   </div>
 
-  <div id="status" class="status"></div>
-</div>
+  <div class="card slide-screen" id="slide4">
+    <div class="section-title">Extra Details</div>
+    <div class="section-note">Add anything else the worker should know. This field is required.</div>
+
+    <div class="form-panel">
+      <label>Additional Notes</label>
+      <textarea id="additionalNotes" maxlength="1200" placeholder="Add timing, access info, parking details, or anything else important."></textarea>
+    </div>
+
+    <div class="slide-actions">
+      <button class="secondary" onclick="previousSlide(3)">Back</button>
+      <button onclick="submitDirectRequest()">Send Direct Quote Request</button>
+    </div>
+
+    <div id="status" class="status"></div>
+  </div>
 
 </div>
 
@@ -472,6 +815,7 @@ const questionBank = {
 let workerId = "";
 let currentUser = null;
 let selectedWorkerName = "this worker";
+let googleReady = false;
 
 function getParam(name) {
   return new URLSearchParams(window.location.search).get(name) || "";
@@ -531,6 +875,11 @@ function showSlide(step) {
 
   updateProgress(step);
 
+  if (step === 2) {
+    setupPlaceAutocomplete();
+    syncModernTimePicker(document.getElementById("taskTime").value || "");
+  }
+
   window.scrollTo({
     top: 0,
     behavior: "smooth"
@@ -538,6 +887,13 @@ function showSlide(step) {
 }
 
 function nextSlide(step) {
+  const currentStep =
+    step - 1;
+
+  if (!validateSlide(currentStep)) {
+    return;
+  }
+
   showSlide(step);
 }
 
@@ -546,6 +902,331 @@ function previousSlide(step) {
 }
 
 
+
+function setStatusMessage(message, isError = true) {
+  const status =
+    document.getElementById("status");
+
+  if (!status) {
+    return;
+  }
+
+  status.style.color =
+    isError ? "#b00020" : "#0b7a28";
+
+  status.innerText =
+    message;
+}
+
+function formatTimeForDisplay(value) {
+  if (!value) {
+    return "Not selected";
+  }
+
+  const parts =
+    String(value).split(":");
+
+  if (parts.length < 2) {
+    return value;
+  }
+
+  let hour =
+    Number(parts[0]);
+
+  const minute =
+    parts[1];
+
+  if (Number.isNaN(hour)) {
+    return value;
+  }
+
+  const suffix =
+    hour >= 12 ? "PM" : "AM";
+
+  hour =
+    hour % 12;
+
+  if (hour === 0) {
+    hour = 12;
+  }
+
+  return `${hour}:${minute} ${suffix}`;
+}
+
+function updateTimeDisplay(value) {
+  const display =
+    document.getElementById("selectedTimeDisplay");
+
+  if (display) {
+    display.innerText =
+      value ? "Selected time: " + formatTimeForDisplay(value) : "No time selected";
+  }
+}
+
+function clearSelectedTimeChips() {
+  document
+    .querySelectorAll(".time-chip")
+    .forEach(button => button.classList.remove("selected"));
+}
+
+function selectPresetTime(value, button) {
+  const taskTime =
+    document.getElementById("taskTime");
+
+  const customTaskTime =
+    document.getElementById("customTaskTime");
+
+  if (taskTime) {
+    taskTime.value = value;
+  }
+
+  if (customTaskTime) {
+    customTaskTime.value = "";
+  }
+
+  clearSelectedTimeChips();
+
+  if (button) {
+    button.classList.add("selected");
+  }
+
+  updateTimeDisplay(value);
+}
+
+function selectCustomTime() {
+  const customTaskTime =
+    document.getElementById("customTaskTime");
+
+  const taskTime =
+    document.getElementById("taskTime");
+
+  const value =
+    customTaskTime ? customTaskTime.value : "";
+
+  if (taskTime) {
+    taskTime.value = value;
+  }
+
+  clearSelectedTimeChips();
+  updateTimeDisplay(value);
+}
+
+function syncModernTimePicker(value) {
+  const customTaskTime =
+    document.getElementById("customTaskTime");
+
+  clearSelectedTimeChips();
+
+  const matchingChip =
+    Array
+      .from(document.querySelectorAll(".time-chip"))
+      .find(button => {
+        const onclickValue =
+          button.getAttribute("onclick") || "";
+
+        return value && onclickValue.includes("'" + value + "'");
+      });
+
+  if (matchingChip) {
+    matchingChip.classList.add("selected");
+  } else if (customTaskTime && value) {
+    customTaskTime.value = value;
+  }
+
+  updateTimeDisplay(value || "");
+}
+
+window.initGoogleMaps = async function () {
+  try {
+    await google.maps.importLibrary("places");
+    googleReady = true;
+    setupPlaceAutocomplete();
+  } catch (error) {
+    setStatusMessage("Google address search failed to load.", true);
+  }
+};
+
+function setupPlaceAutocomplete() {
+  const container =
+    document.getElementById("googleAddressBox");
+
+  if (!container || container.dataset.loaded === "true" || !googleReady) {
+    return;
+  }
+
+  container.innerHTML = "";
+
+  const autocomplete =
+    new google.maps.places.PlaceAutocompleteElement();
+
+  autocomplete.setAttribute("included-region-codes", "us");
+
+  autocomplete.addEventListener("gmp-select", async (event) => {
+    const place =
+      event.placePrediction.toPlace();
+
+    await place.fetchFields({
+      fields: [
+        "formattedAddress",
+        "addressComponents"
+      ]
+    });
+
+    handleSelectedPlace(place);
+  });
+
+  container.appendChild(autocomplete);
+  container.dataset.loaded = "true";
+}
+
+function handleSelectedPlace(place) {
+  let streetNumber = "";
+  let route = "";
+  let city = "";
+  let state = "";
+  let zip = "";
+
+  if (place.addressComponents) {
+    place.addressComponents.forEach(component => {
+      const types =
+        component.types || [];
+
+      if (types.includes("street_number")) {
+        streetNumber =
+          component.longText || "";
+      }
+
+      if (types.includes("route")) {
+        route =
+          component.longText || "";
+      }
+
+      if (types.includes("locality")) {
+        city =
+          component.longText || "";
+      }
+
+      if (!city && types.includes("sublocality")) {
+        city =
+          component.longText || "";
+      }
+
+      if (!city && types.includes("administrative_area_level_2")) {
+        city =
+          component.longText || "";
+      }
+
+      if (types.includes("administrative_area_level_1")) {
+        state =
+          component.shortText || "";
+      }
+
+      if (types.includes("postal_code")) {
+        zip =
+          component.longText || "";
+      }
+    });
+  }
+
+  const formattedAddress =
+    place.formattedAddress ||
+    `${streetNumber} ${route}`.trim();
+
+  document.getElementById("address").value =
+    formattedAddress;
+
+  document.getElementById("city").value =
+    city;
+
+  document.getElementById("state").value =
+    state;
+
+  document.getElementById("zipCode").value =
+    zip;
+
+  const selectedAddress =
+    document.getElementById("selectedAddress");
+
+  selectedAddress.innerText =
+    formattedAddress;
+
+  selectedAddress.classList.remove("hidden");
+}
+
+function validateSlide(step) {
+  if (step === 1) {
+    const category =
+      document.getElementById("category").value.trim();
+
+    const title =
+      document.getElementById("title").value.trim();
+
+    if (!category || !title) {
+      setStatusMessage("Select a category and enter a task title.", true);
+      return false;
+    }
+
+    renderQuestions();
+  }
+
+  if (step === 2) {
+    const taskDate =
+      document.getElementById("taskDate").value;
+
+    const taskTime =
+      document.getElementById("taskTime").value;
+
+    const address =
+      document.getElementById("address").value.trim();
+
+    const city =
+      document.getElementById("city").value.trim();
+
+    const state =
+      document.getElementById("state").value.trim();
+
+    const zipCode =
+      document.getElementById("zipCode").value.trim();
+
+    if (!taskDate || !taskTime || !address || !city || !state || !zipCode) {
+      setStatusMessage("Select a date, time, and full task address before continuing.", true);
+      return false;
+    }
+  }
+
+  if (step === 3) {
+    const category =
+      document.getElementById("category").value;
+
+    const questions =
+      questionBank[category] || [];
+
+    for (const question of questions) {
+      if (question.type === "checkbox") {
+        const checked =
+          [...document.querySelectorAll(`input[name="question_${question.id}"]:checked`)];
+
+        if (!checked.length) {
+          setStatusMessage("Answer every task question before continuing.", true);
+          return false;
+        }
+
+        continue;
+      }
+
+      const field =
+        document.getElementById(`question_${question.id}`);
+
+      if (!field || !field.value.trim()) {
+        setStatusMessage("Answer every task question before continuing.", true);
+        return false;
+      }
+    }
+  }
+
+  setStatusMessage("", false);
+  return true;
+}
 async function loadPage() {
   workerId =
     getParam("worker_id") ||
@@ -595,20 +1276,14 @@ function renderQuestions() {
   const category =
     document.getElementById("category").value;
 
-  const questionsCard =
-    document.getElementById("questionsCard");
-
   const questionsArea =
     document.getElementById("questionsArea");
 
   questionsArea.innerHTML = "";
 
   if (!category || !questionBank[category]) {
-    questionsCard.classList.add("hidden");
     return;
   }
-
-  questionsCard.classList.remove("hidden");
 
   questionBank[category].forEach(question => {
     const wrapper =
@@ -663,7 +1338,6 @@ function renderQuestions() {
     questionsArea.appendChild(wrapper);
   });
 }
-
 function collectQuestionAnswers() {
   const category =
     document.getElementById("category").value;
@@ -744,9 +1418,19 @@ async function submitDirectRequest() {
     return;
   }
 
-  if (!city || !state) {
+  if (!taskDate || !taskTime || !address || !city || !state || !zipCode) {
     status.style.color = "#b00020";
-    status.innerText = "Enter at least the city and state.";
+    status.innerText = "Enter the full date, time, and task address.";
+    return;
+  }
+
+  if (!additionalNotes) {
+    status.style.color = "#b00020";
+    status.innerText = "Enter additional notes before sending the request.";
+    return;
+  }
+
+  if (!validateSlide(3)) {
     return;
   }
 
@@ -847,5 +1531,7 @@ async function submitDirectRequest() {
 
 loadPage();
 </script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=beta&callback=initGoogleMaps"></script>
 </body>
 </html>
