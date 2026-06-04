@@ -218,31 +218,6 @@ async function loadNotificationCounts(userId) {
     unreadMessages += taskMessageCount;
   }
 
-  const { count: generalMessageCount } = await supabaseClient
-    .from("task_messages")
-    .select("id", {
-      count: "exact",
-      head: true
-    })
-    .eq("receiver_id", userId)
-    .eq("is_read", false);
-
-  if (generalMessageCount) {
-    unreadMessages += generalMessageCount;
-  }
-
-  const { count: conversationUnreadCount } = await supabaseClient
-    .from("task_conversations")
-    .select("id", {
-      count: "exact",
-      head: true
-    })
-    .eq("customer_id", userId)
-    .gt("customer_unread_count", 0);
-
-  if (conversationUnreadCount) {
-    unreadMessages += conversationUnreadCount;
-  }
 
   const { count: workerQuoteCount } = await supabaseClient
     .from("worker_quotes")
