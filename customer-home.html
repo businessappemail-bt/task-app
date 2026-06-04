@@ -77,7 +77,147 @@
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes floatCard { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
     @keyframes pulseGlow { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-  </style>
+  
+/* ===== TaskMint Customer Home Refresh ===== */
+body {
+  background:
+    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(25,182,76,0.10), transparent 34%),
+    linear-gradient(180deg, #eef8f1 0%, #f7f8f7 100%) !important;
+}
+
+.container {
+  max-width: 460px !important;
+  padding: 20px !important;
+}
+
+.top-bar {
+  margin-bottom: 18px !important;
+}
+
+.brand img {
+  width: 165px !important;
+}
+
+.notification-btn {
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,0.95) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.10) !important;
+}
+
+.hero {
+  border-radius: 32px !important;
+  padding: 26px !important;
+  margin-bottom: 18px !important;
+  box-shadow: 0 18px 42px rgba(11,122,40,0.22) !important;
+}
+
+.hero h1 {
+  font-size: 32px !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.8px !important;
+  margin-bottom: 10px !important;
+}
+
+.hero p {
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+}
+
+.grid {
+  gap: 14px !important;
+  margin-bottom: 18px !important;
+}
+
+.section {
+  border: none !important;
+  border-radius: 28px !important;
+  padding: 20px !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+}
+
+.section-title {
+  font-size: 20px !important;
+  letter-spacing: -0.3px !important;
+}
+
+.action-card {
+  border: none !important;
+  border-radius: 24px !important;
+  padding: 18px !important;
+  min-height: 132px !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.07) !important;
+  animation: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+
+.action-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.10) !important;
+}
+
+.wide-card {
+  min-height: 124px !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f7faf8 100%) !important;
+}
+
+.icon {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 16px !important;
+  font-size: 23px !important;
+  margin-bottom: 12px !important;
+}
+
+.title {
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+}
+
+.sub {
+  font-size: 12.5px !important;
+  color: #5f6b63 !important;
+  line-height: 1.45 !important;
+}
+
+.nav {
+  max-width: 460px !important;
+  border-top: 1px solid #e6ebe7 !important;
+  box-shadow: 0 -8px 24px rgba(0,0,0,0.06) !important;
+}
+
+.nav a {
+  font-size: 10.5px !important;
+}
+
+.nav-icon {
+  font-size: 21px !important;
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding: 16px !important;
+  }
+
+  .hero h1 {
+    font-size: 28px !important;
+  }
+
+  .grid {
+    gap: 10px !important;
+  }
+
+  .action-card {
+    padding: 15px !important;
+  }
+}
+
+</style>
 </head>
 
 <body>
