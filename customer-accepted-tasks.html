@@ -598,13 +598,27 @@ function formatDate(value) {
     return "Not listed";
   }
 
-  const date = new Date(value);
+  const rawValue =
+    String(value).trim();
+
+  const dateMatch =
+    rawValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (dateMatch) {
+    const [, year, month, day] =
+      dateMatch;
+
+    return `${Number(month)}/${Number(day)}/${year}`;
+  }
+
+  const date =
+    new Date(rawValue);
 
   if (Number.isNaN(date.getTime())) {
     return value;
   }
 
-  return date.toLocaleDateString();
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 }
 
 function formatMoney(value) {
@@ -819,6 +833,222 @@ function getAmountPaid(task, quote, payment) {
     0
   );
 }
+
+function parseTaskDateLocal(value) {
+  if (!value) {
+    return null;
+  }
+
+  const rawValue =
+    String(value).trim();
+
+  const dateMatch =
+    rawValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (!dateMatch) {
+    return null;
+  }
+
+  return new Date(
+    Number(dateMatch[1]),
+    Number(dateMatch[2]) - 1,
+    Number(dateMatch[3]),
+    0,
+    0,
+    0,
+    0
+  );
+}
+
+function getCancellationFeeDetails(task, amountPaid, workerId) {
+  if (!workerId) {
+    return {
+      percent: 0,
+      feeAmount: 0,
+      refundAmount: Number(amountPaid || 0),
+      workerPayout: 0,
+      taskMintFee: 0,
+      message: "No worker is assigned to this task. There is no cancellation fee."
+    };
+  }
+
+  const taskDate =
+    parseTaskDateLocal(getTaskDate(task));
+
+  if (!taskDate) {
+    return {
+      percent: 0,
+      feeAmount: 0,
+      refundAmount: Number(amountPaid || 0),
+      workerPayout: 0,
+      taskMintFee: 0,
+      message: "No scheduled task date was found. There is no cancellation fee."
+    };
+  }
+
+  const today =
+    new Date();
+
+  const todayLocal =
+    new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      0,
+      0,
+      0,
+      0
+    );
+
+  const millisecondsPerDay =
+    24 * 60 * 60 * 1000;
+
+  const daysUntilTask =
+    Math.ceil(
+      (taskDate.getTime() - todayLocal.getTime()) / millisecondsPerDay
+    );
+
+  let percent = 0;
+  let message = "Cancel 7+ days before the scheduled task: no cancellation fee.";
+
+  if (daysUntilTask >= 7) {
+    percent = 0;
+    message = "Cancel 7+ days before the scheduled task: no cancellation fee.";
+  } else if (daysUntilTask >= 3 && daysUntilTask < 7) {
+    percent = 10;
+    message = "Cancel 3-7 days before the scheduled task: 10% cancellation fee.";
+  } else if (daysUntilTask >= 1 && daysUntilTask < 3) {
+    percent = 20;
+    message = "Cancel 24-72 hours before the scheduled task: 20% cancellation fee.";
+  } else {
+    percent = 30;
+    message = "Same day cancellations: 30% cancellation fee.";
+  }
+
+  const paidAmount =
+    Number(amountPaid || 0);
+
+  const feeAmount =
+    Number((paidAmount * (percent / 100)).toFixed(2));
+
+  const refundAmount =
+    Number(Math.max(paidAmount - feeAmount, 0).toFixed(2));
+
+  const taskMintFee =
+    Number((feeAmount * 0.05).toFixed(2));
+
+  const workerPayout =
+    Number(Math.max(feeAmount - taskMintFee, 0).toFixed(2));
+
+  return {
+    percent,
+    feeAmount,
+    refundAmount,
+    workerPayout,
+    taskMintFee,
+    message
+  };
+}
+
+async function getOrCreateWorkerCancellationConversation(task, workerId) {
+  if (!task || !task.id || !workerId) {
+    return "";
+  }
+
+  const customerId =
+    task.customer_id ||
+    localStorage.getItem("taskmintUserId") ||
+    "";
+
+  if (!customerId) {
+    return "";
+  }
+
+  const { data: existingConversation } =
+    await supabaseClient
+      .from("task_conversations")
+      .select("id")
+      .eq("task_id", task.id)
+      .eq("customer_id", customerId)
+      .eq("worker_id", workerId)
+      .maybeSingle();
+
+  if (existingConversation && existingConversation.id) {
+    await supabaseClient
+      .from("task_conversations")
+      .update({
+        updated_at: new Date().toISOString(),
+        worker_unread_count: 1
+      })
+      .eq("id", existingConversation.id);
+
+    return existingConversation.id;
+  }
+
+  const { data: newConversation } =
+    await supabaseClient
+      .from("task_conversations")
+      .insert([
+        {
+          task_id: task.id,
+          customer_id: customerId,
+          worker_id: workerId,
+          conversation_type: "task",
+          updated_at: new Date().toISOString(),
+          worker_unread_count: 1
+        }
+      ])
+      .select("id")
+      .maybeSingle();
+
+  return newConversation?.id || "";
+}
+
+async function notifyWorkerCustomerCancelled(task, workerId, feeDetails) {
+  if (!task || !workerId) {
+    return;
+  }
+
+  const conversationId =
+    await getOrCreateWorkerCancellationConversation(task, workerId);
+
+  const customerId =
+    task.customer_id ||
+    localStorage.getItem("taskmintUserId") ||
+    "";
+
+  const message =
+    feeDetails.feeAmount > 0
+      ? `The customer cancelled this task: ${getTaskTitle(task)}. The customer cancellation fee is ${formatMoney(feeDetails.feeAmount)}. TaskMint keeps 5% (${formatMoney(feeDetails.taskMintFee)}). Your cancellation payout is ${formatMoney(feeDetails.workerPayout)}.`
+      : `The customer cancelled this task: ${getTaskTitle(task)}. No cancellation fee applies, so there is no cancellation payout for this task.`;
+
+  if (conversationId) {
+    await supabaseClient
+      .from("task_messages")
+      .insert([
+        {
+          conversation_id: conversationId,
+          task_id: task.id,
+          sender_id: customerId,
+          sender_type: "customer",
+          receiver_id: workerId,
+          customer_id: customerId,
+          worker_id: workerId,
+          message: message,
+          is_read: false
+        }
+      ]);
+
+    await supabaseClient
+      .from("task_conversations")
+      .update({
+        updated_at: new Date().toISOString(),
+        worker_unread_count: 1
+      })
+      .eq("id", conversationId);
+  }
+}
+
 
 function getPaymentStatus(task, quote, payment) {
   return (
@@ -1406,239 +1636,7 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
   }
 
   alert("Task marked complete. It will now move to past tasks.");
-  
-
-async function getOrCreateWorkerCancellationConversation(task, workerId) {
-  if (!task || !task.id || !workerId) {
-    return "";
-  }
-
-  const customerId =
-    task.customer_id ||
-    localStorage.getItem("taskmintUserId") ||
-    "";
-
-  if (!customerId) {
-    return "";
-  }
-
-  const { data: existingConversation } =
-    await supabaseClient
-      .from("task_conversations")
-      .select("id")
-      .eq("task_id", task.id)
-      .eq("customer_id", customerId)
-      .eq("worker_id", workerId)
-      .maybeSingle();
-
-  if (existingConversation && existingConversation.id) {
-    await supabaseClient
-      .from("task_conversations")
-      .update({
-        updated_at: new Date().toISOString(),
-        worker_unread_count: 1
-      })
-      .eq("id", existingConversation.id);
-
-    return existingConversation.id;
-  }
-
-  const { data: newConversation } =
-    await supabaseClient
-      .from("task_conversations")
-      .insert([
-        {
-          task_id: task.id,
-          customer_id: customerId,
-          worker_id: workerId,
-          conversation_type: "task",
-          updated_at: new Date().toISOString(),
-          worker_unread_count: 1
-        }
-      ])
-      .select("id")
-      .maybeSingle();
-
-  return newConversation?.id || "";
-}
-
-async function notifyWorkerCustomerCancelled(task, workerId, feeDetails) {
-  if (!task || !workerId) {
-    return;
-  }
-
-  const conversationId =
-    await getOrCreateWorkerCancellationConversation(task, workerId);
-
-  const customerId =
-    task.customer_id ||
-    localStorage.getItem("taskmintUserId") ||
-    "";
-
-  const workerPayout =
-    Number((Number(feeDetails.feeAmount || 0) * 0.95).toFixed(2));
-
-  const taskMintFee =
-    Number((Number(feeDetails.feeAmount || 0) * 0.05).toFixed(2));
-
-  const message =
-    feeDetails.feeAmount > 0
-      ? `The customer cancelled this task: ${getTaskTitle(task)}. The customer cancellation fee is ${formatMoney(feeDetails.feeAmount)}. TaskMint keeps 5% (${formatMoney(taskMintFee)}). Your cancellation payout is ${formatMoney(workerPayout)}.`
-      : `The customer cancelled this task: ${getTaskTitle(task)}. No cancellation fee applies, so there is no cancellation payout for this task.`;
-
-  if (conversationId) {
-    await supabaseClient
-      .from("task_messages")
-      .insert([
-        {
-          conversation_id: conversationId,
-          task_id: task.id,
-          sender_id: customerId,
-          sender_type: "customer",
-          receiver_id: workerId,
-          customer_id: customerId,
-          worker_id: workerId,
-          message: message,
-          is_read: false
-        }
-      ]);
-
-    await supabaseClient
-      .from("task_conversations")
-      .update({
-        updated_at: new Date().toISOString(),
-        worker_unread_count: 1
-      })
-      .eq("id", conversationId);
-  }
-}
-
-
-async function cancelAcceptedTask(taskId, sourceType) {
-  const tableName =
-    sourceType === "direct_quote"
-      ? "direct_task_requests"
-      : "tasks";
-
-  const { data: task, error: taskError } =
-    await supabaseClient
-      .from(tableName)
-      .select("*")
-      .eq("id", taskId)
-      .maybeSingle();
-
-  if (taskError || !task) {
-    alert(taskError ? taskError.message : "Task could not be found.");
-    return;
-  }
-
-  const quoteId =
-    getQuoteId(task);
-
-  const quote =
-    await fetchQuote(quoteId, task.id);
-
-  const workerId =
-    getWorkerId(task) ||
-    quote?.worker_id ||
-    "";
-
-  const amountPaid =
-    Number(getAmountPaid(task, quote, null) || 0);
-
-  const feeDetails =
-    getCancellationFeeDetails(task, amountPaid, workerId);
-
-  const workerPayout =
-    Number((Number(feeDetails.feeAmount || 0) * 0.95).toFixed(2));
-
-  const taskMintFee =
-    Number((Number(feeDetails.feeAmount || 0) * 0.05).toFixed(2));
-
-  const confirmationMessage =
-    `${feeDetails.message}
-
-Amount paid: ${formatMoney(amountPaid)}
-Cancellation fee: ${formatMoney(feeDetails.feeAmount)}
-TaskMint fee from cancellation payout: ${formatMoney(taskMintFee)}
-Worker cancellation payout: ${formatMoney(workerPayout)}
-Refund amount: ${formatMoney(feeDetails.refundAmount)}
-
-Click OK to confirm you understand and want to cancel this task.`;
-
-  const understood =
-    confirm(confirmationMessage);
-
-  if (!understood) {
-    return;
-  }
-
-  const updatePayload =
-    sourceType === "direct_quote"
-      ? {
-          status: "cancelled",
-          payment_status: "refund_pending"
-        }
-      : {
-          status: "cancelled",
-          task_status: "customer_cancelled",
-          payment_status: "refund_pending",
-          escrow_status: "refund_pending",
-          cancellation_fee: feeDetails.feeAmount,
-          refund_amount: feeDetails.refundAmount,
-          worker_payout_amount: workerPayout
-        };
-
-  const { error: updateError } =
-    await supabaseClient
-      .from(tableName)
-      .update(updatePayload)
-      .eq("id", taskId);
-
-  if (updateError) {
-    alert(updateError.message);
-    return;
-  }
-
-  if (quote && quote.id) {
-    await supabaseClient
-      .from("worker_quotes")
-      .update({
-        status: "customer_cancelled"
-      })
-      .eq("id", quote.id);
-  }
-
-  if (workerId) {
-    await notifyWorkerCustomerCancelled(task, workerId, feeDetails);
-  }
-
-  if (sourceType !== "direct_quote") {
-    const { error: refundRecordError } =
-      await supabaseClient.rpc(
-        "create_cancellation_refund_record",
-        {
-          p_task_id: taskId
-        }
-      );
-
-    if (refundRecordError) {
-      alert(refundRecordError.message);
-      return;
-    }
-  }
-
-  alert(
-    feeDetails.percent > 0
-      ? `Task cancelled. Worker cancellation payout: ${formatMoney(workerPayout)}. Refund processing has started.`
-      : "Task cancelled. No cancellation fee was charged. Refund processing has started."
-  );
-
   loadAcceptedQuotes();
-}
-
-
-loadAcceptedQuotes();
 }
 
 async function loadAcceptedQuotes() {
@@ -1925,32 +1923,121 @@ async function loadAcceptedQuotes() {
 
 
 async function cancelAcceptedTask(taskId, sourceType) {
-  const confirmed = confirm("Cancel this accepted task? Cancellation fees may apply based on how close the task date is.");
-
-  if (!confirmed) return;
-
-  await supabaseClient.rpc(
-    "create_cancellation_refund_record",
-    { p_task_id: taskId }
-  );
-
   const tableName =
     sourceType === "direct_quote"
       ? "direct_task_requests"
       : "tasks";
 
-  await supabaseClient
-    .from(tableName)
-    .update({
-      status: "cancelled",
-      payment_status: "refund_pending"
-    })
-    .eq("id", taskId);
+  const { data: task, error: taskError } =
+    await supabaseClient
+      .from(tableName)
+      .select("*")
+      .eq("id", taskId)
+      .maybeSingle();
 
-  alert("Task cancelled. Refund processing has started.");
+  if (taskError || !task) {
+    alert(taskError ? taskError.message : "Task could not be found.");
+    return;
+  }
+
+  const quoteId =
+    getQuoteId(task);
+
+  const quote =
+    await fetchQuote(quoteId, task.id);
+
+  const workerId =
+    getWorkerId(task) ||
+    quote?.worker_id ||
+    "";
+
+  const amountPaid =
+    Number(getAmountPaid(task, quote, null) || 0);
+
+  const feeDetails =
+    getCancellationFeeDetails(task, amountPaid, workerId);
+
+  const confirmationMessage =
+    `${feeDetails.message}
+
+Amount paid: ${formatMoney(amountPaid)}
+Cancellation fee: ${formatMoney(feeDetails.feeAmount)}
+TaskMint fee from cancellation payout: ${formatMoney(feeDetails.taskMintFee)}
+Worker cancellation payout: ${formatMoney(feeDetails.workerPayout)}
+Refund amount: ${formatMoney(feeDetails.refundAmount)}
+
+Click OK to confirm you understand and want to cancel this task.`;
+
+  const understood =
+    confirm(confirmationMessage);
+
+  if (!understood) {
+    return;
+  }
+
+  const updatePayload =
+    sourceType === "direct_quote"
+      ? {
+          status: "cancelled",
+          payment_status: "refund_pending"
+        }
+      : {
+          status: "cancelled",
+          task_status: "customer_cancelled",
+          payment_status: "refund_pending",
+          escrow_status: "refund_pending",
+          cancellation_fee: feeDetails.feeAmount,
+          refund_amount: feeDetails.refundAmount,
+          worker_payout_amount: feeDetails.workerPayout
+        };
+
+  const { error: updateError } =
+    await supabaseClient
+      .from(tableName)
+      .update(updatePayload)
+      .eq("id", taskId);
+
+  if (updateError) {
+    alert(updateError.message);
+    return;
+  }
+
+  if (quote && quote.id) {
+    await supabaseClient
+      .from("worker_quotes")
+      .update({
+        status: "customer_cancelled"
+      })
+      .eq("id", quote.id);
+  }
+
+  if (workerId) {
+    await notifyWorkerCustomerCancelled(task, workerId, feeDetails);
+  }
+
+  if (sourceType !== "direct_quote") {
+    const { error: refundRecordError } =
+      await supabaseClient.rpc(
+        "create_cancellation_refund_record",
+        {
+          p_task_id: taskId
+        }
+      );
+
+    if (refundRecordError) {
+      alert(refundRecordError.message);
+      return;
+    }
+  }
+
+  alert(
+    feeDetails.percent > 0
+      ? `Task cancelled. Worker cancellation payout: ${formatMoney(feeDetails.workerPayout)}. Refund processing has started.`
+      : "Task cancelled. No cancellation fee was charged. Refund processing has started."
+  );
+
   loadAcceptedQuotes();
 }
-
 
 loadAcceptedQuotes();
 </script>
