@@ -437,6 +437,11 @@ gmp-place-autocomplete::part(input) {
         My date is flexible
       </label>
 
+      <h3>What time do you need it completed by?</h3>
+      <p class="subtext">Choose the time the task should be completed by.</p>
+
+      <input id="timeNeeded" type="time">
+
       <div class="help-box">
         Flexible dates may help you receive more quotes from workers.
       </div>
@@ -899,8 +904,16 @@ function showDateNeeded() {
   const dateInput = document.getElementById("dateNeeded");
 
   if (dateInput && !dateInput.min) {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.min = today;
+    dateInput.min =
+      getTodayDateInputValue();
+  }
+
+  const timeInput =
+    document.getElementById("timeNeeded");
+
+  if (timeInput) {
+    timeInput.value =
+      answers.time_needed || "";
   }
 
   document
@@ -913,6 +926,9 @@ function saveDateNeeded() {
   const dateNeeded =
     normalizeDateInputValue(document.getElementById("dateNeeded").value);
 
+  const timeNeeded =
+    document.getElementById("timeNeeded").value;
+
   const flexible =
     document.getElementById("dateFlexible").checked;
 
@@ -922,11 +938,20 @@ function saveDateNeeded() {
     return;
   }
 
+  if (!timeNeeded) {
+    document.getElementById("status").innerText =
+      "Select the time you need the task completed by.";
+    return;
+  }
+
   answers.date_needed =
     flexible ? "Flexible" : dateNeeded;
 
   answers.date_flexible =
     flexible ? "Yes" : "No";
+
+  answers.time_needed =
+    timeNeeded;
 
   document.getElementById("status").innerText = "";
   showPickupAddress();
@@ -1110,6 +1135,7 @@ function showReview() {
     </div>
     <p><strong>Category:</strong> ${selectedCategory}</p>
     <p><strong>Date Needed:</strong> ${answers.date_needed || "Not listed"}</p>
+    <p><strong>Completion Time:</strong> ${formatTimeForDisplay(answers.time_needed)}</p>
     <p><strong>Flexible Date:</strong> ${answers.date_flexible || "No"}</p>
     <p><strong>Task Address:</strong> ${pickupAddress.address}</p>
     <p><strong>Unit:</strong> ${pickupAddress.unit || "N/A"}</p>
@@ -1132,7 +1158,7 @@ function showReview() {
   html += `<hr>`;
 
   Object.keys(answers).forEach(key => {
-    if (key === "date_needed" || key === "date_flexible") {
+    if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {
       return;
     }
 
@@ -1226,6 +1252,57 @@ function normalizeDateInputValue(value) {
   return rawValue;
 }
 
+function getTodayDateInputValue() {
+  const today =
+    new Date();
+
+  const year =
+    today.getFullYear();
+
+  const month =
+    String(today.getMonth() + 1).padStart(2, "0");
+
+  const day =
+    String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function formatTimeForDisplay(value) {
+  if (!value) {
+    return "Not listed";
+  }
+
+  const parts =
+    String(value).split(":");
+
+  if (parts.length < 2) {
+    return value;
+  }
+
+  let hour =
+    Number(parts[0]);
+
+  const minute =
+    parts[1];
+
+  if (Number.isNaN(hour)) {
+    return value;
+  }
+
+  const suffix =
+    hour >= 12 ? "PM" : "AM";
+
+  hour =
+    hour % 12;
+
+  if (hour === 0) {
+    hour = 12;
+  }
+
+  return `${hour}:${minute} ${suffix}`;
+}
+
 function calculateDistanceMiles(lat1, lng1, lat2, lng2) {
   if (!lat1 || !lng1 || !lat2 || !lng2) {
     return null;
@@ -1270,10 +1347,10 @@ function formatLabel(key) {
 
 function buildDescription() {
   let description =
-    `Category: ${selectedCategory}\nDate Needed: ${answers.date_needed || "Not listed"}\nFlexible Date: ${answers.date_flexible || "No"}\n\n`;
+    `Category: ${selectedCategory}\nDate Needed: ${answers.date_needed || "Not listed"}\nCompletion Time: ${formatTimeForDisplay(answers.time_needed)}\nFlexible Date: ${answers.date_flexible || "No"}\n\n`;
 
   Object.keys(answers).forEach(key => {
-    if (key === "date_needed" || key === "date_flexible") {
+    if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {
       return;
     }
 
@@ -1354,6 +1431,8 @@ async function submitTask() {
     task_details: answers,
     task_date: answers.date_needed === "Flexible" ? null : normalizeDateInputValue(answers.date_needed),
     date_needed: answers.date_needed === "Flexible" ? "Flexible" : normalizeDateInputValue(answers.date_needed),
+    scheduled_for: answers.date_needed === "Flexible" ? null : `${normalizeDateInputValue(answers.date_needed)}T${answers.time_needed}:00`,
+    schedule_preference: answers.time_needed || null,
     date_flexible: answers.date_flexible === "Yes",
     distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),
     location_address: pickupAddress.address || null,
@@ -1550,6 +1629,14 @@ async function loadTaskForEdit() {
       normalizeDateInputValue(task.date_needed || task.task_date || "");
     answers.date_flexible = "No";
   }
+
+  answers.time_needed =
+    task.schedule_preference ||
+    (
+      task.scheduled_for && String(task.scheduled_for).includes("T")
+        ? String(task.scheduled_for).split("T")[1].slice(0, 5)
+        : ""
+    );
 
   pickupAddress = {
     address: task.location_address || "",
