@@ -1161,6 +1161,13 @@ async function toggleApplicants(taskId, isDirectRequest = false) {
         (total / reviews.length).toFixed(1);
     }
 
+    const { count: completedJobsCount } =
+      await supabaseClient
+        .from("tasks")
+        .select("*", { count: "exact", head: true })
+        .eq("worker_id", workerId)
+        .eq("payment_status", "paid");
+
     const quoteAmount =
       getQuoteAmount(app);
 
@@ -1219,7 +1226,7 @@ async function toggleApplicants(taskId, isDirectRequest = false) {
       <div class="worker-details" id="${workerDetailsId}">
         <div class="quote-info">
           <p><strong>Quote Status:</strong> ${escapeHTML(quoteStatus)}</p>
-          <p><strong>Jobs Completed:</strong> ${escapeHTML(worker.total_jobs || 0)}</p>
+          <p><strong>Jobs Completed:</strong> ${completedJobsCount || 0}</p>
           <p><strong>Reviews:</strong> ${reviews ? reviews.length : 0}</p>
           <p><strong>Worker Message:</strong> ${escapeHTML(app.message || "No message provided.")}</p>
         </div>
