@@ -732,17 +732,45 @@ async function loadUnreadMessageCount() {
   }
 
   const hiddenConversationIds =
-    getHiddenConversationIds();
+    getHiddenConversationIds()
+      .map(id => String(id || ""))
+      .filter(Boolean);
 
   hiddenBox.innerText =
     String(hiddenConversationIds.length);
+
+  const { data: conversations, error: conversationError } =
+    await supabaseClient
+      .from("task_conversations")
+      .select("id, customer_id, worker_id, customer_unread_count, unread_count")
+      .eq("customer_id", currentUserId);
+
+  if (conversationError) {
+    unreadBox.innerText = "0";
+    noteBox.innerText =
+      "Could not load visible inbox conversations. " + conversationError.message;
+    return;
+  }
+
+  const visibleConversationIds =
+    (conversations || [])
+      .map(conversation => String(conversation.id || ""))
+      .filter(id => id && !hiddenConversationIds.includes(id));
+
+  if (visibleConversationIds.length === 0) {
+    unreadBox.innerText = "0";
+    noteBox.innerText =
+      "You have 0 unread messages visible in your inbox.";
+    return;
+  }
 
   const { data: unreadMessages, error } =
     await supabaseClient
       .from("task_messages")
       .select("id, conversation_id")
       .eq("receiver_id", currentUserId)
-      .eq("is_read", false);
+      .eq("is_read", false)
+      .in("conversation_id", visibleConversationIds);
 
   if (error) {
     unreadBox.innerText = "0";
@@ -751,22 +779,20 @@ async function loadUnreadMessageCount() {
     return;
   }
 
-  const visibleUnreadMessages =
-    (unreadMessages || []).filter(message => {
-      return !hiddenConversationIds.includes(String(message.conversation_id || ""));
-    });
+  const unreadCount =
+    (unreadMessages || []).length;
 
   unreadBox.innerText =
-    String(visibleUnreadMessages.length);
+    String(unreadCount);
 
-  if (visibleUnreadMessages.length === 1) {
+  if (unreadCount === 1) {
     noteBox.innerText =
-      "You have 1 unread message that is still visible in your inbox.";
+      "You have 1 unread message visible in your inbox.";
     return;
   }
 
   noteBox.innerText =
-    "You have " + visibleUnreadMessages.length + " unread messages that are still visible in your inbox.";
+    "You have " + unreadCount + " unread messages visible in your inbox.";
 }
 
 async function loadNotificationSettings() {
