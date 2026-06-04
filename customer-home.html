@@ -506,17 +506,81 @@ async function safeCount(tableName, selectColumn, filters) {
   return count || 0;
 }
  
+function getHiddenConversationIds() {
+  try {
+    return JSON.parse(localStorage.getItem("taskmintHiddenConversations") || "[]");
+  } catch (error) {
+    return [];
+  }
+}
+
+function isConversationHidden(conversationIdValue) {
+  return getHiddenConversationIds().includes(conversationIdValue);
+}
+
+async function getVisibleInboxConversationIds(userId) {
+  const { data: conversations, error } =
+    await supabaseClient
+      .from("task_conversations")
+      .select("id, worker_id")
+      .or(`customer_id.eq.${userId},worker_id.eq.${userId}`);
+
+  if (error || !conversations) {
+    return [];
+  }
+
+  const { data: blockedWorkers } =
+    await supabaseClient
+      .from("blocked_users")
+      .select("worker_id")
+      .eq("customer_id", userId);
+
+  const blockedWorkerIds =
+    (blockedWorkers || [])
+      .map(block => String(block.worker_id || ""))
+      .filter(Boolean);
+
+  return conversations
+    .filter(convo => {
+      return (
+        !blockedWorkerIds.includes(String(convo.worker_id || "")) &&
+        !isConversationHidden(convo.id)
+      );
+    })
+    .map(convo => convo.id)
+    .filter(Boolean);
+}
+
+async function countUnreadVisibleMessages(userId) {
+  const visibleConversationIds =
+    await getVisibleInboxConversationIds(userId);
+
+  if (!visibleConversationIds.length) {
+    return 0;
+  }
+
+  const { count, error } =
+    await supabaseClient
+      .from("task_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("receiver_id", userId)
+      .eq("is_read", false)
+      .in("conversation_id", visibleConversationIds);
+
+  if (error) {
+    return 0;
+  }
+
+  return count || 0;
+}
+
 async function loadNotificationCounts(userId) {
   const notificationCount = document.getElementById("notificationCount");
-  let unreadMessages = 0;
+
+  const unreadMessages =
+    await countUnreadVisibleMessages(userId);
+
   let newQuotes = 0;
- 
-  const { count: taskMessageCount } = await supabaseClient
-    .from("task_messages")
-    .select("id", { count: "exact", head: true })
-    .eq("receiver_id", userId)
-    .eq("is_read", false);
-  if (taskMessageCount) unreadMessages += taskMessageCount;
  
   const { count: workerQuoteCount } = await supabaseClient
     .from("worker_quotes")
@@ -530,6 +594,7 @@ async function loadNotificationCounts(userId) {
     notificationCount.innerText = totalNotifications > 99 ? "99+" : totalNotifications;
     notificationCount.style.display = "flex";
   } else {
+    notificationCount.innerText = "0";
     notificationCount.style.display = "none";
   }
 }
