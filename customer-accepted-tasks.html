@@ -1406,7 +1406,36 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
   }
 
   alert("Task marked complete. It will now move to past tasks.");
+  
+async function cancelAcceptedTask(taskId, sourceType) {
+  const confirmed = confirm("Cancel this accepted task? Cancellation fees may apply based on how close the task date is.");
+
+  if (!confirmed) return;
+
+  await supabaseClient.rpc(
+    "create_cancellation_refund_record",
+    { p_task_id: taskId }
+  );
+
+  const tableName =
+    sourceType === "direct_quote"
+      ? "direct_task_requests"
+      : "tasks";
+
+  await supabaseClient
+    .from(tableName)
+    .update({
+      status: "cancelled",
+      payment_status: "refund_pending"
+    })
+    .eq("id", taskId);
+
+  alert("Task cancelled. Refund processing has started.");
   loadAcceptedQuotes();
+}
+
+
+loadAcceptedQuotes();
 }
 
 async function loadAcceptedQuotes() {
@@ -1664,6 +1693,10 @@ async function loadAcceptedQuotes() {
           Worker Profile
         </button>
 
+        <button class="secondary-btn" onclick="cancelAcceptedTask('${task.id}','${task.source_type}')">
+          Cancel Task
+        </button>
+
         ${renderCustomerCompletionButton(task, quote, assignment, liveStatus, workerId)}
       </div>
     `;
@@ -1686,6 +1719,35 @@ async function loadAcceptedQuotes() {
   document.getElementById("paidTotal").innerText =
     formatMoney(totalPaid);
 }
+
+
+async function cancelAcceptedTask(taskId, sourceType) {
+  const confirmed = confirm("Cancel this accepted task? Cancellation fees may apply based on how close the task date is.");
+
+  if (!confirmed) return;
+
+  await supabaseClient.rpc(
+    "create_cancellation_refund_record",
+    { p_task_id: taskId }
+  );
+
+  const tableName =
+    sourceType === "direct_quote"
+      ? "direct_task_requests"
+      : "tasks";
+
+  await supabaseClient
+    .from(tableName)
+    .update({
+      status: "cancelled",
+      payment_status: "refund_pending"
+    })
+    .eq("id", taskId);
+
+  alert("Task cancelled. Refund processing has started.");
+  loadAcceptedQuotes();
+}
+
 
 loadAcceptedQuotes();
 </script>
