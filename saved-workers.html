@@ -4,6 +4,7 @@
 <title>Saved Workers - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -20,7 +21,7 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
   padding-bottom: 95px;
@@ -180,7 +181,7 @@ select, input {
   outline: none;
   background: white;
   color: var(--text);
-  font-family: Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 select:focus, input:focus {
@@ -190,7 +191,7 @@ select:focus, input:focus {
 
 .workers-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -203,10 +204,9 @@ select:focus, input:focus {
 }
 
 .worker-top {
-  display: flex;
-  gap: 13px;
-  padding: 14px;
-  align-items: center;
+  display: block;
+  padding: 12px;
+  text-align: center;
 }
 
 .worker-photo {
@@ -216,14 +216,16 @@ select:focus, input:focus {
   object-fit: cover;
   border: 1px solid var(--border);
   background: var(--surface2);
-  flex-shrink: 0;
   display: block;
+  margin: 0 auto 8px;
 }
 
-.worker-info { min-width: 0; flex: 1; }
+.worker-info {
+  min-width: 0;
+}
 
 .worker-name {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 5px;
@@ -237,6 +239,7 @@ select:focus, input:focus {
 
 .rating-row {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
@@ -282,9 +285,9 @@ select:focus, input:focus {
 
 .action-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
-  padding: 0 14px 14px;
+  padding: 0 12px 14px;
 }
 
 button {
@@ -296,7 +299,7 @@ button {
   font-weight: 800;
   cursor: pointer;
   transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
-  font-family: Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 button:hover {
@@ -366,7 +369,10 @@ button:hover {
 
 @media (max-width: 360px) {
   .hero h1 { font-size: 25px; }
-  .action-row { grid-template-columns: 1fr; }
+  .workers-grid { gap: 10px; }
+  .worker-photo { width: 68px; height: 68px; }
+  .worker-name { font-size: 13px; }
+  .chip { font-size: 10px; padding: 6px 7px; }
 }
 </style>
 </head>
