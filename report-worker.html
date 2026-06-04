@@ -5,26 +5,253 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#fff2f2,#f5f5f5);color:#111;padding-bottom:30px}
-.container{max-width:430px;margin:0 auto;padding:18px}
-.back{color:#b00020;font-weight:900;cursor:pointer;font-size:14px;margin-bottom:14px}
-.hero{background:linear-gradient(135deg,#7a0018,#b00020);color:white;border-radius:26px;padding:20px;margin-bottom:14px;box-shadow:0 12px 28px rgba(176,0,32,.2)}
-.hero h1{margin:0 0 6px;font-size:28px}
-.hero p{margin:0;font-size:14px;line-height:1.45;opacity:.95}
-.card{background:white;border:1px solid #f0dada;border-radius:22px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);margin-bottom:14px}
-label{font-size:12px;font-weight:900;color:#b00020;text-transform:uppercase;display:block;margin:12px 0 6px}
-select,textarea,input{width:100%;padding:13px;border-radius:15px;border:1px solid #e4cccc;font-size:15px;outline:none;background:white}
-textarea{min-height:150px;resize:none}
-select:focus,textarea:focus,input:focus{border-color:#b00020;box-shadow:0 0 0 4px rgba(176,0,32,.1)}
-button{width:100%;border:none;border-radius:16px;padding:14px;background:#b00020;color:white;font-weight:900;font-size:15px;cursor:pointer;margin-top:14px}
-.status{text-align:center;font-size:13px;font-weight:900;margin-top:10px}
-.notice{background:#fff7e6;border:1px solid #ffd27a;color:#7a4b00;border-radius:16px;padding:12px;font-size:13px;line-height:1.4;font-weight:700}
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #ffffff;
+  --surface: #fff5f6;
+  --surface2: #ffe9ed;
+  --card: #ffffff;
+  --border: #f0d5da;
+  --danger: #b00020;
+  --danger-dark: #7a0018;
+  --text: #111111;
+  --muted: #6f6063;
+  --success: #0b7a28;
+  --warn-bg: #fffbeb;
+  --warn-border: #f0c040;
+  --warn-text: #7a4f00;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(176,0,32,0.10), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #fff7f8 100%);
+  color: var(--text);
+  padding-bottom: 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 470px;
+  padding: 20px 16px 30px;
+}
+
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  width: 100%;
+  max-width: 470px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 20px;
+  margin: -20px -16px 20px;
+}
+
+.back {
+  color: var(--danger);
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hero {
+  background: var(--danger);
+  color: white;
+  border-radius: 22px;
+  padding: 24px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(176,0,32,0.20);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  animation: riseIn 0.35s 0.05s forwards;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 155px;
+  height: 155px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.10);
+  top: -65px;
+  right: -55px;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  bottom: -42px;
+  left: -34px;
+}
+
+.hero h1 {
+  margin: 0 0 7px;
+  font-size: 29px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.84);
+  position: relative;
+  z-index: 2;
+}
+
+.notice {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  border-radius: 16px;
+  padding: 13px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 700;
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: riseIn 0.35s 0.1s forwards;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 14px;
+  opacity: 0;
+  animation: riseIn 0.35s 0.15s forwards;
+}
+
+.form-section {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--danger);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: block;
+  margin: 0 0 7px;
+}
+
+select,
+textarea,
+input {
+  width: 100%;
+  padding: 13px;
+  border-radius: 13px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  outline: none;
+  background: white;
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+
+textarea {
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+select:focus,
+textarea:focus,
+input:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(176,0,32,0.10);
+}
+
+.form-help {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 7px;
+}
+
+button {
+  width: 100%;
+  border: none;
+  border-radius: 13px;
+  padding: 14px;
+  background: var(--danger);
+  color: white;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
+  font-family: Arial, sans-serif;
+}
+
+button:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(176,0,32,0.14);
+}
+
+.status {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+.safety-note {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 13px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.safety-note strong {
+  color: var(--danger);
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 <body>
 <div class="container">
-<div class="back" onclick="history.back()">← Back</div>
+
+<div class="top-bar">
+  <div class="back" onclick="history.back()">← Back</div>
+</div>
 
 <div class="hero">
 <h1>Report Worker</h1>
@@ -33,7 +260,12 @@ button{width:100%;border:none;border-radius:16px;padding:14px;background:#b00020
 
 <div class="notice" id="workerNotice">Loading selected worker...</div>
 
+<div class="safety-note">
+  <strong>Use this form for worker-related concerns.</strong> Include clear details so TaskMint can review the issue accurately.
+</div>
+
 <div class="card">
+<div class="form-section">
 <label>Report reason</label>
 <select id="reasonType">
 <option value="">Select reason</option>
@@ -45,12 +277,20 @@ button{width:100%;border:none;border-radius:16px;padding:14px;background:#b00020
 <option>Fraud or scam concern</option>
 <option>Other</option>
 </select>
+<div class="form-help">Choose the closest reason for the issue you are reporting.</div>
+</div>
 
+<div class="form-section">
 <label>Details</label>
 <textarea id="details" maxlength="1500" placeholder="Explain what happened. Include dates, task details, or messages if relevant."></textarea>
+<div class="form-help">Minimum 10 characters. Do not include unnecessary personal information.</div>
+</div>
 
+<div class="form-section">
 <label>Related task/order number</label>
 <input id="relatedTask" placeholder="Optional">
+<div class="form-help">Add a task or order number if this report is connected to a specific job.</div>
+</div>
 
 <button onclick="submitReport()">Submit Report</button>
 <div id="status" class="status"></div>
@@ -112,4 +352,3 @@ loadPage();
 </script>
 </body>
 </html>
-
