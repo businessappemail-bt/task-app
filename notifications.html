@@ -7,150 +7,201 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
+
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:          #ffffff;
+  --surface:     #f2f7f4;
+  --surface2:    #e6f4eb;
+  --border:      #e2ebe5;
+  --accent:      #0b7a28;
+  --text:        #111111;
+  --muted:       #6b7870;
+  --danger:      #b00020;
+  --warn-bg:     #fffbeb;
+  --warn-border: #f0c040;
+  --warn-text:   #7a4f00;
 }
 
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
-    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
-  color: #111;
+  background: var(--bg);
+  color: var(--text);
   padding-bottom: 95px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+.top-bar,
 .container {
-  max-width: 430px;
-  margin: 0 auto;
-  padding: 18px;
+  width: 100%;
+  max-width: 470px;
 }
 
 .top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  padding: 13px 20px;
 }
 
 .back,
 .refresh {
-  color: #0b7a28;
-  font-weight: 900;
+  color: var(--accent);
+  font-weight: 700;
   cursor: pointer;
   font-size: 14px;
 }
 
-.hero {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
-  color: white;
-  border-radius: 28px;
-  padding: 22px;
-  margin-bottom: 16px;
-  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
-  position: relative;
-  overflow: hidden;
-  animation: fadeUp 0.45s ease;
+.container {
+  padding: 20px 16px 30px;
 }
 
-.hero::before {
-  content: "";
-  position: absolute;
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  top: -70px;
-  right: -60px;
-  animation: pulseGlow 5s ease-in-out infinite;
+.hero {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 20px;
+  padding: 22px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 20px rgba(11,122,40,0.20);
+  opacity: 0;
+  animation: riseIn 0.35s 0.05s forwards;
 }
 
 .hero h1 {
-  margin: 0 0 8px;
-  font-size: 30px;
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
   line-height: 1.1;
-  position: relative;
-  z-index: 2;
+  letter-spacing: -0.4px;
 }
 
 .hero p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
-  opacity: 0.96;
-  position: relative;
-  z-index: 2;
+  color: rgba(255,255,255,0.80);
 }
 
 .summary-card,
 .section-card,
 .note {
-  background: white;
-  border-radius: 24px;
+  background: var(--surface);
+  border-radius: 18px;
   padding: 16px;
-  margin-bottom: 16px;
-  border: 1px solid #edf1ee;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  animation: fadeUp 0.45s ease;
-}
-
-.summary-card {
-  animation: floatCard 4s ease-in-out infinite;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  opacity: 0;
+  animation: riseIn 0.35s 0.12s forwards;
 }
 
 .summary-top {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .summary-icon {
-  width: 58px;
-  height: 58px;
-  border-radius: 20px;
-  background: #e7f7ec;
-  color: #0b7a28;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: var(--surface2);
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 26px;
   flex-shrink: 0;
 }
 
 .summary-title {
-  font-size: 18px;
-  font-weight: 900;
-  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 3px;
 }
 
 .summary-sub {
   font-size: 12px;
-  color: #666;
+  color: var(--muted);
   line-height: 1.4;
 }
 
 .status-pill {
-  display: inline-block;
-  background: #e7f7ec;
-  color: #0b7a28;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface2);
+  color: var(--accent);
   padding: 7px 10px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 800;
   margin-top: 8px;
 }
 
+.count-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.count-box {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 13px;
+}
+
+.count-number {
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.count-label {
+  margin-top: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.count-note {
+  grid-column: 1 / -1;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .section-title {
-  font-size: 17px;
-  font-weight: 900;
-  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 8px;
 }
 
 .section-sub {
-  color: #666;
+  color: var(--muted);
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.45;
   margin-bottom: 8px;
 }
 
@@ -160,7 +211,7 @@ body {
   align-items: center;
   gap: 12px;
   padding: 15px 0;
-  border-bottom: 1px solid #edf1ee;
+  border-bottom: 1px solid var(--border);
 }
 
 .row:last-child {
@@ -177,9 +228,9 @@ body {
 .row-icon {
   width: 38px;
   height: 38px;
-  border-radius: 14px;
-  background: #e7f7ec;
-  color: #0b7a28;
+  border-radius: 13px;
+  background: var(--surface2);
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -188,13 +239,13 @@ body {
 
 .row-title {
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 800;
   margin-bottom: 4px;
 }
 
 .row-subtitle {
   font-size: 12px;
-  color: #666;
+  color: var(--muted);
   line-height: 1.35;
 }
 
@@ -215,7 +266,7 @@ body {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: #ccc;
+  background: #c9d2cc;
   transition: .3s;
   border-radius: 28px;
 }
@@ -227,14 +278,14 @@ body {
   width: 22px;
   left: 3px;
   bottom: 3px;
-  background: white;
+  background: #fff;
   transition: .3s;
   border-radius: 50%;
   box-shadow: 0 2px 5px rgba(0,0,0,0.18);
 }
 
 input:checked + .slider {
-  background: #0b7a28;
+  background: var(--accent);
 }
 
 input:checked + .slider:before {
@@ -242,31 +293,31 @@ input:checked + .slider:before {
 }
 
 input:disabled + .slider {
-  background: #0b7a28;
+  background: var(--accent);
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 .note {
-  background: #fff8e6;
-  border: 1px solid #ffe0a3;
-  color: #6f4b00;
-  font-size: 13px;
-  line-height: 1.45;
-  font-weight: 800;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 600;
 }
 
 #status {
   text-align: center;
-  color: #0b7a28;
+  color: var(--accent);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.4;
   margin: 10px 0;
 }
 
 .error {
-  color: #b00020 !important;
+  color: var(--danger) !important;
 }
 
 .quick-actions {
@@ -276,9 +327,9 @@ input:disabled + .slider {
 }
 
 .quick-box {
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 12px;
   text-align: center;
 }
@@ -289,55 +340,63 @@ input:disabled + .slider {
 }
 
 .quick-title {
-  color: #0b7a28;
+  color: var(--accent);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 button {
   width: 100%;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 13px;
   margin-top: 10px;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.2s;
+  transition: opacity 0.18s, transform 0.18s;
+  font-family: Arial, sans-serif;
 }
 
 button:hover {
+  opacity: 0.88;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
 }
 
 .secondary-btn {
-  background: white;
-  color: #0b7a28;
-  border: 1px solid #cdebd5;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
 
 .nav {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 430px;
-  margin: 0 auto;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid #ddd;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 470px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.06);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  padding: 10px 6px;
+  padding: 10px 6px 14px;
+  z-index: 50;
 }
 
 .nav a {
   text-decoration: none;
-  color: #555;
-  font-size: 11px;
-  font-weight: bold;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
   text-align: center;
+  transition: color 0.18s;
+}
+
+.nav a:hover {
+  color: var(--accent);
 }
 
 .nav-icon {
@@ -347,32 +406,14 @@ button:hover {
 }
 
 .active {
-  color: #0b7a28 !important;
+  color: var(--accent) !important;
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes floatCard {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0); }
-}
-
-@keyframes pulseGlow {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.12); }
-  100% { transform: scale(1); }
-}
 </style>
 </head>
 
@@ -399,6 +440,22 @@ button:hover {
           Required task alerts stay on so you do not miss active job updates.
         </div>
         <div class="status-pill">Task alerts protected</div>
+      </div>
+    </div>
+
+    <div class="count-grid">
+      <div class="count-box">
+        <div class="count-number" id="unreadMessageCount">0</div>
+        <div class="count-label">Unread Messages</div>
+      </div>
+
+      <div class="count-box">
+        <div class="count-number" id="hiddenMessageCount">0</div>
+        <div class="count-label">Hidden Conversations</div>
+      </div>
+
+      <div class="count-note" id="messageCountNote">
+        Unread message count updates when messages are read and excludes conversations deleted from your inbox.
       </div>
     </div>
   </div>
@@ -643,6 +700,75 @@ function setChecked(id, value) {
   }
 }
 
+function getHiddenConversationIds() {
+  try {
+    return JSON.parse(localStorage.getItem("taskmintHiddenConversations") || "[]");
+  } catch (error) {
+    return [];
+  }
+}
+
+async function loadUnreadMessageCount() {
+  const unreadBox =
+    document.getElementById("unreadMessageCount");
+
+  const hiddenBox =
+    document.getElementById("hiddenMessageCount");
+
+  const noteBox =
+    document.getElementById("messageCountNote");
+
+  if (!unreadBox || !hiddenBox || !noteBox) {
+    return;
+  }
+
+  const user =
+    currentUserId
+      ? { id: currentUserId }
+      : await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const hiddenConversationIds =
+    getHiddenConversationIds();
+
+  hiddenBox.innerText =
+    String(hiddenConversationIds.length);
+
+  const { data: unreadMessages, error } =
+    await supabaseClient
+      .from("task_messages")
+      .select("id, conversation_id")
+      .eq("receiver_id", currentUserId)
+      .eq("is_read", false);
+
+  if (error) {
+    unreadBox.innerText = "0";
+    noteBox.innerText =
+      "Could not load unread message count. " + error.message;
+    return;
+  }
+
+  const visibleUnreadMessages =
+    (unreadMessages || []).filter(message => {
+      return !hiddenConversationIds.includes(String(message.conversation_id || ""));
+    });
+
+  unreadBox.innerText =
+    String(visibleUnreadMessages.length);
+
+  if (visibleUnreadMessages.length === 1) {
+    noteBox.innerText =
+      "You have 1 unread message that is still visible in your inbox.";
+    return;
+  }
+
+  noteBox.innerText =
+    "You have " + visibleUnreadMessages.length + " unread messages that are still visible in your inbox.";
+}
+
 async function loadNotificationSettings() {
   setStatus("");
 
@@ -680,6 +806,8 @@ async function loadNotificationSettings() {
   setChecked("scheduleReminders", data.schedule_reminders);
   setChecked("paymentNotifications", data.payment_notifications);
   setChecked("disputeNotifications", data.dispute_notifications);
+
+  await loadUnreadMessageCount();
 }
 
 async function saveNotificationSettings() {
@@ -748,6 +876,10 @@ function turnOnRecommended() {
 
   saveNotificationSettings();
 }
+
+window.addEventListener("pageshow", function() {
+  loadNotificationSettings();
+});
 
 loadNotificationSettings();
 </script>
