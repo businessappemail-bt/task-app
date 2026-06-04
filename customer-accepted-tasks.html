@@ -598,13 +598,26 @@ function formatDate(value) {
     return "Not listed";
   }
 
-  const date = new Date(value);
+  const rawValue =
+    String(value).trim();
+
+  const dateMatch =
+    rawValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (dateMatch) {
+    const [, year, month, day] =
+      dateMatch;
+
+    return `${Number(month)}/${Number(day)}/${year}`;
+  }
+
+  const date = new Date(rawValue);
 
   if (Number.isNaN(date.getTime())) {
     return value;
   }
 
-  return date.toLocaleDateString();
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 }
 
 function formatMoney(value) {
@@ -819,6 +832,111 @@ function getAmountPaid(task, quote, payment) {
     0
   );
 }
+
+function parseTaskDateLocal(value) {
+  if (!value) {
+    return null;
+  }
+
+  const rawValue =
+    String(value).trim();
+
+  const dateMatch =
+    rawValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (!dateMatch) {
+    return null;
+  }
+
+  return new Date(
+    Number(dateMatch[1]),
+    Number(dateMatch[2]) - 1,
+    Number(dateMatch[3]),
+    0,
+    0,
+    0,
+    0
+  );
+}
+
+function getCancellationFeeDetails(task, amountPaid, workerId) {
+  if (!workerId) {
+    return {
+      percent: 0,
+      feeAmount: 0,
+      refundAmount: Number(amountPaid || 0),
+      message: "No worker is assigned to this task. There is no cancellation fee."
+    };
+  }
+
+  const taskDate =
+    parseTaskDateLocal(getTaskDate(task));
+
+  if (!taskDate) {
+    return {
+      percent: 0,
+      feeAmount: 0,
+      refundAmount: Number(amountPaid || 0),
+      message: "No scheduled task date was found. There is no cancellation fee."
+    };
+  }
+
+  const today =
+    new Date();
+
+  const todayLocal =
+    new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      0,
+      0,
+      0,
+      0
+    );
+
+  const millisecondsPerDay =
+    24 * 60 * 60 * 1000;
+
+  const daysUntilTask =
+    Math.ceil(
+      (taskDate.getTime() - todayLocal.getTime()) / millisecondsPerDay
+    );
+
+  let percent = 0;
+  let message = "Cancel 7+ days before the scheduled task: no cancellation fee.";
+
+  if (daysUntilTask >= 7) {
+    percent = 0;
+    message = "Cancel 7+ days before the scheduled task: no cancellation fee.";
+  } else if (daysUntilTask >= 3 && daysUntilTask < 7) {
+    percent = 10;
+    message = "Cancel 3-7 days before the scheduled task: 10% cancellation fee.";
+  } else if (daysUntilTask >= 1 && daysUntilTask < 3) {
+    percent = 20;
+    message = "Cancel 24-72 hours before the scheduled task: 20% cancellation fee.";
+  } else {
+    percent = 30;
+    message = "Same day cancellations: 30% cancellation fee.";
+  }
+
+  const paidAmount =
+    Number(amountPaid || 0);
+
+  const feeAmount =
+    Number((paidAmount * (percent / 100)).toFixed(2));
+
+  const refundAmount =
+    Number(Math.max(paidAmount - feeAmount, 0).toFixed(2));
+
+  return {
+    percent,
+    feeAmount,
+    refundAmount,
+    message
+  };
+}
+
 
 function getPaymentStatus(task, quote, payment) {
   return (
@@ -1408,29 +1526,102 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
   alert("Task marked complete. It will now move to past tasks.");
   
 async function cancelAcceptedTask(taskId, sourceType) {
-  const confirmed = confirm("Cancel this accepted task? Cancellation fees may apply based on how close the task date is.");
-
-  if (!confirmed) return;
-
-  await supabaseClient.rpc(
-    "create_cancellation_refund_record",
-    { p_task_id: taskId }
-  );
-
   const tableName =
     sourceType === "direct_quote"
       ? "direct_task_requests"
       : "tasks";
 
-  await supabaseClient
-    .from(tableName)
-    .update({
-      status: "cancelled",
-      payment_status: "refund_pending"
-    })
-    .eq("id", taskId);
+  const { data: task, error: taskError } =
+    await supabaseClient
+      .from(tableName)
+      .select("*")
+      .eq("id", taskId)
+      .maybeSingle();
 
-  alert("Task cancelled. Refund processing has started.");
+  if (taskError || !task) {
+    alert(taskError ? taskError.message : "Task could not be found.");
+    return;
+  }
+
+  const quoteId =
+    getQuoteId(task);
+
+  const quote =
+    await fetchQuote(quoteId, task.id);
+
+  const workerId =
+    getWorkerId(task) ||
+    quote?.worker_id ||
+    "";
+
+  const amountPaid =
+    Number(getAmountPaid(task, quote, null) || 0);
+
+  const feeDetails =
+    getCancellationFeeDetails(task, amountPaid, workerId);
+
+  const confirmationMessage =
+    `${feeDetails.message}
+
+Amount paid: ${formatMoney(amountPaid)}
+Cancellation fee: ${formatMoney(feeDetails.feeAmount)}
+Refund amount: ${formatMoney(feeDetails.refundAmount)}
+
+Click OK to confirm you understand and want to cancel this task.`;
+
+  const understood =
+    confirm(confirmationMessage);
+
+  if (!understood) {
+    return;
+  }
+
+  const updatePayload =
+    sourceType === "direct_quote"
+      ? {
+          status: "cancelled",
+          payment_status: "refund_pending"
+        }
+      : {
+          status: "cancelled",
+          payment_status: "refund_pending",
+          escrow_status: "refund_pending",
+          cancellation_fee: feeDetails.feeAmount,
+          refund_amount: feeDetails.refundAmount
+        };
+
+  const { error: updateError } =
+    await supabaseClient
+      .from(tableName)
+      .update(updatePayload)
+      .eq("id", taskId);
+
+  if (updateError) {
+    alert(updateError.message);
+    return;
+  }
+
+  if (sourceType !== "direct_quote") {
+    const { error: refundRecordError } =
+      await supabaseClient.rpc(
+        "create_cancellation_refund_record",
+        {
+          p_task_id: taskId
+        }
+      );
+
+    if (refundRecordError) {
+      alert(refundRecordError.message);
+      return;
+    }
+  }
+
+  alert(
+    feeDetails.percent > 0
+      ? `Task cancelled. Cancellation fee: ${formatMoney(feeDetails.feeAmount)}. Refund processing has started.`
+      : "Task cancelled. No cancellation fee was charged. Refund processing has started."
+  );
+
   loadAcceptedQuotes();
 }
 
