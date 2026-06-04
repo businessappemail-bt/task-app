@@ -2011,6 +2011,22 @@ Click OK to confirm you understand and want to cancel this task.`;
       .eq("id", quote.id);
   }
 
+  if (workerId && feeDetails.workerPayout > 0) {
+    await supabaseClient
+      .from("worker_earnings")
+      .insert([
+        {
+          worker_id: workerId,
+          task_id: taskId,
+          customer_paid: feeDetails.feeAmount,
+          platform_fee: feeDetails.taskMintFee,
+          worker_payout: feeDetails.workerPayout,
+          payout_status: "pending",
+          job_category: getTaskCategory(task)
+        }
+      ]);
+  }
+
   if (workerId) {
     await notifyWorkerCustomerCancelled(task, workerId, feeDetails);
   }
