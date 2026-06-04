@@ -4,484 +4,477 @@
   <title>Customer Home - TaskMint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-      <style>
-    * {
-      box-sizing: border-box;
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f0f0f;
+      --surface:   #1a1a1a;
+      --surface2:  #222222;
+      --border:    rgba(255,255,255,0.07);
+      --accent:    #d4f53c;
+      --accent2:   #a8c92e;
+      --text:      #f0f0f0;
+      --muted:     #888;
+      --green:     #1ebb55;
     }
 
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      color: #111;
-      padding-bottom: 96px;
-      background:
-        linear-gradient(180deg, #062b13 0%, #0b7a28 178px, #f4f7f5 179px, #f7f8f7 100%);
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 100px;
       overflow-x: hidden;
     }
 
-    .container {
-      max-width: 470px;
-      margin: 0 auto;
-      padding: 16px 16px 108px;
-      position: relative;
-    }
-
+    /* ── TOP BAR ── */
     .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(15,15,15,0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
+      padding: 14px 20px;
     }
 
     .brand img {
-      width: 154px !important;
-      height: auto !important;
-      background: transparent !important;
-      box-shadow: none !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-      object-fit: contain !important;
-      filter: drop-shadow(0 8px 14px rgba(0,0,0,0.14));
+      width: 130px;
+      height: auto;
+      filter: brightness(0) invert(1);
+      object-fit: contain;
     }
 
-    .notification-wrap {
-      position: relative;
-    }
+    .notification-wrap { position: relative; }
 
     .notification-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(255,255,255,0.16);
-      color: white;
-      font-size: 22px;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 20px;
       cursor: pointer;
-      backdrop-filter: blur(12px);
-      box-shadow: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
     }
+    .notification-btn:hover { background: #2c2c2c; }
 
     .notification-count {
       position: absolute;
-      top: -5px;
-      right: -5px;
-      min-width: 20px;
-      height: 20px;
-      background: #b00020;
-      color: white;
+      top: -5px; right: -5px;
+      min-width: 20px; height: 20px;
+      background: #e03e3e;
+      color: #fff;
       border-radius: 999px;
-      font-size: 11px;
-      font-weight: 900;
-      display: flex;
+      font-size: 10px;
+      font-weight: 700;
+      display: none;
       align-items: center;
       justify-content: center;
-      border: 2px solid white;
-      padding: 0 5px;
+      border: 2px solid var(--bg);
+      padding: 0 4px;
     }
 
+    /* ── HERO ── */
     .hero {
-      background: transparent;
-      color: white;
-      border-radius: 0;
-      padding: 0;
-      margin: 0 0 18px;
-      position: relative;
-      overflow: visible;
-      box-shadow: none;
-      animation: fadeUp 0.35s ease;
+      padding: 30px 20px 20px;
+      max-width: 470px;
+      margin: 0 auto;
     }
 
-    .hero::before,
-    .hero::after {
-      display: none;
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      opacity: 0;
+      animation: riseIn 0.4s 0.05s forwards;
     }
 
     .hero h1 {
-      margin: 0 0 8px;
-      font-size: 33px;
-      line-height: 1.03;
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.05;
       letter-spacing: -1px;
-      position: relative;
-      z-index: 2;
+      color: var(--text);
+      opacity: 0;
+      animation: riseIn 0.4s 0.1s forwards;
     }
+
+    .hero h1 span { color: var(--accent); }
 
     .hero p {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.5;
-      opacity: 0.92;
-      position: relative;
-      z-index: 2;
-      max-width: 365px;
+      margin-top: 10px;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 340px;
+      opacity: 0;
+      animation: riseIn 0.4s 0.15s forwards;
     }
 
-    .dashboard-shell {
-      background: #ffffff;
-      border-radius: 30px;
-      padding: 16px;
-      box-shadow: 0 18px 38px rgba(0,0,0,0.12);
-      margin-bottom: 16px;
+    /* ── CONTAINER ── */
+    .container {
+      max-width: 470px;
+      margin: 0 auto;
+      padding: 4px 14px 20px;
     }
 
+    /* ── SECTION LABELS ── */
     .section-label {
-      font-size: 12px;
-      font-weight: 900;
-      color: #0b7a28;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.6px;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-bottom: 10px;
+      color: var(--muted);
+      margin: 22px 0 10px;
+      padding-left: 2px;
     }
 
+    /* ── PRIMARY CTA ── */
     .primary-action {
-      background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.24), transparent 30%),
-        linear-gradient(135deg, #0b7a28 0%, #19b64c 100%);
-      color: white;
-      border-radius: 26px;
-      padding: 18px;
-      min-height: 132px;
-      display: grid;
-      grid-template-columns: 58px 1fr;
-      gap: 14px;
+      background: var(--accent);
+      border-radius: 22px;
+      padding: 22px 20px;
+      display: flex;
       align-items: center;
+      gap: 16px;
       cursor: pointer;
-      box-shadow: 0 12px 26px rgba(11,122,40,0.20);
-      margin-bottom: 12px;
+      transition: transform 0.18s, box-shadow 0.18s;
+      box-shadow: 0 8px 28px rgba(212,245,60,0.22);
+      opacity: 0;
+      animation: riseIn 0.4s 0.2s forwards;
+    }
+
+    .primary-action:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 38px rgba(212,245,60,0.32);
     }
 
     .primary-action .icon {
-      background: rgba(255,255,255,0.20);
-      color: white;
-      margin-bottom: 0;
-    }
-
-    .primary-action .title,
-    .primary-action .sub {
-      color: white;
-    }
-
-    .task-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .quick-stack {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .people-panel,
-    .support-panel {
-      background: #ffffff;
-      border-radius: 30px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    }
-
-    .section {
-      background: #ffffff;
-      border-radius: 30px;
-      padding: 16px;
-      margin-bottom: 16px;
-      border: none;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    }
-
-    .section-title {
-      font-size: 21px;
-      font-weight: 900;
-      margin-bottom: 14px;
-      letter-spacing: -0.45px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 0;
-    }
-
-    .action-card {
-      background: #f7faf8;
-      border-radius: 22px;
-      padding: 15px;
-      border: 1px solid #e3eee6;
-      box-shadow: none;
-      cursor: pointer;
-      transition: 0.2s;
-      animation: none;
-      min-height: 124px;
-    }
-
-    .action-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-    }
-
-    .stack-card {
-      display: grid;
-      grid-template-columns: 50px 1fr;
-      gap: 12px;
-      align-items: center;
-      min-height: 84px;
-      background: #ffffff;
-      border: 1px solid #e3eee6;
-    }
-
-    .stack-card .icon {
-      margin-bottom: 0;
-    }
-
-    .wide-card {
-      grid-column: auto;
-      min-height: 124px;
-    }
-
-    .icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 18px;
-      background: #e7f7ec;
-      color: #0b7a28;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 23px;
-      margin-bottom: 12px;
+      width: 54px; height: 54px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.14);
+      font-size: 26px;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
 
-    .title {
-      font-size: 16px;
-      font-weight: 900;
-      margin-bottom: 4px;
-      line-height: 1.2;
+    .primary-action .title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f0f0f;
     }
 
-    .sub {
+    .primary-action .sub {
       font-size: 12.5px;
-      color: #606b64;
+      color: rgba(0,0,0,0.58);
+      margin-top: 3px;
       line-height: 1.4;
     }
 
-    .support-grid {
+    .primary-action .arrow {
+      margin-left: auto;
+      font-size: 22px;
+      color: rgba(0,0,0,0.35);
+      flex-shrink: 0;
+    }
+
+    /* ── TASK GRID ── */
+    .task-row {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
 
-    .support-grid .action-card {
-      display: grid;
-      grid-template-columns: 50px 1fr;
-      gap: 12px;
-      align-items: center;
-      min-height: 82px;
-      background: #f7faf8;
+    /* ── ACTION CARD ── */
+    .action-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    .support-grid .icon {
+    .action-card:hover {
+      border-color: rgba(212,245,60,0.3);
+      background: var(--surface2);
+      transform: translateY(-2px);
+    }
+
+    .action-card .icon {
+      width: 46px; height: 46px;
+      border-radius: 14px;
+      background: var(--surface2);
+      font-size: 22px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
       margin-bottom: 0;
     }
 
+    .action-card .title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .action-card .sub {
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+
+    /* stack (horizontal) card */
+    .stack-card {
+      flex-direction: row;
+      align-items: center;
+      gap: 14px;
+      min-height: 72px;
+      padding: 14px 18px;
+    }
+
+    .stack-card .icon { margin-bottom: 0; }
+
+    .stack-card .card-text { flex: 1; }
+
+    .stack-card .chevron {
+      font-size: 16px;
+      color: var(--muted);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .quick-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ── FIND WORKERS ── */
+    .workers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* ── SUPPORT LIST ── */
+    .support-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ── STAGGERED ANIMATION ── */
+    .fade-card {
+      opacity: 0;
+      animation: riseIn 0.38s forwards;
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── BOTTOM NAV ── */
     .nav {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       max-width: 470px;
       margin: 0 auto;
-      background: rgba(255,255,255,0.96);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid #e6ebe7;
-      box-shadow: 0 -8px 24px rgba(0,0,0,0.06);
+      background: rgba(20,20,20,0.97);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -6px 24px rgba(0,0,0,0.4);
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      padding: 10px 6px;
+      padding: 10px 6px 14px;
       z-index: 50;
     }
 
     .nav a {
       text-decoration: none;
-      color: #555;
-      font-size: 10.5px;
-      font-weight: 900;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
       text-align: center;
+      transition: color 0.2s;
+      letter-spacing: 0.3px;
     }
+
+    .nav a:hover { color: var(--accent); }
 
     .nav-icon {
       display: block;
-      font-size: 21px;
+      font-size: 20px;
       margin-bottom: 3px;
     }
 
-    .active {
-      color: #0b7a28 !important;
+    .active { color: var(--accent) !important; }
+
+    /* ── SECTION CARD WRAPPER ── */
+    .section-wrap {
+      background: var(--surface);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      padding: 16px;
     }
 
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(14px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
     }
 
     @media (max-width: 360px) {
-      .container {
-        padding: 14px 14px 105px;
-      }
-
-      .hero h1 {
-        font-size: 29px;
-      }
-
-      .dashboard-shell,
-      .people-panel,
-      .support-panel,
-      .section {
-        padding: 14px;
-      }
-
-      .task-row,
-      .grid {
-        gap: 10px;
-      }
-
-      .action-card {
-        padding: 13px;
-      }
-
-      .primary-action {
-        grid-template-columns: 50px 1fr;
-      }
-
-      .icon {
-        width: 46px;
-        height: 46px;
-      }
+      .hero h1 { font-size: 30px; }
+      .task-row, .workers-grid { gap: 8px; }
+      .action-card { padding: 14px; }
     }
   </style>
 </head>
-
 <body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="brand">
+    <img src="taskmintlogo-transparent.png" alt="TaskMint">
+  </div>
+  <div class="notification-wrap">
+    <button class="notification-btn" onclick="window.location.href='customer-notifications.html'">🔔</button>
+    <div class="notification-count" id="notificationCount">0</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Dashboard</div>
+  <h1 id="welcomeText">Welcome <span>Back</span></h1>
+  <p>Post tasks, manage quotes, browse workers, and keep everything organized.</p>
+</div>
+
 <div class="container">
 
-  <div class="top-bar">
-    <div class="brand">
-      <img src="taskmintlogo-transparent.png" style="width:180px;height:auto;background:transparent;box-shadow:none;border-radius:0;padding:0;object-fit:contain;">
+  <!-- PRIMARY CTA -->
+  <div class="primary-action fade-card" style="animation-delay:0.22s" onclick="window.location.href='post-job.html'">
+    <div class="icon">＋</div>
+    <div>
+      <div class="title">Post a Task</div>
+      <div class="sub">Create a task and receive quotes from local workers.</div>
     </div>
-    <div class="notification-wrap">
-      <button class="notification-btn" onclick="window.location.href='customer-notifications.html'">🔔</button>
-      <div class="notification-count" id="notificationCount" style="display:none;">0</div>
-    </div>
+    <div class="arrow">›</div>
   </div>
 
-  <div class="hero">
-    <h1 id="welcomeText">Welcome Back</h1>
-    <p>Post tasks, manage quotes, browse workers, and keep everything organized in one place.</p>
-  </div>
+  <!-- MANAGE TASKS -->
+  <div class="section-label">Manage Tasks</div>
 
-  <div class="dashboard-shell">
-    <div class="section-label">Main action</div>
-
-    <div class="primary-action" onclick="window.location.href='post-job.html'">
-      <div class="icon">＋</div>
+  <div class="task-row fade-card" style="animation-delay:0.28s">
+    <div class="action-card" onclick="window.location.href='view-open-task.html'">
+      <div class="icon">📌</div>
       <div>
-        <div class="title">Post a Task</div>
-        <div class="sub">Create a task and receive quotes from local workers.</div>
-      </div>
-    </div>
-
-    <div class="section-label">Manage tasks</div>
-
-    <div class="task-row">
-      <div class="action-card" onclick="window.location.href='view-open-task.html'">
-        <div class="icon">📌</div>
         <div class="title">Open Tasks</div>
         <div class="sub">Review posted tasks, direct quote requests, and worker quotes.</div>
       </div>
-
-      <div class="action-card wide-card" onclick="window.location.href='customer-accepted-tasks.html'">
-        <div class="icon">🧾</div>
-        <div class="title">Accepted Tasks</div>
-        <div class="sub">View tasks where a worker has been accepted, payment is active, work is in progress, or a dispute is open.</div>
-      </div>
     </div>
 
-    <div class="quick-stack">
-      <div class="action-card stack-card" onclick="window.location.href='message-center.html'">
-        <div class="icon">💬</div>
-        <div>
-          <div class="title">Messages</div>
-          <div class="sub">View quote conversations and worker messages.</div>
-        </div>
-      </div>
-
-      <div class="action-card stack-card" onclick="window.location.href='view-past-task.html'">
-        <div class="icon">✅</div>
-        <div>
-          <div class="title">Past Tasks</div>
-          <div class="sub">View completed, paid, and resolved tasks.</div>
-        </div>
+    <div class="action-card" onclick="window.location.href='customer-accepted-tasks.html'">
+      <div class="icon">🧾</div>
+      <div>
+        <div class="title">Accepted Tasks</div>
+        <div class="sub">View tasks with active workers, payment, work in progress, or open disputes.</div>
       </div>
     </div>
   </div>
 
-  <div class="people-panel">
-    <div class="section-title">Find Workers</div>
-
-    <div class="grid">
-      <div class="action-card" onclick="window.location.href='browse-workers.html'">
-        <div class="icon">👷</div>
-        <div class="title">Browse Workers</div>
-        <div class="sub">View worker profiles, services, ratings, and photos.</div>
+  <div class="quick-stack fade-card" style="animation-delay:0.34s;margin-top:10px">
+    <div class="action-card stack-card" onclick="window.location.href='message-center.html'">
+      <div class="icon">💬</div>
+      <div class="card-text">
+        <div class="title">Messages</div>
+        <div class="sub">View quote conversations and worker messages.</div>
       </div>
+      <div class="chevron">›</div>
+    </div>
 
-      <div class="action-card" onclick="window.location.href='saved-workers.html'">
-        <div class="icon">⭐</div>
+    <div class="action-card stack-card" onclick="window.location.href='view-past-task.html'">
+      <div class="icon">✅</div>
+      <div class="card-text">
+        <div class="title">Past Tasks</div>
+        <div class="sub">View completed, paid, and resolved tasks.</div>
+      </div>
+      <div class="chevron">›</div>
+    </div>
+  </div>
+
+  <!-- FIND WORKERS -->
+  <div class="section-label">Find Workers</div>
+
+  <div class="workers-grid fade-card" style="animation-delay:0.40s">
+    <div class="action-card" onclick="window.location.href='browse-workers.html'">
+      <div class="icon">👷</div>
+      <div>
+        <div class="title">Browse Workers</div>
+        <div class="sub">View profiles, services, ratings, and photos.</div>
+      </div>
+    </div>
+
+    <div class="action-card" onclick="window.location.href='saved-workers.html'">
+      <div class="icon">⭐</div>
+      <div>
         <div class="title">Saved Workers</div>
         <div class="sub">Quickly view workers you've saved or hired before.</div>
       </div>
     </div>
   </div>
 
-  <div class="support-panel">
-    <div class="section-title">Account & Support</div>
+  <!-- ACCOUNT & SUPPORT -->
+  <div class="section-label">Account & Support</div>
 
-    <div class="support-grid">
-      <div class="action-card" onclick="window.location.href='dispute-center.html'">
-        <div class="icon">⚠️</div>
-        <div>
-          <div class="title">Disputes</div>
-          <div class="sub">Review active disputes and TaskMint updates.</div>
-        </div>
+  <div class="support-list fade-card" style="animation-delay:0.46s">
+    <div class="action-card stack-card" onclick="window.location.href='dispute-center.html'">
+      <div class="icon">⚠️</div>
+      <div class="card-text">
+        <div class="title">Disputes</div>
+        <div class="sub">Review active disputes and TaskMint updates.</div>
       </div>
+      <div class="chevron">›</div>
+    </div>
 
-      <div class="action-card" onclick="window.location.href='profile.html'">
-        <div class="icon">👤</div>
-        <div>
-          <div class="title">Profile</div>
-          <div class="sub">Manage your customer profile and account settings.</div>
-        </div>
+    <div class="action-card stack-card" onclick="window.location.href='profile.html'">
+      <div class="icon">👤</div>
+      <div class="card-text">
+        <div class="title">Profile</div>
+        <div class="sub">Manage your customer profile and account settings.</div>
       </div>
+      <div class="chevron">›</div>
     </div>
   </div>
 
 </div>
 
+<!-- BOTTOM NAV -->
 <div class="nav">
   <a href="customer-home.html" class="active"><span class="nav-icon">🏠</span>Home</a>
   <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
@@ -496,27 +489,18 @@ const supabaseClient = window.supabase.createClient(
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
-
 async function safeCount(tableName, selectColumn, filters) {
   let query = supabaseClient
     .from(tableName)
     .select(selectColumn, { count: "exact", head: true });
 
   filters.forEach(filter => {
-    if (filter.type === "eq") {
-      query = query.eq(filter.column, filter.value);
-    }
-    if (filter.type === "in") {
-      query = query.in(filter.column, filter.value);
-    }
+    if (filter.type === "eq") query = query.eq(filter.column, filter.value);
+    if (filter.type === "in") query = query.in(filter.column, filter.value);
   });
 
   const { count, error } = await query;
-
-  if (error) {
-    return null;
-  }
-
+  if (error) return null;
   return count || 0;
 }
 
@@ -528,34 +512,19 @@ async function loadNotificationCounts(userId) {
 
   const { count: taskMessageCount } = await supabaseClient
     .from("task_messages")
-    .select("id", {
-      count: "exact",
-      head: true
-    })
+    .select("id", { count: "exact", head: true })
     .eq("receiver_id", userId)
     .eq("is_read", false);
 
-  if (taskMessageCount) {
-    unreadMessages += taskMessageCount;
-  }
-
+  if (taskMessageCount) unreadMessages += taskMessageCount;
 
   const { count: workerQuoteCount } = await supabaseClient
     .from("worker_quotes")
-    .select("id", {
-      count: "exact",
-      head: true
-    })
+    .select("id", { count: "exact", head: true })
     .eq("customer_id", userId)
-    .in("status", [
-      "pending",
-      "sent",
-      "new"
-    ]);
+    .in("status", ["pending", "sent", "new"]);
 
-  if (workerQuoteCount) {
-    newQuotes += workerQuoteCount;
-  }
+  if (workerQuoteCount) newQuotes += workerQuoteCount;
 
   const totalNotifications = unreadMessages + newQuotes;
 
@@ -576,7 +545,6 @@ async function loadProfile() {
   }
 
   const user = data.session.user;
-
   await loadNotificationCounts(user.id);
 
   const { data: profile } = await supabaseClient
@@ -585,9 +553,7 @@ async function loadProfile() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile) {
-    return;
-  }
+  if (!profile) return;
 
   if (profile.account_type && profile.account_type !== "customer") {
     await supabaseClient.auth.signOut();
@@ -596,8 +562,8 @@ async function loadProfile() {
   }
 
   if (profile.first_name) {
-    document.getElementById("welcomeText").innerText =
-      `Welcome back, ${profile.first_name}`;
+    document.getElementById("welcomeText").innerHTML =
+      `Welcome <span>${profile.first_name}</span>`;
   }
 }
 
