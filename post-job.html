@@ -30,7 +30,9 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at top left, rgba(11,122,40,0.10), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f7faf8 100%);
   color: var(--text);
   padding-bottom: 40px;
   display: flex;
@@ -80,10 +82,10 @@ body {
 .hero {
   background: var(--accent);
   color: white;
-  border-radius: 20px;
-  padding: 22px 20px;
+  border-radius: 22px;
+  padding: 24px 20px;
   margin-bottom: 16px;
-  box-shadow: 0 6px 20px rgba(11,122,40,0.20);
+  box-shadow: 0 8px 24px rgba(11,122,40,0.22);
   position: relative;
   overflow: hidden;
   opacity: 0;
@@ -93,20 +95,31 @@ body {
 .hero::before {
   content: "";
   position: absolute;
-  width: 150px;
-  height: 150px;
+  width: 155px;
+  height: 155px;
   border-radius: 50%;
   background: rgba(255,255,255,0.10);
   top: -65px;
   right: -55px;
 }
 
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  bottom: -45px;
+  left: -35px;
+}
+
 .hero h1 {
-  margin: 0 0 6px;
-  font-size: 28px;
+  margin: 0 0 7px;
+  font-size: 29px;
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.4px;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
   position: relative;
   z-index: 2;
 }
@@ -115,14 +128,14 @@ body {
   margin: 0;
   font-size: 13px;
   line-height: 1.5;
-  color: rgba(255,255,255,0.80);
+  color: rgba(255,255,255,0.82);
   position: relative;
   z-index: 2;
 }
 
 .card {
   background: var(--surface);
-  border-radius: 20px;
+  border-radius: 22px;
   padding: 16px;
   border: 1px solid var(--border);
   opacity: 0;
@@ -130,6 +143,10 @@ body {
 }
 
 .step-heading {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 15px;
   margin-bottom: 14px;
 }
 
@@ -167,7 +184,7 @@ textarea {
   box-sizing: border-box;
   padding: 12px 13px;
   margin-top: 10px;
-  border-radius: 12px;
+  border-radius: 13px;
   border: 1px solid var(--border);
   font-size: 14px;
   font-family: Arial, sans-serif;
@@ -199,12 +216,13 @@ button {
   border: none;
   cursor: pointer;
   font-weight: 800;
-  transition: opacity 0.18s, transform 0.18s;
+  transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
 }
 
 button:hover {
-  opacity: 0.88;
+  opacity: 0.9;
   transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(11,122,40,0.12);
 }
 
 .cancel-btn {
@@ -229,23 +247,37 @@ button:hover {
   color: var(--text);
   border: 1px solid var(--border);
   text-align: left;
-  min-height: 112px;
+  min-height: 118px;
   box-shadow: none;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.option::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--surface2);
 }
 
 .option:hover {
   border-color: #a3cfb0;
-  box-shadow: 0 4px 14px rgba(11,122,40,0.10);
+  box-shadow: 0 6px 16px rgba(11,122,40,0.12);
 }
 
 .option-title {
   display: block;
   font-weight: 800;
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   font-size: 14px;
+  position: relative;
+  z-index: 2;
 }
 
 .option-sub {
@@ -254,6 +286,8 @@ button:hover {
   font-size: 12px;
   line-height: 1.35;
   font-weight: 600;
+  position: relative;
+  z-index: 2;
 }
 
 textarea {
@@ -295,8 +329,8 @@ textarea {
 
 .review-box {
   background: #fff;
-  border-radius: 16px;
-  padding: 14px;
+  border-radius: 18px;
+  padding: 15px;
   margin-top: 10px;
   border: 1px solid var(--border);
   font-size: 13.5px;
@@ -304,7 +338,13 @@ textarea {
 }
 
 .review-box p {
-  margin: 0 0 8px;
+  margin: 0 0 9px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #edf1ee;
+}
+
+.review-box p:last-child {
+  border-bottom: none;
 }
 
 .review-box hr {
@@ -314,7 +354,7 @@ textarea {
 }
 
 .selected-address {
-  background: #fff;
+  background: var(--surface2);
   border: 1px solid #cdebd5;
   padding: 12px;
   border-radius: 14px;
@@ -360,7 +400,7 @@ textarea {
   background: #dceee2;
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .progress-bar {
@@ -378,17 +418,48 @@ textarea {
   margin-bottom: 14px;
 }
 
-.date-options {
+.question-shell {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 15px;
+}
+
+.question-shell select,
+.question-shell input,
+.question-shell textarea {
+  margin-top: 10px;
+}
+
+.date-panel {
   display: grid;
-  gap: 10px;
-  margin: 12px 0;
+  gap: 12px;
+}
+
+.date-icon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.step-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
 .address-shell {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 18px;
-  padding: 14px;
+  padding: 15px;
   margin-bottom: 14px;
 }
 
@@ -408,6 +479,93 @@ textarea {
   margin-top: 8px;
 }
 
+.input-section-title {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 800;
+  margin: 0 0 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.review-header-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+
+.time-picker-modern {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.time-display-card {
+  background: var(--surface2);
+  border: 1px solid #cdebd5;
+  color: var(--accent);
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.time-chip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.time-chip {
+  margin-top: 0;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 13px 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.time-chip.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.custom-time-row {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.custom-time-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.custom-time-input {
+  margin-top: 0;
+}
+
+.native-time-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
 gmp-place-autocomplete {
   width: 100%;
   display: block;
@@ -424,7 +582,7 @@ gmp-place-autocomplete input {
   background: #fff !important;
   color: #111 !important;
   border: 1px solid var(--border) !important;
-  border-radius: 12px !important;
+  border-radius: 13px !important;
   padding: 13px !important;
   font-size: 14px !important;
   font-family: Arial, sans-serif !important;
@@ -435,7 +593,7 @@ gmp-place-autocomplete::part(input) {
   background: #fff !important;
   color: #111 !important;
   border: 1px solid var(--border) !important;
-  border-radius: 12px !important;
+  border-radius: 13px !important;
   padding: 13px !important;
   font-size: 14px !important;
   font-family: Arial, sans-serif !important;
@@ -606,8 +764,13 @@ gmp-place-autocomplete::part(place-address) {
 
     <div id="dateStep" class="hidden">
       <div class="modern-step-card">
-        <h3>When do you need this done?</h3>
-        <p class="subtext">Select a date or choose flexible if you are open to worker availability.</p>
+        <div class="date-icon-row">
+          <div class="step-icon">📅</div>
+          <div>
+            <h3>When do you need this done?</h3>
+            <p class="subtext">Select a date or choose flexible if you are open to worker availability.</p>
+          </div>
+        </div>
 
         <input id="dateNeeded" type="date">
 
@@ -618,10 +781,49 @@ gmp-place-autocomplete::part(place-address) {
       </div>
 
       <div class="modern-step-card">
-        <h3>What time do you need it completed by?</h3>
-        <p class="subtext">Choose the time the task should be completed by.</p>
+        <div class="date-icon-row">
+          <div class="step-icon">⏰</div>
+          <div>
+            <h3>What time do you need it completed by?</h3>
+            <p class="subtext">Choose the time the task should be completed by.</p>
+          </div>
+        </div>
 
-        <input id="timeNeeded" type="time">
+        <input id="timeNeeded" class="native-time-hidden" type="time">
+
+        <div class="time-picker-modern">
+          <div class="time-display-card" id="selectedTimeDisplay">
+            No time selected
+          </div>
+
+          <div class="time-chip-grid">
+            <button type="button" class="time-chip" onclick="selectPresetTime('09:00', this)">
+              9:00 AM
+            </button>
+
+            <button type="button" class="time-chip" onclick="selectPresetTime('12:00', this)">
+              12:00 PM
+            </button>
+
+            <button type="button" class="time-chip" onclick="selectPresetTime('15:00', this)">
+              3:00 PM
+            </button>
+
+            <button type="button" class="time-chip" onclick="selectPresetTime('18:00', this)">
+              6:00 PM
+            </button>
+          </div>
+
+          <div class="custom-time-row">
+            <div class="custom-time-label">Or choose a custom time</div>
+            <input
+              id="customTimeNeeded"
+              class="custom-time-input"
+              type="time"
+              onchange="selectCustomTime()"
+            >
+          </div>
+        </div>
       </div>
 
       <div class="help-box">
@@ -634,16 +836,23 @@ gmp-place-autocomplete::part(place-address) {
 
     <div id="pickupAddressStep" class="hidden">
       <div class="address-shell">
-        <h3>Task Address</h3>
-        <p class="subtext">Start typing and select the address from Google. The city, state, and zip will fill in automatically.</p>
+        <div class="date-icon-row">
+          <div class="step-icon">📍</div>
+          <div>
+            <h3>Task Address</h3>
+            <p class="subtext">Start typing and select the address from Google. The city, state, and zip will fill in automatically.</p>
+          </div>
+        </div>
 
-        <div class="address-label">Google address search</div>
+        <div class="address-label">Address search</div>
         <div id="pickupGoogleBox"></div>
         <div class="address-help">Select the full address from the dropdown so TaskMint can save the location correctly.</div>
         <div id="pickupSelected" class="selected-address hidden"></div>
       </div>
 
       <div class="modern-step-card">
+        <div class="input-section-title">Address details</div>
+
         <input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
 
         <div class="field-grid">
@@ -659,16 +868,23 @@ gmp-place-autocomplete::part(place-address) {
 
     <div id="dropoffAddressStep" class="hidden">
       <div class="address-shell">
-        <h3>Drop-Off Address</h3>
-        <p class="subtext">Start typing and select the drop-off address from Google. The city, state, and zip will fill in automatically.</p>
+        <div class="date-icon-row">
+          <div class="step-icon">📦</div>
+          <div>
+            <h3>Drop-Off Address</h3>
+            <p class="subtext">Start typing and select the drop-off address from Google. The city, state, and zip will fill in automatically.</p>
+          </div>
+        </div>
 
-        <div class="address-label">Google address search</div>
+        <div class="address-label">Address search</div>
         <div id="dropoffGoogleBox"></div>
         <div class="address-help">Select the full drop-off address from the dropdown so TaskMint can save the location correctly.</div>
         <div id="dropoffSelected" class="selected-address hidden"></div>
       </div>
 
       <div class="modern-step-card">
+        <div class="input-section-title">Drop-off details</div>
+
         <input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
 
         <div class="field-grid">
@@ -683,8 +899,10 @@ gmp-place-autocomplete::part(place-address) {
     </div>
 
     <div id="reviewStep" class="hidden">
-      <h3>Review Task</h3>
-      <p class="subtext">Workers will review your task and send quotes. You can compare offers before accepting.</p>
+      <div class="review-header-card">
+        <h3>Review Task</h3>
+        <p class="subtext">Workers will review your task and send quotes. You can compare offers before accepting.</p>
+      </div>
 
       <div id="priceGuidance" class="price-box hidden"></div>
       <div id="reviewBox" class="review-box"></div>
@@ -994,8 +1212,9 @@ function showQuestion() {
       <div class="progress-bar" style="width:${progressPercent}%"></div>
     </div>
 
-    <h3>${question.label}</h3>
-    ${getQuestionHelp(question.id)}
+    <div class="question-shell">
+      <h3>${question.label}</h3>
+      ${getQuestionHelp(question.id)}
   `;
 
   if (question.type === "select") {
@@ -1026,6 +1245,8 @@ function showQuestion() {
   }
 
   html += `
+    </div>
+
     <button onclick="saveAnswer()">Next</button>
     <button class="secondary" onclick="goBack()">Back</button>
   `;
@@ -1084,6 +1305,101 @@ function saveAnswer() {
   }
 }
 
+
+function updateTimeDisplay(value) {
+  const display =
+    document.getElementById("selectedTimeDisplay");
+
+  if (display) {
+    display.innerText =
+      value ? "Selected time: " + formatTimeForDisplay(value) : "No time selected";
+  }
+}
+
+function clearSelectedTimeChips() {
+  document
+    .querySelectorAll(".time-chip")
+    .forEach(button => button.classList.remove("selected"));
+}
+
+function selectPresetTime(value, button) {
+  const timeInput =
+    document.getElementById("timeNeeded");
+
+  const customInput =
+    document.getElementById("customTimeNeeded");
+
+  if (timeInput) {
+    timeInput.value = value;
+  }
+
+  if (customInput) {
+    customInput.value = "";
+  }
+
+  clearSelectedTimeChips();
+
+  if (button) {
+    button.classList.add("selected");
+  }
+
+  updateTimeDisplay(value);
+}
+
+function selectCustomTime() {
+  const customInput =
+    document.getElementById("customTimeNeeded");
+
+  const timeInput =
+    document.getElementById("timeNeeded");
+
+  const value =
+    customInput ? customInput.value : "";
+
+  if (timeInput) {
+    timeInput.value = value;
+  }
+
+  clearSelectedTimeChips();
+  updateTimeDisplay(value);
+}
+
+function syncModernTimePicker(value) {
+  const timeInput =
+    document.getElementById("timeNeeded");
+
+  const customInput =
+    document.getElementById("customTimeNeeded");
+
+  if (timeInput) {
+    timeInput.value = value || "";
+  }
+
+  if (customInput) {
+    customInput.value = "";
+  }
+
+  clearSelectedTimeChips();
+
+  const matchingChip =
+    Array
+      .from(document.querySelectorAll(".time-chip"))
+      .find(button => {
+        const onclickValue =
+          button.getAttribute("onclick") || "";
+
+        return value && onclickValue.includes("'" + value + "'");
+      });
+
+  if (matchingChip) {
+    matchingChip.classList.add("selected");
+  } else if (customInput && value) {
+    customInput.value = value;
+  }
+
+  updateTimeDisplay(value || "");
+}
+
 function showDateNeeded() {
   hideAllSteps();
 
@@ -1102,13 +1418,7 @@ function showDateNeeded() {
       getTodayDateInputValue();
   }
 
-  const timeInput =
-    document.getElementById("timeNeeded");
-
-  if (timeInput) {
-    timeInput.value =
-      answers.time_needed || "";
-  }
+  syncModernTimePicker(answers.time_needed || "");
 
   document
     .getElementById("dateStep")
