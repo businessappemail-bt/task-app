@@ -5,105 +5,158 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* {
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #ffffff;
+  --surface: #f2f7f4;
+  --surface2: #e6f4eb;
+  --card: #ffffff;
+  --border: #e2ebe5;
+  --accent: #0b7a28;
+  --accent2: #19b64c;
+  --text: #111111;
+  --muted: #6b7870;
+  --danger: #b00020;
+  --warn-bg: #fffbeb;
+  --warn-border: #f0c040;
+  --warn-text: #7a4f00;
 }
 
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
-    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
-  color: #111;
+  background: var(--bg);
+  color: var(--text);
   padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .container {
-  max-width: 430px;
-  margin: 0 auto;
-  padding: 18px;
+  width: 100%;
+  max-width: 470px;
+  padding: 0 16px 30px;
 }
 
 .top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  max-width: 470px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  padding: 13px 20px;
+  margin: 0 -16px 20px;
 }
 
 .back {
-  color: #0b7a28;
-  font-weight: 900;
+  color: var(--accent);
+  font-weight: 800;
   cursor: pointer;
   font-size: 14px;
 }
 
 .step-pill {
-  background: white;
-  border: 1px solid #e3eee6;
-  color: #0b7a28;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--accent);
   border-radius: 999px;
   padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 900;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  font-size: 11.5px;
+  font-weight: 800;
 }
 
 .hero {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  background: var(--accent);
   color: white;
-  border-radius: 28px;
-  padding: 22px;
+  border-radius: 20px;
+  padding: 22px 20px;
   margin-bottom: 16px;
-  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
+  box-shadow: 0 6px 20px rgba(11,122,40,0.20);
   position: relative;
   overflow: hidden;
-  animation: fadeUp 0.45s ease;
+  opacity: 0;
+  animation: riseIn 0.35s 0.05s forwards;
 }
 
 .hero::before {
   content: "";
   position: absolute;
-  width: 170px;
-  height: 170px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  top: -70px;
-  right: -60px;
-  animation: pulseGlow 5s ease-in-out infinite;
+  background: rgba(255,255,255,0.10);
+  top: -65px;
+  right: -55px;
 }
 
 .hero h1 {
-  margin: 0 0 8px;
-  font-size: 30px;
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 800;
   line-height: 1.1;
+  letter-spacing: -0.4px;
   position: relative;
   z-index: 2;
 }
 
 .hero p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
-  opacity: 0.96;
+  color: rgba(255,255,255,0.80);
   position: relative;
   z-index: 2;
 }
 
 .card {
-  background: white;
-  border-radius: 24px;
-  padding: 18px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  border: 1px solid #edf1ee;
-  animation: fadeUp 0.55s ease;
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  opacity: 0;
+  animation: riseIn 0.35s 0.12s forwards;
+}
+
+.step-heading {
+  margin-bottom: 14px;
+}
+
+.step-heading h3,
+#dateStep h3,
+#pickupAddressStep h3,
+#dropoffAddressStep h3,
+#reviewStep h3,
+#questionStep h3 {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 6px;
+  letter-spacing: -0.2px;
+}
+
+.subtext {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 12px;
 }
 
 .category-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 button,
@@ -112,38 +165,50 @@ select,
 textarea {
   width: 100%;
   box-sizing: border-box;
-  padding: 13px;
-  margin-top: 12px;
-  border-radius: 14px;
-  border: 1px solid #d9dfda;
-  font-size: 15px;
+  padding: 12px 13px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
   font-family: Arial, sans-serif;
   outline: none;
+}
+
+input,
+select,
+textarea {
+  background: #fff;
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8b9790;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: #0b7a28;
-  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(11,122,40,0.10);
 }
 
 button {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
+  background: var(--accent);
   color: white;
   border: none;
   cursor: pointer;
-  font-weight: 900;
-  transition: 0.2s;
+  font-weight: 800;
+  transition: opacity 0.18s, transform 0.18s;
 }
 
 button:hover {
+  opacity: 0.88;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
 }
 
 .cancel-btn {
-  background: #b00020;
+  background: var(--danger);
   color: white;
 }
 
@@ -153,49 +218,42 @@ button:hover {
   gap: 10px;
 }
 
-.code-note {
-  background: #fff8e6;
-  border: 1px solid #ffe0a3;
-  color: #6f4b00;
-  border-radius: 16px;
-  padding: 12px;
-  margin: 12px 0;
-  font-size: 13px;
-  line-height: 1.45;
-  font-weight: 800;
-}
-
 .secondary {
-  background: white;
-  color: #111;
-  border: 1px solid #d9dfda;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
 .option {
-  background: white;
-  color: #111;
-  border: 1px solid #e3eee6;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
   text-align: left;
-  min-height: 92px;
-  box-shadow: 0 5px 14px rgba(0,0,0,0.06);
-  animation: floatCard 4s ease-in-out infinite;
+  min-height: 112px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.option:nth-child(2n) {
-  animation-delay: 0.5s;
+.option:hover {
+  border-color: #a3cfb0;
+  box-shadow: 0 4px 14px rgba(11,122,40,0.10);
 }
 
 .option-title {
   display: block;
-  font-weight: 900;
-  margin-bottom: 5px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  font-size: 14px;
 }
 
 .option-sub {
   display: block;
-  color: #666;
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.35;
+  font-weight: 600;
 }
 
 textarea {
@@ -210,71 +268,84 @@ textarea {
 .checkbox-row {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   margin-top: 10px;
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  padding: 11px;
-  border-radius: 14px;
-  font-size: 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 13px;
+  font-size: 13.5px;
+  color: var(--text);
 }
 
 .checkbox-row input {
   width: auto;
   margin: 0;
-  accent-color: #0b7a28;
+  accent-color: var(--accent);
 }
 
 #status {
   margin-top: 14px;
   text-align: center;
-  font-weight: 900;
-  color: #b00020;
+  font-weight: 800;
+  color: var(--danger);
   font-size: 13px;
   line-height: 1.4;
 }
 
 .review-box {
-  background: #f7faf8;
+  background: #fff;
   border-radius: 16px;
   padding: 14px;
   margin-top: 10px;
-  border: 1px solid #e3eee6;
-  font-size: 14px;
-  line-height: 1.45;
+  border: 1px solid var(--border);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.review-box p {
+  margin: 0 0 8px;
+}
+
+.review-box hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
 }
 
 .selected-address {
-  background: #eef7ee;
-  border: 1px solid #d7ecdb;
-  padding: 11px;
+  background: #fff;
+  border: 1px solid #cdebd5;
+  padding: 12px;
   border-radius: 14px;
   margin-top: 10px;
-  font-size: 14px;
-  color: #0b7a28;
+  font-size: 13.5px;
+  color: var(--accent);
   font-weight: 800;
 }
 
-.help-box {
-  background: #fff8e6;
-  border: 1px solid #ffe0a3;
-  color: #6f4b00;
-  border-radius: 16px;
+.help-box,
+.code-note {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  border-radius: 14px;
   padding: 12px;
   margin: 12px 0;
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 700;
 }
 
 .price-box {
-  background: #e7f7ec;
+  background: var(--surface2);
   border: 1px solid #cdebd5;
-  color: #0b7a28;
-  border-radius: 16px;
+  color: var(--accent);
+  border-radius: 14px;
   padding: 12px;
   margin: 12px 0;
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12.5px;
+  line-height: 1.5;
   font-weight: 800;
 }
 
@@ -286,64 +357,166 @@ textarea {
 
 .progress {
   height: 8px;
-  background: #e7f7ec;
+  background: #dceee2;
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .progress-bar {
   height: 100%;
   width: 0%;
-  background: #0b7a28;
+  background: var(--accent);
   transition: 0.25s;
+}
+
+.modern-step-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 15px;
+  margin-bottom: 14px;
+}
+
+.date-options {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.address-shell {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.address-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+
+.address-help {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  margin-top: 8px;
 }
 
 gmp-place-autocomplete {
   width: 100%;
   display: block;
-  margin-top: 12px;
-}
-
-  .pac-container {
-  z-index: 999999 !important;
+  margin-top: 10px;
+  color-scheme: light;
+  --gmpx-color-surface: #ffffff;
+  --gmpx-color-on-surface: #111111;
+  --gmpx-color-primary: #0b7a28;
+  --gmpx-color-outline: #e2ebe5;
+  --gmpx-font-family-base: Arial, sans-serif;
 }
 
 gmp-place-autocomplete input {
-  background: white !important;
+  background: #fff !important;
   color: #111 !important;
-  border: 1px solid #ccc !important;
-  border-radius: 10px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
   padding: 13px !important;
+  font-size: 14px !important;
+  font-family: Arial, sans-serif !important;
+  box-shadow: none !important;
 }
 
 gmp-place-autocomplete::part(input) {
-  background: white !important;
+  background: #fff !important;
+  color: #111 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  padding: 13px !important;
+  font-size: 14px !important;
+  font-family: Arial, sans-serif !important;
+}
+
+gmp-place-autocomplete::part(input-field) {
+  background: #fff !important;
   color: #111 !important;
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+gmp-place-autocomplete::part(prediction-list),
+gmp-place-autocomplete::part(listbox),
+gmp-place-autocomplete::part(panel) {
+  background: #fff !important;
+  color: #111 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.14) !important;
+  overflow: hidden !important;
 }
 
-@keyframes floatCard {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0); }
+gmp-place-autocomplete::part(prediction-row),
+gmp-place-autocomplete::part(option),
+gmp-place-autocomplete::part(place-title),
+gmp-place-autocomplete::part(place-address) {
+  background: #fff !important;
+  color: #111 !important;
 }
 
-@keyframes pulseGlow {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.12); }
-  100% { transform: scale(1); }
+.pac-container {
+  z-index: 999999 !important;
+  background: #fff !important;
+  color: #111 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.14) !important;
+  overflow: hidden !important;
+  font-family: Arial, sans-serif !important;
+}
+
+.pac-item {
+  background: #fff !important;
+  color: #111 !important;
+  border-top: 1px solid #edf1ee !important;
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+}
+
+.pac-item:hover {
+  background: var(--surface) !important;
+}
+
+.pac-item-query,
+.pac-matched,
+.pac-item span {
+  color: #111 !important;
+}
+
+.pac-icon {
+  filter: none !important;
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 360px) {
+  .hero h1 {
+    font-size: 25px;
+  }
+
+  .category-grid,
+  .field-grid,
+  .action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .option {
+    min-height: auto;
+  }
 }
 </style>
 
@@ -367,6 +540,11 @@ gmp-place-autocomplete::part(input) {
   <div class="card">
 
     <div id="categoryStep">
+      <div class="step-heading">
+        <h3>Select a task type</h3>
+        <p class="subtext">Pick the category that best matches what you need done.</p>
+      </div>
+
       <div class="category-grid">
         <button class="option" onclick="selectCategory('Moving')">
           <span class="option-title">🚚 Moving</span>
@@ -427,20 +605,24 @@ gmp-place-autocomplete::part(input) {
     </div>
 
     <div id="dateStep" class="hidden">
-      <h3>When do you need this done?</h3>
-      <p class="subtext">Select a date or choose flexible if you are open to worker availability.</p>
+      <div class="modern-step-card">
+        <h3>When do you need this done?</h3>
+        <p class="subtext">Select a date or choose flexible if you are open to worker availability.</p>
 
-      <input id="dateNeeded" type="date">
+        <input id="dateNeeded" type="date">
 
-      <label class="checkbox-row">
-        <input type="checkbox" id="dateFlexible">
-        My date is flexible
-      </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="dateFlexible">
+          My date is flexible
+        </label>
+      </div>
 
-      <h3>What time do you need it completed by?</h3>
-      <p class="subtext">Choose the time the task should be completed by.</p>
+      <div class="modern-step-card">
+        <h3>What time do you need it completed by?</h3>
+        <p class="subtext">Choose the time the task should be completed by.</p>
 
-      <input id="timeNeeded" type="time">
+        <input id="timeNeeded" type="time">
+      </div>
 
       <div class="help-box">
         Flexible dates may help you receive more quotes from workers.
@@ -451,39 +633,51 @@ gmp-place-autocomplete::part(input) {
     </div>
 
     <div id="pickupAddressStep" class="hidden">
-      <h3>Task Address</h3>
-      <p class="subtext">Start typing and select the address from Google. The city, state, and zip will fill in automatically.</p>
+      <div class="address-shell">
+        <h3>Task Address</h3>
+        <p class="subtext">Start typing and select the address from Google. The city, state, and zip will fill in automatically.</p>
 
-      <div id="pickupGoogleBox"></div>
-      <div id="pickupSelected" class="selected-address hidden"></div>
-
-      <input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
-
-      <div class="field-grid">
-        <input id="pickupCity" placeholder="City">
-        <input id="pickupState" placeholder="State">
+        <div class="address-label">Google address search</div>
+        <div id="pickupGoogleBox"></div>
+        <div class="address-help">Select the full address from the dropdown so TaskMint can save the location correctly.</div>
+        <div id="pickupSelected" class="selected-address hidden"></div>
       </div>
 
-      <input id="pickupZip" placeholder="Zip Code">
+      <div class="modern-step-card">
+        <input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
+
+        <div class="field-grid">
+          <input id="pickupCity" placeholder="City">
+          <input id="pickupState" placeholder="State">
+        </div>
+
+        <input id="pickupZip" placeholder="Zip Code">
+      </div>
 
       <button onclick="savePickupAddress()">Next</button>
     </div>
 
     <div id="dropoffAddressStep" class="hidden">
-      <h3>Drop-Off Address</h3>
-      <p class="subtext">Start typing and select the drop-off address from Google. The city, state, and zip will fill in automatically.</p>
+      <div class="address-shell">
+        <h3>Drop-Off Address</h3>
+        <p class="subtext">Start typing and select the drop-off address from Google. The city, state, and zip will fill in automatically.</p>
 
-      <div id="dropoffGoogleBox"></div>
-      <div id="dropoffSelected" class="selected-address hidden"></div>
-
-      <input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
-
-      <div class="field-grid">
-        <input id="dropoffCity" placeholder="Drop-off city">
-        <input id="dropoffState" placeholder="Drop-off state">
+        <div class="address-label">Google address search</div>
+        <div id="dropoffGoogleBox"></div>
+        <div class="address-help">Select the full drop-off address from the dropdown so TaskMint can save the location correctly.</div>
+        <div id="dropoffSelected" class="selected-address hidden"></div>
       </div>
 
-      <input id="dropoffZip" placeholder="Drop-off zip code">
+      <div class="modern-step-card">
+        <input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
+
+        <div class="field-grid">
+          <input id="dropoffCity" placeholder="Drop-off city">
+          <input id="dropoffState" placeholder="Drop-off state">
+        </div>
+
+        <input id="dropoffZip" placeholder="Drop-off zip code">
+      </div>
 
       <button onclick="saveDropoffAddress()">Next</button>
     </div>
