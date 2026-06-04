@@ -3,360 +3,387 @@
 <head>
 <title>Edit Payment - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+ 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ 
 <style>
-* {
-  box-sizing: border-box;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+:root {
+  --bg:          #ffffff;
+  --surface:     #f2f7f4;
+  --surface2:    #e6f4eb;
+  --border:      #e2ebe5;
+  --accent:      #0b7a28;
+  --text:        #111111;
+  --muted:       #6b7870;
+  --danger:      #b00020;
+  --warn-bg:     #fffbeb;
+  --warn-border: #f0c040;
+  --warn-text:   #7a4f00;
 }
-
+ 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
-    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
-  color: #111;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
   padding-bottom: 95px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
-.container {
-  max-width: 430px;
-  margin: 0 auto;
-  padding: 18px;
+ 
+.top-bar, .container {
+  width: 100%;
+  max-width: 470px;
 }
-
+ 
+/* ── TOP BAR ── */
 .top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  padding: 13px 20px;
 }
-
+ 
 .back,
 .refresh {
-  color: #0b7a28;
-  font-weight: 900;
+  color: var(--accent);
+  font-weight: 700;
   cursor: pointer;
   font-size: 14px;
 }
-
+ 
+/* ── CONTAINER ── */
+.container {
+  padding: 20px 16px 30px;
+}
+ 
+/* ── HERO ── */
 .hero {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
-  color: white;
-  border-radius: 28px;
-  padding: 22px;
+  background: var(--accent);
+  border-radius: 20px;
+  padding: 22px 20px;
   margin-bottom: 16px;
-  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
-  position: relative;
-  overflow: hidden;
-  animation: fadeUp 0.45s ease;
+  box-shadow: 0 6px 20px rgba(11,122,40,0.20);
+  opacity: 0;
+  animation: riseIn 0.35s 0.05s forwards;
 }
-
-.hero::before {
-  content: "";
-  position: absolute;
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  top: -70px;
-  right: -60px;
-  animation: pulseGlow 5s ease-in-out infinite;
-}
-
+ 
 .hero h1 {
-  margin: 0 0 8px;
-  font-size: 30px;
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
   line-height: 1.1;
-  position: relative;
-  z-index: 2;
+  letter-spacing: -0.4px;
 }
-
+ 
 .hero p {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  opacity: 0.96;
-  position: relative;
-  z-index: 2;
-}
-
-.card,
-.payment-card,
-.notice {
-  background: white;
-  border-radius: 24px;
-  padding: 16px;
-  margin-bottom: 16px;
-  border: 1px solid #edf1ee;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  animation: fadeUp 0.45s ease;
-}
-
-.payment-card {
-  animation: floatCard 4s ease-in-out infinite;
-}
-
-.notice {
-  background: #fff8e6;
-  border: 1px solid #ffe0a3;
-  color: #6f4b00;
   font-size: 13px;
-  line-height: 1.45;
-  font-weight: 800;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.80);
 }
-
-.section-title {
-  font-size: 17px;
-  font-weight: 900;
-  margin-bottom: 10px;
+ 
+/* ── PAYMENT CARD (saved method display) ── */
+.payment-card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  opacity: 0;
+  animation: riseIn 0.35s 0.1s forwards;
 }
-
+ 
 .saved-top {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
 }
-
+ 
 .card-icon {
-  width: 58px;
-  height: 58px;
-  border-radius: 20px;
-  background: #e7f7ec;
-  color: #0b7a28;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--surface2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 26px;
   flex-shrink: 0;
 }
-
+ 
 .saved-title {
-  font-size: 17px;
-  font-weight: 900;
-  margin-bottom: 4px;
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 3px;
 }
-
+ 
 .saved-sub {
   font-size: 12px;
-  color: #666;
+  color: var(--muted);
   line-height: 1.35;
 }
-
+ 
 .default-pill {
   display: inline-block;
-  background: #e7f7ec;
-  color: #0b7a28;
-  padding: 7px 10px;
+  background: var(--surface2);
+  color: var(--accent);
+  padding: 5px 10px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 900;
-  margin-top: 8px;
+  font-weight: 700;
+  margin-top: 7px;
 }
-
+ 
+/* ── NOTICE ── */
+.notice {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: var(--warn-text);
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 600;
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: riseIn 0.35s 0.15s forwards;
+}
+ 
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  opacity: 0;
+  animation: riseIn 0.35s 0.2s forwards;
+}
+ 
+.section-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+ 
+/* ── METHOD ROWS ── */
 .method-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid #edf1ee;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
+  transition: opacity 0.18s;
 }
-
+ 
 .method-row:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
-
+ 
+.method-row:first-of-type {
+  padding-top: 0;
+}
+ 
+.method-row:hover { opacity: 0.75; }
+ 
 .method-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
+ 
 .logo {
   width: 34px;
   height: 34px;
   object-fit: contain;
   border-radius: 10px;
 }
-
+ 
 .method-title {
-  font-size: 15px;
-  font-weight: 900;
+  font-size: 13.5px;
+  font-weight: 700;
 }
-
+ 
 .method-sub {
-  font-size: 12px;
-  color: #666;
-  margin-top: 3px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
   line-height: 1.35;
 }
-
+ 
 .arrow {
-  font-size: 22px;
-  color: #0b7a28;
-  font-weight: 900;
+  font-size: 18px;
+  color: var(--muted);
+  font-weight: 700;
 }
-
+ 
+/* ── FORM FIELDS ── */
 label {
   display: block;
-  font-size: 12px;
-  font-weight: 900;
-  color: #0b7a28;
-  margin: 10px 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 12px 0 5px;
 }
-
+ 
 input,
 select {
   width: 100%;
-  padding: 13px;
-  border: 1px solid #d9dfda;
-  border-radius: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   font-size: 14px;
   outline: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text);
+  background: #fff;
 }
-
+ 
 input:focus,
 select:focus {
-  border-color: #0b7a28;
-  box-shadow: 0 0 0 4px rgba(11,122,40,0.10);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(11,122,40,0.10);
 }
-
+ 
 .field-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-
+ 
 .field-full {
   grid-column: 1 / -1;
 }
-
+ 
+/* ── BUTTONS ── */
 button {
   width: 100%;
   padding: 13px;
   margin-top: 10px;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.2s;
+  transition: opacity 0.18s, transform 0.18s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
-
-button:hover,
-.method-row:hover {
+ 
+button:hover {
+  opacity: 0.88;
   transform: translateY(-1px);
 }
-
+ 
 .primary-btn {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
-  color: white;
+  background: var(--accent);
+  color: #fff;
 }
-
+ 
 .secondary-btn {
-  background: white;
-  color: #0b7a28;
-  border: 1px solid #cdebd5;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
-
+ 
 .danger-btn {
-  background: #b00020;
-  color: white;
+  background: var(--danger);
+  color: #fff;
 }
-
+ 
 .hidden {
   display: none;
 }
-
+ 
 #status {
   text-align: center;
-  color: #0b7a28;
+  color: var(--accent);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.4;
   margin: 10px 0;
 }
-
+ 
 .error {
-  color: #b00020 !important;
+  color: var(--danger) !important;
 }
-
+ 
+/* ── NAV ── */
 .nav {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 430px;
-  margin: 0 auto;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid #ddd;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 470px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.06);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  padding: 10px 6px;
+  padding: 10px 6px 14px;
+  z-index: 50;
 }
-
+ 
 .nav a {
   text-decoration: none;
-  color: #555;
-  font-size: 11px;
-  font-weight: bold;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
   text-align: center;
+  transition: color 0.18s;
 }
-
+ 
+.nav a:hover { color: var(--accent); }
+ 
 .nav-icon {
   display: block;
   font-size: 20px;
   margin-bottom: 3px;
 }
-
-.active {
-  color: #0b7a28 !important;
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes floatCard {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0); }
-}
-
-@keyframes pulseGlow {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.12); }
-  100% { transform: scale(1); }
+ 
+.active { color: var(--accent) !important; }
+ 
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
-
+ 
 <body>
-
+ 
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="back" onclick="goBack()">← Back</div>
+  <div class="refresh" onclick="loadPaymentMethods()">Refresh</div>
+</div>
+ 
 <div class="container">
-
-  <div class="top-bar">
-    <div class="back" onclick="goBack()">← Back</div>
-    <div class="refresh" onclick="loadPaymentMethods()">Refresh</div>
-  </div>
-
+ 
+  <!-- HERO -->
   <div class="hero">
     <h1>Edit Payment</h1>
     <p>Save a default payment method so accepted quotes can pull your payment details without re-entering everything.</p>
   </div>
-
+ 
+  <!-- SAVED PAYMENT DISPLAY -->
   <div class="payment-card">
     <div class="saved-top">
       <div class="card-icon">💳</div>
@@ -367,14 +394,16 @@ button:hover,
       </div>
     </div>
   </div>
-
+ 
+  <!-- NOTICE -->
   <div class="notice">
     For live payments, Stripe should store the actual card through a SetupIntent/PaymentMethod. This page saves display details like card brand and last 4 so the quote payment page can read the saved method.
   </div>
-
+ 
+  <!-- CHOOSE PAYMENT METHOD -->
   <div class="card">
     <div class="section-title">Choose Payment Method</div>
-
+ 
     <div class="method-row" onclick="showCardForm()">
       <div class="method-left">
         <img class="logo" src="https://img.icons8.com/color/48/bank-card-back-side.png">
@@ -385,7 +414,7 @@ button:hover,
       </div>
       <div class="arrow">›</div>
     </div>
-
+ 
     <div class="method-row" onclick="setWalletMethod('Apple Pay')">
       <div class="method-left">
         <img class="logo" src="https://img.icons8.com/ios-filled/50/mac-os.png">
@@ -396,7 +425,7 @@ button:hover,
       </div>
       <div class="arrow">›</div>
     </div>
-
+ 
     <div class="method-row" onclick="setWalletMethod('Google Pay')">
       <div class="method-left">
         <img class="logo" src="https://img.icons8.com/color/48/google-pay.png">
@@ -407,7 +436,7 @@ button:hover,
       </div>
       <div class="arrow">›</div>
     </div>
-
+ 
     <div class="method-row" onclick="setWalletMethod('PayPal')">
       <div class="method-left">
         <img class="logo" src="https://img.icons8.com/color/48/paypal.png">
@@ -418,7 +447,7 @@ button:hover,
       </div>
       <div class="arrow">›</div>
     </div>
-
+ 
     <div class="method-row" onclick="setWalletMethod('Cash App')">
       <div class="method-left">
         <img class="logo" src="https://img.icons8.com/color/48/cash-app.png">
@@ -429,7 +458,7 @@ button:hover,
       </div>
       <div class="arrow">›</div>
     </div>
-
+ 
     <div class="method-row" onclick="setWalletMethod('Zelle')">
       <div class="method-left">
         <img class="logo" src="https://img.icons8.com/color/48/money-transfer.png">
@@ -441,46 +470,48 @@ button:hover,
       <div class="arrow">›</div>
     </div>
   </div>
-
+ 
+  <!-- CARD FORM (hidden by default) -->
   <div id="cardForm" class="card hidden">
     <div class="section-title">Credit Card Details</div>
-
+ 
     <div class="field-grid">
       <div class="field-full">
         <label for="cardholderName">Name on Card</label>
         <input id="cardholderName" placeholder="Name on card">
       </div>
-
+ 
       <div class="field-full">
         <label for="cardNumber">Card Number</label>
         <input id="cardNumber" inputmode="numeric" maxlength="19" placeholder="Card number" oninput="formatCardNumber()">
       </div>
-
+ 
       <div>
         <label for="expMonth">Exp Month</label>
         <input id="expMonth" inputmode="numeric" maxlength="2" placeholder="MM">
       </div>
-
+ 
       <div>
         <label for="expYear">Exp Year</label>
         <input id="expYear" inputmode="numeric" maxlength="4" placeholder="YYYY">
       </div>
-
+ 
       <div class="field-full">
         <label for="billingZip">Billing Zip</label>
         <input id="billingZip" placeholder="Billing zip">
       </div>
     </div>
-
+ 
     <button class="primary-btn" onclick="saveCardMethod()">Save Card</button>
     <button class="secondary-btn" onclick="hideCardForm()">Cancel</button>
     <button class="danger-btn" onclick="removeDefaultPayment()">Remove Saved Payment</button>
   </div>
-
+ 
   <p id="status"></p>
-
+ 
 </div>
-
+ 
+<!-- NAV -->
 <div class="nav">
   <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
   <a href="view-open-task.html"><span class="nav-icon">📌</span>Tasks</a>
@@ -488,110 +519,110 @@ button:hover,
   <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
   <a href="profile.html" class="active"><span class="nav-icon">👤</span>Profile</a>
 </div>
-
+ 
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://dbcthtjmtlumidpbucrc.supabase.co",
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
-
+ 
 let currentUserId = "";
 let savedPaymentId = "";
-
+ 
 function setStatus(message, isError = false) {
   const status =
     document.getElementById("status");
-
+ 
   status.className =
     isError ? "error" : "";
-
+ 
   status.innerText =
     message;
 }
-
+ 
 async function getCurrentUser() {
   const { data } =
     await supabaseClient.auth.getSession();
-
+ 
   if (data.session && data.session.user) {
     currentUserId =
       data.session.user.id;
-
+ 
     localStorage.setItem("taskmintUserId", currentUserId);
     return data.session.user;
   }
-
+ 
   const savedUserId =
     localStorage.getItem("taskmintUserId");
-
+ 
   if (savedUserId) {
     currentUserId =
       savedUserId;
-
+ 
     return { id: savedUserId };
   }
-
+ 
   window.location.href = "login.html";
   return null;
 }
-
+ 
 function goBack() {
   window.location.href = "profile.html";
 }
-
+ 
 function showCardForm() {
   document.getElementById("cardForm").classList.remove("hidden");
   setStatus("");
 }
-
+ 
 function hideCardForm() {
   document.getElementById("cardForm").classList.add("hidden");
 }
-
+ 
 function getCardBrand(cardNumber) {
   const clean =
     String(cardNumber || "").replace(/\D/g, "");
-
+ 
   if (clean.startsWith("4")) {
     return "Visa";
   }
-
+ 
   if (/^5[1-5]/.test(clean)) {
     return "Mastercard";
   }
-
+ 
   if (/^3[47]/.test(clean)) {
     return "American Express";
   }
-
+ 
   if (/^6/.test(clean)) {
     return "Discover";
   }
-
+ 
   return "Card";
 }
-
+ 
 function formatCardNumber() {
   const input =
     document.getElementById("cardNumber");
-
+ 
   const clean =
     input.value.replace(/\D/g, "").slice(0, 16);
-
+ 
   input.value =
     clean.replace(/(.{4})/g, "$1 ").trim();
 }
-
+ 
 async function loadPaymentMethods() {
   setStatus("");
-
+ 
   const user =
     await getCurrentUser();
-
+ 
   if (!user) {
     return;
   }
-
+ 
   const { data: savedMethod, error } =
     await supabaseClient
       .from("payments")
@@ -599,106 +630,106 @@ async function loadPaymentMethods() {
       .eq("customer_id", currentUserId)
       .eq("is_default", true)
       .maybeSingle();
-
+ 
   if (error) {
     document.getElementById("savedPaymentTitle").innerText =
       "No saved payment";
-
+ 
     document.getElementById("savedPaymentSub").innerText =
       "Add a default method before accepting a quote.";
-
+ 
     return;
   }
-
+ 
   if (!savedMethod) {
     savedPaymentId = "";
-
+ 
     document.getElementById("savedPaymentTitle").innerText =
       "No saved payment";
-
+ 
     document.getElementById("savedPaymentSub").innerText =
       "Add a default method before accepting a quote.";
-
+ 
     document.getElementById("defaultPill").innerText =
       "Not set";
-
+ 
     return;
   }
-
+ 
   savedPaymentId =
     savedMethod.id;
-
+ 
   document.getElementById("savedPaymentTitle").innerText =
     savedMethod.method_type === "card"
       ? `${savedMethod.card_brand || "Card"} ending in ${savedMethod.card_last4 || "----"}`
       : savedMethod.method_label || savedMethod.method_type || "Saved Payment";
-
+ 
   document.getElementById("savedPaymentSub").innerText =
     savedMethod.method_type === "card"
       ? `Expires ${savedMethod.exp_month || "--"}/${savedMethod.exp_year || "----"} • Billing zip ${savedMethod.billing_zip || "not listed"}`
       : "This method is saved as your default payment preference.";
-
+ 
   document.getElementById("defaultPill").innerText =
     "Default payment";
-
+ 
   document.getElementById("cardholderName").value =
     savedMethod.cardholder_name || "";
-
+ 
   document.getElementById("expMonth").value =
     savedMethod.exp_month || "";
-
+ 
   document.getElementById("expYear").value =
     savedMethod.exp_year || "";
-
+ 
   document.getElementById("billingZip").value =
     savedMethod.billing_zip || "";
 }
-
+ 
 async function clearExistingDefaults() {
   await supabaseClient
     .from("payments")
     .update({ is_default: false })
     .eq("customer_id", currentUserId);
 }
-
+ 
 async function saveCardMethod() {
   const cardholderName =
     document.getElementById("cardholderName").value.trim();
-
+ 
   const cardNumber =
     document.getElementById("cardNumber").value.replace(/\D/g, "");
-
+ 
   const expMonth =
     document.getElementById("expMonth").value.trim();
-
+ 
   const expYear =
     document.getElementById("expYear").value.trim();
-
+ 
   const billingZip =
     document.getElementById("billingZip").value.trim();
-
+ 
   if (!cardholderName || !cardNumber || !expMonth || !expYear || !billingZip) {
     setStatus("Complete all card fields.", true);
     return;
   }
-
+ 
   if (cardNumber.length < 12) {
     setStatus("Enter a valid card number.", true);
     return;
   }
-
+ 
   await getCurrentUser();
-
+ 
   setStatus("Saving payment method...");
-
+ 
   await clearExistingDefaults();
-
+ 
   const cardBrand =
     getCardBrand(cardNumber);
-
+ 
   const last4 =
     cardNumber.slice(-4);
-
+ 
   /*
     Do not store raw card numbers in Supabase for a live app.
     When Stripe is connected, replace this with Stripe SetupIntent and store only stripe_payment_method_id.
@@ -715,29 +746,29 @@ async function saveCardMethod() {
     billing_zip: billingZip,
     is_default: true
   };
-
+ 
   const { error } =
     await supabaseClient
       .from("payments")
       .insert([paymentPayload]);
-
+ 
   if (error) {
     setStatus(error.message, true);
     return;
   }
-
+ 
   document.getElementById("cardNumber").value = "";
-
+ 
   setStatus("Payment method saved.");
   hideCardForm();
   await loadPaymentMethods();
 }
-
+ 
 async function setWalletMethod(methodLabel) {
   await getCurrentUser();
-
+ 
   await clearExistingDefaults();
-
+ 
   const { error } =
     await supabaseClient
       .from("payments")
@@ -749,50 +780,50 @@ async function setWalletMethod(methodLabel) {
           is_default: true
         }
       ]);
-
+ 
   if (error) {
     setStatus(error.message, true);
     return;
   }
-
+ 
   setStatus(`${methodLabel} saved as default.`);
   await loadPaymentMethods();
 }
-
+ 
 async function removeDefaultPayment() {
   await getCurrentUser();
-
+ 
   if (!savedPaymentId) {
     setStatus("No saved payment to remove.", true);
     return;
   }
-
+ 
   const confirmRemove =
     confirm("Remove your saved default payment method?");
-
+ 
   if (!confirmRemove) {
     return;
   }
-
+ 
   const { error } =
     await supabaseClient
       .from("payments")
       .delete()
       .eq("id", savedPaymentId)
       .eq("customer_id", currentUserId);
-
+ 
   if (error) {
     setStatus(error.message, true);
     return;
   }
-
+ 
   setStatus("Payment method removed.");
   savedPaymentId = "";
   await loadPaymentMethods();
 }
-
+ 
 loadPaymentMethods();
 </script>
-
+ 
 </body>
 </html>
