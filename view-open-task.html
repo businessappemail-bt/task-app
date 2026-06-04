@@ -537,12 +537,11 @@ function formatDate(value) {
 
   const rawValue = String(value).trim();
 
-  const dateOnlyMatch =
-    rawValue.match(/^\d{4}-\d{2}-\d{2}$/);
+  const dateMatch =
+    rawValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
 
-  if (dateOnlyMatch) {
-    const [year, month, day] =
-      rawValue.split("-");
+  if (dateMatch) {
+    const [, year, month, day] = dateMatch;
 
     return `${Number(month)}/${Number(day)}/${year}`;
   }
@@ -553,7 +552,7 @@ function formatDate(value) {
     return value;
   }
 
-  return date.toLocaleDateString();
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 }
 
 function formatStatus(status) {
