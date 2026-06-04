@@ -561,7 +561,7 @@ button:hover {
         class="delete-selected-btn"
         onclick="deleteSelectedConversation()"
         disabled>
-        Delete Selected Message
+        Delete Selected Messages
       </button>
     </div>
 
@@ -658,7 +658,7 @@ let customerId = "";
 let currentUser = null;
 let currentConversationMessages = [];
 let allInboxConversations = [];
-let selectedConversationToDelete = "";
+let selectedConversationsToDelete = [];
 
 function getHiddenConversationIds() {
   try {
@@ -1207,13 +1207,14 @@ function filterConversations() {
 }
 
 function renderInbox(conversations) {
-  selectedConversationToDelete = "";
+  selectedConversationsToDelete = [];
 
   const deleteButton =
     document.getElementById("deleteSelectedBtn");
 
   if (deleteButton) {
     deleteButton.disabled = true;
+    deleteButton.innerText = "Delete Selected Messages";
   }
 
   const directConversations =
@@ -1294,7 +1295,7 @@ function renderConversationGroup(elementId, conversations, emptyText) {
             type="checkbox"
             class="delete-message-check"
             value="${convo.id}"
-            onchange="selectConversationForDelete(this)"
+            onchange="toggleConversationForDelete(this)"
           >
           Select to delete
         </label>
@@ -1371,44 +1372,70 @@ function renderConversationGroup(elementId, conversations, emptyText) {
   });
 }
 
-function selectConversationForDelete(checkbox) {
-  const checks =
-    document.querySelectorAll(".delete-message-check");
+function toggleConversationForDelete(checkbox) {
+  const conversationIdValue =
+    checkbox.value;
 
-  checks.forEach(item => {
-    if (item !== checkbox) {
-      item.checked = false;
+  if (checkbox.checked) {
+    if (!selectedConversationsToDelete.includes(conversationIdValue)) {
+      selectedConversationsToDelete.push(conversationIdValue);
     }
-  });
-
-  selectedConversationToDelete =
-    checkbox.checked ? checkbox.value : "";
+  } else {
+    selectedConversationsToDelete =
+      selectedConversationsToDelete.filter(id => id !== conversationIdValue);
+  }
 
   const deleteButton =
     document.getElementById("deleteSelectedBtn");
 
   if (deleteButton) {
+    const selectedCount =
+      selectedConversationsToDelete.length;
+
     deleteButton.disabled =
-      !selectedConversationToDelete;
+      selectedCount === 0;
+
+    deleteButton.innerText =
+      selectedCount > 0
+        ? `Delete Selected Messages (${selectedCount})`
+        : "Delete Selected Messages";
   }
 }
 
 async function deleteSelectedConversation() {
-  if (!selectedConversationToDelete) {
-    alert("Select one message to delete.");
+  if (selectedConversationsToDelete.length === 0) {
+    alert("Select at least one message to delete.");
     return;
   }
 
-  await deleteConversation(selectedConversationToDelete);
+  const confirmDelete =
+    confirm(
+      selectedConversationsToDelete.length === 1
+        ? "Delete this message from your inbox?"
+        : `Delete these ${selectedConversationsToDelete.length} messages from your inbox?`
+    );
 
-  selectedConversationToDelete = "";
+  if (!confirmDelete) {
+    return;
+  }
+
+  selectedConversationsToDelete.forEach(conversationIdValue => {
+    if (isValidUUID(conversationIdValue)) {
+      hideConversationLocally(conversationIdValue);
+    }
+  });
+
+  selectedConversationsToDelete = [];
 
   const deleteButton =
     document.getElementById("deleteSelectedBtn");
 
   if (deleteButton) {
     deleteButton.disabled = true;
+    deleteButton.innerText = "Delete Selected Messages";
   }
+
+  await loadConversations();
 }
 
 function toggleConversation(detailsId) {
