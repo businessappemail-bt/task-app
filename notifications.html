@@ -97,7 +97,6 @@ body {
   color: rgba(255,255,255,0.80);
 }
 
-.summary-card,
 .section-card,
 .note {
   background: var(--surface);
@@ -109,88 +108,15 @@ body {
   animation: riseIn 0.35s 0.12s forwards;
 }
 
-.summary-top {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
 
-.summary-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
-  background: var(--surface2);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  flex-shrink: 0;
-}
 
-.summary-title {
-  font-size: 16px;
-  font-weight: 800;
-  margin-bottom: 3px;
-}
 
-.summary-sub {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.4;
-}
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface2);
-  color: var(--accent);
-  padding: 7px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-  margin-top: 8px;
-}
 
-.count-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 14px;
-}
 
-.count-box {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 13px;
-}
 
-.count-number {
-  font-size: 28px;
-  line-height: 1;
-  font-weight: 800;
-  color: var(--text);
-}
 
-.count-label {
-  margin-top: 6px;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--muted);
-}
 
-.count-note {
-  grid-column: 1 / -1;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.45;
-}
 
 .section-title {
   font-size: 15px;
@@ -429,35 +355,6 @@ button:hover {
   <div class="hero">
     <h1>Notifications</h1>
     <p>Choose how TaskMint keeps you updated about quotes, messages, payments, disputes, and important task activity.</p>
-  </div>
-
-  <div class="summary-card">
-    <div class="summary-top">
-      <div class="summary-icon">🔔</div>
-      <div>
-        <div class="summary-title">Notification Center</div>
-        <div class="summary-sub">
-          Required task alerts stay on so you do not miss active job updates.
-        </div>
-        <div class="status-pill">Task alerts protected</div>
-      </div>
-    </div>
-
-    <div class="count-grid">
-      <div class="count-box">
-        <div class="count-number" id="unreadMessageCount">0</div>
-        <div class="count-label">Unread Messages</div>
-      </div>
-
-      <div class="count-box">
-        <div class="count-number" id="hiddenMessageCount">0</div>
-        <div class="count-label">Hidden Conversations</div>
-      </div>
-
-      <div class="count-note" id="messageCountNote">
-        Unread message count updates when messages are read and excludes conversations deleted from your inbox.
-      </div>
-    </div>
   </div>
 
   <div class="section-card">
@@ -700,100 +597,6 @@ function setChecked(id, value) {
   }
 }
 
-function getHiddenConversationIds() {
-  try {
-    return JSON.parse(localStorage.getItem("taskmintHiddenConversations") || "[]");
-  } catch (error) {
-    return [];
-  }
-}
-
-async function loadUnreadMessageCount() {
-  const unreadBox =
-    document.getElementById("unreadMessageCount");
-
-  const hiddenBox =
-    document.getElementById("hiddenMessageCount");
-
-  const noteBox =
-    document.getElementById("messageCountNote");
-
-  if (!unreadBox || !hiddenBox || !noteBox) {
-    return;
-  }
-
-  const user =
-    currentUserId
-      ? { id: currentUserId }
-      : await getCurrentUser();
-
-  if (!user) {
-    return;
-  }
-
-  const hiddenConversationIds =
-    getHiddenConversationIds()
-      .map(id => String(id || ""))
-      .filter(Boolean);
-
-  hiddenBox.innerText =
-    String(hiddenConversationIds.length);
-
-  const { data: conversations, error: conversationError } =
-    await supabaseClient
-      .from("task_conversations")
-      .select("id, customer_id, worker_id, customer_unread_count, unread_count")
-      .eq("customer_id", currentUserId);
-
-  if (conversationError) {
-    unreadBox.innerText = "0";
-    noteBox.innerText =
-      "Could not load visible inbox conversations. " + conversationError.message;
-    return;
-  }
-
-  const visibleConversationIds =
-    (conversations || [])
-      .map(conversation => String(conversation.id || ""))
-      .filter(id => id && !hiddenConversationIds.includes(id));
-
-  if (visibleConversationIds.length === 0) {
-    unreadBox.innerText = "0";
-    noteBox.innerText =
-      "You have 0 unread messages visible in your inbox.";
-    return;
-  }
-
-  const { data: unreadMessages, error } =
-    await supabaseClient
-      .from("task_messages")
-      .select("id, conversation_id")
-      .eq("receiver_id", currentUserId)
-      .eq("is_read", false)
-      .in("conversation_id", visibleConversationIds);
-
-  if (error) {
-    unreadBox.innerText = "0";
-    noteBox.innerText =
-      "Could not load unread message count. " + error.message;
-    return;
-  }
-
-  const unreadCount =
-    (unreadMessages || []).length;
-
-  unreadBox.innerText =
-    String(unreadCount);
-
-  if (unreadCount === 1) {
-    noteBox.innerText =
-      "You have 1 unread message visible in your inbox.";
-    return;
-  }
-
-  noteBox.innerText =
-    "You have " + unreadCount + " unread messages visible in your inbox.";
-}
 
 async function loadNotificationSettings() {
   setStatus("");
@@ -832,8 +635,6 @@ async function loadNotificationSettings() {
   setChecked("scheduleReminders", data.schedule_reminders);
   setChecked("paymentNotifications", data.payment_notifications);
   setChecked("disputeNotifications", data.dispute_notifications);
-
-  await loadUnreadMessageCount();
 }
 
 async function saveNotificationSettings() {
