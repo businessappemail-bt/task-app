@@ -4,306 +4,322 @@
 <title>Accepted Quotes - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ 
 <style>
-* {
-  box-sizing: border-box;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+:root {
+  --bg:          #ffffff;
+  --surface:     #f2f7f4;
+  --surface2:    #e6f4eb;
+  --border:      #e2ebe5;
+  --accent:      #0b7a28;
+  --text:        #111111;
+  --muted:       #6b7870;
+  --danger:      #b00020;
+  --warn-bg:     #fffbeb;
+  --warn-border: #f0c040;
+  --warn-text:   #7a4f00;
 }
-
+ 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(25,182,76,0.16), transparent 32%),
-    linear-gradient(180deg, #eef8f1 0%, #f5f5f5 100%);
-  color: #111;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
   padding-bottom: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
-.container {
-  max-width: 430px;
-  margin: 0 auto;
-  padding: 18px;
+ 
+.top-bar, .container {
+  width: 100%;
+  max-width: 470px;
 }
-
+ 
+/* ── TOP BAR ── */
 .top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  padding: 13px 20px;
 }
-
+ 
 .back,
 .refresh {
-  color: #0b7a28;
-  font-weight: 900;
+  color: var(--accent);
+  font-weight: 700;
   cursor: pointer;
   font-size: 14px;
 }
-
+ 
+/* ── CONTAINER ── */
+.container {
+  padding: 20px 16px 30px;
+}
+ 
+/* ── HERO ── */
 .hero {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
-  color: white;
-  border-radius: 28px;
-  padding: 22px;
+  background: var(--accent);
+  border-radius: 20px;
+  padding: 22px 20px;
   margin-bottom: 16px;
-  box-shadow: 0 14px 30px rgba(11,122,40,0.22);
-  position: relative;
-  overflow: hidden;
-  animation: fadeUp 0.45s ease;
+  box-shadow: 0 6px 20px rgba(11,122,40,0.20);
+  opacity: 0;
+  animation: riseIn 0.35s 0.05s forwards;
 }
-
-.hero::before {
-  content: "";
-  position: absolute;
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  top: -70px;
-  right: -60px;
-  animation: pulseGlow 5s ease-in-out infinite;
-}
-
+ 
 .hero h1 {
-  margin: 0 0 8px;
-  font-size: 30px;
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
   line-height: 1.1;
-  position: relative;
-  z-index: 2;
+  letter-spacing: -0.4px;
 }
-
+ 
 .hero p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
-  opacity: 0.96;
-  position: relative;
-  z-index: 2;
+  color: rgba(255,255,255,0.80);
 }
-
+ 
+/* ── SUMMARY ROW ── */
 .summary-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-bottom: 16px;
 }
-
+ 
 .summary-box {
-  background: white;
-  border: 1px solid #edf1ee;
-  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
   padding: 13px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
 }
-
+ 
 .summary-label {
-  color: #0b7a28;
-  font-size: 11px;
-  font-weight: 900;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
 }
-
+ 
 .summary-value {
-  font-size: 18px;
-  font-weight: 900;
-  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 800;
 }
-
+ 
+/* ── TASK CARD ── */
 .task-card {
-  background: white;
-  border-radius: 24px;
+  background: var(--surface);
+  border-radius: 18px;
   padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  border: 1px solid #edf1ee;
-  animation: fadeUp 0.45s ease;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  opacity: 0;
+  animation: riseIn 0.35s 0.1s forwards;
 }
-
+ 
 .task-top {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
 }
-
+ 
 .task-title {
-  font-size: 18px;
-  font-weight: 900;
+  font-size: 16px;
+  font-weight: 800;
   margin-bottom: 4px;
 }
-
+ 
 .task-sub {
-  color: #666;
-  font-size: 12px;
+  color: var(--muted);
+  font-size: 11.5px;
   line-height: 1.35;
 }
-
+ 
 .status-pill {
-  background: #e7f7ec;
-  color: #0b7a28;
+  background: var(--surface2);
+  color: var(--accent);
   border-radius: 999px;
-  padding: 7px 10px;
+  padding: 5px 10px;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   text-transform: capitalize;
   white-space: nowrap;
+  flex-shrink: 0;
 }
-
+ 
 .status-pill.closed {
   background: #111;
-  color: white;
+  color: #fff;
 }
-
+ 
 .status-pill.dispute {
   background: #fff2f2;
-  color: #b00020;
+  color: var(--danger);
   border: 1px solid #ffb7b7;
 }
-
+ 
 .request-pill {
   display: inline-block;
-  background: #fff7e6;
-  color: #7a4b00;
-  border: 1px solid #ffd27a;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border: 1px solid var(--warn-border);
   border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 11px;
-  font-weight: 900;
-  margin-top: 6px;
+  padding: 4px 9px;
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-top: 5px;
 }
-
+ 
+/* ── COMPACT GRID ── */
 .compact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
   margin-top: 12px;
 }
-
+ 
 .info-box {
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 13px;
   padding: 10px;
-  min-height: 72px;
+  min-height: 66px;
 }
-
+ 
 .info-label {
-  color: #0b7a28;
-  font-size: 11px;
-  font-weight: 900;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
-
+ 
 .info-value {
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12.5px;
+  font-weight: 700;
   line-height: 1.35;
 }
-
+ 
+/* ── WORKER ROW ── */
 .worker-row {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-top: 12px;
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 11px;
 }
-
+ 
 .worker-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   object-fit: cover;
-  background: #ddd;
+  background: var(--surface2);
   flex-shrink: 0;
 }
-
+ 
 .worker-name {
-  font-size: 14px;
-  font-weight: 900;
-  margin-bottom: 3px;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
 }
-
+ 
 .worker-sub {
-  font-size: 12px;
-  color: #666;
+  font-size: 11px;
+  color: var(--muted);
   line-height: 1.35;
 }
-
+ 
+/* ── DETAILS TOGGLE ── */
 .details-toggle {
   margin-top: 12px;
-  color: #0b7a28;
-  font-size: 13px;
-  font-weight: 900;
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 700;
   cursor: pointer;
 }
-
+ 
 .details-box {
   display: none;
   margin-top: 8px;
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 13px;
   padding: 10px;
   font-size: 12px;
   line-height: 1.35;
-  white-space: normal;
 }
-
+ 
 .details-box.open {
   display: block;
 }
-
+ 
 .detail-item {
-  background: #ffffff;
-  border: 1px solid #e3eee6;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
   padding: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
   line-height: 1.35;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
 }
-
+ 
+/* ── PROGRESS BOX ── */
 .progress-box {
   margin-top: 12px;
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 12px;
 }
-
+ 
 .progress-title {
-  font-size: 12px;
-  font-weight: 900;
-  color: #111;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text);
   margin-bottom: 10px;
 }
-
+ 
 .progress-steps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
-
+ 
 .progress-step {
   text-align: center;
   font-size: 10px;
-  font-weight: 900;
-  color: #777;
+  font-weight: 700;
+  color: var(--muted);
 }
-
+ 
 .progress-dot {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #ddd;
+  background: var(--border);
   margin: 0 auto 5px;
   display: flex;
   align-items: center;
@@ -311,258 +327,271 @@ body {
   color: white;
   font-size: 11px;
 }
-
-.progress-step.active {
-  color: #0b7a28;
-}
-
-.progress-step.active .progress-dot {
-  background: #0b7a28;
-}
-
+ 
+.progress-step.active { color: var(--accent); }
+.progress-step.active .progress-dot { background: var(--accent); }
+ 
+/* ── ARRIVAL CODE ── */
 .arrival-code-box {
   margin-top: 12px;
-  background: #fff7e6;
-  border: 1px solid #ffd27a;
-  color: #7a4b00;
-  border-radius: 16px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  border-radius: 14px;
   padding: 12px;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.45;
 }
-
+ 
 .arrival-code {
   display: inline-block;
   margin-top: 6px;
   background: white;
-  color: #111;
-  border: 1px solid #ffd27a;
-  border-radius: 12px;
-  padding: 8px 12px;
+  color: var(--text);
+  border: 1px solid var(--warn-border);
+  border-radius: 10px;
+  padding: 7px 12px;
   font-size: 18px;
   letter-spacing: 2px;
+  font-weight: 800;
 }
-
+ 
+/* ── PAYMENT BOX ── */
 .payment-box {
   margin-top: 12px;
-  background: #ecfff1;
+  background: var(--surface2);
   border: 1px solid #bce8c6;
-  color: #0b7a28;
-  border-radius: 16px;
+  color: var(--accent);
+  border-radius: 14px;
   padding: 12px;
-  font-size: 13px;
-  font-weight: 900;
+  font-size: 12.5px;
+  font-weight: 700;
   line-height: 1.45;
 }
-
+ 
 .payment-box.unpaid {
-  background: #fff7e6;
-  border-color: #ffd27a;
-  color: #7a4b00;
+  background: var(--warn-bg);
+  border-color: var(--warn-border);
+  color: var(--warn-text);
 }
-
+ 
+/* ── DISPUTE ALERT ── */
 .dispute-alert {
   background: #fff2f2;
   border: 1px solid #ffb7b7;
   color: #8b0018;
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 12px;
   margin-top: 12px;
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.45;
-  font-weight: 900;
+  font-weight: 700;
 }
-
+ 
+/* ── ACTION ROW ── */
 .action-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
   margin-top: 12px;
 }
-
+ 
 button {
   width: 100%;
   padding: 11px;
   border: none;
-  border-radius: 12px;
+  border-radius: 11px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.2s;
+  transition: opacity 0.18s, transform 0.18s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
-
+ 
 button:hover {
+  opacity: 0.88;
   transform: translateY(-1px);
-  box-shadow: 0 5px 12px rgba(0,0,0,0.09);
 }
-
+ 
 .primary-btn {
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
-  color: white;
+  background: var(--accent);
+  color: #fff;
 }
-
+ 
 .secondary-btn {
-  background: white;
-  color: #0b7a28;
-  border: 1px solid #cdebd5;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
-
+ 
 .complete-btn {
   grid-column: 1 / -1;
-  background: linear-gradient(135deg, #0b7a28, #19b64c);
-  color: white;
+  background: var(--accent);
+  color: #fff;
 }
-
+ 
 .complete-note {
   grid-column: 1 / -1;
-  background: #e7f7ec;
-  color: #0b7a28;
+  background: var(--surface2);
+  color: var(--accent);
   border: 1px solid #bde8ca;
-  border-radius: 14px;
+  border-radius: 13px;
   padding: 11px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.4;
 }
-
+ 
+/* ── RATING/REVIEW BOX ── */
 .rating-review-box {
   grid-column: 1 / -1;
-  background: #f7faf8;
-  border: 1px solid #e3eee6;
-  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 12px;
 }
-
+ 
 .rating-review-title {
   font-size: 13px;
-  font-weight: 900;
-  color: #111;
-  margin-bottom: 6px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 5px;
 }
-
+ 
 .rating-review-help {
-  font-size: 12px;
-  color: #666;
+  font-size: 11.5px;
+  color: var(--muted);
   line-height: 1.35;
   margin-bottom: 10px;
 }
-
+ 
 .rating-select,
 .review-textarea {
   width: 100%;
-  border: 1px solid #d9dfda;
-  border-radius: 13px;
-  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 10px 12px;
   font-size: 13px;
-  margin-bottom: 10px;
-  font-family: Arial, sans-serif;
-  background: white;
+  margin-bottom: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--surface);
   outline: none;
+  color: var(--text);
 }
-
+ 
 .review-textarea {
-  min-height: 82px;
+  min-height: 80px;
   resize: vertical;
 }
-
-.empty {
-  background: white;
-  padding: 22px;
-  border-radius: 22px;
-  text-align: center;
-  color: #666;
-  border: 1px solid #edf1ee;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+ 
+.rating-select:focus,
+.review-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(11,122,40,0.10);
 }
-
+ 
+/* ── EMPTY ── */
+.empty {
+  background: var(--surface);
+  padding: 22px;
+  border-radius: 18px;
+  text-align: center;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+ 
 #status {
   text-align: center;
-  color: #b00020;
+  color: var(--danger);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   margin: 10px 0;
 }
-
+ 
+/* ── NAV ── */
 .nav {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 430px;
-  margin: 0 auto;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid #ddd;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 470px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.06);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  padding: 10px 6px;
+  padding: 10px 6px 14px;
+  z-index: 50;
 }
-
+ 
 .nav a {
   text-decoration: none;
-  color: #555;
-  font-size: 11px;
-  font-weight: bold;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
   text-align: center;
+  transition: color 0.18s;
 }
-
+ 
+.nav a:hover { color: var(--accent); }
+ 
 .nav-icon {
   display: block;
   font-size: 20px;
   margin-bottom: 3px;
 }
-
-.active {
-  color: #0b7a28 !important;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulseGlow {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.12); }
-  100% { transform: scale(1); }
+ 
+.active { color: var(--accent) !important; }
+ 
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
-
+ 
 <body>
+ 
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
+  <div class="refresh" onclick="loadAcceptedQuotes()">Refresh</div>
+</div>
+ 
 <div class="container">
-
-  <div class="top-bar">
-    <div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
-    <div class="refresh" onclick="loadAcceptedQuotes()">Refresh</div>
-  </div>
-
+ 
+  <!-- HERO -->
   <div class="hero">
     <h1>Accepted Quotes</h1>
     <p>View active accepted tasks, arrival codes, live status, worker details, task details, and payment status.</p>
   </div>
-
+ 
+  <!-- SUMMARY -->
   <div class="summary-row">
     <div class="summary-box">
       <div class="summary-label">Active Tasks</div>
       <div class="summary-value" id="closedCount">0</div>
     </div>
-
+ 
     <div class="summary-box">
       <div class="summary-label">Total Accepted</div>
       <div class="summary-value" id="paidTotal">$0.00</div>
     </div>
   </div>
-
+ 
   <p id="status"></p>
-
+ 
   <div id="acceptedList">
     <div class="empty">Loading active accepted quotes...</div>
   </div>
-
+ 
 </div>
-
+ 
+<!-- NAV -->
 <div class="nav">
   <a href="customer-home.html"><span class="nav-icon">🏠</span>Home</a>
   <a href="post-job.html"><span class="nav-icon">＋</span>Post</a>
@@ -570,21 +599,21 @@ button:hover {
   <a href="customer-accepted-quote.html" class="active"><span class="nav-icon">🧾</span>Accepted</a>
   <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
 </div>
-
+ 
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://dbcthtjmtlumidpbucrc.supabase.co",
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
-
+ 
 const DEFAULT_WORKER_PHOTO =
   "https://github.com/businessappemail-bt/task-app/blob/main/taskmintlogo.png?raw=true";
-
+ 
 function escapeHTML(value) {
   if (value === null || value === undefined) {
     return "";
   }
-
+ 
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -592,53 +621,53 @@ function escapeHTML(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
-
+ 
 function formatDate(value) {
   if (!value) {
     return "Not listed";
   }
-
+ 
   const rawValue =
     String(value).trim();
-
+ 
   const dateMatch =
     rawValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
-
+ 
   if (dateMatch) {
     const [, year, month, day] =
       dateMatch;
-
+ 
     return `${Number(month)}/${Number(day)}/${year}`;
   }
-
+ 
   const date =
     new Date(rawValue);
-
+ 
   if (Number.isNaN(date.getTime())) {
     return value;
   }
-
+ 
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 }
-
+ 
 function formatMoney(value) {
   if (value === null || value === undefined || value === "") {
     return "$0.00";
   }
-
+ 
   const numberValue = Number(value);
-
+ 
   if (Number.isNaN(numberValue)) {
     return String(value);
   }
-
+ 
   return "$" + numberValue.toFixed(2);
 }
-
+ 
 function formatStatus(value) {
   return String(value || "closed").replaceAll("_", " ");
 }
-
+ 
 function getCustomerIdFromSession() {
   return supabaseClient.auth.getSession()
     .then(({ data }) => {
@@ -646,27 +675,27 @@ function getCustomerIdFromSession() {
         localStorage.setItem("taskmintUserId", data.session.user.id);
         return data.session.user.id;
       }
-
+ 
       return localStorage.getItem("taskmintUserId");
     });
 }
-
+ 
 async function getAuthenticatedCustomerId() {
   const { data, error } =
     await supabaseClient.auth.getUser();
-
+ 
   if (error || !data || !data.user) {
     return "";
   }
-
+ 
   return data.user.id;
 }
-
+ 
 function getFirstAvailable(record, keys, fallback = "") {
   if (!record) {
     return fallback;
   }
-
+ 
   for (const key of keys) {
     if (
       record[key] !== null &&
@@ -676,10 +705,10 @@ function getFirstAvailable(record, keys, fallback = "") {
       return record[key];
     }
   }
-
+ 
   return fallback;
 }
-
+ 
 function getTaskTitle(task) {
   return getFirstAvailable(task, [
     "title",
@@ -688,7 +717,7 @@ function getTaskTitle(task) {
     "service_type"
   ], "Task");
 }
-
+ 
 function getTaskCategory(task) {
   return getFirstAvailable(task, [
     "category",
@@ -696,7 +725,7 @@ function getTaskCategory(task) {
     "service_type"
   ], "Other");
 }
-
+ 
 function getTaskDate(task) {
   return getFirstAvailable(task, [
     "task_date",
@@ -706,38 +735,38 @@ function getTaskDate(task) {
     "scheduled_start"
   ], "");
 }
-
+ 
 function getDaysUntilTask(task) {
   const dateValue =
     getTaskDate(task);
-
+ 
   if (!dateValue) {
     return null;
   }
-
+ 
   const taskDate =
     new Date(dateValue);
-
+ 
   if (Number.isNaN(taskDate.getTime())) {
     return null;
   }
-
+ 
   const today =
     new Date();
-
+ 
   today.setHours(0, 0, 0, 0);
   taskDate.setHours(0, 0, 0, 0);
-
+ 
   return Math.ceil((taskDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
-
+ 
 function canShowFullAddress(task) {
   const daysUntil =
     getDaysUntilTask(task);
-
+ 
   return daysUntil !== null && daysUntil <= 7;
 }
-
+ 
 function getTaskLocation(task) {
   const address =
     getFirstAvailable(task, [
@@ -746,59 +775,59 @@ function getTaskLocation(task) {
       "task_address",
       "street_address"
     ], "");
-
+ 
   const city =
     getFirstAvailable(task, [
       "city",
       "task_city"
     ], "");
-
+ 
   const state =
     getFirstAvailable(task, [
       "state",
       "task_state"
     ], "");
-
+ 
   const zip =
     getFirstAvailable(task, [
       "zip_code",
       "zip"
     ], "");
-
+ 
   const generalLocation =
     `${city}${state ? ", " + state : ""}`.trim() || "Location not listed";
-
+ 
   if (!canShowFullAddress(task)) {
     return `${generalLocation} — full address unlocks 7 days before the scheduled task date.`;
   }
-
+ 
   if (address) {
     return `${address}${city ? ", " + city : ""}${state ? ", " + state : ""}${zip ? " " + zip : ""}`;
   }
-
+ 
   return `${city}${state ? ", " + state : ""}${zip ? " " + zip : ""}`.trim() || "Location not listed";
 }
-
+ 
 function getTaskDetails(task) {
   if (task.task_details && typeof task.task_details === "object") {
     return Object.keys(task.task_details)
       .map(key => {
         const label =
           key.replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase());
-
+ 
         const value =
           Array.isArray(task.task_details[key])
             ? task.task_details[key].join(", ")
             : task.task_details[key];
-
+ 
         return `${label}: ${value || "Not answered"}`;
       })
       .join("\n");
   }
-
+ 
   return task.description || task.additional_notes || task.notes || "No task details listed.";
 }
-
+ 
 function getWorkerId(task) {
   return (
     task.assigned_worker_id ||
@@ -808,7 +837,7 @@ function getWorkerId(task) {
     ""
   );
 }
-
+ 
 function getQuoteId(task) {
   return (
     task.accepted_quote_id ||
@@ -818,7 +847,7 @@ function getQuoteId(task) {
     ""
   );
 }
-
+ 
 function getAmountPaid(task, quote, payment) {
   return (
     payment?.amount ||
@@ -833,22 +862,22 @@ function getAmountPaid(task, quote, payment) {
     0
   );
 }
-
+ 
 function parseTaskDateLocal(value) {
   if (!value) {
     return null;
   }
-
+ 
   const rawValue =
     String(value).trim();
-
+ 
   const dateMatch =
     rawValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
-
+ 
   if (!dateMatch) {
     return null;
   }
-
+ 
   return new Date(
     Number(dateMatch[1]),
     Number(dateMatch[2]) - 1,
@@ -859,7 +888,7 @@ function parseTaskDateLocal(value) {
     0
   );
 }
-
+ 
 function getCancellationFeeDetails(task, amountPaid, workerId) {
   if (!workerId) {
     return {
@@ -871,10 +900,10 @@ function getCancellationFeeDetails(task, amountPaid, workerId) {
       message: "No worker is assigned to this task. There is no cancellation fee."
     };
   }
-
+ 
   const taskDate =
     parseTaskDateLocal(getTaskDate(task));
-
+ 
   if (!taskDate) {
     return {
       percent: 0,
@@ -885,10 +914,10 @@ function getCancellationFeeDetails(task, amountPaid, workerId) {
       message: "No scheduled task date was found. There is no cancellation fee."
     };
   }
-
+ 
   const today =
     new Date();
-
+ 
   const todayLocal =
     new Date(
       today.getFullYear(),
@@ -899,18 +928,18 @@ function getCancellationFeeDetails(task, amountPaid, workerId) {
       0,
       0
     );
-
+ 
   const millisecondsPerDay =
     24 * 60 * 60 * 1000;
-
+ 
   const daysUntilTask =
     Math.ceil(
       (taskDate.getTime() - todayLocal.getTime()) / millisecondsPerDay
     );
-
+ 
   let percent = 0;
   let message = "Cancel 7+ days before the scheduled task: no cancellation fee.";
-
+ 
   if (daysUntilTask >= 7) {
     percent = 0;
     message = "Cancel 7+ days before the scheduled task: no cancellation fee.";
@@ -924,22 +953,22 @@ function getCancellationFeeDetails(task, amountPaid, workerId) {
     percent = 30;
     message = "Same day cancellations: 30% cancellation fee.";
   }
-
+ 
   const paidAmount =
     Number(amountPaid || 0);
-
+ 
   const feeAmount =
     Number((paidAmount * (percent / 100)).toFixed(2));
-
+ 
   const refundAmount =
     Number(Math.max(paidAmount - feeAmount, 0).toFixed(2));
-
+ 
   const taskMintFee =
     Number((feeAmount * 0.05).toFixed(2));
-
+ 
   const workerPayout =
     Number(Math.max(feeAmount - taskMintFee, 0).toFixed(2));
-
+ 
   return {
     percent,
     feeAmount,
@@ -949,21 +978,21 @@ function getCancellationFeeDetails(task, amountPaid, workerId) {
     message
   };
 }
-
+ 
 async function getOrCreateWorkerCancellationConversation(task, workerId) {
   if (!task || !task.id || !workerId) {
     return "";
   }
-
+ 
   const customerId =
     task.customer_id ||
     localStorage.getItem("taskmintUserId") ||
     "";
-
+ 
   if (!customerId) {
     return "";
   }
-
+ 
   const { data: existingConversation } =
     await supabaseClient
       .from("task_conversations")
@@ -972,7 +1001,7 @@ async function getOrCreateWorkerCancellationConversation(task, workerId) {
       .eq("customer_id", customerId)
       .eq("worker_id", workerId)
       .maybeSingle();
-
+ 
   if (existingConversation && existingConversation.id) {
     await supabaseClient
       .from("task_conversations")
@@ -981,10 +1010,10 @@ async function getOrCreateWorkerCancellationConversation(task, workerId) {
         worker_unread_count: 1
       })
       .eq("id", existingConversation.id);
-
+ 
     return existingConversation.id;
   }
-
+ 
   const { data: newConversation } =
     await supabaseClient
       .from("task_conversations")
@@ -1000,28 +1029,28 @@ async function getOrCreateWorkerCancellationConversation(task, workerId) {
       ])
       .select("id")
       .maybeSingle();
-
+ 
   return newConversation?.id || "";
 }
-
+ 
 async function notifyWorkerCustomerCancelled(task, workerId, feeDetails) {
   if (!task || !workerId) {
     return;
   }
-
+ 
   const conversationId =
     await getOrCreateWorkerCancellationConversation(task, workerId);
-
+ 
   const customerId =
     task.customer_id ||
     localStorage.getItem("taskmintUserId") ||
     "";
-
+ 
   const message =
     feeDetails.feeAmount > 0
       ? `The customer cancelled this task: ${getTaskTitle(task)}. The customer cancellation fee is ${formatMoney(feeDetails.feeAmount)}. TaskMint keeps 5% (${formatMoney(feeDetails.taskMintFee)}). Your cancellation payout is ${formatMoney(feeDetails.workerPayout)}.`
       : `The customer cancelled this task: ${getTaskTitle(task)}. No cancellation fee applies, so there is no cancellation payout for this task.`;
-
+ 
   if (conversationId) {
     await supabaseClient
       .from("task_messages")
@@ -1038,7 +1067,7 @@ async function notifyWorkerCustomerCancelled(task, workerId, feeDetails) {
           is_read: false
         }
       ]);
-
+ 
     await supabaseClient
       .from("task_conversations")
       .update({
@@ -1048,8 +1077,7 @@ async function notifyWorkerCustomerCancelled(task, workerId, feeDetails) {
       .eq("id", conversationId);
   }
 }
-
-
+ 
 function getPaymentStatus(task, quote, payment) {
   return (
     payment?.payment_status ||
@@ -1062,11 +1090,11 @@ function getPaymentStatus(task, quote, payment) {
     "Not listed"
   );
 }
-
+ 
 function isPaymentCompleted(task, quote, payment) {
   const status =
     String(getPaymentStatus(task, quote, payment)).toLowerCase();
-
+ 
   return (
     status === "paid" ||
     status === "completed" ||
@@ -1076,11 +1104,11 @@ function isPaymentCompleted(task, quote, payment) {
     status === "succeeded"
   );
 }
-
+ 
 function isAcceptedActiveTask(task) {
   const status =
     String(task.status || "").toLowerCase();
-
+ 
   return [
     "accepted",
     "scheduled",
@@ -1090,35 +1118,35 @@ function isAcceptedActiveTask(task) {
     "dispute_closed"
   ].includes(status);
 }
-
+ 
 function isDisputeOpen(task) {
   const status =
     String(task.status || "").toLowerCase();
-
+ 
   const disputeStatus =
     String(task.dispute_status || "").toLowerCase();
-
+ 
   return (
     status === "dispute_open" ||
     disputeStatus === "open" ||
     disputeStatus === "reviewing"
   );
 }
-
+ 
 function getLiveTaskStatus(task, quote, assignment, paymentCompleted) {
   if (isDisputeOpen(task)) {
     return "Dispute Open";
   }
-
+ 
   const taskStatus =
     String(task.status || "").toLowerCase();
-
+ 
   const quoteStatus =
     String(quote?.status || "").toLowerCase();
-
+ 
   const assignmentStatus =
     String(assignment?.assignment_status || "").toLowerCase();
-
+ 
   if (
     taskStatus === "completed" ||
     taskStatus === "customer_completed" ||
@@ -1127,14 +1155,14 @@ function getLiveTaskStatus(task, quote, assignment, paymentCompleted) {
   ) {
     return "Completed";
   }
-
+ 
   if (
     taskStatus === "worker_completed" ||
     quoteStatus === "worker_completed"
   ) {
     return "Worker Completed";
   }
-
+ 
   if (
     taskStatus === "in_progress" ||
     quoteStatus === "in_progress" ||
@@ -1145,11 +1173,11 @@ function getLiveTaskStatus(task, quote, assignment, paymentCompleted) {
   ) {
     return "In Progress";
   }
-
+ 
   if (taskStatus === "closed" || taskStatus === "resolved" || taskStatus === "dispute_closed") {
     return "Closed";
   }
-
+ 
   if (
     taskStatus === "accepted" ||
     taskStatus === "scheduled" ||
@@ -1158,62 +1186,62 @@ function getLiveTaskStatus(task, quote, assignment, paymentCompleted) {
   ) {
     return "Accepted";
   }
-
+ 
   return "Accepted";
 }
-
+ 
 function getStatusPillClass(statusText) {
   const status =
     String(statusText || "").toLowerCase();
-
+ 
   if (status.includes("dispute")) {
     return "dispute";
   }
-
+ 
   if (status === "completed" || status === "closed") {
     return "closed";
   }
-
+ 
   return "";
 }
-
+ 
 function getProgressIndex(statusText) {
   const status =
     String(statusText || "").toLowerCase();
-
+ 
   if (status === "completed" || status === "closed") {
     return 4;
   }
-
+ 
   if (status === "worker completed") {
     return 3;
   }
-
+ 
   if (status === "in progress") {
     return 2;
   }
-
+ 
   return 1;
 }
-
+ 
 function renderProgressTracker(statusText) {
   const progressIndex =
     getProgressIndex(statusText);
-
+ 
   const steps = [
     "Accepted",
     "In Progress",
     "Worker Done",
     "Completed"
   ];
-
+ 
   return `
     <div class="progress-box">
       <div class="progress-title">Task Progress</div>
       <div class="progress-steps">
         ${steps.map((step, index) => {
           const active = index + 1 <= progressIndex;
-
+ 
           return `
             <div class="progress-step ${active ? "active" : ""}">
               <div class="progress-dot">${active ? "✓" : ""}</div>
@@ -1225,7 +1253,7 @@ function renderProgressTracker(statusText) {
     </div>
   `;
 }
-
+ 
 function getArrivalCode(assignment, task) {
   return (
     assignment?.arrival_code ||
@@ -1234,11 +1262,11 @@ function getArrivalCode(assignment, task) {
     ""
   );
 }
-
+ 
 function renderArrivalCodeBox(arrivalCode, statusText) {
   const status =
     String(statusText || "").toLowerCase();
-
+ 
   if (
     !arrivalCode ||
     status === "closed" ||
@@ -1247,7 +1275,7 @@ function renderArrivalCodeBox(arrivalCode, statusText) {
   ) {
     return "";
   }
-
+ 
   return `
     <div class="arrival-code-box">
       Arrival Code
@@ -1258,11 +1286,11 @@ function renderArrivalCodeBox(arrivalCode, statusText) {
     </div>
   `;
 }
-
+ 
 function renderCustomerCompletionButton(task, quote, assignment, statusText, workerId) {
   const status =
     String(statusText || "").toLowerCase();
-
+ 
   if (status === "completed") {
     return `
       <div class="complete-note">
@@ -1270,11 +1298,11 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText, wor
       </div>
     `;
   }
-
+ 
   if (status === "closed" || status.includes("dispute")) {
     return "";
   }
-
+ 
   if (status === "in progress") {
     return `
       <div class="complete-note">
@@ -1282,21 +1310,21 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText, wor
       </div>
     `;
   }
-
+ 
   if (status !== "worker completed") {
     return "";
   }
-
+ 
   return `
     <div class="rating-review-box">
       <div class="rating-review-title">
         Rate the worker before completing this task
       </div>
-
+ 
       <div class="rating-review-help">
         A rating is required. A written review is optional.
       </div>
-
+ 
       <select class="rating-select" id="rating-${escapeHTML(task.id)}">
         <option value="">Select rating</option>
         <option value="5">★★★★★ 5 - Excellent</option>
@@ -1305,13 +1333,13 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText, wor
         <option value="2">★★☆☆☆ 2 - Poor</option>
         <option value="1">★☆☆☆☆ 1 - Bad</option>
       </select>
-
+ 
       <textarea
         class="review-textarea"
         id="review-${escapeHTML(task.id)}"
         placeholder="Optional: leave a review about the worker">
       </textarea>
-
+ 
       <button
         class="complete-btn"
         onclick="markTaskComplete('${escapeHTML(task.source_type)}', '${escapeHTML(task.id)}', '${escapeHTML(quote?.id || getQuoteId(task) || "")}', '${escapeHTML(assignment?.id || "")}', '${escapeHTML(workerId || getWorkerId(task) || "")}')">
@@ -1320,32 +1348,32 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText, wor
     </div>
   `;
 }
-
+ 
 function getWorkerName(worker, quote, task) {
   const direct =
     quote?.worker_display_name ||
     task.worker_display_name ||
     worker?.display_name ||
     worker?.full_name;
-
+ 
   if (direct) {
     return direct;
   }
-
+ 
   const first =
     worker?.first_name ||
     "";
-
+ 
   const last =
     worker?.last_name ||
     "";
-
+ 
   const lastInitial =
     last ? last.charAt(0).toUpperCase() + "." : "";
-
+ 
   return first ? `${first} ${lastInitial}`.trim() : "Worker";
 }
-
+ 
 function getWorkerPhoto(worker) {
   return (
     worker?.profile_photo_url ||
@@ -1355,66 +1383,66 @@ function getWorkerPhoto(worker) {
     DEFAULT_WORKER_PHOTO
   );
 }
-
+ 
 async function fetchSingleById(table, id) {
   if (!id) {
     return null;
   }
-
+ 
   const { data, error } =
     await supabaseClient
       .from(table)
       .select("*")
       .eq("id", id)
       .maybeSingle();
-
+ 
   if (error || !data) {
     return null;
   }
-
+ 
   return data;
 }
-
+ 
 async function fetchWorker(workerId) {
   if (!workerId) {
     return null;
   }
-
+ 
   const { data: workerRecord } =
     await supabaseClient
       .from("worker_profiles")
       .select("*")
       .eq("id", workerId)
       .maybeSingle();
-
+ 
   if (workerRecord) {
     return workerRecord;
   }
-
+ 
   const { data: workerProfile } =
     await supabaseClient
       .from("worker_profiles")
       .select("*")
       .eq("id", workerId)
       .maybeSingle();
-
+ 
   return workerProfile || null;
 }
-
+ 
 async function fetchQuote(quoteId, taskId) {
   if (quoteId) {
     const foundById =
       await fetchSingleById("worker_quotes", quoteId);
-
+ 
     if (foundById) {
       return foundById;
     }
   }
-
+ 
   if (!taskId) {
     return null;
   }
-
+ 
   const { data } =
     await supabaseClient
       .from("worker_quotes")
@@ -1424,10 +1452,10 @@ async function fetchQuote(quoteId, taskId) {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-
+ 
   return data || null;
 }
-
+ 
 async function fetchPayment(taskId, quoteId) {
   let query =
     supabaseClient
@@ -1435,24 +1463,24 @@ async function fetchPayment(taskId, quoteId) {
       .select("*")
       .order("created_at", { ascending: false })
       .limit(1);
-
+ 
   if (quoteId) {
     query = query.eq("quote_id", quoteId);
   } else if (taskId) {
     query = query.eq("task_id", taskId);
   }
-
+ 
   const { data } =
     await query.maybeSingle();
-
+ 
   return data || null;
 }
-
+ 
 async function fetchAssignment(taskId, workerId) {
   if (!taskId) {
     return null;
   }
-
+ 
   let query =
     supabaseClient
       .from("task_assignments")
@@ -1460,61 +1488,61 @@ async function fetchAssignment(taskId, workerId) {
       .eq("task_id", taskId)
       .order("created_at", { ascending: false })
       .limit(1);
-
+ 
   if (workerId) {
     query = query.or(`worker_id.eq.${workerId},worker_user_id.eq.${workerId}`);
   }
-
+ 
   const { data } =
     await query.maybeSingle();
-
+ 
   return data || null;
 }
-
+ 
 function toggleDetails(id) {
   const box =
     document.getElementById(id);
-
+ 
   if (!box) {
     return;
   }
-
+ 
   box.classList.toggle("open");
 }
-
+ 
 async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, workerId) {
   const confirmed =
     confirm("Confirm this task is complete? Only do this after the worker has finished the work.");
-
+ 
   if (!confirmed) {
     return;
   }
-
+ 
   const ratingInput =
     document.getElementById(`rating-${taskId}`);
-
+ 
   const reviewInput =
     document.getElementById(`review-${taskId}`);
-
+ 
   const rating =
     ratingInput ? ratingInput.value : "";
-
+ 
   const reviewText =
     reviewInput ? reviewInput.value.trim() : "";
-
+ 
   if (!rating) {
     alert("Please rate the worker before marking the task complete.");
     return;
   }
-
+ 
   const customerId =
     await getAuthenticatedCustomerId();
-
+ 
   if (!customerId) {
     alert("Your session expired. Please log in again before submitting a rating.");
     return;
   }
-
+ 
   const reviewPayload =
     {
       task_id: taskId,
@@ -1524,32 +1552,32 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
       review_text: reviewText || null,
       comment: reviewText || null
     };
-
+ 
   const { error: reviewError } =
     await supabaseClient
       .from("reviews")
       .insert(reviewPayload);
-
+ 
   if (reviewError) {
     alert(reviewError.message);
     return;
   }
-
+ 
   const status =
     document.getElementById("status");
-
+ 
   if (status) {
     status.innerText = "Updating task status...";
   }
-
+ 
   const taskTable =
     sourceType === "direct_quote"
       ? "direct_task_requests"
       : "tasks";
-
+ 
   const completedAt =
     new Date().toISOString();
-
+ 
   const { error: taskError } =
     await supabaseClient
       .from(taskTable)
@@ -1561,7 +1589,7 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
         updated_at: completedAt
       })
       .eq("id", taskId);
-
+ 
   if (taskError) {
     if (status) {
       status.innerText = taskError.message;
@@ -1569,9 +1597,9 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
     alert(taskError.message);
     return;
   }
-
+ 
   let quoteUpdateError = null;
-
+ 
   if (quoteId) {
     const { error } =
       await supabaseClient
@@ -1583,10 +1611,10 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
           updated_at: completedAt
         })
         .eq("id", quoteId);
-
+ 
     quoteUpdateError = error;
   }
-
+ 
   if (!quoteId || quoteUpdateError) {
     const { error } =
       await supabaseClient
@@ -1599,10 +1627,10 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
         })
         .eq("task_id", taskId)
         .in("status", ["accepted", "in_progress", "worker_completed"]);
-
+ 
     quoteUpdateError = error;
   }
-
+ 
   if (quoteUpdateError) {
     if (status) {
       status.innerText = quoteUpdateError.message;
@@ -1610,7 +1638,7 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
     alert(quoteUpdateError.message);
     return;
   }
-
+ 
   if (assignmentId) {
     await supabaseClient
       .from("task_assignments")
@@ -1630,35 +1658,35 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
       })
       .eq("task_id", taskId);
   }
-
+ 
   if (status) {
     status.innerText = "";
   }
-
+ 
   alert("Task marked complete. It will now move to past tasks.");
   loadAcceptedQuotes();
 }
-
+ 
 async function loadAcceptedQuotes() {
   const customerId =
     await getCustomerIdFromSession();
-
+ 
   const list =
     document.getElementById("acceptedList");
-
+ 
   const status =
     document.getElementById("status");
-
+ 
   status.innerText = "";
   list.innerHTML =
     `<div class="empty">Loading accepted quotes...</div>`;
-
+ 
   if (!customerId) {
     list.innerHTML =
       `<div class="empty">You must be logged in.</div>`;
     return;
   }
-
+ 
   const { data: marketplaceTasks, error: taskError } =
     await supabaseClient
       .from("tasks")
@@ -1666,13 +1694,13 @@ async function loadAcceptedQuotes() {
       .eq("customer_id", customerId)
       .in("status", ["accepted", "scheduled", "in_progress", "worker_completed", "dispute_open", "dispute_closed"])
       .order("created_at", { ascending: false });
-
+ 
   if (taskError) {
     list.innerHTML =
       `<div class="empty">${escapeHTML(taskError.message)}</div>`;
     return;
   }
-
+ 
   const { data: directTasks } =
     await supabaseClient
       .from("direct_task_requests")
@@ -1680,7 +1708,7 @@ async function loadAcceptedQuotes() {
       .eq("customer_id", customerId)
       .in("status", ["accepted", "scheduled", "in_progress", "worker_completed", "dispute_open", "dispute_closed"])
       .order("created_at", { ascending: false });
-
+ 
   const tasks =
     [
       ...(marketplaceTasks || []).map(task => ({
@@ -1696,97 +1724,97 @@ async function loadAcceptedQuotes() {
     ]
       .filter(isAcceptedActiveTask)
       .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
+ 
   if (tasks.length === 0) {
     document.getElementById("closedCount").innerText = "0";
     document.getElementById("paidTotal").innerText = "$0.00";
-
+ 
     list.innerHTML =
       `<div class="empty">No active accepted quotes yet.</div>`;
     return;
   }
-
+ 
   list.innerHTML = "";
-
+ 
   let totalPaid = 0;
   let visiblePaidTasks = 0;
-
+ 
   for (const task of tasks) {
     const quoteId =
       getQuoteId(task);
-
+ 
     const quote =
       await fetchQuote(quoteId, task.id);
-
+ 
     const workerId =
       getWorkerId(task) ||
       quote?.worker_id ||
       "";
-
+ 
     const worker =
       await fetchWorker(workerId);
-
+ 
     const payment =
       await fetchPayment(task.id, quote?.id || quoteId);
-
+ 
     const amountPaid =
       Number(getAmountPaid(task, quote, payment) || 0);
-
+ 
     if (!Number.isNaN(amountPaid)) {
       totalPaid += amountPaid;
     }
-
+ 
     const paymentCompleted =
       isPaymentCompleted(task, quote, payment);
-
+ 
     visiblePaidTasks += 1;
-
+ 
     const paymentStatus =
       getPaymentStatus(task, quote, payment);
-
+ 
     const assignment =
       await fetchAssignment(task.id, workerId);
-
+ 
     const liveStatus =
       getLiveTaskStatus(task, quote, assignment, paymentCompleted);
-
+ 
     const arrivalCode =
       getArrivalCode(assignment, task);
-
+ 
     const detailsId =
       `details-${task.source_type}-${task.id}`;
-
+ 
     const disputeOpen =
       isDisputeOpen(task);
-
+ 
     const card =
       document.createElement("div");
-
+ 
     card.className =
       "task-card";
-
+ 
     card.innerHTML = `
       <div class="task-top">
         <div>
           <div class="task-title">
             ${escapeHTML(getTaskTitle(task))}
           </div>
-
+ 
           <div class="task-sub">
             Order # TM-${String(task.id).slice(0, 8).toUpperCase()} •
             Accepted ${escapeHTML(formatDate(task.accepted_at || task.paid_at || task.updated_at || task.created_at))}
           </div>
-
+ 
           <div class="request-pill">
             ${task.is_direct_request ? "Direct Quote" : "Marketplace Request"}
           </div>
         </div>
-
+ 
         <div class="status-pill ${getStatusPillClass(liveStatus)}">
           ${escapeHTML(liveStatus)}
         </div>
       </div>
-
+ 
       <div class="worker-row">
         <img
           class="worker-avatar"
@@ -1794,18 +1822,18 @@ async function loadAcceptedQuotes() {
           onerror="this.src='${DEFAULT_WORKER_PHOTO}'"
           alt="Worker photo"
         >
-
+ 
         <div>
           <div class="worker-name">
             ${escapeHTML(getWorkerName(worker, quote, task))}
           </div>
-
+ 
           <div class="worker-sub">
             Accepted worker for this task
           </div>
         </div>
       </div>
-
+ 
       <div class="compact-grid">
         <div class="info-box">
           <div class="info-label">Amount Paid</div>
@@ -1813,21 +1841,21 @@ async function loadAcceptedQuotes() {
             ${escapeHTML(formatMoney(amountPaid))}
           </div>
         </div>
-
+ 
         <div class="info-box">
           <div class="info-label">Payment Status</div>
           <div class="info-value">
             ${paymentCompleted ? "Payment Completed" : escapeHTML(formatStatus(paymentStatus))}
           </div>
         </div>
-
+ 
         <div class="info-box">
           <div class="info-label">Date Needed</div>
           <div class="info-value">
             ${escapeHTML(formatDate(getTaskDate(task)))}
           </div>
         </div>
-
+ 
         <div class="info-box">
           <div class="info-label">Location</div>
           <div class="info-value">
@@ -1835,146 +1863,145 @@ async function loadAcceptedQuotes() {
           </div>
         </div>
       </div>
-
+ 
       ${renderProgressTracker(liveStatus)}
-
+ 
       ${renderArrivalCodeBox(arrivalCode, liveStatus)}
-
+ 
       <div class="payment-box ${paymentCompleted ? "" : "unpaid"}">
         ${paymentCompleted
           ? `Payment completed for ${escapeHTML(formatMoney(amountPaid))}.`
           : `Payment status: ${escapeHTML(formatStatus(paymentStatus))}.`
         }
       </div>
-
+ 
       ${disputeOpen ? `
         <div class="dispute-alert">
           A dispute is still open on this task. It should remain visible until the dispute is closed.
         </div>
       ` : ""}
-
+ 
       <div class="details-toggle" onclick="toggleDetails('${detailsId}')">
         View all task details
       </div>
-
+ 
       <div class="details-box" id="${detailsId}">
         <div class="detail-item">
           <strong>Category:</strong> ${escapeHTML(getTaskCategory(task))}
         </div>
-
+ 
         <div class="detail-item">
           <strong>Task Details:</strong><br>
           ${escapeHTML(getTaskDetails(task)).replaceAll("\n", "<br>")}
         </div>
-
+ 
         <div class="detail-item">
           <strong>Worker Quote Message:</strong><br>
           ${escapeHTML(quote?.message || "No quote message listed.")}
         </div>
-
+ 
         <div class="detail-item">
           <strong>Quote ID:</strong> ${escapeHTML(quote?.id || quoteId || "Not listed")}
         </div>
-
+ 
         <div class="detail-item">
           <strong>Task Status:</strong> ${escapeHTML(liveStatus)}
         </div>
-
+ 
         <div class="detail-item">
           <strong>Arrival Code:</strong> ${escapeHTML(arrivalCode || "Not generated yet")}
         </div>
       </div>
-
+ 
       <div class="action-row">
         <button class="secondary-btn" onclick="window.location.href='message-center.html?worker_id=${encodeURIComponent(workerId)}&task_id=${encodeURIComponent(task.id)}'">
           Message Worker
         </button>
-
+ 
         <button class="primary-btn" onclick="window.location.href='worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}'">
           Worker Profile
         </button>
-
+ 
         <button class="secondary-btn" onclick="cancelAcceptedTask('${task.id}','${task.source_type}')">
           Cancel Task
         </button>
-
+ 
         ${renderCustomerCompletionButton(task, quote, assignment, liveStatus, workerId)}
       </div>
     `;
-
+ 
     list.appendChild(card);
   }
-
+ 
   if (visiblePaidTasks === 0) {
     document.getElementById("closedCount").innerText = "0";
     document.getElementById("paidTotal").innerText = "$0.00";
-
+ 
     list.innerHTML =
       `<div class="empty">No active accepted quotes yet.</div>`;
     return;
   }
-
+ 
   document.getElementById("closedCount").innerText =
     String(visiblePaidTasks);
-
+ 
   document.getElementById("paidTotal").innerText =
     formatMoney(totalPaid);
 }
-
-
+ 
 async function cancelAcceptedTask(taskId, sourceType) {
   const tableName =
     sourceType === "direct_quote"
       ? "direct_task_requests"
       : "tasks";
-
+ 
   const { data: task, error: taskError } =
     await supabaseClient
       .from(tableName)
       .select("*")
       .eq("id", taskId)
       .maybeSingle();
-
+ 
   if (taskError || !task) {
     alert(taskError ? taskError.message : "Task could not be found.");
     return;
   }
-
+ 
   const quoteId =
     getQuoteId(task);
-
+ 
   const quote =
     await fetchQuote(quoteId, task.id);
-
+ 
   const workerId =
     getWorkerId(task) ||
     quote?.worker_id ||
     "";
-
+ 
   const amountPaid =
     Number(getAmountPaid(task, quote, null) || 0);
-
+ 
   const feeDetails =
     getCancellationFeeDetails(task, amountPaid, workerId);
-
+ 
   const confirmationMessage =
     `${feeDetails.message}
-
+ 
 Amount paid: ${formatMoney(amountPaid)}
 Cancellation fee: ${formatMoney(feeDetails.feeAmount)}
 TaskMint fee from cancellation payout: ${formatMoney(feeDetails.taskMintFee)}
 Worker cancellation payout: ${formatMoney(feeDetails.workerPayout)}
 Refund amount: ${formatMoney(feeDetails.refundAmount)}
-
+ 
 Click OK to confirm you understand and want to cancel this task.`;
-
+ 
   const understood =
     confirm(confirmationMessage);
-
+ 
   if (!understood) {
     return;
   }
-
+ 
   const updatePayload =
     sourceType === "direct_quote"
       ? {
@@ -1990,18 +2017,18 @@ Click OK to confirm you understand and want to cancel this task.`;
           refund_amount: feeDetails.refundAmount,
           worker_payout_amount: feeDetails.workerPayout
         };
-
+ 
   const { error: updateError } =
     await supabaseClient
       .from(tableName)
       .update(updatePayload)
       .eq("id", taskId);
-
+ 
   if (updateError) {
     alert(updateError.message);
     return;
   }
-
+ 
   if (quote && quote.id) {
     await supabaseClient
       .from("worker_quotes")
@@ -2010,7 +2037,7 @@ Click OK to confirm you understand and want to cancel this task.`;
       })
       .eq("id", quote.id);
   }
-
+ 
   if (workerId && feeDetails.workerPayout > 0) {
     const { error: earningsError } =
       await supabaseClient
@@ -2026,18 +2053,18 @@ Click OK to confirm you understand and want to cancel this task.`;
             job_category: getTaskCategory(task)
           }
         ]);
-
+ 
     if (earningsError) {
       alert("Worker earnings insert failed: " + earningsError.message);
       console.error(earningsError);
       return;
     }
   }
-
+ 
   if (workerId) {
     await notifyWorkerCustomerCancelled(task, workerId, feeDetails);
   }
-
+ 
   if (sourceType !== "direct_quote") {
     const { error: refundRecordError } =
       await supabaseClient.rpc(
@@ -2046,22 +2073,22 @@ Click OK to confirm you understand and want to cancel this task.`;
           p_task_id: taskId
         }
       );
-
+ 
     if (refundRecordError) {
       alert(refundRecordError.message);
       return;
     }
   }
-
+ 
   alert(
     feeDetails.percent > 0
       ? `Task cancelled. Worker cancellation payout: ${formatMoney(feeDetails.workerPayout)}. Refund processing has started.`
       : "Task cancelled. No cancellation fee was charged. Refund processing has started."
   );
-
+ 
   loadAcceptedQuotes();
 }
-
+ 
 loadAcceptedQuotes();
 </script>
 </body>
