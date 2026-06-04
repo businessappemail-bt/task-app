@@ -4,7 +4,7 @@
   <title>Customer Home - TaskMint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
+      <style>
     * {
       box-sizing: border-box;
     }
@@ -15,16 +15,14 @@
       color: #111;
       padding-bottom: 96px;
       background:
-        radial-gradient(circle at top left, rgba(25,182,76,0.18), transparent 30%),
-        radial-gradient(circle at 88% 18%, rgba(11,122,40,0.12), transparent 26%),
-        linear-gradient(180deg, #eef8f1 0%, #f7f9f7 46%, #ffffff 100%);
+        linear-gradient(180deg, #062b13 0%, #0b7a28 178px, #f4f7f5 179px, #f7f8f7 100%);
       overflow-x: hidden;
     }
 
     .container {
       max-width: 470px;
       margin: 0 auto;
-      padding: 18px 18px 110px;
+      padding: 16px 16px 108px;
       position: relative;
     }
 
@@ -32,7 +30,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
 
     .brand {
@@ -41,13 +39,14 @@
     }
 
     .brand img {
-      width: 158px !important;
+      width: 154px !important;
       height: auto !important;
       background: transparent !important;
       box-shadow: none !important;
       border-radius: 0 !important;
       padding: 0 !important;
       object-fit: contain !important;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,0.14));
     }
 
     .notification-wrap {
@@ -55,20 +54,22 @@
     }
 
     .notification-btn {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 18px;
-      border: none;
-      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.16);
+      color: white;
       font-size: 22px;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+      backdrop-filter: blur(12px);
+      box-shadow: none;
     }
 
     .notification-count {
       position: absolute;
-      top: -4px;
-      right: -4px;
+      top: -5px;
+      right: -5px;
       min-width: 20px;
       height: 20px;
       background: #b00020;
@@ -84,45 +85,26 @@
     }
 
     .hero {
-      background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 34%),
-        linear-gradient(135deg, #063f18 0%, #0b7a28 48%, #22bf55 100%);
-      border-radius: 34px;
-      padding: 24px 22px 76px;
+      background: transparent;
       color: white;
-      margin-bottom: -54px;
+      border-radius: 0;
+      padding: 0;
+      margin: 0 0 18px;
       position: relative;
-      overflow: hidden;
-      box-shadow: 0 22px 46px rgba(11,122,40,0.28);
+      overflow: visible;
+      box-shadow: none;
       animation: fadeUp 0.35s ease;
     }
 
-    .hero::before {
-      content: "";
-      position: absolute;
-      width: 190px;
-      height: 190px;
-      background: rgba(255,255,255,0.13);
-      border-radius: 50%;
-      top: -74px;
-      right: -64px;
-    }
-
+    .hero::before,
     .hero::after {
-      content: "TaskMint";
-      position: absolute;
-      right: 18px;
-      bottom: 15px;
-      font-size: 46px;
-      font-weight: 900;
-      opacity: 0.08;
-      letter-spacing: -2px;
+      display: none;
     }
 
     .hero h1 {
-      margin: 0 0 10px;
-      font-size: 34px;
-      line-height: 1.04;
+      margin: 0 0 8px;
+      font-size: 33px;
+      line-height: 1.03;
       letter-spacing: -1px;
       position: relative;
       z-index: 2;
@@ -130,53 +112,88 @@
 
     .hero p {
       margin: 0;
-      font-size: 14.5px;
-      line-height: 1.55;
-      opacity: 0.94;
+      font-size: 14px;
+      line-height: 1.5;
+      opacity: 0.92;
       position: relative;
       z-index: 2;
-      max-width: 350px;
+      max-width: 365px;
     }
 
-    .main-panel {
-      position: relative;
-      z-index: 3;
-      background: rgba(255,255,255,0.96);
-      border-radius: 32px;
-      padding: 18px;
+    .dashboard-shell {
+      background: #ffffff;
+      border-radius: 30px;
+      padding: 16px;
       box-shadow: 0 18px 38px rgba(0,0,0,0.12);
-      margin-bottom: 18px;
-      backdrop-filter: blur(12px);
+      margin-bottom: 16px;
     }
 
-    .primary-actions {
+    .section-label {
+      font-size: 12px;
+      font-weight: 900;
+      color: #0b7a28;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
+    }
+
+    .primary-action {
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.24), transparent 30%),
+        linear-gradient(135deg, #0b7a28 0%, #19b64c 100%);
+      color: white;
+      border-radius: 26px;
+      padding: 18px;
+      min-height: 132px;
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
+      grid-template-columns: 58px 1fr;
+      gap: 14px;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 12px 26px rgba(11,122,40,0.20);
+      margin-bottom: 12px;
     }
 
-    .secondary-actions {
+    .primary-action .icon {
+      background: rgba(255,255,255,0.20);
+      color: white;
+      margin-bottom: 0;
+    }
+
+    .primary-action .title,
+    .primary-action .sub {
+      color: white;
+    }
+
+    .task-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-top: 12px;
+      margin-bottom: 12px;
     }
 
+    .quick-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .people-panel,
     .support-panel {
-      background: white;
+      background: #ffffff;
       border-radius: 30px;
-      padding: 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 14px 34px rgba(0,0,0,0.08);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
     }
 
     .section {
-      background: transparent;
-      border-radius: 0;
-      padding: 0;
-      margin-bottom: 0;
+      background: #ffffff;
+      border-radius: 30px;
+      padding: 16px;
+      margin-bottom: 16px;
       border: none;
-      box-shadow: none;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
     }
 
     .section-title {
@@ -194,71 +211,53 @@
     }
 
     .action-card {
-      background: #ffffff;
-      border-radius: 24px;
-      padding: 16px;
-      border: 1px solid #edf1ee;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+      background: #f7faf8;
+      border-radius: 22px;
+      padding: 15px;
+      border: 1px solid #e3eee6;
+      box-shadow: none;
       cursor: pointer;
       transition: 0.2s;
-      min-height: 124px;
       animation: none;
+      min-height: 124px;
     }
 
     .action-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
     }
 
-    .primary-card {
-      min-height: 112px;
+    .stack-card {
       display: grid;
-      grid-template-columns: 58px 1fr;
+      grid-template-columns: 50px 1fr;
+      gap: 12px;
       align-items: center;
-      gap: 14px;
-      background:
-        linear-gradient(180deg, #ffffff 0%, #f7faf8 100%);
+      min-height: 84px;
+      background: #ffffff;
+      border: 1px solid #e3eee6;
     }
 
-    .primary-card.post-card {
-      background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.24), transparent 30%),
-        linear-gradient(135deg, #0b7a28 0%, #19b64c 100%);
-      color: white;
-      border: none;
-    }
-
-    .primary-card.post-card .icon {
-      background: rgba(255,255,255,0.20);
-      color: white;
-    }
-
-    .primary-card.post-card .title,
-    .primary-card.post-card .sub {
-      color: white;
+    .stack-card .icon {
+      margin-bottom: 0;
     }
 
     .wide-card {
       grid-column: auto;
-      min-height: 112px;
+      min-height: 124px;
     }
 
     .icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 19px;
+      width: 50px;
+      height: 50px;
+      border-radius: 18px;
       background: #e7f7ec;
       color: #0b7a28;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 23px;
       margin-bottom: 12px;
       flex-shrink: 0;
-    }
-
-    .primary-card .icon {
-      margin-bottom: 0;
     }
 
     .title {
@@ -270,22 +269,23 @@
 
     .sub {
       font-size: 12.5px;
-      color: #5f6b63;
-      line-height: 1.45;
+      color: #606b64;
+      line-height: 1.4;
     }
 
     .support-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
     }
 
     .support-grid .action-card {
-      min-height: unset;
       display: grid;
-      grid-template-columns: 52px 1fr;
-      align-items: center;
+      grid-template-columns: 50px 1fr;
       gap: 12px;
+      align-items: center;
+      min-height: 82px;
+      background: #f7faf8;
     }
 
     .support-grid .icon {
@@ -330,7 +330,7 @@
     @keyframes fadeUp {
       from {
         opacity: 0;
-        transform: translateY(16px);
+        transform: translateY(14px);
       }
 
       to {
@@ -341,34 +341,36 @@
 
     @media (max-width: 360px) {
       .container {
-        padding: 16px 14px 105px;
+        padding: 14px 14px 105px;
       }
 
       .hero h1 {
         font-size: 29px;
       }
 
-      .main-panel,
-      .support-panel {
-        padding: 15px;
+      .dashboard-shell,
+      .people-panel,
+      .support-panel,
+      .section {
+        padding: 14px;
       }
 
-      .secondary-actions,
+      .task-row,
       .grid {
         gap: 10px;
       }
 
       .action-card {
-        padding: 14px;
+        padding: 13px;
       }
 
-      .primary-card {
+      .primary-action {
         grid-template-columns: 50px 1fr;
       }
 
       .icon {
-        width: 48px;
-        height: 48px;
+        width: 46px;
+        height: 46px;
       }
     }
   </style>
@@ -392,52 +394,54 @@
     <p>Post tasks, manage quotes, browse workers, and keep everything organized in one place.</p>
   </div>
 
-  <div class="main-panel">
-    <div class="section-title">Start Here</div>
+  <div class="dashboard-shell">
+    <div class="section-label">Main action</div>
 
-    <div class="primary-actions">
-      <div class="action-card primary-card post-card" onclick="window.location.href='post-job.html'">
-        <div class="icon">＋</div>
-        <div>
-          <div class="title">Post a Task</div>
-          <div class="sub">Create a task and receive quotes from local workers.</div>
-        </div>
-      </div>
-
-      <div class="action-card primary-card" onclick="window.location.href='view-open-task.html'">
-        <div class="icon">📌</div>
-        <div>
-          <div class="title">Open Tasks</div>
-          <div class="sub">Review posted tasks, direct quote requests, and worker quotes.</div>
-        </div>
-      </div>
-
-      <div class="action-card primary-card wide-card" onclick="window.location.href='customer-accepted-tasks.html'">
-        <div class="icon">🧾</div>
-        <div>
-          <div class="title">Accepted Tasks</div>
-          <div class="sub">View tasks where a worker has been accepted, payment is active, work is in progress, or a dispute is open.</div>
-        </div>
+    <div class="primary-action" onclick="window.location.href='post-job.html'">
+      <div class="icon">＋</div>
+      <div>
+        <div class="title">Post a Task</div>
+        <div class="sub">Create a task and receive quotes from local workers.</div>
       </div>
     </div>
 
-    <div class="secondary-actions">
-      <div class="action-card" onclick="window.location.href='message-center.html'">
-        <div class="icon">💬</div>
-        <div class="title">Messages</div>
-        <div class="sub">View quote conversations and worker messages.</div>
+    <div class="section-label">Manage tasks</div>
+
+    <div class="task-row">
+      <div class="action-card" onclick="window.location.href='view-open-task.html'">
+        <div class="icon">📌</div>
+        <div class="title">Open Tasks</div>
+        <div class="sub">Review posted tasks, direct quote requests, and worker quotes.</div>
       </div>
 
-      <div class="action-card" onclick="window.location.href='view-past-task.html'">
+      <div class="action-card wide-card" onclick="window.location.href='customer-accepted-tasks.html'">
+        <div class="icon">🧾</div>
+        <div class="title">Accepted Tasks</div>
+        <div class="sub">View tasks where a worker has been accepted, payment is active, work is in progress, or a dispute is open.</div>
+      </div>
+    </div>
+
+    <div class="quick-stack">
+      <div class="action-card stack-card" onclick="window.location.href='message-center.html'">
+        <div class="icon">💬</div>
+        <div>
+          <div class="title">Messages</div>
+          <div class="sub">View quote conversations and worker messages.</div>
+        </div>
+      </div>
+
+      <div class="action-card stack-card" onclick="window.location.href='view-past-task.html'">
         <div class="icon">✅</div>
-        <div class="title">Past Tasks</div>
-        <div class="sub">View completed, paid, and resolved tasks.</div>
+        <div>
+          <div class="title">Past Tasks</div>
+          <div class="sub">View completed, paid, and resolved tasks.</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="support-panel">
-    <div class="section-title">Find & Save Workers</div>
+  <div class="people-panel">
+    <div class="section-title">Find Workers</div>
 
     <div class="grid">
       <div class="action-card" onclick="window.location.href='browse-workers.html'">
@@ -454,7 +458,7 @@
     </div>
   </div>
 
-  <div class="section support-panel">
+  <div class="support-panel">
     <div class="section-title">Account & Support</div>
 
     <div class="support-grid">
@@ -600,7 +604,4 @@ async function loadProfile() {
 loadProfile();
 </script>
 </body>
-</html>
-
-
 </html>
