@@ -206,6 +206,43 @@ textarea:focus {
   background: #fff;
 }
 
+
+.delete-select-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.delete-check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.delete-check-label input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  margin: 0;
+}
+
+.delete-selected-btn {
+  margin-top: 12px;
+  background: #fff;
+  color: var(--danger);
+  border: 1px solid #ffb7b7;
+}
+
+.delete-selected-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .conversation-row {
   display: grid;
   grid-template-columns: 48px 1fr auto;
@@ -518,6 +555,14 @@ button:hover {
           <option value="task">Task Messages</option>
         </select>
       </div>
+
+      <button
+        id="deleteSelectedBtn"
+        class="delete-selected-btn"
+        onclick="deleteSelectedConversation()"
+        disabled>
+        Delete Selected Message
+      </button>
     </div>
 
     <div id="directQuoteSection" class="inbox-section">
@@ -613,6 +658,7 @@ let customerId = "";
 let currentUser = null;
 let currentConversationMessages = [];
 let allInboxConversations = [];
+let selectedConversationToDelete = "";
 
 function getHiddenConversationIds() {
   try {
@@ -1088,7 +1134,10 @@ async function loadConversations() {
 
   const visibleConversations =
     (conversations || []).filter(convo => {
-      return !blockedWorkerIds.includes(String(convo.worker_id || ""));
+      return (
+        !blockedWorkerIds.includes(String(convo.worker_id || "")) &&
+        !isConversationHidden(convo.id)
+      );
     });
 
   if (!visibleConversations || visibleConversations.length === 0) {
@@ -1158,6 +1207,15 @@ function filterConversations() {
 }
 
 function renderInbox(conversations) {
+  selectedConversationToDelete = "";
+
+  const deleteButton =
+    document.getElementById("deleteSelectedBtn");
+
+  if (deleteButton) {
+    deleteButton.disabled = true;
+  }
+
   const directConversations =
     conversations.filter(convo => convo.hydrated_type === "direct");
 
@@ -1230,6 +1288,18 @@ function renderConversationGroup(elementId, conversations, emptyText) {
         : `<div class="empty">No messages yet.</div>`;
 
     card.innerHTML = `
+      <div class="delete-select-row">
+        <label class="delete-check-label" onclick="event.stopPropagation();">
+          <input
+            type="checkbox"
+            class="delete-message-check"
+            value="${convo.id}"
+            onchange="selectConversationForDelete(this)"
+          >
+          Select to delete
+        </label>
+      </div>
+
       <div class="conversation-row" onclick="toggleConversation('${detailsId}')">
         <img
           class="worker-pic"
@@ -1299,6 +1369,46 @@ function renderConversationGroup(elementId, conversations, emptyText) {
 
     box.appendChild(card);
   });
+}
+
+function selectConversationForDelete(checkbox) {
+  const checks =
+    document.querySelectorAll(".delete-message-check");
+
+  checks.forEach(item => {
+    if (item !== checkbox) {
+      item.checked = false;
+    }
+  });
+
+  selectedConversationToDelete =
+    checkbox.checked ? checkbox.value : "";
+
+  const deleteButton =
+    document.getElementById("deleteSelectedBtn");
+
+  if (deleteButton) {
+    deleteButton.disabled =
+      !selectedConversationToDelete;
+  }
+}
+
+async function deleteSelectedConversation() {
+  if (!selectedConversationToDelete) {
+    alert("Select one message to delete.");
+    return;
+  }
+
+  await deleteConversation(selectedConversationToDelete);
+
+  selectedConversationToDelete = "";
+
+  const deleteButton =
+    document.getElementById("deleteSelectedBtn");
+
+  if (deleteButton) {
+    deleteButton.disabled = true;
+  }
 }
 
 function toggleConversation(detailsId) {
@@ -1767,8 +1877,6 @@ async function deleteCurrentConversation() {
 }
 
 async function loadPage() {
-  localStorage.removeItem("taskmintHiddenConversations");
-
   currentUser =
     await getCurrentUser();
 
