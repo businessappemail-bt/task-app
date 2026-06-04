@@ -4,75 +4,82 @@
   <title>Customer Home - TaskMint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
     :root {
-      --bg:        #0f0f0f;
-      --surface:   #1a1a1a;
-      --surface2:  #222222;
-      --border:    rgba(255,255,255,0.07);
-      --accent:    #d4f53c;
-      --accent2:   #a8c92e;
-      --text:      #f0f0f0;
-      --muted:     #888;
-      --green:     #1ebb55;
+      --bg:       #ffffff;
+      --surface:  #f2f7f4;
+      --border:   #e2ebe5;
+      --accent:   #0b7a28;
+      --accent-light: #e6f4eb;
+      --text:     #111111;
+      --muted:    #6b7870;
+      --white:    #ffffff;
     }
-
+ 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
       padding-bottom: 100px;
       overflow-x: hidden;
     }
-
+ 
+    /* ── CENTER EVERYTHING ── */
+    .top-bar,
+    .hero,
+    .container {
+      max-width: 470px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+    }
+ 
     /* ── TOP BAR ── */
     .top-bar {
       position: sticky;
       top: 0;
       z-index: 40;
-      background: rgba(15,15,15,0.92);
-      backdrop-filter: blur(18px);
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 20px;
+      padding: 13px 20px;
     }
-
+ 
     .brand img {
       width: 130px;
       height: auto;
-      filter: brightness(0) invert(1);
       object-fit: contain;
     }
-
+ 
     .notification-wrap { position: relative; }
-
+ 
     .notification-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      background: var(--surface2);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--surface);
       border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 20px;
+      font-size: 19px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s;
+      transition: background 0.18s;
     }
-    .notification-btn:hover { background: #2c2c2c; }
-
+    .notification-btn:hover { background: #ddeee4; }
+ 
     .notification-count {
       position: absolute;
       top: -5px; right: -5px;
-      min-width: 20px; height: 20px;
-      background: #e03e3e;
+      min-width: 19px; height: 19px;
+      background: #d93025;
       color: #fff;
       border-radius: 999px;
       font-size: 10px;
@@ -80,283 +87,283 @@
       display: none;
       align-items: center;
       justify-content: center;
-      border: 2px solid var(--bg);
-      padding: 0 4px;
+      border: 2px solid #fff;
+      padding: 0 3px;
     }
-
+ 
     /* ── HERO ── */
     .hero {
-      padding: 30px 20px 20px;
-      max-width: 470px;
-      margin: 0 auto;
+      padding: 26px 20px 6px;
     }
-
-    .hero-eyebrow {
+ 
+    .hero-label {
       font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1.4px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       opacity: 0;
-      animation: riseIn 0.4s 0.05s forwards;
+      animation: riseIn 0.35s 0.05s forwards;
     }
-
+ 
     .hero h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: 36px;
+      font-size: 30px;
       font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -1px;
+      line-height: 1.1;
       color: var(--text);
+      letter-spacing: -0.5px;
       opacity: 0;
-      animation: riseIn 0.4s 0.1s forwards;
+      animation: riseIn 0.35s 0.1s forwards;
     }
-
-    .hero h1 span { color: var(--accent); }
-
+ 
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+ 
     .hero p {
-      margin-top: 10px;
-      font-size: 13.5px;
+      margin-top: 7px;
+      font-size: 13px;
       color: var(--muted);
-      line-height: 1.6;
-      max-width: 340px;
+      line-height: 1.55;
       opacity: 0;
-      animation: riseIn 0.4s 0.15s forwards;
+      animation: riseIn 0.35s 0.15s forwards;
     }
-
-    /* ── CONTAINER ── */
+ 
+    /* ── MAIN CONTAINER ── */
     .container {
-      max-width: 470px;
-      margin: 0 auto;
-      padding: 4px 14px 20px;
+      padding: 18px 16px 20px;
     }
-
-    /* ── SECTION LABELS ── */
+ 
+    /* ── SECTION LABEL ── */
     .section-label {
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 700;
-      letter-spacing: 1.6px;
+      letter-spacing: 1.4px;
       text-transform: uppercase;
       color: var(--muted);
-      margin: 22px 0 10px;
-      padding-left: 2px;
+      margin: 20px 0 9px;
     }
-
+ 
     /* ── PRIMARY CTA ── */
     .primary-action {
       background: var(--accent);
-      border-radius: 22px;
-      padding: 22px 20px;
+      border-radius: 18px;
+      padding: 18px 20px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       cursor: pointer;
       transition: transform 0.18s, box-shadow 0.18s;
-      box-shadow: 0 8px 28px rgba(212,245,60,0.22);
+      box-shadow: 0 6px 20px rgba(11,122,40,0.22);
+      width: 100%;
       opacity: 0;
-      animation: riseIn 0.4s 0.2s forwards;
+      animation: riseIn 0.35s 0.2s forwards;
     }
-
+ 
+    .primary-action:active,
     .primary-action:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 38px rgba(212,245,60,0.32);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(11,122,40,0.30);
     }
-
-    .primary-action .icon {
-      width: 54px; height: 54px;
-      border-radius: 16px;
-      background: rgba(0,0,0,0.14);
-      font-size: 26px;
+ 
+    .pa-icon {
+      width: 50px; height: 50px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.18);
+      font-size: 24px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-
-    .primary-action .title {
-      font-family: 'Syne', sans-serif;
-      font-size: 20px;
+ 
+    .pa-text { flex: 1; }
+ 
+    .pa-title {
+      font-size: 17px;
       font-weight: 800;
-      color: #0f0f0f;
+      color: #fff;
+      line-height: 1.2;
     }
-
-    .primary-action .sub {
-      font-size: 12.5px;
-      color: rgba(0,0,0,0.58);
+ 
+    .pa-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.72);
       margin-top: 3px;
       line-height: 1.4;
     }
-
-    .primary-action .arrow {
-      margin-left: auto;
+ 
+    .pa-arrow {
       font-size: 22px;
-      color: rgba(0,0,0,0.35);
+      color: rgba(255,255,255,0.5);
       flex-shrink: 0;
     }
-
-    /* ── TASK GRID ── */
-    .task-row {
+ 
+    /* ── 2-COL TILE GRID ── */
+    .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
+      width: 100%;
     }
-
-    /* ── ACTION CARD ── */
-    .action-card {
+ 
+    /* ── TILE CARD ── */
+    .tile {
       background: var(--surface);
-      border-radius: 20px;
-      padding: 18px;
+      border-radius: 16px;
+      padding: 15px;
       border: 1px solid var(--border);
       cursor: pointer;
-      transition: border-color 0.2s, transform 0.2s, background 0.2s;
-      min-height: 130px;
+      transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+      min-height: 122px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      gap: 10px;
     }
-
-    .action-card:hover {
-      border-color: rgba(212,245,60,0.3);
-      background: var(--surface2);
-      transform: translateY(-2px);
+ 
+    .tile:hover {
+      border-color: #a3cfb0;
+      box-shadow: 0 4px 14px rgba(11,122,40,0.10);
+      transform: translateY(-1px);
     }
-
-    .action-card .icon {
-      width: 46px; height: 46px;
-      border-radius: 14px;
-      background: var(--surface2);
-      font-size: 22px;
+ 
+    .tile .t-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      background: var(--accent-light);
+      font-size: 19px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      margin-bottom: 0;
     }
-
-    .action-card .title {
-      font-family: 'Syne', sans-serif;
-      font-size: 15px;
+ 
+    .tile .t-title {
+      font-size: 13.5px;
       font-weight: 700;
       color: var(--text);
       line-height: 1.2;
     }
-
-    .action-card .sub {
-      font-size: 11.5px;
+ 
+    .tile .t-sub {
+      font-size: 11px;
       color: var(--muted);
       line-height: 1.45;
-      margin-top: 4px;
+      margin-top: 2px;
     }
-
-    /* stack (horizontal) card */
-    .stack-card {
-      flex-direction: row;
+ 
+    /* ── ROW CARD ── */
+    .row-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+ 
+    .row-card {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 13px 15px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
       align-items: center;
-      gap: 14px;
-      min-height: 72px;
-      padding: 14px 18px;
+      gap: 13px;
+      min-height: 66px;
+      transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
     }
-
-    .stack-card .icon { margin-bottom: 0; }
-
-    .stack-card .card-text { flex: 1; }
-
-    .stack-card .chevron {
-      font-size: 16px;
-      color: var(--muted);
-      margin-left: auto;
+ 
+    .row-card:hover {
+      border-color: #a3cfb0;
+      box-shadow: 0 4px 14px rgba(11,122,40,0.09);
+      transform: translateY(-1px);
+    }
+ 
+    .row-card .r-icon {
+      width: 40px; height: 40px;
+      border-radius: 11px;
+      background: var(--accent-light);
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-
-    .quick-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+ 
+    .row-card .r-text { flex: 1; }
+ 
+    .row-card .r-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
     }
-
-    /* ── FIND WORKERS ── */
-    .workers-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+ 
+    .row-card .r-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.4;
     }
-
-    /* ── SUPPORT LIST ── */
-    .support-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+ 
+    .row-card .r-chev {
+      font-size: 16px;
+      color: #c0ccc4;
+      flex-shrink: 0;
     }
-
-    /* ── STAGGERED ANIMATION ── */
-    .fade-card {
+ 
+    /* ── ANIMATIONS ── */
+    .fade-in {
       opacity: 0;
-      animation: riseIn 0.38s forwards;
+      animation: riseIn 0.35s forwards;
     }
-
+ 
     @keyframes riseIn {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
+ 
     /* ── BOTTOM NAV ── */
     .nav {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
       max-width: 470px;
-      margin: 0 auto;
-      background: rgba(20,20,20,0.97);
+      background: rgba(255,255,255,0.97);
       backdrop-filter: blur(16px);
       border-top: 1px solid var(--border);
-      box-shadow: 0 -6px 24px rgba(0,0,0,0.4);
+      box-shadow: 0 -3px 16px rgba(0,0,0,0.06);
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       padding: 10px 6px 14px;
       z-index: 50;
     }
-
+ 
     .nav a {
       text-decoration: none;
       color: var(--muted);
       font-size: 10px;
       font-weight: 600;
       text-align: center;
-      transition: color 0.2s;
-      letter-spacing: 0.3px;
+      transition: color 0.18s;
     }
-
+ 
     .nav a:hover { color: var(--accent); }
-
+    .active { color: var(--accent) !important; }
+ 
     .nav-icon {
       display: block;
       font-size: 20px;
       margin-bottom: 3px;
     }
-
-    .active { color: var(--accent) !important; }
-
-    /* ── SECTION CARD WRAPPER ── */
-    .section-wrap {
-      background: var(--surface);
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      padding: 16px;
-    }
-
-    .section-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-
+ 
     @media (max-width: 360px) {
-      .hero h1 { font-size: 30px; }
-      .task-row, .workers-grid { gap: 8px; }
-      .action-card { padding: 14px; }
+      .hero h1 { font-size: 26px; }
+      .two-col { gap: 8px; }
+      .tile { padding: 13px; min-height: 108px; }
     }
   </style>
 </head>
 <body>
-
+ 
 <!-- TOP BAR -->
 <div class="top-bar">
   <div class="brand">
@@ -367,113 +374,110 @@
     <div class="notification-count" id="notificationCount">0</div>
   </div>
 </div>
-
+ 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-eyebrow">Dashboard</div>
-  <h1 id="welcomeText">Welcome <span>Back</span></h1>
+  <div class="hero-label">Dashboard</div>
+  <h1 id="welcomeText">Welcome <em>Back</em></h1>
   <p>Post tasks, manage quotes, browse workers, and keep everything organized.</p>
 </div>
-
+ 
+<!-- CONTENT -->
 <div class="container">
-
-  <!-- PRIMARY CTA -->
-  <div class="primary-action fade-card" style="animation-delay:0.22s" onclick="window.location.href='post-job.html'">
-    <div class="icon">＋</div>
-    <div>
-      <div class="title">Post a Task</div>
-      <div class="sub">Create a task and receive quotes from local workers.</div>
+ 
+  <!-- POST A TASK -->
+  <div class="primary-action" onclick="window.location.href='post-job.html'">
+    <div class="pa-icon">＋</div>
+    <div class="pa-text">
+      <div class="pa-title">Post a Task</div>
+      <div class="pa-sub">Create a task and receive quotes from local workers.</div>
     </div>
-    <div class="arrow">›</div>
+    <div class="pa-arrow">›</div>
   </div>
-
+ 
   <!-- MANAGE TASKS -->
   <div class="section-label">Manage Tasks</div>
-
-  <div class="task-row fade-card" style="animation-delay:0.28s">
-    <div class="action-card" onclick="window.location.href='view-open-task.html'">
-      <div class="icon">📌</div>
+ 
+  <div class="two-col fade-in" style="animation-delay:0.25s">
+    <div class="tile" onclick="window.location.href='view-open-task.html'">
+      <div class="t-icon">📌</div>
       <div>
-        <div class="title">Open Tasks</div>
-        <div class="sub">Review posted tasks, direct quote requests, and worker quotes.</div>
+        <div class="t-title">Open Tasks</div>
+        <div class="t-sub">Review posted tasks, direct quotes, and worker quotes.</div>
       </div>
     </div>
-
-    <div class="action-card" onclick="window.location.href='customer-accepted-tasks.html'">
-      <div class="icon">🧾</div>
+    <div class="tile" onclick="window.location.href='customer-accepted-tasks.html'">
+      <div class="t-icon">🧾</div>
       <div>
-        <div class="title">Accepted Tasks</div>
-        <div class="sub">View tasks with active workers, payment, work in progress, or open disputes.</div>
+        <div class="t-title">Accepted Tasks</div>
+        <div class="t-sub">View active workers, payments, and open disputes.</div>
       </div>
     </div>
   </div>
-
-  <div class="quick-stack fade-card" style="animation-delay:0.34s;margin-top:10px">
-    <div class="action-card stack-card" onclick="window.location.href='message-center.html'">
-      <div class="icon">💬</div>
-      <div class="card-text">
-        <div class="title">Messages</div>
-        <div class="sub">View quote conversations and worker messages.</div>
+ 
+  <div class="row-list fade-in" style="animation-delay:0.31s; margin-top:10px">
+    <div class="row-card" onclick="window.location.href='message-center.html'">
+      <div class="r-icon">💬</div>
+      <div class="r-text">
+        <div class="r-title">Messages</div>
+        <div class="r-sub">View quote conversations and worker messages.</div>
       </div>
-      <div class="chevron">›</div>
+      <div class="r-chev">›</div>
     </div>
-
-    <div class="action-card stack-card" onclick="window.location.href='view-past-task.html'">
-      <div class="icon">✅</div>
-      <div class="card-text">
-        <div class="title">Past Tasks</div>
-        <div class="sub">View completed, paid, and resolved tasks.</div>
+    <div class="row-card" onclick="window.location.href='view-past-task.html'">
+      <div class="r-icon">✅</div>
+      <div class="r-text">
+        <div class="r-title">Past Tasks</div>
+        <div class="r-sub">View completed, paid, and resolved tasks.</div>
       </div>
-      <div class="chevron">›</div>
+      <div class="r-chev">›</div>
     </div>
   </div>
-
+ 
   <!-- FIND WORKERS -->
   <div class="section-label">Find Workers</div>
-
-  <div class="workers-grid fade-card" style="animation-delay:0.40s">
-    <div class="action-card" onclick="window.location.href='browse-workers.html'">
-      <div class="icon">👷</div>
+ 
+  <div class="two-col fade-in" style="animation-delay:0.37s">
+    <div class="tile" onclick="window.location.href='browse-workers.html'">
+      <div class="t-icon">👷</div>
       <div>
-        <div class="title">Browse Workers</div>
-        <div class="sub">View profiles, services, ratings, and photos.</div>
+        <div class="t-title">Browse Workers</div>
+        <div class="t-sub">View profiles, services, ratings, and photos.</div>
       </div>
     </div>
-
-    <div class="action-card" onclick="window.location.href='saved-workers.html'">
-      <div class="icon">⭐</div>
+    <div class="tile" onclick="window.location.href='saved-workers.html'">
+      <div class="t-icon">⭐</div>
       <div>
-        <div class="title">Saved Workers</div>
-        <div class="sub">Quickly view workers you've saved or hired before.</div>
+        <div class="t-title">Saved Workers</div>
+        <div class="t-sub">Quickly view workers you've saved or hired before.</div>
       </div>
     </div>
   </div>
-
+ 
   <!-- ACCOUNT & SUPPORT -->
   <div class="section-label">Account & Support</div>
-
-  <div class="support-list fade-card" style="animation-delay:0.46s">
-    <div class="action-card stack-card" onclick="window.location.href='dispute-center.html'">
-      <div class="icon">⚠️</div>
-      <div class="card-text">
-        <div class="title">Disputes</div>
-        <div class="sub">Review active disputes and TaskMint updates.</div>
+ 
+  <div class="row-list fade-in" style="animation-delay:0.43s">
+    <div class="row-card" onclick="window.location.href='dispute-center.html'">
+      <div class="r-icon">⚠️</div>
+      <div class="r-text">
+        <div class="r-title">Disputes</div>
+        <div class="r-sub">Review active disputes and TaskMint updates.</div>
       </div>
-      <div class="chevron">›</div>
+      <div class="r-chev">›</div>
     </div>
-
-    <div class="action-card stack-card" onclick="window.location.href='profile.html'">
-      <div class="icon">👤</div>
-      <div class="card-text">
-        <div class="title">Profile</div>
-        <div class="sub">Manage your customer profile and account settings.</div>
+    <div class="row-card" onclick="window.location.href='profile.html'">
+      <div class="r-icon">👤</div>
+      <div class="r-text">
+        <div class="r-title">Profile</div>
+        <div class="r-sub">Manage your customer profile and account settings.</div>
       </div>
-      <div class="chevron">›</div>
+      <div class="r-chev">›</div>
     </div>
   </div>
-
+ 
 </div>
-
+ 
 <!-- BOTTOM NAV -->
 <div class="nav">
   <a href="customer-home.html" class="active"><span class="nav-icon">🏠</span>Home</a>
@@ -482,52 +486,46 @@
   <a href="customer-accepted-tasks.html"><span class="nav-icon">🧾</span>Accepted</a>
   <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
 </div>
-
+ 
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://dbcthtjmtlumidpbucrc.supabase.co",
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
-
+ 
 async function safeCount(tableName, selectColumn, filters) {
   let query = supabaseClient
     .from(tableName)
     .select(selectColumn, { count: "exact", head: true });
-
   filters.forEach(filter => {
     if (filter.type === "eq") query = query.eq(filter.column, filter.value);
     if (filter.type === "in") query = query.in(filter.column, filter.value);
   });
-
   const { count, error } = await query;
   if (error) return null;
   return count || 0;
 }
-
+ 
 async function loadNotificationCounts(userId) {
   const notificationCount = document.getElementById("notificationCount");
-
   let unreadMessages = 0;
   let newQuotes = 0;
-
+ 
   const { count: taskMessageCount } = await supabaseClient
     .from("task_messages")
     .select("id", { count: "exact", head: true })
     .eq("receiver_id", userId)
     .eq("is_read", false);
-
   if (taskMessageCount) unreadMessages += taskMessageCount;
-
+ 
   const { count: workerQuoteCount } = await supabaseClient
     .from("worker_quotes")
     .select("id", { count: "exact", head: true })
     .eq("customer_id", userId)
     .in("status", ["pending", "sent", "new"]);
-
   if (workerQuoteCount) newQuotes += workerQuoteCount;
-
+ 
   const totalNotifications = unreadMessages + newQuotes;
-
   if (totalNotifications > 0) {
     notificationCount.innerText = totalNotifications > 99 ? "99+" : totalNotifications;
     notificationCount.style.display = "flex";
@@ -535,38 +533,36 @@ async function loadNotificationCounts(userId) {
     notificationCount.style.display = "none";
   }
 }
-
+ 
 async function loadProfile() {
   const { data } = await supabaseClient.auth.getSession();
-
   if (!data.session) {
     window.location.href = "login.html";
     return;
   }
-
   const user = data.session.user;
   await loadNotificationCounts(user.id);
-
+ 
   const { data: profile } = await supabaseClient
     .from("customer_profiles")
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
-
+ 
   if (!profile) return;
-
+ 
   if (profile.account_type && profile.account_type !== "customer") {
     await supabaseClient.auth.signOut();
     window.location.href = "login.html";
     return;
   }
-
+ 
   if (profile.first_name) {
     document.getElementById("welcomeText").innerHTML =
-      `Welcome <span>${profile.first_name}</span>`;
+      `Welcome <em>${profile.first_name}</em>`;
   }
 }
-
+ 
 loadProfile();
 </script>
 </body>
