@@ -394,34 +394,6 @@ async function loadNotifications() {
     messageCount += taskMessageCount;
   }
 
-  const { count: generalMessageCount } =
-    await supabaseClient
-      .from("task_messages")
-      .select("id", {
-        count: "exact",
-        head: true
-      })
-      .eq("receiver_id", currentUserId)
-      .eq("is_read", false);
-
-  if (generalMessageCount) {
-    messageCount += generalMessageCount;
-  }
-
-  const { count: conversationUnreadCount } =
-    await supabaseClient
-      .from("task_conversations")
-      .select("id", {
-        count: "exact",
-        head: true
-      })
-      .eq("customer_id", currentUserId)
-      .gt("customer_unread_count", 0);
-
-  if (conversationUnreadCount) {
-    messageCount += conversationUnreadCount;
-  }
-
   const { count: workerQuoteCount } =
     await supabaseClient
       .from("worker_quotes")
@@ -467,6 +439,9 @@ async function loadNotifications() {
     "Updated just now.";
 }
 
+window.addEventListener("pageshow", function() {
+  loadNotifications();
+});
 
 loadNotifications();
 </script>
