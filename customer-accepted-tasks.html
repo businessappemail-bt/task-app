@@ -1205,6 +1205,19 @@ function getStatusPillClass(statusText) {
   return "";
 }
  
+
+function canCustomerCancelTask(statusText) {
+  const status =
+    String(statusText || "").toLowerCase();
+
+  return status !== "in progress"
+    && status !== "worker completed"
+    && status !== "completed"
+    && status !== "closed"
+    && !status.includes("dispute");
+}
+
+
 function getProgressIndex(statusText) {
   const status =
     String(statusText || "").toLowerCase();
