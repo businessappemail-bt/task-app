@@ -622,6 +622,40 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
     return;
   }
 
+  const { error: customerProfileError } =
+    await supabaseClient
+      .from("customer_profiles")
+      .upsert([
+        {
+          id: user.id,
+          full_name: firstName + " " + lastName,
+          role: "customer",
+          email: email,
+          first_name: firstName,
+          last_name: lastName,
+          phone: phone,
+          street_address: streetAddress,
+          city: city,
+          state: state,
+          zipcode: zipcode,
+          account_type: "customer",
+          current_mode: "customer",
+          terms_accepted: true,
+          privacy_policy_accepted: true,
+          terms_accepted_at: new Date().toISOString()
+        }
+      ]);
+
+  if (customerProfileError) {
+    status.innerText =
+      customerProfileError.message;
+
+    signupBtn.disabled = false;
+    signupBtn.innerText = "Create Account";
+
+    return;
+  }
+
   status.style.color = "#0b7a28";
   status.innerText =
     "Account created successfully.";
