@@ -587,7 +587,7 @@ gmp-place-autocomplete::part(place-address) {
 
     <div class="form-panel">
       <label>Task Category</label>
-      <select id="category" onchange="renderQuestions()">
+      <select id="category" onchange="handleCategoryChange()">
         <option value="">Select category</option>
         <option>Moving</option>
         <option>TV Mounting</option>
@@ -682,6 +682,35 @@ gmp-place-autocomplete::part(place-address) {
       </div>
       <input id="zipCode" placeholder="Zip code">
       <div class="required-note">City, state, and zip are required before moving forward.</div>
+    </div>
+
+    <div id="dropOffAddressSection" class="hidden">
+      <div class="address-panel">
+        <div class="date-icon-row">
+          <div class="step-icon">📦</div>
+          <div>
+            <label>Drop-Off Address</label>
+            <div class="field-help">Start typing and select the drop-off address from Google.</div>
+          </div>
+        </div>
+
+        <div class="address-label">Drop-off address search</div>
+        <div id="googleDropOffAddressBox"></div>
+        <div class="address-help">Selecting a Google suggestion fills in the drop-off address, city, state, and zip code.</div>
+        <div id="selectedDropOffAddress" class="selected-address hidden"></div>
+
+        <input id="dropOffAddress" class="native-address-hidden" placeholder="Drop-off street address">
+      </div>
+
+      <div class="form-panel">
+        <label>Drop-Off Address Details</label>
+        <div class="field-grid">
+          <input id="dropOffCity" placeholder="Drop-off city">
+          <input id="dropOffState" placeholder="Drop-off state">
+        </div>
+        <input id="dropOffZipCode" placeholder="Drop-off zip code">
+        <div class="required-note">Drop-off city, state, and zip are required for moving tasks.</div>
+      </div>
     </div>
 
     <div class="slide-actions">
@@ -877,6 +906,8 @@ function showSlide(step) {
 
   if (step === 2) {
     setupPlaceAutocomplete();
+    setupDropOffPlaceAutocomplete();
+    toggleDropOffAddressSection();
     syncModernTimePicker(document.getElementById("taskTime").value || "");
   }
 
@@ -1041,6 +1072,7 @@ window.initGoogleMaps = async function () {
     await google.maps.importLibrary("places");
     googleReady = true;
     setupPlaceAutocomplete();
+    setupDropOffPlaceAutocomplete();
   } catch (error) {
     setStatusMessage("Google address search failed to load.", true);
   }
@@ -1077,6 +1109,100 @@ function setupPlaceAutocomplete() {
 
   container.appendChild(autocomplete);
   container.dataset.loaded = "true";
+}
+
+function setupDropOffPlaceAutocomplete() {
+  const container =
+    document.getElementById("googleDropOffAddressBox");
+
+  if (!container || container.dataset.loaded === "true" || !googleReady) {
+    return;
+  }
+
+  container.innerHTML = "";
+
+  const autocomplete =
+    new google.maps.places.PlaceAutocompleteElement();
+
+  autocomplete.setAttribute("included-region-codes", "us");
+
+  autocomplete.addEventListener("gmp-select", async (event) => {
+    const place =
+      event.placePrediction.toPlace();
+
+    await place.fetchFields({
+      fields: [
+        "formattedAddress",
+        "addressComponents"
+      ]
+    });
+
+    handleSelectedDropOffPlace(place);
+  });
+
+  container.appendChild(autocomplete);
+  container.dataset.loaded = "true";
+}
+
+function toggleDropOffAddressSection() {
+  const category =
+    document.getElementById("category").value;
+
+  const section =
+    document.getElementById("dropOffAddressSection");
+
+  if (!section) {
+    return;
+  }
+
+  if (category === "Moving") {
+    section.classList.remove("hidden");
+    setupDropOffPlaceAutocomplete();
+    return;
+  }
+
+  section.classList.add("hidden");
+
+  const dropOffAddress =
+    document.getElementById("dropOffAddress");
+
+  const dropOffCity =
+    document.getElementById("dropOffCity");
+
+  const dropOffState =
+    document.getElementById("dropOffState");
+
+  const dropOffZipCode =
+    document.getElementById("dropOffZipCode");
+
+  const selectedDropOffAddress =
+    document.getElementById("selectedDropOffAddress");
+
+  if (dropOffAddress) {
+    dropOffAddress.value = "";
+  }
+
+  if (dropOffCity) {
+    dropOffCity.value = "";
+  }
+
+  if (dropOffState) {
+    dropOffState.value = "";
+  }
+
+  if (dropOffZipCode) {
+    dropOffZipCode.value = "";
+  }
+
+  if (selectedDropOffAddress) {
+    selectedDropOffAddress.innerText = "";
+    selectedDropOffAddress.classList.add("hidden");
+  }
+}
+
+function handleCategoryChange() {
+  renderQuestions();
+  toggleDropOffAddressSection();
 }
 
 function handleSelectedPlace(place) {
@@ -1153,6 +1279,94 @@ function handleSelectedPlace(place) {
   selectedAddress.classList.remove("hidden");
 }
 
+function getAddressPartsFromPlace(place) {
+  let streetNumber = "";
+  let route = "";
+  let city = "";
+  let state = "";
+  let zip = "";
+
+  if (place.addressComponents) {
+    place.addressComponents.forEach(component => {
+      const types =
+        component.types || [];
+
+      if (types.includes("street_number")) {
+        streetNumber =
+          component.longText || "";
+      }
+
+      if (types.includes("route")) {
+        route =
+          component.longText || "";
+      }
+
+      if (types.includes("locality")) {
+        city =
+          component.longText || "";
+      }
+
+      if (!city && types.includes("sublocality")) {
+        city =
+          component.longText || "";
+      }
+
+      if (!city && types.includes("administrative_area_level_2")) {
+        city =
+          component.longText || "";
+      }
+
+      if (types.includes("administrative_area_level_1")) {
+        state =
+          component.shortText || "";
+      }
+
+      if (types.includes("postal_code")) {
+        zip =
+          component.longText || "";
+      }
+    });
+  }
+
+  return {
+    formattedAddress:
+      place.formattedAddress ||
+      `${streetNumber} ${route}`.trim(),
+    city,
+    state,
+    zip
+  };
+}
+
+function handleSelectedDropOffPlace(place) {
+  const addressParts =
+    getAddressPartsFromPlace(place);
+
+  document.getElementById("dropOffAddress").value =
+    addressParts.formattedAddress;
+
+  document.getElementById("dropOffCity").value =
+    addressParts.city;
+
+  document.getElementById("dropOffState").value =
+    addressParts.state;
+
+  document.getElementById("dropOffZipCode").value =
+    addressParts.zip;
+
+  const selectedDropOffAddress =
+    document.getElementById("selectedDropOffAddress");
+
+  selectedDropOffAddress.innerText =
+    addressParts.formattedAddress;
+
+  selectedDropOffAddress.classList.remove("hidden");
+}
+
+function generateArrivalCode() {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
 function validateSlide(step) {
   if (step === 1) {
     const category =
@@ -1191,6 +1405,28 @@ function validateSlide(step) {
     if (!taskDate || !taskTime || !address || !city || !state || !zipCode) {
       setStatusMessage("Select a date, time, and full task address before continuing.", true);
       return false;
+    }
+
+    const category =
+      document.getElementById("category").value;
+
+    if (category === "Moving") {
+      const dropOffAddress =
+        document.getElementById("dropOffAddress").value.trim();
+
+      const dropOffCity =
+        document.getElementById("dropOffCity").value.trim();
+
+      const dropOffState =
+        document.getElementById("dropOffState").value.trim();
+
+      const dropOffZipCode =
+        document.getElementById("dropOffZipCode").value.trim();
+
+      if (!dropOffAddress || !dropOffCity || !dropOffState || !dropOffZipCode) {
+        setStatusMessage("Enter the full drop-off address before continuing.", true);
+        return false;
+      }
     }
   }
 
@@ -1409,6 +1645,26 @@ async function submitDirectRequest() {
   const zipCode =
     document.getElementById("zipCode").value.trim();
 
+  const dropOffAddress =
+    document.getElementById("dropOffAddress")
+      ? document.getElementById("dropOffAddress").value.trim()
+      : "";
+
+  const dropOffCity =
+    document.getElementById("dropOffCity")
+      ? document.getElementById("dropOffCity").value.trim()
+      : "";
+
+  const dropOffState =
+    document.getElementById("dropOffState")
+      ? document.getElementById("dropOffState").value.trim()
+      : "";
+
+  const dropOffZipCode =
+    document.getElementById("dropOffZipCode")
+      ? document.getElementById("dropOffZipCode").value.trim()
+      : "";
+
   const additionalNotes =
     document.getElementById("additionalNotes").value.trim();
 
@@ -1424,6 +1680,12 @@ async function submitDirectRequest() {
     return;
   }
 
+  if (category === "Moving" && (!dropOffAddress || !dropOffCity || !dropOffState || !dropOffZipCode)) {
+    status.style.color = "#b00020";
+    status.innerText = "Enter the full drop-off address.";
+    return;
+  }
+
   if (!additionalNotes) {
     status.style.color = "#b00020";
     status.innerText = "Enter additional notes before sending the request.";
@@ -1436,6 +1698,26 @@ async function submitDirectRequest() {
 
   const taskDetails =
     collectQuestionAnswers();
+
+  if (category === "Moving") {
+    taskDetails.drop_off_address =
+      dropOffAddress;
+
+    taskDetails.drop_off_city =
+      dropOffCity;
+
+    taskDetails.drop_off_state =
+      dropOffState;
+
+    taskDetails.drop_off_zip_code =
+      dropOffZipCode;
+  }
+
+  const arrivalCode =
+    generateArrivalCode();
+
+  taskDetails.arrival_code =
+    arrivalCode;
 
   const { data: directRequest, error } =
     await supabaseClient
@@ -1453,6 +1735,7 @@ async function submitDirectRequest() {
         task_time: taskTime || null,
         task_details: taskDetails,
         additional_notes: additionalNotes,
+        arrival_code: arrivalCode,
         status: "requested",
         is_public: false,
         created_at: new Date().toISOString()
