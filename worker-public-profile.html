@@ -1478,8 +1478,9 @@ function messageWorker() {
 function requestQuote() {
   localStorage.setItem("selectedWorkerId", selectedWorkerId || "");
   localStorage.setItem("selectedWorkerProfileId", selectedWorkerId || "");
- 
-  window.location.href = "customer-message-worker.html";
+
+  window.location.href =
+    `request-worker-quote.html?worker_id=${encodeURIComponent(selectedWorkerId || "")}`;
 }
 
 async function saveWorker() {
