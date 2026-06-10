@@ -677,14 +677,21 @@ async function getWorkerName(workerId) {
   }
 
   const fullName =
-    person.full_name ||
     `${person.first_name || ""} ${person.last_name || ""}`.trim();
 
-  return (
-    fullName ||
-    person.display_name ||
-    "Worker not listed"
-  );
+  if (fullName) {
+    return fullName;
+  }
+
+  if (person.full_name && !String(person.full_name).includes("@")) {
+    return person.full_name;
+  }
+
+  if (person.display_name && !String(person.display_name).includes("@")) {
+    return person.display_name;
+  }
+
+  return "Worker not listed";
 }
 
 async function loadPastTasks() {
