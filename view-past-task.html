@@ -619,6 +619,12 @@ async function attachQuoteAmountsAndWorkers() {
           quote.user_id ||
           quote.worker_user_id ||
           "";
+
+        task.worker_quote_display_name =
+          quote.worker_display_name ||
+          quote.worker_full_name ||
+          quote.worker_name ||
+          "";
       }
     }
   }
@@ -631,21 +637,10 @@ async function getWorkerName(workerId) {
 
   let person = {};
 
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("first_name, last_name, full_name, display_name")
-      .eq("id", workerId)
-      .maybeSingle();
-
-  if (profile) {
-    person = Object.assign(person, profile);
-  }
-
   const { data: workerProfileById } =
     await supabaseClient
       .from("worker_profiles")
-      .select("full_name, display_name")
+      .select("auth_user_id, first_name, last_name, full_name, display_name")
       .eq("id", workerId)
       .maybeSingle();
 
@@ -653,21 +648,41 @@ async function getWorkerName(workerId) {
     person = Object.assign(person, workerProfileById);
   }
 
-  const { data: workerProfileByUserId } =
-    await supabaseClient
-      .from("worker_profiles")
-      .select("full_name, display_name")
-      .eq("auth_user_id", workerId)
-      .maybeSingle();
+  if (!workerProfileById) {
+    const { data: workerProfileByUserId } =
+      await supabaseClient
+        .from("worker_profiles")
+        .select("auth_user_id, first_name, last_name, full_name, display_name")
+        .eq("auth_user_id", workerId)
+        .maybeSingle();
 
-  if (workerProfileByUserId) {
-    person = Object.assign(person, workerProfileByUserId);
+    if (workerProfileByUserId) {
+      person = Object.assign(person, workerProfileByUserId);
+    }
   }
 
-  return (
+  const profileId =
+    person.auth_user_id ||
+    workerId;
+
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("first_name, last_name, full_name, display_name")
+      .eq("id", profileId)
+      .maybeSingle();
+
+  if (profile) {
+    person = Object.assign(person, profile);
+  }
+
+  const fullName =
     person.full_name ||
+    `${person.first_name || ""} ${person.last_name || ""}`.trim();
+
+  return (
+    fullName ||
     person.display_name ||
-    `${person.first_name || ""} ${person.last_name || ""}`.trim() ||
     "Worker not listed"
   );
 }
@@ -813,8 +828,19 @@ async function renderTasks(tasks) {
     const workerId =
       getAssignedWorkerId(task);
 
+    const savedWorkerName =
+      task.worker_name && task.worker_name !== "Worker"
+        ? task.worker_name
+        : "";
+
+    const quoteWorkerName =
+      task.worker_quote_display_name && task.worker_quote_display_name !== "Worker"
+        ? task.worker_quote_display_name
+        : "";
+
     const workerName =
-      task.worker_name ||
+      savedWorkerName ||
+      quoteWorkerName ||
       await getWorkerName(workerId);
 
     const detailsId =
