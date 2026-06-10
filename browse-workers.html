@@ -3,13 +3,13 @@
 <head>
 <title>Browse Workers - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
- 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
- 
+
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
 :root {
   --bg:       #ffffff;
   --surface:  #f2f7f4;
@@ -19,7 +19,7 @@
   --text:     #111111;
   --muted:    #6b7870;
 }
- 
+
 body {
   margin: 0;
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -30,12 +30,12 @@ body {
   flex-direction: column;
   align-items: center;
 }
- 
+
 .top-bar, .container {
   width: 100%;
   max-width: 470px;
 }
- 
+
 /* ── TOP BAR ── */
 .top-bar {
   position: sticky;
@@ -49,7 +49,7 @@ body {
   align-items: center;
   padding: 13px 20px;
 }
- 
+
 .back,
 .refresh {
   color: var(--accent);
@@ -57,12 +57,12 @@ body {
   cursor: pointer;
   font-size: 14px;
 }
- 
+
 /* ── CONTAINER ── */
 .container {
   padding: 20px 16px 30px;
 }
- 
+
 /* ── HERO ── */
 .hero {
   background: var(--accent);
@@ -73,7 +73,7 @@ body {
   opacity: 0;
   animation: riseIn 0.35s 0.05s forwards;
 }
- 
+
 .hero h1 {
   margin: 0 0 6px;
   font-size: 26px;
@@ -82,14 +82,14 @@ body {
   line-height: 1.1;
   letter-spacing: -0.4px;
 }
- 
+
 .hero p {
   margin: 0;
   font-size: 13px;
   line-height: 1.5;
   color: rgba(255,255,255,0.80);
 }
- 
+
 /* ── FILTER CARD ── */
 .filter-card {
   background: var(--surface);
@@ -100,19 +100,19 @@ body {
   opacity: 0;
   animation: riseIn 0.35s 0.1s forwards;
 }
- 
+
 .filter-title {
   font-size: 13.5px;
   font-weight: 800;
   margin-bottom: 10px;
 }
- 
+
 .filter-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
- 
+
 select,
 input {
   width: 100%;
@@ -125,13 +125,13 @@ input {
   color: var(--text);
   background: #fff;
 }
- 
+
 select:focus,
 input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(11,122,40,0.10);
 }
- 
+
 /* ── STATUS ── */
 #status {
   text-align: center;
@@ -140,14 +140,14 @@ input:focus {
   margin-bottom: 12px;
   color: var(--accent);
 }
- 
+
 /* ── WORKERS GRID ── */
 .workers-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
- 
+
 /* ── WORKER CARD ── */
 .worker-card {
   background: var(--surface);
@@ -156,18 +156,18 @@ input:focus {
   overflow: hidden;
   transition: border-color 0.18s, transform 0.18s;
 }
- 
+
 .worker-card:hover {
   border-color: #a3cfb0;
   transform: translateY(-2px);
 }
- 
+
 .worker-top {
   display: block;
   padding: 14px 12px 10px;
   text-align: center;
 }
- 
+
 .worker-photo {
   width: 72px;
   height: 72px;
@@ -177,20 +177,20 @@ input:focus {
   margin: 0 auto 9px;
   display: block;
 }
- 
+
 .worker-name {
   font-size: 13.5px;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 3px;
 }
- 
+
 .worker-location {
   color: var(--muted);
   font-size: 11px;
   margin-bottom: 7px;
 }
- 
+
 .rating-row {
   display: flex;
   align-items: center;
@@ -198,7 +198,7 @@ input:focus {
   gap: 6px;
   flex-wrap: wrap;
 }
- 
+
 .rating-pill {
   background: var(--surface2);
   color: var(--accent);
@@ -207,7 +207,7 @@ input:focus {
   font-size: 11px;
   font-weight: 700;
 }
- 
+
 .gender-pill {
   background: #f0f0f0;
   color: #444;
@@ -216,12 +216,12 @@ input:focus {
   font-size: 11px;
   font-weight: 700;
 }
- 
+
 /* ── SECTION (services / areas) ── */
 .section {
   padding: 0 12px 10px;
 }
- 
+
 .section-title {
   color: var(--accent);
   font-size: 10px;
@@ -230,13 +230,13 @@ input:focus {
   letter-spacing: 0.5px;
   margin-bottom: 6px;
 }
- 
+
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
 }
- 
+
 .chip {
   background: #fff;
   border: 1px solid var(--border);
@@ -246,7 +246,7 @@ input:focus {
   font-weight: 600;
   color: var(--text);
 }
- 
+
 /* ── ACTION ROW ── */
 .action-row {
   display: grid;
@@ -254,7 +254,7 @@ input:focus {
   gap: 6px;
   padding: 0 12px 12px;
 }
- 
+
 button {
   width: 100%;
   border: none;
@@ -266,28 +266,28 @@ button {
   transition: opacity 0.18s, transform 0.18s;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
- 
+
 button:hover {
   opacity: 0.88;
   transform: translateY(-1px);
 }
- 
+
 .primary-btn {
   background: var(--accent);
   color: #fff;
 }
- 
+
 .secondary-btn {
   background: #fff;
   color: var(--accent);
   border: 1px solid var(--border);
 }
- 
+
 .saved-btn {
   background: var(--text);
   color: #fff;
 }
- 
+
 /* ── EMPTY ── */
 .empty {
   background: var(--surface);
@@ -298,7 +298,7 @@ button:hover {
   border: 1px solid var(--border);
   font-size: 13px;
 }
- 
+
 /* ── NAV ── */
 .nav {
   position: fixed;
@@ -316,7 +316,7 @@ button:hover {
   padding: 10px 6px 14px;
   z-index: 50;
 }
- 
+
 .nav a {
   text-decoration: none;
   color: var(--muted);
@@ -325,65 +325,65 @@ button:hover {
   text-align: center;
   transition: color 0.18s;
 }
- 
+
 .nav a:hover { color: var(--accent); }
- 
+
 .nav-icon {
   display: block;
   font-size: 20px;
   margin-bottom: 3px;
 }
- 
+
 .active { color: var(--accent) !important; }
- 
+
 @keyframes riseIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
- 
+
 <body>
- 
+
 <!-- TOP BAR -->
 <div class="top-bar">
   <div class="back" onclick="window.location.href='customer-home.html'">← Back</div>
   <div class="refresh" onclick="loadWorkers()">Refresh</div>
 </div>
- 
+
 <div class="container">
- 
+
   <!-- HERO -->
   <div class="hero">
     <h1>Browse Workers</h1>
     <p>Discover local workers, compare ratings and services, and save favorites for future jobs.</p>
   </div>
- 
+
   <!-- FILTER CARD -->
   <div class="filter-card">
- 
+
     <div class="filter-title">Filter Workers</div>
- 
+
     <div class="filter-grid">
- 
+
       <input
         id="cityFilter"
         placeholder="City"
         oninput="applyFilters()"
       >
- 
+
       <input
         id="stateFilter"
         placeholder="State"
         oninput="applyFilters()"
       >
- 
+
       <input
         id="serviceFilter"
         placeholder="Service"
         oninput="applyFilters()"
       >
- 
+
       <select
         id="genderFilter"
         onchange="applyFilters()"
@@ -392,9 +392,9 @@ button:hover {
         <option value="Male">Male</option>
         <option value="Female">Female</option>
       </select>
- 
+
     </div>
- 
+
     <button
       class="secondary-btn"
       onclick="clearFilters()"
@@ -402,57 +402,57 @@ button:hover {
     >
       Clear Filters
     </button>
- 
+
   </div>
- 
+
   <p id="status"></p>
- 
+
   <div id="workersList"></div>
- 
+
 </div>
- 
+
 <!-- NAV -->
 <div class="nav">
   <a href="customer-home.html">
     <span class="nav-icon">🏠</span>
     Home
   </a>
- 
+
   <a href="post-job.html">
     <span class="nav-icon">＋</span>
     Post
   </a>
- 
+
   <a href="browse-workers.html" class="active">
     <span class="nav-icon">👷</span>
     Workers
   </a>
- 
+
   <a href="view-open-task.html">
     <span class="nav-icon">📌</span>
     Tasks
   </a>
- 
+
   <a href="message-center.html">
     <span class="nav-icon">💬</span>
     Messages
   </a>
 </div>
- 
+
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://dbcthtjmtlumidpbucrc.supabase.co",
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
- 
+
 let allWorkers = [];
 let currentUserId = "";
- 
+
 function escapeHTML(value) {
   if (value === null || value === undefined) {
     return "";
   }
- 
+
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -460,251 +460,308 @@ function escapeHTML(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
- 
- 
+
+function getCleanName(value) {
+  const text =
+    String(value || "").trim();
+
+  if (!text || text.includes("@")) {
+    return "";
+  }
+
+  return text;
+}
+
 function getWorkerName(worker) {
   const firstName =
-    worker.first_name ||
-    "";
- 
-  let lastName =
-    worker.last_name ||
-    "";
- 
-  if (!lastName && worker.full_name) {
-    const parts = worker.full_name.trim().split(" ");
-    lastName = parts.length > 1 ? parts[parts.length - 1] : "";
-  }
- 
-  if (!lastName && worker.display_name) {
-    const parts = worker.display_name.trim().split(" ");
-    lastName = parts.length > 1 ? parts[parts.length - 1] : "";
-  }
- 
-  const lastInitial =
-    lastName
-      ? lastName.charAt(0).toUpperCase() + "."
-      : "";
- 
+    getCleanName(worker.first_name);
+
+  const lastName =
+    getCleanName(worker.last_name);
+
+  const fullName =
+    getCleanName(worker.full_name);
+
+  const displayName =
+    getCleanName(worker.display_name);
+
   if (firstName) {
+    const lastInitial =
+      lastName ? lastName.charAt(0).toUpperCase() + "." : "";
+
     return `${firstName} ${lastInitial}`.trim();
   }
- 
-  if (worker.full_name) {
-    const parts = worker.full_name.trim().split(" ");
+
+  if (fullName) {
+    const parts =
+      fullName.trim().split(/\s+/);
+
     return parts.length > 1
       ? `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`
       : parts[0];
   }
- 
+
+  if (displayName) {
+    const parts =
+      displayName.trim().split(/\s+/);
+
+    return parts.length > 1
+      ? `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`
+      : parts[0];
+  }
+
   return "Worker";
 }
- 
+
 function randomizeArray(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }
- 
+
 async function getCurrentUser() {
   const { data } =
     await supabaseClient.auth.getSession();
- 
+
   if (data.session && data.session.user) {
     localStorage.setItem(
       "taskmintUserId",
       data.session.user.id
     );
- 
+
     return data.session.user;
   }
- 
+
   const savedUserId =
     localStorage.getItem("taskmintUserId");
- 
+
   if (savedUserId) {
     return { id: savedUserId };
   }
- 
+
   window.location.href = "login.html";
   return null;
 }
- 
+
+function workerIsApproved(worker) {
+  return (
+    worker.is_worker_approved === true ||
+    worker.is_approved === true ||
+    String(worker.approval_status || "").toLowerCase() === "approved"
+  );
+}
+
 async function loadWorkers() {
- 
+
   const workersList =
     document.getElementById("workersList");
- 
+
   workersList.className = "";
   workersList.innerHTML =
     `<div class="empty">Loading workers...</div>`;
- 
+
   const user =
     await getCurrentUser();
- 
+
   if (!user) {
     return;
   }
- 
+
   currentUserId =
     user.id;
- 
-const { data: workers, error } =
-  await supabaseClient
-    .from("worker_profiles")
-    .select("*")
-    .eq("is_worker_approved", true);
- 
+
+  const { data: workers, error } =
+    await supabaseClient
+      .from("worker_profiles")
+      .select("*");
+
   if (error) {
     workersList.innerHTML =
       `<div class="empty">${escapeHTML(error.message)}</div>`;
- 
+
     return;
   }
- 
+
   const { data: profiles } =
     await supabaseClient
       .from("profiles")
       .select("*");
- 
+
   const profileMap = {};
- 
+
   (profiles || []).forEach(profile => {
-    profileMap[profile.id] = profile;
+    profileMap[String(profile.id)] = profile;
   });
- 
+
   const mergedWorkers =
-    (workers || []).map(worker => {
-      const linkedProfile =
-        profileMap[worker.user_id] ||
-        profileMap[worker.profile_id] ||
-        profileMap[worker.id] ||
-        {};
- 
-      return {
-        ...linkedProfile,
-        ...worker,
- 
-        full_name:
-          worker.full_name ||
-          worker.display_name ||
-          linkedProfile.full_name ||
-          linkedProfile.display_name ||
-          `${worker.first_name || ""} ${worker.last_name || ""}`.trim() ||
-          `${linkedProfile.first_name || ""} ${linkedProfile.last_name || ""}`.trim() ||
-          worker.name ||
-          "Worker",
- 
-        profile_photo_url:
-          worker.profile_photo_url ||
-          worker.profile_image_url ||
-          worker.photo_url ||
-          worker.avatar_url ||
-          linkedProfile.profile_photo_url ||
-          linkedProfile.profile_image_url ||
-          linkedProfile.photo_url ||
-          linkedProfile.avatar_url ||
-          "",
- 
-        city:
-          worker.city ||
-          linkedProfile.city ||
-          "",
- 
-        state:
-          worker.state ||
-          linkedProfile.state ||
-          ""
-      };
-    });
- 
+    (workers || [])
+      .filter(workerIsApproved)
+      .map(worker => {
+        const linkedProfile =
+          profileMap[String(worker.auth_user_id || "")] ||
+          profileMap[String(worker.user_id || "")] ||
+          profileMap[String(worker.profile_id || "")] ||
+          profileMap[String(worker.id || "")] ||
+          {};
+
+        const workerFirstName =
+          getCleanName(worker.first_name) ||
+          getCleanName(linkedProfile.first_name);
+
+        const workerLastName =
+          getCleanName(worker.last_name) ||
+          getCleanName(linkedProfile.last_name);
+
+        const workerFullName =
+          getCleanName(worker.full_name) ||
+          getCleanName(linkedProfile.full_name) ||
+          `${workerFirstName || ""} ${workerLastName || ""}`.trim();
+
+        return {
+          ...linkedProfile,
+          ...worker,
+
+          id:
+            worker.id,
+
+          auth_user_id:
+            worker.auth_user_id ||
+            linkedProfile.id ||
+            "",
+
+          first_name:
+            workerFirstName,
+
+          last_name:
+            workerLastName,
+
+          full_name:
+            workerFullName,
+
+          profile_photo_url:
+            worker.profile_photo_url ||
+            worker.profile_image_url ||
+            worker.photo_url ||
+            worker.avatar_url ||
+            linkedProfile.profile_photo_url ||
+            linkedProfile.profile_image_url ||
+            linkedProfile.photo_url ||
+            linkedProfile.avatar_url ||
+            "",
+
+          city:
+            worker.city ||
+            linkedProfile.city ||
+            "",
+
+          state:
+            worker.state ||
+            linkedProfile.state ||
+            "",
+
+          services_offered:
+            worker.services_offered ||
+            worker.skills ||
+            linkedProfile.services_offered ||
+            linkedProfile.skills ||
+            "",
+
+          service_areas:
+            worker.service_areas ||
+            worker.service_area ||
+            linkedProfile.service_areas ||
+            linkedProfile.service_area ||
+            ""
+        };
+      });
+
   allWorkers =
     randomizeArray(mergedWorkers);
- 
+
   applyFilters();
 }
- 
+
 function getServices(worker) {
- 
+
   if (Array.isArray(worker.services_offered)) {
     return worker.services_offered;
   }
- 
+
   if (typeof worker.services_offered === "string") {
     return worker.services_offered
       .split(",")
       .map(item => item.trim())
       .filter(Boolean);
   }
- 
+
   return [];
 }
- 
+
 function getServiceAreas(worker) {
- 
+
   if (Array.isArray(worker.service_areas)) {
     return worker.service_areas;
   }
- 
+
   if (typeof worker.service_areas === "string") {
     return worker.service_areas
       .split(",")
       .map(item => item.trim())
       .filter(Boolean);
   }
- 
+
   return [];
 }
- 
+
 function applyFilters() {
- 
+
   const city =
     document.getElementById("cityFilter").value
       .toLowerCase()
       .trim();
- 
+
   const state =
     document.getElementById("stateFilter").value
       .toLowerCase()
       .trim();
- 
+
   const service =
     document.getElementById("serviceFilter").value
       .toLowerCase()
       .trim();
- 
+
   const gender =
     document.getElementById("genderFilter").value;
- 
+
   let filtered =
     allWorkers.filter(worker => {
- 
+
       const workerCity =
         String(worker.city || "")
           .toLowerCase();
- 
+
       const workerState =
         String(worker.state || "")
           .toLowerCase();
- 
+
       const services =
         getServices(worker)
           .join(" ")
           .toLowerCase();
- 
+
       const workerGender =
         String(worker.gender || "");
- 
+
       const cityMatch =
         !city || workerCity.includes(city);
- 
+
       const stateMatch =
         !state || workerState.includes(state);
- 
+
       const serviceMatch =
         !service || services.includes(service);
- 
+
       const genderMatch =
         !gender || workerGender === gender;
- 
+
       return (
         cityMatch &&
         stateMatch &&
@@ -712,27 +769,27 @@ function applyFilters() {
         genderMatch
       );
     });
- 
+
   renderWorkers(filtered);
 }
- 
+
 function clearFilters() {
- 
+
   document.getElementById("cityFilter").value = "";
   document.getElementById("stateFilter").value = "";
   document.getElementById("serviceFilter").value = "";
   document.getElementById("genderFilter").value = "";
- 
+
   renderWorkers(allWorkers);
 }
- 
+
 async function saveWorker(workerId) {
- 
+
   const status =
     document.getElementById("status");
- 
+
   status.innerText = "";
- 
+
   const { error } =
     await supabaseClient
       .from("saved_workers")
@@ -742,9 +799,9 @@ async function saveWorker(workerId) {
           worker_id: workerId
         }
       ]);
- 
+
   if (error) {
- 
+
     if (
       error.message &&
       error.message.toLowerCase().includes("duplicate")
@@ -753,54 +810,54 @@ async function saveWorker(workerId) {
         "Worker already saved.";
       return;
     }
- 
+
     status.innerText =
       error.message;
- 
+
     return;
   }
- 
+
   status.innerText =
     "Worker saved.";
 }
- 
+
 function viewWorkerProfile(workerId) {
- 
+
   window.location.href =
     `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}&workerId=${encodeURIComponent(workerId)}`;
 }
- 
+
 function renderWorkers(workers) {
- 
+
   const workersList =
     document.getElementById("workersList");
- 
+
   if (!workers || workers.length === 0) {
- 
+
     workersList.className = "";
     workersList.innerHTML =
       `<div class="empty">No workers match your filters.</div>`;
- 
+
     return;
   }
- 
+
   workersList.className = "workers-grid";
   workersList.innerHTML = "";
- 
+
   workers.forEach(worker => {
- 
+
     const card =
       document.createElement("div");
- 
+
     card.className =
       "worker-card";
- 
+
     const services =
       getServices(worker);
- 
+
     const serviceAreas =
       getServiceAreas(worker);
- 
+
     const photo =
       worker.profile_photo_url ||
       worker.profile_image_url ||
@@ -808,27 +865,27 @@ function renderWorkers(workers) {
       worker.avatar_url ||
       worker.image_url ||
       "https://cdn-icons-png.flaticon.com/512/149/149071.png";
- 
+
     card.innerHTML = `
       <div class="worker-top">
- 
+
         <img
           class="worker-photo"
           src="${escapeHTML(photo)}"
           onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'"
         >
- 
+
         <div class="worker-name">
           ${escapeHTML(getWorkerName(worker))}
         </div>
- 
+
         <div class="worker-location">
           ${escapeHTML(worker.city || "")},
           ${escapeHTML(worker.state || "")}
         </div>
- 
+
         <div class="rating-row">
- 
+
           <div class="rating-pill">
             ⭐ ${escapeHTML(
               String(
@@ -838,25 +895,25 @@ function renderWorkers(workers) {
               )
             )}
           </div>
- 
+
           ${
             worker.gender
               ? `<div class="gender-pill">${escapeHTML(worker.gender)}</div>`
               : ""
           }
- 
+
         </div>
- 
+
       </div>
- 
+
       <div class="section">
- 
+
         <div class="section-title">
           Services Offered
         </div>
- 
+
         <div class="chips">
- 
+
           ${
             services.length > 0
               ? services.map(service => `
@@ -866,19 +923,19 @@ function renderWorkers(workers) {
                 `).join("")
               : `<div class="chip">Services not listed</div>`
           }
- 
+
         </div>
- 
+
       </div>
- 
+
       <div class="section">
- 
+
         <div class="section-title">
           Service Areas
         </div>
- 
+
         <div class="chips">
- 
+
           ${
             serviceAreas.length > 0
               ? serviceAreas.map(area => `
@@ -888,36 +945,36 @@ function renderWorkers(workers) {
                 `).join("")
               : `<div class="chip">Areas not listed</div>`
           }
- 
+
         </div>
- 
+
       </div>
- 
+
       <div class="action-row">
- 
+
         <button
           class="primary-btn"
           onclick="viewWorkerProfile('${worker.id}')"
         >
           View Profile
         </button>
- 
+
         <button
           class="saved-btn"
           onclick="saveWorker('${worker.id}')"
         >
           Save Worker
         </button>
- 
+
       </div>
     `;
- 
+
     workersList.appendChild(card);
   });
 }
- 
+
 loadWorkers();
 </script>
- 
+
 </body>
 </html>
