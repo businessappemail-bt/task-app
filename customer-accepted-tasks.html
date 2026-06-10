@@ -1350,28 +1350,15 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText, wor
 }
  
 function getWorkerName(worker, quote, task) {
-  const direct =
-    quote?.worker_display_name ||
-    task.worker_display_name ||
-    worker?.display_name ||
-    worker?.full_name;
- 
-  if (direct) {
-    return direct;
+  const fullName =
+    worker?.full_name ||
+    `${worker?.first_name || ""} ${worker?.last_name || ""}`.trim();
+
+  if (fullName) {
+    return fullName;
   }
- 
-  const first =
-    worker?.first_name ||
-    "";
- 
-  const last =
-    worker?.last_name ||
-    "";
- 
-  const lastInitial =
-    last ? last.charAt(0).toUpperCase() + "." : "";
- 
-  return first ? `${first} ${lastInitial}`.trim() : "Worker";
+
+  return "Worker";
 }
  
 function getWorkerPhoto(worker) {
@@ -1407,26 +1394,29 @@ async function fetchWorker(workerId) {
   if (!workerId) {
     return null;
   }
- 
+
   const { data: workerRecord } =
     await supabaseClient
       .from("worker_profiles")
       .select("*")
-      .eq("id", workerId)
+      .or(`id.eq.${workerId},auth_user_id.eq.${workerId}`)
       .maybeSingle();
- 
-  if (workerRecord) {
-    return workerRecord;
-  }
- 
-  const { data: workerProfile } =
+
+  const { data: profileRecord } =
     await supabaseClient
-      .from("worker_profiles")
-      .select("*")
-      .eq("id", workerId)
+      .from("profiles")
+      .select("first_name,last_name,full_name,profile_photo_url")
+      .eq("id", workerRecord?.auth_user_id || workerId)
       .maybeSingle();
- 
-  return workerProfile || null;
+
+  return {
+    ...(workerRecord || {}),
+    ...(profileRecord || {}),
+    first_name: profileRecord?.first_name || workerRecord?.first_name,
+    last_name: profileRecord?.last_name || workerRecord?.last_name,
+    full_name: profileRecord?.full_name || workerRecord?.full_name,
+    profile_photo_url: profileRecord?.profile_photo_url || workerRecord?.profile_photo_url
+  };
 }
  
 async function fetchQuote(quoteId, taskId) {
