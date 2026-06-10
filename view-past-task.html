@@ -529,40 +529,6 @@ function getAssignedWorkerId(task) {
   );
 }
 
-function looksLikeEmailOrEmailName(value) {
-  const text =
-    String(value || "").trim();
-
-  if (!text) {
-    return true;
-  }
-
-  if (text.includes("@")) {
-    return true;
-  }
-
-  if (text.includes(".")) {
-    return true;
-  }
-
-  return false;
-}
-
-function usableWorkerName(value) {
-  const text =
-    String(value || "").trim();
-
-  if (!text || text === "Worker" || text === "Worker not listed") {
-    return "";
-  }
-
-  if (looksLikeEmailOrEmailName(text)) {
-    return "";
-  }
-
-  return text;
-}
-
 function getTaskType(task) {
   return (
     task.category ||
@@ -671,10 +637,21 @@ async function getWorkerName(workerId) {
 
   let person = {};
 
+  const { data: profileById } =
+    await supabaseClient
+      .from("profiles")
+      .select("first_name, last_name, full_name")
+      .eq("id", workerId)
+      .maybeSingle();
+
+  if (profileById) {
+    person = Object.assign(person, profileById);
+  }
+
   const { data: workerProfileById } =
     await supabaseClient
       .from("worker_profiles")
-      .select("auth_user_id, first_name, last_name, full_name, display_name")
+      .select("auth_user_id, first_name, last_name, full_name")
       .eq("id", workerId)
       .maybeSingle();
 
@@ -682,11 +659,24 @@ async function getWorkerName(workerId) {
     person = Object.assign(person, workerProfileById);
   }
 
+  if (workerProfileById && workerProfileById.auth_user_id) {
+    const { data: profileByAuthId } =
+      await supabaseClient
+        .from("profiles")
+        .select("first_name, last_name, full_name")
+        .eq("id", workerProfileById.auth_user_id)
+        .maybeSingle();
+
+    if (profileByAuthId) {
+      person = Object.assign(person, profileByAuthId);
+    }
+  }
+
   if (!workerProfileById) {
     const { data: workerProfileByUserId } =
       await supabaseClient
         .from("worker_profiles")
-        .select("auth_user_id, first_name, last_name, full_name, display_name")
+        .select("auth_user_id, first_name, last_name, full_name")
         .eq("auth_user_id", workerId)
         .maybeSingle();
 
@@ -695,43 +685,14 @@ async function getWorkerName(workerId) {
     }
   }
 
-  const profileId =
-    person.auth_user_id ||
-    workerId;
-
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("first_name, last_name, full_name, display_name")
-      .eq("id", profileId)
-      .maybeSingle();
-
-  if (profile) {
-    person = Object.assign(person, profile);
-  }
-
   const fullName =
-    usableWorkerName(`${person.first_name || ""} ${person.last_name || ""}`.trim());
+    `${person.first_name || ""} ${person.last_name || ""}`.trim();
 
-  if (fullName) {
-    return fullName;
-  }
-
-  const savedFullName =
-    usableWorkerName(person.full_name);
-
-  if (savedFullName) {
-    return savedFullName;
-  }
-
-  const displayName =
-    usableWorkerName(person.display_name);
-
-  if (displayName) {
-    return displayName;
-  }
-
-  return "Worker not listed";
+  return (
+    fullName ||
+    person.full_name ||
+    "Worker not listed"
+  );
 }
 
 async function loadPastTasks() {
@@ -875,20 +836,8 @@ async function renderTasks(tasks) {
     const workerId =
       getAssignedWorkerId(task);
 
-    const profileWorkerName =
-      await getWorkerName(workerId);
-
-    const savedWorkerName =
-      usableWorkerName(task.worker_name);
-
-    const quoteWorkerName =
-      usableWorkerName(task.worker_quote_display_name);
-
     const workerName =
-      usableWorkerName(profileWorkerName) ||
-      savedWorkerName ||
-      quoteWorkerName ||
-      "Worker not listed";
+      await getWorkerName(workerId);
 
     const detailsId =
       `details-${task.id}`;
