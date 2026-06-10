@@ -1415,14 +1415,23 @@ async function cancelTask(taskId, isDirectRequest = false) {
   const tableName =
     isDirectRequest ? "direct_task_requests" : "tasks";
 
-  const { error } =
+  let cancelResult =
     await supabaseClient
       .from(tableName)
       .update({ status: "cancelled" })
       .eq("id", taskId);
 
-  if (error) {
-    status.innerText = error.message;
+  if (cancelResult.error) {
+    cancelResult =
+      await supabaseClient
+        .from(tableName)
+        .update({ status: "canceled" })
+        .eq("id", taskId);
+  }
+
+  if (cancelResult.error) {
+    status.innerText =
+      cancelResult.error.message;
     return;
   }
 
