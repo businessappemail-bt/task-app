@@ -419,6 +419,7 @@ function initializeStripe() {
 let taskId = "";
 let workerId = "";
 let quoteId = "";
+let sourceType = "";
  
 let taskData = null;
 let quoteData = null;
@@ -477,101 +478,141 @@ function goBack() {
 async function loadCheckout() {
   const status =
     document.getElementById("status");
- 
+
   status.innerText = "";
- 
+
   taskId = getParam("task_id");
   workerId = getParam("worker_id");
   quoteId = getParam("quote_id");
   quoteAmountFromUrl = Number(getParam("quote_amount") || 0);
- 
+  sourceType = getParam("source_type") || "";
+
   if (!taskId || !workerId || !quoteId) {
     status.innerText =
       "Missing payment information. Go back and choose a quote again.";
     return;
   }
- 
+
   const { data: sessionData } =
     await supabaseClient.auth.getSession();
- 
+
   if (!sessionData.session || !sessionData.session.user) {
     window.location.href = "login.html";
     return;
   }
- 
+
   customerId =
     sessionData.session.user.id;
- 
+
+  const isDirectRequest =
+    sourceType === "direct_task_request";
+
+  const taskTableName =
+    isDirectRequest ? "direct_task_requests" : "tasks";
+
+  const allowedTaskStatuses =
+    isDirectRequest ? ["requested", "quoted"] : ["open"];
+
   const { data: task, error: taskError } =
     await supabaseClient
-      .from("tasks")
+      .from(taskTableName)
       .select("*")
       .eq("id", taskId)
       .eq("customer_id", customerId)
       .maybeSingle();
- 
+
   if (taskError || !task) {
     status.innerText =
       taskError?.message || "Task not found.";
     return;
   }
- 
+
   taskData = task;
- 
-  if (task.status !== "open") {
+
+  if (!allowedTaskStatuses.includes(task.status)) {
     status.innerText =
-      "This task is no longer open for quote acceptance.";
+      isDirectRequest
+        ? "This direct quote request is no longer open for quote acceptance."
+        : "This task is no longer open for quote acceptance.";
     return;
   }
- 
-  const { data: quote, error: quoteError } =
-    await supabaseClient
+
+  let quoteQuery =
+    supabaseClient
       .from("worker_quotes")
       .select("*")
-      .eq("id", quoteId)
-      .eq("task_id", taskId)
-      .maybeSingle();
- 
+      .eq("id", quoteId);
+
+  if (isDirectRequest) {
+    quoteQuery =
+      quoteQuery.eq("direct_request_id", taskId);
+  } else {
+    quoteQuery =
+      quoteQuery.eq("task_id", taskId);
+  }
+
+  const { data: quote, error: quoteError } =
+    await quoteQuery.maybeSingle();
+
   if (quoteError || !quote) {
     status.innerText =
       quoteError?.message || "Quote not found.";
     return;
   }
- 
+
   quoteData = quote;
- 
+
   const { data: workerProfile } =
     await supabaseClient
       .from("worker_profiles")
       .select("*")
-      .eq("id", workerId)
+      .or(`id.eq.${workerId},auth_user_id.eq.${workerId}`)
       .maybeSingle();
- 
-  const { data: profile } =
-    await supabaseClient
-      .from("worker_profiles")
-      .select("*")
-      .eq("id", workerId)
-      .maybeSingle();
- 
+
+  let profile = null;
+
+  if (workerProfile?.auth_user_id) {
+    const { data: profileByAuthId } =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", workerProfile.auth_user_id)
+        .maybeSingle();
+
+    profile =
+      profileByAuthId || null;
+  }
+
+  if (!profile) {
+    const { data: profileById } =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", workerId)
+        .maybeSingle();
+
+    profile =
+      profileById || null;
+  }
+
   workerData =
     Object.assign({}, profile || {}, workerProfile || {});
- 
+
   const workerName =
     workerData.full_name ||
     workerData.display_name ||
     `${workerData.first_name || ""} ${workerData.last_name || ""}`.trim() ||
     "Worker";
- 
+
   document.getElementById("taskName").innerText =
     task.category || task.title || "Task";
- 
+
   document.getElementById("workerName").innerText =
     workerName;
- 
+
   const quoteAmount =
     getQuoteAmount(quote) || quoteAmountFromUrl || 0;
- 
+
   document.getElementById("quoteAmount").innerText =
     formatMoney(quoteAmount);
 }
@@ -641,10 +682,12 @@ async function createPaymentIntent() {
         "create-payment-intent",
         {
           body: {
-            task_id: taskId,
+            task_id: sourceType === "direct_task_request" ? null : taskId,
+            direct_request_id: sourceType === "direct_task_request" ? taskId : null,
             customer_id: customerId,
             worker_id: workerId,
             quote_id: quoteId,
+            source_type: sourceType || "public_task",
             amount: amount
           }
         }
@@ -735,54 +778,91 @@ async function payAndAssignWorker() {
 async function finalizeAcceptedQuote(paymentIntentId) {
   const status =
     document.getElementById("status");
- 
+
   const quoteAmount =
     Number(getQuoteAmount(quoteData) || quoteAmountFromUrl || 0);
- 
+
   const platformFee =
     calculatePlatformFee(quoteAmount);
- 
+
   const workerPayout =
     calculateWorkerPayout(quoteAmount);
- 
+
   const workerName =
     workerData.full_name ||
     workerData.display_name ||
     `${workerData.first_name || ""} ${workerData.last_name || ""}`.trim() ||
     "Worker";
- 
-  const { error: taskError } =
-    await supabaseClient
-      .from("tasks")
-      .update({
-        status: "accepted",
-        assigned_worker_id: workerId,
-        accepted_worker_id: workerId,
-        worker_id: workerId,
-        accepted_quote_id: quoteId,
-        payment_intent_id: paymentIntentId,
-        payment_status: "paid",
-        quote_accepted: true,
-        paid_at: new Date().toISOString(),
-        paid_amount: quoteAmount,
-        amount_paid: quoteAmount,
-        task_amount: quoteAmount,
-        platform_fee: platformFee,
-        worker_payout_amount: workerPayout,
-        escrow_status: "held",
-        worker_name: workerName,
-        worker_arrival_confirmed: false,
-        worker_completed: false,
-        customer_completed: false
-      })
-      .eq("id", taskId)
-      .eq("customer_id", customerId)
-      .eq("status", "open");
- 
-  if (taskError) {
-    throw new Error(taskError.message);
+
+  const isDirectRequest =
+    sourceType === "direct_task_request";
+
+  if (isDirectRequest) {
+    const { error: directRequestError } =
+      await supabaseClient
+        .from("direct_task_requests")
+        .update({
+          status: "accepted",
+          assigned_worker_id: workerId,
+          accepted_worker_id: workerId,
+          worker_id: workerId,
+          accepted_quote_id: quoteId,
+          payment_intent_id: paymentIntentId,
+          payment_status: "paid",
+          quote_accepted: true,
+          paid_at: new Date().toISOString(),
+          paid_amount: quoteAmount,
+          amount_paid: quoteAmount,
+          task_amount: quoteAmount,
+          platform_fee: platformFee,
+          worker_payout_amount: workerPayout,
+          escrow_status: "held",
+          worker_name: workerName,
+          worker_arrival_confirmed: false,
+          worker_completed: false,
+          customer_completed: false
+        })
+        .eq("id", taskId)
+        .eq("customer_id", customerId)
+        .in("status", ["requested", "quoted"]);
+
+    if (directRequestError) {
+      throw new Error(directRequestError.message);
+    }
+  } else {
+    const { error: taskError } =
+      await supabaseClient
+        .from("tasks")
+        .update({
+          status: "accepted",
+          assigned_worker_id: workerId,
+          accepted_worker_id: workerId,
+          worker_id: workerId,
+          accepted_quote_id: quoteId,
+          payment_intent_id: paymentIntentId,
+          payment_status: "paid",
+          quote_accepted: true,
+          paid_at: new Date().toISOString(),
+          paid_amount: quoteAmount,
+          amount_paid: quoteAmount,
+          task_amount: quoteAmount,
+          platform_fee: platformFee,
+          worker_payout_amount: workerPayout,
+          escrow_status: "held",
+          worker_name: workerName,
+          worker_arrival_confirmed: false,
+          worker_completed: false,
+          customer_completed: false
+        })
+        .eq("id", taskId)
+        .eq("customer_id", customerId)
+        .eq("status", "open");
+
+    if (taskError) {
+      throw new Error(taskError.message);
+    }
   }
- 
+
   const { error: quoteError } =
     await supabaseClient
       .from("worker_quotes")
@@ -790,49 +870,68 @@ async function finalizeAcceptedQuote(paymentIntentId) {
         status: "accepted"
       })
       .eq("id", quoteId);
- 
+
   if (quoteError) {
     throw new Error(quoteError.message);
   }
- 
-  await supabaseClient
-    .from("worker_quotes")
-    .update({
-      status: "closed"
-    })
-    .eq("task_id", taskId)
-    .neq("id", quoteId);
- 
+
+  let closeQuotesQuery =
+    supabaseClient
+      .from("worker_quotes")
+      .update({
+        status: "closed"
+      });
+
+  if (isDirectRequest) {
+    closeQuotesQuery =
+      closeQuotesQuery.eq("direct_request_id", taskId);
+  } else {
+    closeQuotesQuery =
+      closeQuotesQuery.eq("task_id", taskId);
+  }
+
+  await closeQuotesQuery.neq("id", quoteId);
+
+  const paymentRecord =
+    {
+      customer_id: customerId,
+      customer_user_id: customerId,
+      worker_id: workerId,
+      worker_user_id: workerId,
+      quote_id: quoteId,
+      amount: quoteAmount,
+      amount_paid: quoteAmount,
+      quote_amount: quoteAmount,
+      platform_fee: platformFee,
+      worker_payout: workerPayout,
+      payment_status: "paid",
+      status: "paid",
+      paid_at: new Date().toISOString()
+    };
+
+  if (isDirectRequest) {
+    paymentRecord.direct_request_id =
+      taskId;
+  } else {
+    paymentRecord.task_id =
+      taskId;
+  }
+
   const { error: paymentRecordError } =
     await supabaseClient
       .from("payments")
       .insert([
-        {
-          task_id: taskId,
-          customer_id: customerId,
-          customer_user_id: customerId,
-          worker_id: workerId,
-          worker_user_id: workerId,
-          quote_id: quoteId,
-          amount: quoteAmount,
-          amount_paid: quoteAmount,
-          quote_amount: quoteAmount,
-          platform_fee: platformFee,
-          worker_payout: workerPayout,
-          payment_status: "paid",
-          status: "paid",
-          paid_at: new Date().toISOString()
-        }
+        paymentRecord
       ]);
- 
+
   if (paymentRecordError) {
     throw new Error(paymentRecordError.message);
   }
- 
+
   status.style.color = "#0b7a28";
   status.innerText =
     "Payment complete. Worker assigned.";
- 
+
   setTimeout(() => {
     window.location.href =
       "customer-accepted-tasks.html";
