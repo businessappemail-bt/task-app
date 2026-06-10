@@ -549,6 +549,79 @@ function workerIsApproved(worker) {
   );
 }
 
+function buildWorkerRecord(worker, linkedProfile) {
+  const workerFirstName =
+    getCleanName(worker.first_name) ||
+    getCleanName(linkedProfile.first_name);
+
+  const workerLastName =
+    getCleanName(worker.last_name) ||
+    getCleanName(linkedProfile.last_name);
+
+  const workerFullName =
+    getCleanName(worker.full_name) ||
+    getCleanName(linkedProfile.full_name) ||
+    `${workerFirstName || ""} ${workerLastName || ""}`.trim();
+
+  return {
+    ...linkedProfile,
+    ...worker,
+
+    id:
+      worker.id ||
+      linkedProfile.id,
+
+    auth_user_id:
+      worker.auth_user_id ||
+      linkedProfile.id ||
+      "",
+
+    first_name:
+      workerFirstName,
+
+    last_name:
+      workerLastName,
+
+    full_name:
+      workerFullName,
+
+    profile_photo_url:
+      worker.profile_photo_url ||
+      worker.profile_image_url ||
+      worker.photo_url ||
+      worker.avatar_url ||
+      linkedProfile.profile_photo_url ||
+      linkedProfile.profile_image_url ||
+      linkedProfile.photo_url ||
+      linkedProfile.avatar_url ||
+      "",
+
+    city:
+      worker.city ||
+      linkedProfile.city ||
+      "",
+
+    state:
+      worker.state ||
+      linkedProfile.state ||
+      "",
+
+    services_offered:
+      worker.services_offered ||
+      worker.skills ||
+      linkedProfile.services_offered ||
+      linkedProfile.skills ||
+      "",
+
+    service_areas:
+      worker.service_areas ||
+      worker.service_area ||
+      linkedProfile.service_areas ||
+      linkedProfile.service_area ||
+      ""
+  };
+}
+
 async function loadWorkers() {
 
   const workersList =
@@ -568,110 +641,81 @@ async function loadWorkers() {
   currentUserId =
     user.id;
 
-  const { data: workers, error } =
+  const { data: workers, error: workerError } =
     await supabaseClient
       .from("worker_profiles")
       .select("*");
 
-  if (error) {
-    workersList.innerHTML =
-      `<div class="empty">${escapeHTML(error.message)}</div>`;
-
-    return;
-  }
-
-  const { data: profiles } =
+  const { data: profiles, error: profileError } =
     await supabaseClient
       .from("profiles")
       .select("*");
 
+  if (workerError && profileError) {
+    workersList.innerHTML =
+      `<div class="empty">${escapeHTML(workerError.message || profileError.message)}</div>`;
+
+    return;
+  }
+
   const profileMap = {};
+  const workerMap = {};
 
   (profiles || []).forEach(profile => {
     profileMap[String(profile.id)] = profile;
   });
 
+  (workers || []).forEach(worker => {
+    if (worker.auth_user_id) {
+      workerMap[String(worker.auth_user_id)] = worker;
+    }
+
+    if (worker.id) {
+      workerMap[String(worker.id)] = worker;
+    }
+  });
+
+  const mergedById = {};
+
+  (workers || [])
+    .filter(workerIsApproved)
+    .forEach(worker => {
+      const linkedProfile =
+        profileMap[String(worker.auth_user_id || "")] ||
+        profileMap[String(worker.user_id || "")] ||
+        profileMap[String(worker.profile_id || "")] ||
+        profileMap[String(worker.id || "")] ||
+        {};
+
+      const workerKey =
+        String(worker.id || worker.auth_user_id || linkedProfile.id || "");
+
+      mergedById[workerKey] =
+        buildWorkerRecord(worker, linkedProfile);
+    });
+
+  (profiles || [])
+    .filter(profile => {
+      return (
+        profile.can_send_quotes === true ||
+        profile.is_worker_approved === true ||
+        String(profile.worker_approval_status || "").toLowerCase() === "approved"
+      );
+    })
+    .forEach(profile => {
+      const linkedWorker =
+        workerMap[String(profile.id)] ||
+        {};
+
+      const workerKey =
+        String(linkedWorker.id || profile.id || "");
+
+      mergedById[workerKey] =
+        buildWorkerRecord(linkedWorker, profile);
+    });
+
   const mergedWorkers =
-    (workers || [])
-      .filter(workerIsApproved)
-      .map(worker => {
-        const linkedProfile =
-          profileMap[String(worker.auth_user_id || "")] ||
-          profileMap[String(worker.user_id || "")] ||
-          profileMap[String(worker.profile_id || "")] ||
-          profileMap[String(worker.id || "")] ||
-          {};
-
-        const workerFirstName =
-          getCleanName(worker.first_name) ||
-          getCleanName(linkedProfile.first_name);
-
-        const workerLastName =
-          getCleanName(worker.last_name) ||
-          getCleanName(linkedProfile.last_name);
-
-        const workerFullName =
-          getCleanName(worker.full_name) ||
-          getCleanName(linkedProfile.full_name) ||
-          `${workerFirstName || ""} ${workerLastName || ""}`.trim();
-
-        return {
-          ...linkedProfile,
-          ...worker,
-
-          id:
-            worker.id,
-
-          auth_user_id:
-            worker.auth_user_id ||
-            linkedProfile.id ||
-            "",
-
-          first_name:
-            workerFirstName,
-
-          last_name:
-            workerLastName,
-
-          full_name:
-            workerFullName,
-
-          profile_photo_url:
-            worker.profile_photo_url ||
-            worker.profile_image_url ||
-            worker.photo_url ||
-            worker.avatar_url ||
-            linkedProfile.profile_photo_url ||
-            linkedProfile.profile_image_url ||
-            linkedProfile.photo_url ||
-            linkedProfile.avatar_url ||
-            "",
-
-          city:
-            worker.city ||
-            linkedProfile.city ||
-            "",
-
-          state:
-            worker.state ||
-            linkedProfile.state ||
-            "",
-
-          services_offered:
-            worker.services_offered ||
-            worker.skills ||
-            linkedProfile.services_offered ||
-            linkedProfile.skills ||
-            "",
-
-          service_areas:
-            worker.service_areas ||
-            worker.service_area ||
-            linkedProfile.service_areas ||
-            linkedProfile.service_area ||
-            ""
-        };
-      });
+    Object.values(mergedById);
 
   allWorkers =
     randomizeArray(mergedWorkers);
