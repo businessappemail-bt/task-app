@@ -1198,7 +1198,7 @@ function getStatusPillClass(statusText) {
     return "dispute";
   }
  
-  if (status === "completed" || status === "closed") {
+  if (status === "completed" || status === "closed" || status === "worker cancelled") {
     return "closed";
   }
  
@@ -1212,6 +1212,7 @@ function canCustomerCancelTask(statusText) {
 
   return status !== "in progress"
     && status !== "worker completed"
+    && status !== "worker cancelled"
     && status !== "completed"
     && status !== "closed"
     && !status.includes("dispute");
@@ -1222,7 +1223,7 @@ function getProgressIndex(statusText) {
   const status =
     String(statusText || "").toLowerCase();
  
-  if (status === "completed" || status === "closed") {
+  if (status === "completed" || status === "closed" || status === "worker cancelled") {
     return 4;
   }
  
@@ -1284,7 +1285,8 @@ function renderArrivalCodeBox(arrivalCode, statusText) {
     !arrivalCode ||
     status === "closed" ||
     status === "completed" ||
-    status === "worker completed"
+    status === "worker completed" ||
+    status === "worker cancelled"
   ) {
     return "";
   }
@@ -1312,7 +1314,7 @@ function renderCustomerCompletionButton(task, quote, assignment, statusText, wor
     `;
   }
  
-  if (status === "closed" || status.includes("dispute")) {
+  if (status === "closed" || status === "worker cancelled" || status.includes("dispute")) {
     return "";
   }
  
@@ -1695,7 +1697,7 @@ async function loadAcceptedQuotes() {
       .from("tasks")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["accepted", "scheduled", "in_progress", "worker_completed", "dispute_open", "dispute_closed"])
+      .in("status", ["accepted", "scheduled", "in_progress", "worker_completed", "worker_cancelled", "worker_canceled", "dispute_open", "dispute_closed"])
       .order("created_at", { ascending: false });
  
   if (taskError) {
@@ -1709,7 +1711,7 @@ async function loadAcceptedQuotes() {
       .from("direct_task_requests")
       .select("*")
       .eq("customer_id", customerId)
-      .in("status", ["accepted", "scheduled", "in_progress", "worker_completed", "dispute_open", "dispute_closed"])
+      .in("status", ["accepted", "scheduled", "in_progress", "worker_completed", "worker_cancelled", "worker_canceled", "dispute_open", "dispute_closed"])
       .order("created_at", { ascending: false });
  
   const tasks =
