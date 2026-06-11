@@ -1927,10 +1927,18 @@ async function loadAcceptedQuotes() {
           Worker Profile
         </button>
  
+        ${canCustomerCancelTask(liveStatus) ? `
         <button class="secondary-btn" onclick="cancelAcceptedTask('${task.id}','${task.source_type}')">
           Cancel Task
         </button>
- 
+        ` : ""}
+
+        ${String(liveStatus).toLowerCase() === "in progress" ? `
+        <button class="secondary-btn" onclick="window.location.href='dispute-center.html?task_id=${encodeURIComponent(task.id)}&order_number=${encodeURIComponent('TM-' + String(task.id).slice(0,8).toUpperCase())}'">
+          Dispute Task
+        </button>
+        ` : ""}
+
         ${renderCustomerCompletionButton(task, quote, assignment, liveStatus, workerId)}
       </div>
     `;
