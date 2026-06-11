@@ -674,6 +674,8 @@ let taskId =
 
 let workerId =
   params.get("worker_id") || "";
+let orderNumber =
+  params.get("order_number") || "";
 
 let customerId =
   localStorage.getItem("taskmintUserId") || "";
@@ -846,7 +848,7 @@ if (searchValue.startsWith("TM-")) {
     ? `
       <button
         class="primary-btn"
-        onclick="startDisputeForTask('${task.id}', '${task.assigned_worker_id || task.worker_id || ""}')"
+        onclick="startDisputeForTask('${task.id}', '${task.assigned_worker_id || task.worker_id || ""}', '${task.order_number || ("TM-" + String(task.id).slice(0,8).toUpperCase())}')"
       >
         Open Dispute for This Task
       </button>
@@ -865,12 +867,13 @@ if (searchValue.startsWith("TM-")) {
   `;
 }
 
-function startDisputeForTask(selectedTaskId, selectedWorkerId) {
+function startDisputeForTask(selectedTaskId, selectedWorkerId, selectedOrderNumber) {
   taskId =
     selectedTaskId;
 
   workerId =
     selectedWorkerId || "";
+  orderNumber = selectedOrderNumber || orderNumber || "";
 
   showForm();
 }
@@ -1064,6 +1067,7 @@ async function submitDispute() {
         .insert([
           {
             task_id: taskId || null,
+            order_number: orderNumber || null,
             customer_id: customerId,
             worker_id: workerId || null,
             opened_by: customerId,
