@@ -154,6 +154,44 @@ body {
   animation: riseIn 0.35s 0.15s forwards;
 }
 
+.dispute-card {
+  cursor: pointer;
+  position: relative;
+}
+
+.dispute-card:hover {
+  border-color: var(--accent);
+}
+
+.dispute-card.has-unread {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(11,122,40,0.10);
+}
+
+.unread-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--danger);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.unread-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff2f2;
+  color: var(--danger);
+  border: 1px solid #ffb7b7;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
 .card h3 {
   font-size: 15px;
   font-weight: 800;
@@ -681,6 +719,7 @@ let customerId =
   localStorage.getItem("taskmintUserId") || "";
 
 let activeDisputeId = "";
+let unreadDisputeIds = new Set();
 
 function escapeHTML(value) {
   if (value === null || value === undefined) {
@@ -913,6 +952,30 @@ async function loadDisputes() {
     return;
   }
 
+  unreadDisputeIds = new Set();
+
+  const disputeIds =
+    (disputes || []).map(dispute => dispute.id).filter(Boolean);
+
+  if (disputeIds.length > 0) {
+    const { data: unreadMessages } =
+      await supabaseClient
+        .from("dispute_messages")
+        .select("dispute_id,sender_role,sender_type,visible_to,is_read")
+        .in("dispute_id", disputeIds)
+        .in("visible_to", ["customer", "both"])
+        .eq("is_read", false);
+
+    (unreadMessages || []).forEach(message => {
+      const sender =
+        String(message.sender_role || message.sender_type || "").toLowerCase();
+
+      if (sender !== "customer") {
+        unreadDisputeIds.add(message.dispute_id);
+      }
+    });
+  }
+
   const openDisputes =
     (disputes || []).filter(dispute =>
       ["open", "reviewing", "pending", "in_review"].includes(String(dispute.status || "open"))
@@ -942,8 +1005,14 @@ function createDisputeCard(dispute, isPast) {
   const div =
     document.createElement("div");
 
+  const hasUnread =
+    unreadDisputeIds.has(dispute.id);
+
   div.className =
-    "dispute-card";
+    `dispute-card ${hasUnread ? "has-unread" : ""}`;
+
+  div.onclick =
+    () => openDisputeMessages(dispute.id);
 
   const status =
     dispute.status || "open";
@@ -952,13 +1021,14 @@ function createDisputeCard(dispute, isPast) {
     <div class="dispute-top">
       <div>
         <div class="dispute-title">
-          ${escapeHTML(dispute.reason || "Dispute")}
+          ${escapeHTML(dispute.reason || "Dispute")}${hasUnread ? `<span class="unread-dot"></span>` : ""}
         </div>
 
         <div class="dispute-sub">
           Order # ${dispute.task_id ? "TM-" + String(dispute.task_id).slice(0,8).toUpperCase() : "Not linked"}<br>
           Opened ${escapeHTML(formatDate(dispute.created_at))}
         </div>
+        ${hasUnread ? `<div class="unread-label">New message</div>` : ""}
       </div>
 
       <span class="status-pill ${escapeHTML(status)}">
@@ -988,7 +1058,11 @@ function createDisputeCard(dispute, isPast) {
         : ""
     }
 
-    <button class="secondary-btn" onclick="openDisputeMessages('${dispute.id}')">
+    <button class="primary-btn" onclick="event.stopPropagation(); openDisputeMessages('${dispute.id}')">
+      View Dispute
+    </button>
+
+    <button class="secondary-btn" onclick="event.stopPropagation(); openDisputeMessages('${dispute.id}')">
       ${isPast ? "View Message History" : "Message TaskMint"}
     </button>
   `;
@@ -1230,6 +1304,8 @@ async function loadDisputeMessages() {
     .eq("dispute_id", activeDisputeId)
     .in("visible_to", ["customer", "both"])
     .neq("sender_role", "customer");
+
+  unreadDisputeIds.delete(activeDisputeId);
 }
 
 async function sendDisputeMessage() {
