@@ -656,6 +656,18 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
     return;
   }
 
+  await fetch("https://YOUR_SUPABASE_PROJECT.functions.supabase.co/send-welcome-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: email,
+      first_name: firstName,
+      account_type: "customer"
+    })
+  });
+
   status.style.color = "#0b7a28";
   status.innerText =
     "Account created successfully.";
