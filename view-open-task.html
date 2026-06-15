@@ -643,6 +643,31 @@ function getQuoteAmount(app) {
   );
 }
 
+function getWorkerSelectedFlexibleDate(app) {
+  return (
+    app.selected_flexible_date ||
+    app.flexible_date_selected ||
+    app.worker_selected_date ||
+    app.selected_date ||
+    app.proposed_date ||
+    app.scheduled_date ||
+    ""
+  );
+}
+
+function renderWorkerSelectedFlexibleDate(app) {
+  const selectedDate =
+    getWorkerSelectedFlexibleDate(app);
+
+  if (!selectedDate) {
+    return "";
+  }
+
+  return `
+    <p><strong>Worker Selected Date:</strong> ${escapeHTML(formatDate(selectedDate))}</p>
+  `;
+}
+
 function uniqueValues(values) {
   return values
     .filter(value => value !== null && value !== undefined && value !== "")
@@ -1278,6 +1303,7 @@ async function toggleApplicants(taskId, isDirectRequest = false) {
       <div class="worker-details" id="${workerDetailsId}">
         <div class="quote-info">
           <p><strong>Quote Status:</strong> ${escapeHTML(quoteStatus)}</p>
+          ${renderWorkerSelectedFlexibleDate(app)}
           <p><strong>Jobs Completed:</strong> ${completedJobsCount || 0}</p>
           <p><strong>Reviews:</strong> ${reviews ? reviews.length : 0}</p>
           <p><strong>Worker Message:</strong> ${escapeHTML(app.message || "No message provided.")}</p>
