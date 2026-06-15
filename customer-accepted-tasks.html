@@ -1720,6 +1720,51 @@ async function markTaskComplete(sourceType, taskId, quoteId, assignmentId, worke
   loadAcceptedQuotes();
 }
  
+
+async function reportTaskIssue(taskId, sourceType, issueType) {
+  const notes =
+    prompt("Describe the issue:");
+
+  if (notes === null) {
+    return;
+  }
+
+  const tableName =
+    sourceType === "direct_quote"
+      ? "direct_task_requests"
+      : "tasks";
+
+  const updateData = {
+    issue_status: issueType,
+    issue_notes: notes,
+    updated_at: new Date().toISOString()
+  };
+
+  if (issueType === "worker_no_show") {
+    updateData.no_show_reported_by = "customer";
+    updateData.no_show_reported_at = new Date().toISOString();
+  }
+
+  if (issueType === "incomplete_work") {
+    updateData.incomplete_work_reported_by = "customer";
+    updateData.incomplete_work_reported_at = new Date().toISOString();
+  }
+
+  const { error } =
+    await supabaseClient
+      .from(tableName)
+      .update(updateData)
+      .eq("id", taskId);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Issue reported successfully.");
+  loadAcceptedQuotes();
+}
+
 async function loadAcceptedQuotes() {
   const customerId =
     await getCustomerIdFromSession();
@@ -1978,6 +2023,18 @@ async function loadAcceptedQuotes() {
         ${canCustomerCancelTask(liveStatus) ? `
         <button class="secondary-btn" onclick="cancelAcceptedTask('${task.id}','${task.source_type}')">
           Cancel Task
+        </button>
+        ` : ""}
+
+        ${String(liveStatus).toLowerCase() === "accepted" ? `
+        <button class="secondary-btn" onclick="reportTaskIssue('${task.id}','${task.source_type}','worker_no_show')">
+          Report Worker No-Show
+        </button>
+        ` : ""}
+
+        ${String(liveStatus).toLowerCase() === "worker completed" ? `
+        <button class="secondary-btn" onclick="reportTaskIssue('${task.id}','${task.source_type}','incomplete_work')">
+          Report Incomplete Work
         </button>
         ` : ""}
 
