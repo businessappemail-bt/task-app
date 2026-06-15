@@ -735,6 +735,54 @@ function getTaskDate(task) {
     "scheduled_start"
   ], "");
 }
+
+function getQuoteSelectedDate(quote) {
+  if (!quote) {
+    return "";
+  }
+
+  return (
+    quote.selected_flexible_date ||
+    quote.flexible_date_selected ||
+    quote.worker_selected_date ||
+    quote.proposed_date ||
+    quote.selected_date ||
+    quote.scheduled_date ||
+    ""
+  );
+}
+
+function getFinalTaskDate(task, quote) {
+  const quoteSelectedDate =
+    getQuoteSelectedDate(quote);
+
+  if (quoteSelectedDate) {
+    return quoteSelectedDate;
+  }
+
+  return getTaskDate(task);
+}
+
+function renderScheduledDateBox(task, quote) {
+  const selectedDate =
+    getQuoteSelectedDate(quote);
+
+  if (!selectedDate) {
+    return "";
+  }
+
+  return `
+    <div class="scheduled-date-box">
+      <strong>Scheduled Date:</strong>
+      ${escapeHTML(formatDate(selectedDate))}
+      <br>
+      <span style="color:var(--muted);font-size:12px;">
+        This is the date the worker selected when sending the quote.
+      </span>
+    </div>
+  `;
+}
+
  
 function getDaysUntilTask(task) {
   const dateValue =
@@ -1857,7 +1905,7 @@ async function loadAcceptedQuotes() {
         <div class="info-box">
           <div class="info-label">Date Needed</div>
           <div class="info-value">
-            ${escapeHTML(formatDate(getTaskDate(task)))}
+            ${escapeHTML(formatDate(getFinalTaskDate(task, quote)))}
           </div>
         </div>
  
