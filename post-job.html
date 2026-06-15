@@ -1956,6 +1956,39 @@ function formatTimeForDisplay(value) {
   return `${hour}:${minute} ${suffix}`;
 }
 
+function formatDate(value) {
+  const normalizedValue =
+    normalizeDateInputValue(value);
+
+  if (!normalizedValue) {
+    return "Not listed";
+  }
+
+  const parts =
+    normalizedValue.split("-");
+
+  if (parts.length !== 3) {
+    return normalizedValue;
+  }
+
+  const date =
+    new Date(
+      Number(parts[0]),
+      Number(parts[1]) - 1,
+      Number(parts[2])
+    );
+
+  if (Number.isNaN(date.getTime())) {
+    return normalizedValue;
+  }
+
+  return date.toLocaleDateString([], {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
+
 function calculateDistanceMiles(lat1, lng1, lat2, lng2) {
   if (!lat1 || !lng1 || !lat2 || !lng2) {
     return null;
