@@ -775,9 +775,19 @@ gmp-place-autocomplete::part(place-address) {
         <input id="dateNeeded" type="date">
 
         <label class="checkbox-row">
-          <input type="checkbox" id="dateFlexible">
+          <input type="checkbox" id="dateFlexible" onchange="toggleFlexibleDateOptions()">
           My date is flexible
         </label>
+
+        <div id="flexibleDateOptions" class="hidden">
+          <div class="help-box">
+            Choose 3 possible dates. Workers will pick the date that works best when they send a quote.
+          </div>
+
+          <input id="flexibleDateOne" type="date" placeholder="Preferred Date 1">
+          <input id="flexibleDateTwo" type="date" placeholder="Preferred Date 2">
+          <input id="flexibleDateThree" type="date" placeholder="Preferred Date 3">
+        </div>
       </div>
 
       <div class="modern-step-card">
@@ -1400,6 +1410,101 @@ function syncModernTimePicker(value) {
   updateTimeDisplay(value || "");
 }
 
+function toggleFlexibleDateOptions() {
+  const flexible =
+    document.getElementById("dateFlexible");
+
+  const optionsBox =
+    document.getElementById("flexibleDateOptions");
+
+  const dateInput =
+    document.getElementById("dateNeeded");
+
+  if (!flexible || !optionsBox) {
+    return;
+  }
+
+  if (flexible.checked) {
+    optionsBox.classList.remove("hidden");
+
+    if (dateInput) {
+      dateInput.value = "";
+    }
+  } else {
+    optionsBox.classList.add("hidden");
+
+    ["flexibleDateOne", "flexibleDateTwo", "flexibleDateThree"].forEach(id => {
+      const input =
+        document.getElementById(id);
+
+      if (input) {
+        input.value = "";
+      }
+    });
+  }
+}
+
+function syncFlexibleDateInputs() {
+  const flexible =
+    document.getElementById("dateFlexible");
+
+  const dateInput =
+    document.getElementById("dateNeeded");
+
+  const flexibleDateOne =
+    document.getElementById("flexibleDateOne");
+
+  const flexibleDateTwo =
+    document.getElementById("flexibleDateTwo");
+
+  const flexibleDateThree =
+    document.getElementById("flexibleDateThree");
+
+  if (dateInput) {
+    dateInput.value =
+      answers.date_needed && answers.date_needed !== "Flexible"
+        ? normalizeDateInputValue(answers.date_needed)
+        : "";
+  }
+
+  if (flexible) {
+    flexible.checked =
+      answers.date_flexible === "Yes" ||
+      answers.date_needed === "Flexible";
+  }
+
+  if (flexibleDateOne) {
+    flexibleDateOne.value =
+      normalizeDateInputValue(answers.flexible_date_1 || "");
+  }
+
+  if (flexibleDateTwo) {
+    flexibleDateTwo.value =
+      normalizeDateInputValue(answers.flexible_date_2 || "");
+  }
+
+  if (flexibleDateThree) {
+    flexibleDateThree.value =
+      normalizeDateInputValue(answers.flexible_date_3 || "");
+  }
+
+  toggleFlexibleDateOptions();
+}
+
+function setFlexibleDateMinimums() {
+  const todayValue =
+    getTodayDateInputValue();
+
+  ["flexibleDateOne", "flexibleDateTwo", "flexibleDateThree"].forEach(id => {
+    const input =
+      document.getElementById(id);
+
+    if (input && !input.min) {
+      input.min = todayValue;
+    }
+  });
+}
+
 function showDateNeeded() {
   hideAllSteps();
 
@@ -1417,6 +1522,9 @@ function showDateNeeded() {
     dateInput.min =
       getTodayDateInputValue();
   }
+
+  setFlexibleDateMinimums();
+  syncFlexibleDateInputs();
 
   syncModernTimePicker(answers.time_needed || "");
 
@@ -1436,9 +1544,31 @@ function saveDateNeeded() {
   const flexible =
     document.getElementById("dateFlexible").checked;
 
+  const flexibleDateOne =
+    normalizeDateInputValue(document.getElementById("flexibleDateOne").value);
+
+  const flexibleDateTwo =
+    normalizeDateInputValue(document.getElementById("flexibleDateTwo").value);
+
+  const flexibleDateThree =
+    normalizeDateInputValue(document.getElementById("flexibleDateThree").value);
+
   if (!dateNeeded && !flexible) {
     document.getElementById("status").innerText =
       "Select a date or choose flexible.";
+    return;
+  }
+
+  if (
+    flexible &&
+    (
+      !flexibleDateOne ||
+      !flexibleDateTwo ||
+      !flexibleDateThree
+    )
+  ) {
+    document.getElementById("status").innerText =
+      "Select all 3 flexible date options.";
     return;
   }
 
@@ -1453,6 +1583,16 @@ function saveDateNeeded() {
 
   answers.date_flexible =
     flexible ? "Yes" : "No";
+
+  if (flexible) {
+    answers.flexible_date_1 = flexibleDateOne;
+    answers.flexible_date_2 = flexibleDateTwo;
+    answers.flexible_date_3 = flexibleDateThree;
+  } else {
+    delete answers.flexible_date_1;
+    delete answers.flexible_date_2;
+    delete answers.flexible_date_3;
+  }
 
   answers.time_needed =
     timeNeeded;
@@ -1666,6 +1806,15 @@ function showReview() {
       return;
     }
 
+    if (
+      key === "flexible_date_1" ||
+      key === "flexible_date_2" ||
+      key === "flexible_date_3"
+    ) {
+      html += `<p><strong>${formatLabel(key)}:</strong> ${formatDate(answers[key])}</p>`;
+      return;
+    }
+
     html += `<p><strong>${formatLabel(key)}:</strong> ${answers[key]}</p>`;
   });
 
@@ -1855,6 +2004,15 @@ function buildDescription() {
 
   Object.keys(answers).forEach(key => {
     if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {
+      return;
+    }
+
+    if (
+      key === "flexible_date_1" ||
+      key === "flexible_date_2" ||
+      key === "flexible_date_3"
+    ) {
+      description += `${formatLabel(key)}: ${formatDate(answers[key])}\n`;
       return;
     }
 
