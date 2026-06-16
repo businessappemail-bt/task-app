@@ -2039,7 +2039,7 @@ async function loadAcceptedQuotes() {
         ` : ""}
 
         ${String(liveStatus).toLowerCase() === "in progress" ? `
-        <button class="secondary-btn" onclick="window.location.href='dispute-center.html?task_id=${encodeURIComponent(task.id)}&order_number=${encodeURIComponent('TM-' + String(task.id).slice(0,8).toUpperCase())}'">
+        <button class="secondary-btn" onclick="window.location.href='dispute-center.html?task_id=${encodeURIComponent(task.id)}&worker_id=${encodeURIComponent(workerId || '')}&worker_name=${encodeURIComponent(getWorkerName(worker, quote, task))}&order_number=${encodeURIComponent('TM-' + String(task.id).slice(0,8).toUpperCase())}'">
           Dispute Task
         </button>
         ` : ""}
