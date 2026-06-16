@@ -434,6 +434,57 @@ button:hover {
   font-weight: 800;
 }
 
+.address-suggestions {
+  display: none;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-top: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.14);
+  position: relative;
+  z-index: 999999;
+}
+
+.address-suggestions.active {
+  display: block;
+}
+
+.address-suggestion-item {
+  width: 100%;
+  margin: 0;
+  padding: 12px;
+  background: #fff;
+  color: var(--text);
+  border: 0;
+  border-bottom: 1px solid #edf1ee;
+  border-radius: 0;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.address-suggestion-item:hover {
+  background: var(--surface);
+  transform: none;
+  box-shadow: none;
+}
+
+.address-suggestion-main {
+  display: block;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.address-suggestion-secondary {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .field-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -667,7 +718,8 @@ gmp-place-autocomplete::part(place-address) {
       </div>
 
       <div class="address-label">Address search</div>
-      <input id="address" placeholder="Start typing the task address">
+      <input id="address" placeholder="Start typing the task address" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <div id="addressSuggestions" class="address-suggestions"></div>
       <div class="address-help">Selecting a Google suggestion fills in the address, city, state, and zip code.</div>
       <div id="selectedAddress" class="selected-address hidden"></div>
     </div>
@@ -693,7 +745,8 @@ gmp-place-autocomplete::part(place-address) {
         </div>
 
         <div class="address-label">Drop-off address search</div>
-        <input id="dropOffAddress" placeholder="Start typing the drop-off address">
+        <input id="dropOffAddress" placeholder="Start typing the drop-off address" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div id="dropOffAddressSuggestions" class="address-suggestions"></div>
         <div class="address-help">Selecting a Google suggestion fills in the drop-off address, city, state, and zip code.</div>
         <div id="selectedDropOffAddress" class="selected-address hidden"></div>
       </div>
@@ -1078,9 +1131,110 @@ window.initGoogleMaps = function () {
   setStatusMessage("Google address search failed to load.", true);
 };
 
-function setupPlaceAutocomplete() {
+function clearAddressSuggestions(suggestionsId) {
+  const suggestionsBox =
+    document.getElementById(suggestionsId);
+
+  if (!suggestionsBox) {
+    return;
+  }
+
+  suggestionsBox.innerHTML = "";
+  suggestionsBox.classList.remove("active");
+}
+
+function renderAddressSuggestions(predictions, suggestionsId, callback) {
+  const suggestionsBox =
+    document.getElementById(suggestionsId);
+
+  if (!suggestionsBox) {
+    return;
+  }
+
+  suggestionsBox.innerHTML = "";
+
+  if (!predictions || predictions.length === 0) {
+    suggestionsBox.classList.remove("active");
+    return;
+  }
+
+  predictions.slice(0, 5).forEach(prediction => {
+    const button =
+      document.createElement("button");
+
+    button.type =
+      "button";
+
+    button.className =
+      "address-suggestion-item";
+
+    const mainText =
+      prediction.structured_formatting &&
+      prediction.structured_formatting.main_text
+        ? prediction.structured_formatting.main_text
+        : prediction.description;
+
+    const secondaryText =
+      prediction.structured_formatting &&
+      prediction.structured_formatting.secondary_text
+        ? prediction.structured_formatting.secondary_text
+        : "";
+
+    button.innerHTML =
+      `<span class="address-suggestion-main">${escapeHTML(mainText)}</span>
+       <span class="address-suggestion-secondary">${escapeHTML(secondaryText)}</span>`;
+
+    button.addEventListener("click", function() {
+      callback(prediction.place_id);
+      clearAddressSuggestions(suggestionsId);
+    });
+
+    suggestionsBox.appendChild(button);
+  });
+
+  suggestionsBox.classList.add("active");
+}
+
+function fetchGooglePlaceDetails(placeId, callback) {
+  if (
+    !placeId ||
+    !window.google ||
+    !google.maps ||
+    !google.maps.places ||
+    !google.maps.places.PlacesService
+  ) {
+    return;
+  }
+
+  const service =
+    new google.maps.places.PlacesService(
+      document.createElement("div")
+    );
+
+  service.getDetails(
+    {
+      placeId: placeId,
+      fields: [
+        "formatted_address",
+        "address_components"
+      ]
+    },
+    function(place, status) {
+      if (
+        status !== google.maps.places.PlacesServiceStatus.OK ||
+        !place
+      ) {
+        return;
+      }
+
+      callback(place);
+    }
+  );
+}
+
+function setupAddressPredictionInput(inputId, suggestionsId, callback) {
   const addressInput =
-    document.getElementById("address");
+    document.getElementById(inputId);
 
   if (
     !addressInput ||
@@ -1089,75 +1243,81 @@ function setupPlaceAutocomplete() {
     !window.google ||
     !google.maps ||
     !google.maps.places ||
-    !google.maps.places.Autocomplete
+    !google.maps.places.AutocompleteService
   ) {
     return;
   }
 
-  const autocomplete =
-    new google.maps.places.Autocomplete(addressInput, {
-      componentRestrictions: {
-        country: "us"
-      },
-      fields: [
-        "formatted_address",
-        "address_components",
-        "geometry"
-      ]
-    });
+  const autocompleteService =
+    new google.maps.places.AutocompleteService();
 
-  autocomplete.addListener("place_changed", function() {
-    const place =
-      autocomplete.getPlace();
+  let debounceTimer = null;
 
-    if (!place || !place.address_components) {
+  addressInput.addEventListener("input", function() {
+    const value =
+      addressInput.value.trim();
+
+    window.clearTimeout(debounceTimer);
+
+    if (value.length < 2) {
+      clearAddressSuggestions(suggestionsId);
       return;
     }
 
-    handleSelectedPlace(place);
+    debounceTimer =
+      window.setTimeout(function() {
+        autocompleteService.getPlacePredictions(
+          {
+            input: value,
+            componentRestrictions: {
+              country: "us"
+            },
+            types: ["address"]
+          },
+          function(predictions, status) {
+            if (
+              status !== google.maps.places.PlacesServiceStatus.OK ||
+              !predictions
+            ) {
+              clearAddressSuggestions(suggestionsId);
+              return;
+            }
+
+            renderAddressSuggestions(
+              predictions,
+              suggestionsId,
+              function(placeId) {
+                fetchGooglePlaceDetails(placeId, callback);
+              }
+            );
+          }
+        );
+      }, 250);
   });
-addressInput.dataset.loaded = "true";
+
+  addressInput.addEventListener("blur", function() {
+    window.setTimeout(function() {
+      clearAddressSuggestions(suggestionsId);
+    }, 250);
+  });
+
+  addressInput.dataset.loaded = "true";
+}
+
+function setupPlaceAutocomplete() {
+  setupAddressPredictionInput(
+    "address",
+    "addressSuggestions",
+    handleSelectedPlace
+  );
 }
 
 function setupDropOffPlaceAutocomplete() {
-  const dropOffAddressInput =
-    document.getElementById("dropOffAddress");
-
-  if (
-    !dropOffAddressInput ||
-    dropOffAddressInput.dataset.loaded === "true" ||
-    !googleReady ||
-    !window.google ||
-    !google.maps ||
-    !google.maps.places ||
-    !google.maps.places.Autocomplete
-  ) {
-    return;
-  }
-
-  const autocomplete =
-    new google.maps.places.Autocomplete(dropOffAddressInput, {
-      componentRestrictions: {
-        country: "us"
-      },
-      fields: [
-        "formatted_address",
-        "address_components",
-        "geometry"
-      ]
-    });
-
-  autocomplete.addListener("place_changed", function() {
-    const place =
-      autocomplete.getPlace();
-
-    if (!place || !place.address_components) {
-      return;
-    }
-
-    handleSelectedDropOffPlace(place);
-  });
-dropOffAddressInput.dataset.loaded = "true";
+  setupAddressPredictionInput(
+    "dropOffAddress",
+    "dropOffAddressSuggestions",
+    handleSelectedDropOffPlace
+  );
 }
 
 function toggleDropOffAddressSection() {
