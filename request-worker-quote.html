@@ -1063,15 +1063,19 @@ function syncModernTimePicker(value) {
   updateTimeDisplay(value || "");
 }
 
-window.initGoogleMaps = async function () {
-  try {
-    await google.maps.importLibrary("places");
+window.initGoogleMaps = function () {
+  if (
+    window.google &&
+    google.maps &&
+    google.maps.places
+  ) {
     googleReady = true;
     setupPlaceAutocomplete();
     setupDropOffPlaceAutocomplete();
-  } catch (error) {
-    setStatusMessage("Google address search failed to load.", true);
+    return;
   }
+
+  setStatusMessage("Google address search failed to load.", true);
 };
 
 function setupPlaceAutocomplete() {
@@ -1082,8 +1086,10 @@ function setupPlaceAutocomplete() {
     !addressInput ||
     addressInput.dataset.loaded === "true" ||
     !googleReady ||
+    !window.google ||
     !google.maps ||
-    !google.maps.places
+    !google.maps.places ||
+    !google.maps.places.Autocomplete
   ) {
     return;
   }
@@ -1095,16 +1101,32 @@ function setupPlaceAutocomplete() {
       },
       fields: [
         "formatted_address",
-        "address_components"
-      ],
-      types: ["address"]
+        "address_components",
+        "geometry"
+      ]
     });
 
   autocomplete.addListener("place_changed", function() {
     const place =
       autocomplete.getPlace();
 
+    if (!place || !place.address_components) {
+      return;
+    }
+
     handleSelectedPlace(place);
+  });
+
+  addressInput.addEventListener("focus", function() {
+    if (
+      window.google &&
+      google.maps &&
+      google.maps.event
+    ) {
+      google.maps.event.trigger(addressInput, "keydown", {
+        keyCode: 40
+      });
+    }
   });
 
   addressInput.dataset.loaded = "true";
@@ -1118,8 +1140,10 @@ function setupDropOffPlaceAutocomplete() {
     !dropOffAddressInput ||
     dropOffAddressInput.dataset.loaded === "true" ||
     !googleReady ||
+    !window.google ||
     !google.maps ||
-    !google.maps.places
+    !google.maps.places ||
+    !google.maps.places.Autocomplete
   ) {
     return;
   }
@@ -1131,16 +1155,32 @@ function setupDropOffPlaceAutocomplete() {
       },
       fields: [
         "formatted_address",
-        "address_components"
-      ],
-      types: ["address"]
+        "address_components",
+        "geometry"
+      ]
     });
 
   autocomplete.addListener("place_changed", function() {
     const place =
       autocomplete.getPlace();
 
+    if (!place || !place.address_components) {
+      return;
+    }
+
     handleSelectedDropOffPlace(place);
+  });
+
+  dropOffAddressInput.addEventListener("focus", function() {
+    if (
+      window.google &&
+      google.maps &&
+      google.maps.event
+    ) {
+      google.maps.event.trigger(dropOffAddressInput, "keydown", {
+        keyCode: 40
+      });
+    }
   });
 
   dropOffAddressInput.dataset.loaded = "true";
@@ -1849,6 +1889,6 @@ async function submitDirectRequest() {
 loadPage();
 </script>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=beta&callback=initGoogleMaps"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&callback=initGoogleMaps"></script>
 </body>
 </html>
