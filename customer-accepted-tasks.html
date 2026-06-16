@@ -1750,6 +1750,15 @@ async function reportTaskIssue(taskId, sourceType, issueType) {
     updateData.incomplete_work_reported_at = new Date().toISOString();
   }
 
+  if (
+    issueType === "worker_no_show" ||
+    issueType === "incomplete_work"
+  ) {
+    updateData.status = "dispute_open";
+    updateData.dispute_status = "open";
+    updateData.escrow_status = "disputed";
+  }
+
   const { error } =
     await supabaseClient
       .from(tableName)
@@ -1761,7 +1770,7 @@ async function reportTaskIssue(taskId, sourceType, issueType) {
     return;
   }
 
-  alert("Issue reported successfully.");
+  alert("Issue reported. The task has been sent for review and payment will remain on hold until TaskMint resolves the issue.");
   loadAcceptedQuotes();
 }
 
