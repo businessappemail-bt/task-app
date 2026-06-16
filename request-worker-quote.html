@@ -1116,20 +1116,7 @@ function setupPlaceAutocomplete() {
 
     handleSelectedPlace(place);
   });
-
-  addressInput.addEventListener("focus", function() {
-    if (
-      window.google &&
-      google.maps &&
-      google.maps.event
-    ) {
-      google.maps.event.trigger(addressInput, "keydown", {
-        keyCode: 40
-      });
-    }
-  });
-
-  addressInput.dataset.loaded = "true";
+addressInput.dataset.loaded = "true";
 }
 
 function setupDropOffPlaceAutocomplete() {
@@ -1170,20 +1157,7 @@ function setupDropOffPlaceAutocomplete() {
 
     handleSelectedDropOffPlace(place);
   });
-
-  dropOffAddressInput.addEventListener("focus", function() {
-    if (
-      window.google &&
-      google.maps &&
-      google.maps.event
-    ) {
-      google.maps.event.trigger(dropOffAddressInput, "keydown", {
-        keyCode: 40
-      });
-    }
-  });
-
-  dropOffAddressInput.dataset.loaded = "true";
+dropOffAddressInput.dataset.loaded = "true";
 }
 
 function toggleDropOffAddressSection() {
