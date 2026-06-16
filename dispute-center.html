@@ -1155,6 +1155,18 @@ async function submitDispute() {
         .select()
         .single();
 
+    if (taskId) {
+      await supabaseClient
+        .from("tasks")
+        .update({
+          status: "dispute_open",
+          dispute_status: "open",
+          escrow_status: "disputed",
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", taskId);
+    }
+
     if (error) {
       status.className = "error";
       status.innerText =
