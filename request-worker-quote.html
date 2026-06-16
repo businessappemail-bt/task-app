@@ -667,11 +667,9 @@ gmp-place-autocomplete::part(place-address) {
       </div>
 
       <div class="address-label">Address search</div>
-      <div id="googleAddressBox"></div>
+      <input id="address" placeholder="Start typing the task address">
       <div class="address-help">Selecting a Google suggestion fills in the address, city, state, and zip code.</div>
       <div id="selectedAddress" class="selected-address hidden"></div>
-
-      <input id="address" class="native-address-hidden" placeholder="Street address">
     </div>
 
     <div class="form-panel">
@@ -695,11 +693,9 @@ gmp-place-autocomplete::part(place-address) {
         </div>
 
         <div class="address-label">Drop-off address search</div>
-        <div id="googleDropOffAddressBox"></div>
+        <input id="dropOffAddress" placeholder="Start typing the drop-off address">
         <div class="address-help">Selecting a Google suggestion fills in the drop-off address, city, state, and zip code.</div>
         <div id="selectedDropOffAddress" class="selected-address hidden"></div>
-
-        <input id="dropOffAddress" class="native-address-hidden" placeholder="Drop-off street address">
       </div>
 
       <div class="form-panel">
@@ -1079,69 +1075,75 @@ window.initGoogleMaps = async function () {
 };
 
 function setupPlaceAutocomplete() {
-  const container =
-    document.getElementById("googleAddressBox");
+  const addressInput =
+    document.getElementById("address");
 
-  if (!container || container.dataset.loaded === "true" || !googleReady) {
+  if (
+    !addressInput ||
+    addressInput.dataset.loaded === "true" ||
+    !googleReady ||
+    !google.maps ||
+    !google.maps.places
+  ) {
     return;
   }
 
-  container.innerHTML = "";
-
   const autocomplete =
-    new google.maps.places.PlaceAutocompleteElement();
-
-  autocomplete.setAttribute("included-region-codes", "us");
-
-  autocomplete.addEventListener("gmp-select", async (event) => {
-    const place =
-      event.placePrediction.toPlace();
-
-    await place.fetchFields({
+    new google.maps.places.Autocomplete(addressInput, {
+      componentRestrictions: {
+        country: "us"
+      },
       fields: [
-        "formattedAddress",
-        "addressComponents"
-      ]
+        "formatted_address",
+        "address_components"
+      ],
+      types: ["address"]
     });
+
+  autocomplete.addListener("place_changed", function() {
+    const place =
+      autocomplete.getPlace();
 
     handleSelectedPlace(place);
   });
 
-  container.appendChild(autocomplete);
-  container.dataset.loaded = "true";
+  addressInput.dataset.loaded = "true";
 }
 
 function setupDropOffPlaceAutocomplete() {
-  const container =
-    document.getElementById("googleDropOffAddressBox");
+  const dropOffAddressInput =
+    document.getElementById("dropOffAddress");
 
-  if (!container || container.dataset.loaded === "true" || !googleReady) {
+  if (
+    !dropOffAddressInput ||
+    dropOffAddressInput.dataset.loaded === "true" ||
+    !googleReady ||
+    !google.maps ||
+    !google.maps.places
+  ) {
     return;
   }
 
-  container.innerHTML = "";
-
   const autocomplete =
-    new google.maps.places.PlaceAutocompleteElement();
-
-  autocomplete.setAttribute("included-region-codes", "us");
-
-  autocomplete.addEventListener("gmp-select", async (event) => {
-    const place =
-      event.placePrediction.toPlace();
-
-    await place.fetchFields({
+    new google.maps.places.Autocomplete(dropOffAddressInput, {
+      componentRestrictions: {
+        country: "us"
+      },
       fields: [
-        "formattedAddress",
-        "addressComponents"
-      ]
+        "formatted_address",
+        "address_components"
+      ],
+      types: ["address"]
     });
+
+  autocomplete.addListener("place_changed", function() {
+    const place =
+      autocomplete.getPlace();
 
     handleSelectedDropOffPlace(place);
   });
 
-  container.appendChild(autocomplete);
-  container.dataset.loaded = "true";
+  dropOffAddressInput.dataset.loaded = "true";
 }
 
 function toggleDropOffAddressSection() {
@@ -1212,49 +1214,65 @@ function handleSelectedPlace(place) {
   let state = "";
   let zip = "";
 
-  if (place.addressComponents) {
-    place.addressComponents.forEach(component => {
+  const components =
+    place.address_components ||
+    place.addressComponents ||
+    [];
+
+  if (components.length) {
+    components.forEach(component => {
       const types =
         component.types || [];
 
+      const longValue =
+        component.long_name ||
+        component.longText ||
+        "";
+
+      const shortValue =
+        component.short_name ||
+        component.shortText ||
+        "";
+
       if (types.includes("street_number")) {
         streetNumber =
-          component.longText || "";
+          longValue;
       }
 
       if (types.includes("route")) {
         route =
-          component.longText || "";
+          longValue;
       }
 
       if (types.includes("locality")) {
         city =
-          component.longText || "";
+          longValue;
       }
 
       if (!city && types.includes("sublocality")) {
         city =
-          component.longText || "";
+          longValue;
       }
 
       if (!city && types.includes("administrative_area_level_2")) {
         city =
-          component.longText || "";
+          longValue;
       }
 
       if (types.includes("administrative_area_level_1")) {
         state =
-          component.shortText || "";
+          shortValue;
       }
 
       if (types.includes("postal_code")) {
         zip =
-          component.longText || "";
+          longValue;
       }
     });
   }
 
   const formattedAddress =
+    place.formatted_address ||
     place.formattedAddress ||
     `${streetNumber} ${route}`.trim();
 
@@ -1286,50 +1304,66 @@ function getAddressPartsFromPlace(place) {
   let state = "";
   let zip = "";
 
-  if (place.addressComponents) {
-    place.addressComponents.forEach(component => {
+  const components =
+    place.address_components ||
+    place.addressComponents ||
+    [];
+
+  if (components.length) {
+    components.forEach(component => {
       const types =
         component.types || [];
 
+      const longValue =
+        component.long_name ||
+        component.longText ||
+        "";
+
+      const shortValue =
+        component.short_name ||
+        component.shortText ||
+        "";
+
       if (types.includes("street_number")) {
         streetNumber =
-          component.longText || "";
+          longValue;
       }
 
       if (types.includes("route")) {
         route =
-          component.longText || "";
+          longValue;
       }
 
       if (types.includes("locality")) {
         city =
-          component.longText || "";
+          longValue;
       }
 
       if (!city && types.includes("sublocality")) {
         city =
-          component.longText || "";
+          longValue;
       }
 
       if (!city && types.includes("administrative_area_level_2")) {
         city =
-          component.longText || "";
+          longValue;
       }
 
       if (types.includes("administrative_area_level_1")) {
         state =
-          component.shortText || "";
+          shortValue;
       }
 
       if (types.includes("postal_code")) {
         zip =
-          component.longText || "";
+          longValue;
       }
     });
   }
 
   return {
     formattedAddress:
+      place.formatted_address ||
       place.formattedAddress ||
       `${streetNumber} ${route}`.trim(),
     city,
