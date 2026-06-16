@@ -452,6 +452,7 @@ button:hover {
 
 .address-suggestion-item {
   width: 100%;
+  display: block;
   margin: 0;
   padding: 12px;
   background: #fff;
@@ -465,10 +466,12 @@ button:hover {
   box-shadow: none;
 }
 
-.address-suggestion-item:hover {
+.address-suggestion-item:hover,
+.address-suggestion-item:focus {
   background: var(--surface);
   transform: none;
   box-shadow: none;
+  outline: none;
 }
 
 .address-suggestion-main {
@@ -496,63 +499,6 @@ button:hover {
   font-size: 12px;
   line-height: 1.4;
   margin-top: 8px;
-}
-
-gmp-place-autocomplete {
-  width: 100%;
-  display: block;
-  margin-top: 10px;
-  color-scheme: light;
-  --gmpx-color-surface: #ffffff;
-  --gmpx-color-on-surface: #111111;
-  --gmpx-color-primary: #0b7a28;
-  --gmpx-color-outline: #e2ebe5;
-  --gmpx-font-family-base: Arial, sans-serif;
-}
-
-gmp-place-autocomplete input {
-  background: #fff !important;
-  color: #111 !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 13px !important;
-  padding: 13px !important;
-  font-size: 14px !important;
-  font-family: Arial, sans-serif !important;
-  box-shadow: none !important;
-}
-
-gmp-place-autocomplete::part(input) {
-  background: #fff !important;
-  color: #111 !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 13px !important;
-  padding: 13px !important;
-  font-size: 14px !important;
-  font-family: Arial, sans-serif !important;
-}
-
-gmp-place-autocomplete::part(input-field) {
-  background: #fff !important;
-  color: #111 !important;
-}
-
-gmp-place-autocomplete::part(prediction-list),
-gmp-place-autocomplete::part(listbox),
-gmp-place-autocomplete::part(panel) {
-  background: #fff !important;
-  color: #111 !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.14) !important;
-  overflow: hidden !important;
-}
-
-gmp-place-autocomplete::part(prediction-row),
-gmp-place-autocomplete::part(option),
-gmp-place-autocomplete::part(place-title),
-gmp-place-autocomplete::part(place-address) {
-  background: #fff !important;
-  color: #111 !important;
 }
 
 .pac-container {
@@ -718,7 +664,14 @@ gmp-place-autocomplete::part(place-address) {
       </div>
 
       <div class="address-label">Address search</div>
-      <input id="address" placeholder="Start typing the task address" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input
+        id="address"
+        placeholder="Start typing the task address"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      >
       <div id="addressSuggestions" class="address-suggestions"></div>
       <div class="address-help">Selecting a Google suggestion fills in the address, city, state, and zip code.</div>
       <div id="selectedAddress" class="selected-address hidden"></div>
@@ -745,7 +698,14 @@ gmp-place-autocomplete::part(place-address) {
         </div>
 
         <div class="address-label">Drop-off address search</div>
-        <input id="dropOffAddress" placeholder="Start typing the drop-off address" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <input
+          id="dropOffAddress"
+          placeholder="Start typing the drop-off address"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        >
         <div id="dropOffAddressSuggestions" class="address-suggestions"></div>
         <div class="address-help">Selecting a Google suggestion fills in the drop-off address, city, state, and zip code.</div>
         <div id="selectedDropOffAddress" class="selected-address hidden"></div>
@@ -1184,9 +1144,18 @@ function renderAddressSuggestions(predictions, suggestionsId, callback) {
       `<span class="address-suggestion-main">${escapeHTML(mainText)}</span>
        <span class="address-suggestion-secondary">${escapeHTML(secondaryText)}</span>`;
 
-    button.addEventListener("click", function() {
-      callback(prediction.place_id);
-      clearAddressSuggestions(suggestionsId);
+    button.addEventListener("mousedown", function(event) {
+      event.preventDefault();
+    });
+
+    button.addEventListener("click", function(event) {
+      event.preventDefault();
+      callback(prediction);
+    });
+
+    button.addEventListener("touchend", function(event) {
+      event.preventDefault();
+      callback(prediction);
     });
 
     suggestionsBox.appendChild(button);
@@ -1195,7 +1164,7 @@ function renderAddressSuggestions(predictions, suggestionsId, callback) {
   suggestionsBox.classList.add("active");
 }
 
-function fetchGooglePlaceDetails(placeId, callback) {
+function getPlaceDetails(placeId, callback) {
   if (
     !placeId ||
     !window.google ||
@@ -1232,7 +1201,7 @@ function fetchGooglePlaceDetails(placeId, callback) {
   );
 }
 
-function setupAddressPredictionInput(inputId, suggestionsId, callback) {
+function setupAddressPredictionInput(inputId, suggestionsId, selectedCallback) {
   const addressInput =
     document.getElementById(inputId);
 
@@ -1254,12 +1223,12 @@ function setupAddressPredictionInput(inputId, suggestionsId, callback) {
   let debounceTimer = null;
 
   addressInput.addEventListener("input", function() {
-    const value =
+    const inputValue =
       addressInput.value.trim();
 
     window.clearTimeout(debounceTimer);
 
-    if (value.length < 2) {
+    if (inputValue.length < 1) {
       clearAddressSuggestions(suggestionsId);
       return;
     }
@@ -1268,16 +1237,16 @@ function setupAddressPredictionInput(inputId, suggestionsId, callback) {
       window.setTimeout(function() {
         autocompleteService.getPlacePredictions(
           {
-            input: value,
+            input: inputValue,
             componentRestrictions: {
               country: "us"
-            },
-            types: ["address"]
+            }
           },
           function(predictions, status) {
             if (
               status !== google.maps.places.PlacesServiceStatus.OK ||
-              !predictions
+              !predictions ||
+              predictions.length === 0
             ) {
               clearAddressSuggestions(suggestionsId);
               return;
@@ -1286,19 +1255,18 @@ function setupAddressPredictionInput(inputId, suggestionsId, callback) {
             renderAddressSuggestions(
               predictions,
               suggestionsId,
-              function(placeId) {
-                fetchGooglePlaceDetails(placeId, callback);
+              function(prediction) {
+                clearAddressSuggestions(suggestionsId);
+
+                getPlaceDetails(
+                  prediction.place_id,
+                  selectedCallback
+                );
               }
             );
           }
         );
-      }, 250);
-  });
-
-  addressInput.addEventListener("blur", function() {
-    window.setTimeout(function() {
-      clearAddressSuggestions(suggestionsId);
-    }, 250);
+      }, 200);
   });
 
   addressInput.dataset.loaded = "true";
