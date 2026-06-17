@@ -30,10 +30,8 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(11,122,40,0.10), transparent 30%),
-    linear-gradient(180deg, #ffffff 0%, #f7faf8 100%);
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  background: var(--bg);
   color: var(--text);
   padding-bottom: 38px;
   display: flex;
@@ -83,23 +81,19 @@ body {
 .hero::before {
   content: "";
   position: absolute;
-  width: 155px;
-  height: 155px;
+  width: 155px; height: 155px;
   border-radius: 50%;
   background: rgba(255,255,255,0.10);
-  top: -65px;
-  right: -55px;
+  top: -65px; right: -55px;
 }
 
 .hero::after {
   content: "";
   position: absolute;
-  width: 92px;
-  height: 92px;
+  width: 92px; height: 92px;
   border-radius: 50%;
   background: rgba(255,255,255,0.07);
-  bottom: -45px;
-  left: -35px;
+  bottom: -45px; left: -35px;
 }
 
 .hero h1 {
@@ -121,8 +115,7 @@ body {
   z-index: 2;
 }
 
-.notice,
-.card {
+.notice, .card {
   background: var(--surface);
   border-radius: 20px;
   padding: 16px;
@@ -174,24 +167,10 @@ body {
   text-align: center;
 }
 
-.section-title {
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 6px;
-  letter-spacing: -0.2px;
-}
+.section-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.2px; }
+.section-note { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
 
-.section-note {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.5;
-  margin-bottom: 12px;
-}
-
-.form-panel,
-.question-block,
-.address-panel,
-.time-panel {
+.form-panel, .question-block, .address-panel, .time-panel {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -209,9 +188,7 @@ label {
   margin: 0 0 7px;
 }
 
-input,
-select,
-textarea {
+input, select, textarea {
   width: 100%;
   padding: 13px;
   border-radius: 13px;
@@ -220,52 +197,28 @@ textarea {
   outline: none;
   background: white;
   color: var(--text);
-  font-family: Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-input::placeholder,
-textarea::placeholder {
-  color: #8b9790;
-}
-
-textarea {
-  min-height: 115px;
-  resize: vertical;
-  line-height: 1.45;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
+input::placeholder, textarea::placeholder { color: #8b9790; }
+textarea { min-height: 115px; resize: vertical; line-height: 1.45; }
+input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(11,122,40,.10);
 }
 
-.field-help {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.4;
-  margin-top: 7px;
-}
+.field-help { color: var(--muted); font-size: 12px; line-height: 1.4; margin-top: 7px; }
 
 .checkbox-option {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  padding: 11px;
-  margin-top: 8px;
-  font-size: 13.5px;
-  font-weight: 700;
+  display: flex; align-items: center; gap: 9px;
+  background: white; border: 1px solid var(--border);
+  border-radius: 13px; padding: 11px; margin-top: 8px;
+  font-size: 13.5px; font-weight: 700;
 }
 
-.checkbox-option input {
-  width: auto;
-  box-shadow: none;
-  accent-color: var(--accent);
-}
+.checkbox-option input { width: auto; box-shadow: none; accent-color: var(--accent); }
 
 button {
   width: 100%;
@@ -279,260 +232,99 @@ button {
   cursor: pointer;
   margin-top: 10px;
   transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
-  font-family: Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(11,122,40,0.12);
-}
+button:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 14px rgba(11,122,40,0.12); }
+button:active { opacity: 0.85; transform: none; }
 
-.secondary {
-  background: white;
-  color: var(--accent);
-  border: 1px solid var(--border);
-}
+.secondary { background: white; color: var(--accent); border: 1px solid var(--border); }
+.status { text-align: center; font-size: 13px; font-weight: 800; margin-top: 10px; line-height: 1.4; }
+.hidden { display: none; }
+.slide-screen { display: none; }
+.slide-screen.active { display: block; }
 
-.status {
-  text-align: center;
-  font-size: 13px;
-  font-weight: 800;
-  margin-top: 10px;
-  line-height: 1.4;
-}
+.slide-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.slide-actions.single { grid-template-columns: 1fr; }
 
-.hidden {
-  display: none;
-}
-
-.slide-screen {
-  display: none;
-}
-
-.slide-screen.active {
-  display: block;
-}
-
-.slide-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.slide-actions.single {
-  grid-template-columns: 1fr;
-}
-
-.date-icon-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
+.date-icon-row { display: flex; align-items: flex-start; gap: 12px; }
 
 .step-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 13px;
+  width: 42px; height: 42px; border-radius: 13px;
   background: var(--surface2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
-  font-size: 20px;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-size: 20px; flex-shrink: 0;
 }
 
-.time-picker-modern {
-  display: grid;
-  gap: 10px;
-  margin-top: 10px;
-}
+.time-picker-modern { display: grid; gap: 10px; margin-top: 10px; }
 
 .time-display-card {
-  background: var(--surface2);
-  border: 1px solid #cdebd5;
-  color: var(--accent);
-  border-radius: 16px;
-  padding: 14px;
-  font-size: 14px;
-  font-weight: 800;
-  text-align: center;
+  background: var(--surface2); border: 1px solid #cdebd5; color: var(--accent);
+  border-radius: 16px; padding: 14px; font-size: 14px; font-weight: 800; text-align: center;
 }
 
-.time-chip-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+.time-chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 .time-chip {
-  margin-top: 0;
-  background: #fff;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 13px 10px;
-  font-size: 13px;
-  font-weight: 800;
+  margin-top: 0; background: #fff; color: var(--text);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 13px 10px; font-size: 13px; font-weight: 800;
 }
 
-.time-chip.selected {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
+.time-chip.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-.custom-time-row {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px;
-}
+.custom-time-row { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 12px; }
+.custom-time-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.custom-time-input { margin-top: 0; }
+.native-time-hidden { position: absolute; opacity: 0; pointer-events: none; height: 0; padding: 0; margin: 0; border: 0; }
 
-.custom-time-label,
-.address-label {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-.custom-time-input {
-  margin-top: 0;
-}
-
-.native-time-hidden,
-.native-address-hidden {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  height: 0;
-  padding: 0;
-  margin: 0;
-  border: 0;
-}
-
-.address-help {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.45;
-  margin-top: 8px;
-}
-
-.selected-address {
-  background: var(--surface2);
-  border: 1px solid #cdebd5;
-  padding: 12px;
-  border-radius: 14px;
-  margin-top: 10px;
-  font-size: 13.5px;
-  color: var(--accent);
-  font-weight: 800;
-}
-
-.address-suggestions {
-  display: none;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  margin-top: 8px;
-  overflow: hidden;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.14);
+/* ── address autocomplete — mobile-safe ── */
+.address-wrap {
   position: relative;
-  z-index: 999999;
 }
 
-.address-suggestions.active {
-  display: block;
-}
-
-.address-suggestion-item {
-  width: 100%;
-  display: block;
-  margin: 0;
-  padding: 12px;
-  background: #fff;
-  color: var(--text);
-  border: 0;
-  border-bottom: 1px solid #edf1ee;
-  border-radius: 0;
-  text-align: left;
-  font-size: 13px;
-  font-weight: 700;
-  box-shadow: none;
-}
-
-.address-suggestion-item:hover,
-.address-suggestion-item:focus {
-  background: var(--surface);
-  transform: none;
-  box-shadow: none;
-  outline: none;
-}
-
-.address-suggestion-main {
-  display: block;
-  font-weight: 800;
-  color: var(--text);
-  margin-bottom: 3px;
-}
-
-.address-suggestion-secondary {
-  display: block;
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.field-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.required-note {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.4;
-  margin-top: 8px;
-}
-
+/* hide the Google autocomplete container that attaches to body and use our styling */
 .pac-container {
   z-index: 999999 !important;
   background: #fff !important;
-  color: #111 !important;
   border: 1px solid var(--border) !important;
   border-radius: 14px !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.14) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18) !important;
   overflow: hidden !important;
-  font-family: Arial, sans-serif !important;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
+  margin-top: 4px !important;
 }
 
 .pac-item {
   background: #fff !important;
-  color: #111 !important;
+  color: var(--text) !important;
   border-top: 1px solid #edf1ee !important;
-  padding: 10px 12px !important;
+  padding: 12px 14px !important;
   font-size: 13px !important;
+  cursor: pointer !important;
+  line-height: 1.4 !important;
 }
 
-.pac-item:hover {
-  background: var(--surface) !important;
+.pac-item:first-child { border-top: none !important; }
+.pac-item:hover, .pac-item:active { background: var(--surface) !important; }
+.pac-item-query { color: var(--text) !important; font-weight: 700 !important; }
+.pac-matched { font-weight: 800 !important; }
+.pac-item span { color: var(--muted) !important; }
+.pac-icon { display: none !important; }
+.pac-logo { display: none !important; }
+
+.selected-address {
+  background: var(--surface2); border: 1px solid #cdebd5;
+  padding: 12px; border-radius: 14px; margin-top: 10px;
+  font-size: 13.5px; color: var(--accent); font-weight: 800;
 }
 
-.pac-item-query,
-.pac-matched,
-.pac-item span {
-  color: #111 !important;
-}
+.address-help { color: var(--muted); font-size: 12px; line-height: 1.45; margin-top: 8px; }
 
-.pac-icon {
-  filter: none !important;
-}
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.required-note { color: var(--muted); font-size: 12px; line-height: 1.4; margin-top: 8px; }
 
 @keyframes riseIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -540,14 +332,8 @@ button:hover {
 }
 
 @media (max-width: 360px) {
-  .hero h1 {
-    font-size: 25px;
-  }
-
-  .slide-actions,
-  .field-grid {
-    grid-template-columns: 1fr;
-  }
+  .hero h1 { font-size: 25px; }
+  .slide-actions, .field-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -564,20 +350,14 @@ button:hover {
     <p>This request goes directly to the selected worker and will not post publicly to the open task feed.</p>
   </div>
 
-  <div class="notice" id="workerNotice">
-    Loading selected worker...
-  </div>
+  <div class="notice" id="workerNotice">Loading selected worker...</div>
 
   <div class="progress-wrap">
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-
-    <div class="progress-text" id="progressText">
-      Step 1 of 4
-    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">Step 1 of 4</div>
   </div>
 
+  <!-- SLIDE 1: Task Basics -->
   <div class="card slide-screen active" id="slide1">
     <div class="section-title">Task Basics</div>
     <div class="section-note">Tell the worker what type of task you need completed. All fields are required.</div>
@@ -610,6 +390,7 @@ button:hover {
     </div>
   </div>
 
+  <!-- SLIDE 2: Date & Location -->
   <div class="card slide-screen" id="slide2">
     <div class="section-title">Date & Location</div>
     <div class="section-note">Add the task location and preferred timing. All fields are required.</div>
@@ -617,7 +398,7 @@ button:hover {
     <div class="form-panel">
       <div class="date-icon-row">
         <div class="step-icon">📅</div>
-        <div>
+        <div style="flex:1;">
           <label>Preferred Date</label>
           <input id="taskDate" type="date">
         </div>
@@ -636,17 +417,13 @@ button:hover {
       <input id="taskTime" class="native-time-hidden" type="time">
 
       <div class="time-picker-modern">
-        <div class="time-display-card" id="selectedTimeDisplay">
-          No time selected
-        </div>
-
+        <div class="time-display-card" id="selectedTimeDisplay">No time selected</div>
         <div class="time-chip-grid">
           <button type="button" class="time-chip" onclick="selectPresetTime('09:00', this)">9:00 AM</button>
           <button type="button" class="time-chip" onclick="selectPresetTime('12:00', this)">12:00 PM</button>
           <button type="button" class="time-chip" onclick="selectPresetTime('15:00', this)">3:00 PM</button>
           <button type="button" class="time-chip" onclick="selectPresetTime('18:00', this)">6:00 PM</button>
         </div>
-
         <div class="custom-time-row">
           <div class="custom-time-label">Or choose a custom time</div>
           <input id="customTaskTime" class="custom-time-input" type="time" onchange="selectCustomTime()">
@@ -659,21 +436,22 @@ button:hover {
         <div class="step-icon">📍</div>
         <div>
           <label>Task Address</label>
-          <div class="field-help">Start typing and select the address from Google.</div>
+          <div class="field-help">Start typing and select from the suggestions.</div>
         </div>
       </div>
-
-      <div class="address-label">Address search</div>
-      <input
-        id="address"
-        placeholder="Start typing the task address"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-      >
-      <div id="addressSuggestions" class="address-suggestions"></div>
-      <div class="address-help">Selecting a Google suggestion fills in the address, city, state, and zip code.</div>
+      <!-- native Google Autocomplete attaches directly to this input -->
+      <div class="address-wrap">
+        <input
+          id="address"
+          placeholder="Start typing the task address"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          inputmode="search"
+        >
+      </div>
+      <div class="address-help">Selecting a suggestion fills in city, state, and zip automatically.</div>
       <div id="selectedAddress" class="selected-address hidden"></div>
     </div>
 
@@ -683,7 +461,7 @@ button:hover {
         <input id="city" placeholder="City">
         <input id="state" placeholder="State">
       </div>
-      <input id="zipCode" placeholder="Zip code">
+      <input id="zipCode" placeholder="Zip code" style="margin-top:10px;">
       <div class="required-note">City, state, and zip are required before moving forward.</div>
     </div>
 
@@ -693,21 +471,21 @@ button:hover {
           <div class="step-icon">📦</div>
           <div>
             <label>Drop-Off Address</label>
-            <div class="field-help">Start typing and select the drop-off address from Google.</div>
+            <div class="field-help">Start typing and select the drop-off address from the suggestions.</div>
           </div>
         </div>
-
-        <div class="address-label">Drop-off address search</div>
-        <input
-          id="dropOffAddress"
-          placeholder="Start typing the drop-off address"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
-        >
-        <div id="dropOffAddressSuggestions" class="address-suggestions"></div>
-        <div class="address-help">Selecting a Google suggestion fills in the drop-off address, city, state, and zip code.</div>
+        <div class="address-wrap">
+          <input
+            id="dropOffAddress"
+            placeholder="Start typing the drop-off address"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            inputmode="search"
+          >
+        </div>
+        <div class="address-help">Selecting a suggestion fills in drop-off city, state, and zip automatically.</div>
         <div id="selectedDropOffAddress" class="selected-address hidden"></div>
       </div>
 
@@ -717,7 +495,7 @@ button:hover {
           <input id="dropOffCity" placeholder="Drop-off city">
           <input id="dropOffState" placeholder="Drop-off state">
         </div>
-        <input id="dropOffZipCode" placeholder="Drop-off zip code">
+        <input id="dropOffZipCode" placeholder="Drop-off zip code" style="margin-top:10px;">
         <div class="required-note">Drop-off city, state, and zip are required for moving tasks.</div>
       </div>
     </div>
@@ -728,35 +506,29 @@ button:hover {
     </div>
   </div>
 
+  <!-- SLIDE 3: Questions -->
   <div class="card slide-screen" id="slide3">
     <div class="section-title">Task Questions</div>
-
-    <div class="section-note">
-      Answer every question for this task category before moving forward.
-    </div>
-
+    <div class="section-note">Answer every question for this task category before moving forward.</div>
     <div id="questionsArea"></div>
-
     <div class="slide-actions">
       <button class="secondary" onclick="previousSlide(2)">Back</button>
       <button onclick="nextSlide(4)">Next</button>
     </div>
   </div>
 
+  <!-- SLIDE 4: Extra Details -->
   <div class="card slide-screen" id="slide4">
     <div class="section-title">Extra Details</div>
     <div class="section-note">Add anything else the worker should know. This field is required.</div>
-
     <div class="form-panel">
       <label>Additional Notes</label>
       <textarea id="additionalNotes" maxlength="1200" placeholder="Add timing, access info, parking details, or anything else important."></textarea>
     </div>
-
     <div class="slide-actions">
       <button class="secondary" onclick="previousSlide(3)">Back</button>
       <button onclick="submitDirectRequest()">Send Direct Quote Request</button>
     </div>
-
     <div id="status" class="status"></div>
   </div>
 
@@ -768,7 +540,6 @@ const supabaseClient = window.supabase.createClient(
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
-
 const questionBank = {
   "Moving": [
     { id:"truck_needed", label:"Will the worker need to bring a truck?", type:"select", options:["Yes","No","Not sure"] },
@@ -778,7 +549,6 @@ const questionBank = {
     { id:"worker_count", label:"How many workers do you think are needed?", type:"select", options:["1 worker","2 workers","3+ workers","Not sure"] },
     { id:"details", label:"Give more detail about what needs to be moved.", type:"textarea" }
   ],
-
   "TV Mounting": [
     { id:"tv_count", label:"How many TVs need mounting?", type:"text" },
     { id:"tv_size", label:"What size TV(s)?", type:"text" },
@@ -788,7 +558,6 @@ const questionBank = {
     { id:"wall_type", label:"What type of wall?", type:"select", options:["Drywall","Brick","Concrete","Stone","Not sure"] },
     { id:"extras", label:"Need wires hidden, speakers installed, or anything else?", type:"textarea" }
   ],
-
   "Furniture Assembly": [
     { id:"item_count", label:"How many items need assembly?", type:"text" },
     { id:"item_type", label:"What type of item is it?", type:"select", options:["Bed frame","Dresser","Desk","Table/chairs","Outdoor furniture","Multiple items","Other"] },
@@ -797,7 +566,6 @@ const questionBank = {
     { id:"instructions_available", label:"Do you have the assembly instructions?", type:"select", options:["Yes","No","Not sure"] },
     { id:"details", label:"Describe the specific item(s).", type:"textarea" }
   ],
-
   "Cleaning": [
     { id:"cleaning_type", label:"What type of cleaning?", type:"select", options:["Standard cleaning","Deep cleaning","Move-out cleaning","Partial cleaning"] },
     { id:"square_feet", label:"Approximate square footage? If not sure, type N/A.", type:"text" },
@@ -807,27 +575,23 @@ const questionBank = {
     { id:"pets", label:"Are pets in the home?", type:"select", options:["Yes","No"] },
     { id:"details", label:"Give more detail about what needs cleaning.", type:"textarea" }
   ],
-
   "Trash Removal": [
     { id:"item_estimate", label:"Estimate how many items or bags need removal.", type:"text" },
     { id:"large_items", label:"Are there bulky items like furniture, appliances, or mattresses?", type:"select", options:["Yes","No"] },
     { id:"stairs", label:"Will items need to be carried down stairs?", type:"select", options:["No stairs","1 flight","2+ flights"] },
     { id:"details", label:"Describe what needs to be removed.", type:"textarea" }
   ],
-
   "Errands": [
     { id:"errand_type", label:"What type of errand is this?", type:"select", options:["Pickup and drop-off","Shopping","Delivery","Waiting in line","Other"] },
     { id:"paid_items", label:"Will the worker need to purchase anything upfront?", type:"select", options:["No","Yes","Not sure"] },
     { id:"details", label:"Describe the errand.", type:"textarea" }
   ],
-
   "Handywork": [
     { id:"task_type", label:"What kind of handywork is needed?", type:"select", options:["Install","Repair","Hang/mount item","Replace item","Other"] },
     { id:"tools_provided", label:"Are tools provided?", type:"select", options:["Yes","No","Not sure"] },
     { id:"parts_provided", label:"Are parts or materials already purchased?", type:"select", options:["Yes","No","Not sure"] },
     { id:"details", label:"Describe the handywork needed.", type:"textarea" }
   ],
-
   "Yard Work": [
     { id:"yard_work_type", label:"What type of yard work is needed?", type:"checkbox", options:["Cutting grass","Weed treatment","Edging","Bush trimming","Flower bed treatment","Leaf cleanup","Other"] },
     { id:"yard_size", label:"What size is the yard?", type:"select", options:["Small","Medium","Large","Not sure"] },
@@ -835,14 +599,12 @@ const questionBank = {
     { id:"flower_bed_supplies", label:"If flower bed treatment is needed, will supplies be there?", type:"select", options:["Yes","No","Not applicable"] },
     { id:"details", label:"Explain what needs to be done.", type:"textarea" }
   ],
-
   "Repairs": [
     { id:"repair_type", label:"What kind of repair is needed?", type:"select", options:["Plumbing-related","Electrical-related","Door/window","Furniture","Appliance","Other"] },
     { id:"urgent", label:"Is this urgent?", type:"select", options:["Yes","No","Soon but not emergency"] },
     { id:"parts_provided", label:"Do you already have parts/materials?", type:"select", options:["Yes","No","Not sure"] },
     { id:"details", label:"Explain what repairs are needed and what issues you are having.", type:"textarea" }
   ],
-
   "Other": [
     { id:"task_type", label:"What type of task is this?", type:"text" },
     { id:"worker_count", label:"How many workers do you think are needed?", type:"select", options:["1 worker","2 workers","3+ workers","Not sure"] },
@@ -854,6 +616,8 @@ let workerId = "";
 let currentUser = null;
 let selectedWorkerName = "this worker";
 let googleReady = false;
+let addressAutocomplete = null;
+let dropOffAutocomplete = null;
 
 function getParam(name) {
   return new URLSearchParams(window.location.search).get(name) || "";
@@ -861,79 +625,44 @@ function getParam(name) {
 
 function escapeHTML(value) {
   return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
 
 function getWorkerName(worker) {
-  const first =
-    worker.first_name ||
-    "";
-
-  const last =
-    worker.last_name ||
-    "";
-
-  const lastInitial =
-    last ? last.charAt(0).toUpperCase() + "." : "";
-
-  if (first) {
-    return `${first} ${lastInitial}`.trim();
-  }
-
+  const first = worker.first_name || "";
+  const last = worker.last_name || "";
+  const lastInitial = last ? last.charAt(0).toUpperCase() + "." : "";
+  if (first) return `${first} ${lastInitial}`.trim();
   return worker.full_name || worker.display_name || "this worker";
 }
 
-
 function updateProgress(step) {
-  const fill = document.getElementById("progressFill");
-  const text = document.getElementById("progressText");
-
-  const percent = (step / 4) * 100;
-
-  fill.style.width = `${percent}%`;
-  text.innerText = `Step ${step} of 4`;
+  document.getElementById("progressFill").style.width = `${(step / 4) * 100}%`;
+  document.getElementById("progressText").innerText = `Step ${step} of 4`;
 }
 
 function showSlide(step) {
-  document.querySelectorAll(".slide-screen")
-    .forEach(screen => {
-      screen.classList.remove("active");
-    });
-
-  const current =
-    document.getElementById(`slide${step}`);
-
-  if (current) {
-    current.classList.add("active");
-  }
-
+  document.querySelectorAll(".slide-screen").forEach(s => s.classList.remove("active"));
+  const current = document.getElementById(`slide${step}`);
+  if (current) current.classList.add("active");
   updateProgress(step);
 
   if (step === 2) {
-    setupPlaceAutocomplete();
-    setupDropOffPlaceAutocomplete();
     toggleDropOffAddressSection();
     syncModernTimePicker(document.getElementById("taskTime").value || "");
+    // init autocompletes when slide 2 becomes visible
+    if (googleReady) {
+      initAddressAutocomplete();
+      initDropOffAutocomplete();
+    }
   }
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function nextSlide(step) {
-  const currentStep =
-    step - 1;
-
-  if (!validateSlide(currentStep)) {
-    return;
-  }
-
+  if (!validateSlide(step - 1)) return;
   showSlide(step);
 }
 
@@ -941,406 +670,167 @@ function previousSlide(step) {
   showSlide(step);
 }
 
-
-
 function setStatusMessage(message, isError = true) {
-  const status =
-    document.getElementById("status");
-
-  if (!status) {
-    return;
-  }
-
-  status.style.color =
-    isError ? "#b00020" : "#0b7a28";
-
-  status.innerText =
-    message;
+  const status = document.getElementById("status");
+  if (!status) return;
+  status.style.color = isError ? "#b00020" : "#0b7a28";
+  status.innerText = message;
 }
 
 function formatTimeForDisplay(value) {
-  if (!value) {
-    return "Not selected";
-  }
-
-  const parts =
-    String(value).split(":");
-
-  if (parts.length < 2) {
-    return value;
-  }
-
-  let hour =
-    Number(parts[0]);
-
-  const minute =
-    parts[1];
-
-  if (Number.isNaN(hour)) {
-    return value;
-  }
-
-  const suffix =
-    hour >= 12 ? "PM" : "AM";
-
-  hour =
-    hour % 12;
-
-  if (hour === 0) {
-    hour = 12;
-  }
-
+  if (!value) return "Not selected";
+  const parts = String(value).split(":");
+  if (parts.length < 2) return value;
+  let hour = Number(parts[0]);
+  const minute = parts[1];
+  if (Number.isNaN(hour)) return value;
+  const suffix = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
   return `${hour}:${minute} ${suffix}`;
 }
 
 function updateTimeDisplay(value) {
-  const display =
-    document.getElementById("selectedTimeDisplay");
-
-  if (display) {
-    display.innerText =
-      value ? "Selected time: " + formatTimeForDisplay(value) : "No time selected";
-  }
+  const display = document.getElementById("selectedTimeDisplay");
+  if (display) display.innerText = value ? "Selected time: " + formatTimeForDisplay(value) : "No time selected";
 }
 
 function clearSelectedTimeChips() {
-  document
-    .querySelectorAll(".time-chip")
-    .forEach(button => button.classList.remove("selected"));
+  document.querySelectorAll(".time-chip").forEach(b => b.classList.remove("selected"));
 }
 
 function selectPresetTime(value, button) {
-  const taskTime =
-    document.getElementById("taskTime");
-
-  const customTaskTime =
-    document.getElementById("customTaskTime");
-
-  if (taskTime) {
-    taskTime.value = value;
-  }
-
-  if (customTaskTime) {
-    customTaskTime.value = "";
-  }
-
+  document.getElementById("taskTime").value = value;
+  document.getElementById("customTaskTime").value = "";
   clearSelectedTimeChips();
-
-  if (button) {
-    button.classList.add("selected");
-  }
-
+  if (button) button.classList.add("selected");
   updateTimeDisplay(value);
 }
 
 function selectCustomTime() {
-  const customTaskTime =
-    document.getElementById("customTaskTime");
-
-  const taskTime =
-    document.getElementById("taskTime");
-
-  const value =
-    customTaskTime ? customTaskTime.value : "";
-
-  if (taskTime) {
-    taskTime.value = value;
-  }
-
+  const value = document.getElementById("customTaskTime").value;
+  document.getElementById("taskTime").value = value;
   clearSelectedTimeChips();
   updateTimeDisplay(value);
 }
 
 function syncModernTimePicker(value) {
-  const customTaskTime =
-    document.getElementById("customTaskTime");
-
   clearSelectedTimeChips();
-
-  const matchingChip =
-    Array
-      .from(document.querySelectorAll(".time-chip"))
-      .find(button => {
-        const onclickValue =
-          button.getAttribute("onclick") || "";
-
-        return value && onclickValue.includes("'" + value + "'");
-      });
-
+  const matchingChip = Array.from(document.querySelectorAll(".time-chip")).find(b => {
+    const oc = b.getAttribute("onclick") || "";
+    return value && oc.includes("'" + value + "'");
+  });
   if (matchingChip) {
     matchingChip.classList.add("selected");
-  } else if (customTaskTime && value) {
-    customTaskTime.value = value;
+  } else if (value) {
+    document.getElementById("customTaskTime").value = value;
   }
-
   updateTimeDisplay(value || "");
 }
 
-window.initGoogleMaps = function () {
-  if (
-    window.google &&
-    google.maps &&
-    google.maps.places
-  ) {
-    googleReady = true;
-    setupPlaceAutocomplete();
-    setupDropOffPlaceAutocomplete();
-    return;
-  }
+// ── Google Maps autocomplete — mobile-safe native widget ──────────────────────
+// Using google.maps.places.Autocomplete instead of AutocompleteService.
+// The native widget handles touch, keyboard, and mobile focus correctly.
 
-  setStatusMessage("Google address search failed to load.", true);
+window.initGoogleMaps = function () {
+  if (window.google && google.maps && google.maps.places) {
+    googleReady = true;
+    // If slide 2 is already visible when Maps loads, init immediately
+    if (document.getElementById("slide2").classList.contains("active")) {
+      initAddressAutocomplete();
+      initDropOffAutocomplete();
+    }
+  }
 };
 
-function clearAddressSuggestions(suggestionsId) {
-  const suggestionsBox =
-    document.getElementById(suggestionsId);
-
-  if (!suggestionsBox) {
-    return;
-  }
-
-  suggestionsBox.innerHTML = "";
-  suggestionsBox.classList.remove("active");
+function extractPlaceParts(place) {
+  let streetNumber = "", route = "", city = "", state = "", zip = "";
+  const components = place.address_components || [];
+  components.forEach(c => {
+    const types = c.types || [];
+    const long = c.long_name || "";
+    const short = c.short_name || "";
+    if (types.includes("street_number")) streetNumber = long;
+    if (types.includes("route")) route = long;
+    if (types.includes("locality")) city = long;
+    if (!city && types.includes("sublocality")) city = long;
+    if (!city && types.includes("administrative_area_level_2")) city = long;
+    if (types.includes("administrative_area_level_1")) state = short;
+    if (types.includes("postal_code")) zip = long;
+  });
+  return {
+    formattedAddress: place.formatted_address || `${streetNumber} ${route}`.trim(),
+    city, state, zip
+  };
 }
 
-function renderAddressSuggestions(predictions, suggestionsId, callback) {
-  const suggestionsBox =
-    document.getElementById(suggestionsId);
+function initAddressAutocomplete() {
+  const input = document.getElementById("address");
+  if (!input || input.dataset.acLoaded === "true") return;
+  if (!window.google || !google.maps || !google.maps.places) return;
 
-  if (!suggestionsBox) {
-    return;
-  }
-
-  suggestionsBox.innerHTML = "";
-
-  if (!predictions || predictions.length === 0) {
-    suggestionsBox.classList.remove("active");
-    return;
-  }
-
-  predictions.slice(0, 5).forEach(prediction => {
-    const button =
-      document.createElement("button");
-
-    button.type =
-      "button";
-
-    button.className =
-      "address-suggestion-item";
-
-    const mainText =
-      prediction.structured_formatting &&
-      prediction.structured_formatting.main_text
-        ? prediction.structured_formatting.main_text
-        : prediction.description;
-
-    const secondaryText =
-      prediction.structured_formatting &&
-      prediction.structured_formatting.secondary_text
-        ? prediction.structured_formatting.secondary_text
-        : "";
-
-    button.innerHTML =
-      `<span class="address-suggestion-main">${escapeHTML(mainText)}</span>
-       <span class="address-suggestion-secondary">${escapeHTML(secondaryText)}</span>`;
-
-    button.addEventListener("mousedown", function(event) {
-      event.preventDefault();
-    });
-
-    button.addEventListener("click", function(event) {
-      event.preventDefault();
-      callback(prediction);
-    });
-
-    button.addEventListener("touchend", function(event) {
-      event.preventDefault();
-      callback(prediction);
-    });
-
-    suggestionsBox.appendChild(button);
+  addressAutocomplete = new google.maps.places.Autocomplete(input, {
+    componentRestrictions: { country: "us" },
+    fields: ["formatted_address", "address_components"]
   });
 
-  suggestionsBox.classList.add("active");
-}
-
-function getPlaceDetails(placeId, callback) {
-  if (
-    !placeId ||
-    !window.google ||
-    !google.maps ||
-    !google.maps.places ||
-    !google.maps.places.PlacesService
-  ) {
-    return;
-  }
-
-  const service =
-    new google.maps.places.PlacesService(
-      document.createElement("div")
-    );
-
-  service.getDetails(
-    {
-      placeId: placeId,
-      fields: [
-        "formatted_address",
-        "address_components"
-      ]
-    },
-    function(place, status) {
-      if (
-        status !== google.maps.places.PlacesServiceStatus.OK ||
-        !place
-      ) {
-        return;
-      }
-
-      callback(place);
-    }
-  );
-}
-
-function setupAddressPredictionInput(inputId, suggestionsId, selectedCallback) {
-  const addressInput =
-    document.getElementById(inputId);
-
-  if (
-    !addressInput ||
-    addressInput.dataset.loaded === "true" ||
-    !googleReady ||
-    !window.google ||
-    !google.maps ||
-    !google.maps.places ||
-    !google.maps.places.AutocompleteService
-  ) {
-    return;
-  }
-
-  const autocompleteService =
-    new google.maps.places.AutocompleteService();
-
-  let debounceTimer = null;
-
-  addressInput.addEventListener("input", function() {
-    const inputValue =
-      addressInput.value.trim();
-
-    window.clearTimeout(debounceTimer);
-
-    if (inputValue.length < 1) {
-      clearAddressSuggestions(suggestionsId);
-      return;
-    }
-
-    debounceTimer =
-      window.setTimeout(function() {
-        autocompleteService.getPlacePredictions(
-          {
-            input: inputValue,
-            componentRestrictions: {
-              country: "us"
-            }
-          },
-          function(predictions, status) {
-            if (
-              status !== google.maps.places.PlacesServiceStatus.OK ||
-              !predictions ||
-              predictions.length === 0
-            ) {
-              clearAddressSuggestions(suggestionsId);
-              return;
-            }
-
-            renderAddressSuggestions(
-              predictions,
-              suggestionsId,
-              function(prediction) {
-                clearAddressSuggestions(suggestionsId);
-
-                getPlaceDetails(
-                  prediction.place_id,
-                  selectedCallback
-                );
-              }
-            );
-          }
-        );
-      }, 200);
+  addressAutocomplete.addListener("place_changed", () => {
+    const place = addressAutocomplete.getPlace();
+    if (!place || !place.address_components) return;
+    const parts = extractPlaceParts(place);
+    input.value = parts.formattedAddress;
+    document.getElementById("city").value = parts.city;
+    document.getElementById("state").value = parts.state;
+    document.getElementById("zipCode").value = parts.zip;
+    const sel = document.getElementById("selectedAddress");
+    sel.innerText = parts.formattedAddress;
+    sel.classList.remove("hidden");
   });
 
-  addressInput.dataset.loaded = "true";
+  input.dataset.acLoaded = "true";
 }
 
-function setupPlaceAutocomplete() {
-  setupAddressPredictionInput(
-    "address",
-    "addressSuggestions",
-    handleSelectedPlace
-  );
-}
+function initDropOffAutocomplete() {
+  const input = document.getElementById("dropOffAddress");
+  if (!input || input.dataset.acLoaded === "true") return;
+  if (!window.google || !google.maps || !google.maps.places) return;
 
-function setupDropOffPlaceAutocomplete() {
-  setupAddressPredictionInput(
-    "dropOffAddress",
-    "dropOffAddressSuggestions",
-    handleSelectedDropOffPlace
-  );
+  dropOffAutocomplete = new google.maps.places.Autocomplete(input, {
+    componentRestrictions: { country: "us" },
+    fields: ["formatted_address", "address_components"]
+  });
+
+  dropOffAutocomplete.addListener("place_changed", () => {
+    const place = dropOffAutocomplete.getPlace();
+    if (!place || !place.address_components) return;
+    const parts = extractPlaceParts(place);
+    input.value = parts.formattedAddress;
+    document.getElementById("dropOffCity").value = parts.city;
+    document.getElementById("dropOffState").value = parts.state;
+    document.getElementById("dropOffZipCode").value = parts.zip;
+    const sel = document.getElementById("selectedDropOffAddress");
+    sel.innerText = parts.formattedAddress;
+    sel.classList.remove("hidden");
+  });
+
+  input.dataset.acLoaded = "true";
 }
 
 function toggleDropOffAddressSection() {
-  const category =
-    document.getElementById("category").value;
-
-  const section =
-    document.getElementById("dropOffAddressSection");
-
-  if (!section) {
-    return;
-  }
+  const category = document.getElementById("category").value;
+  const section = document.getElementById("dropOffAddressSection");
+  if (!section) return;
 
   if (category === "Moving") {
     section.classList.remove("hidden");
-    setupDropOffPlaceAutocomplete();
-    return;
-  }
-
-  section.classList.add("hidden");
-
-  const dropOffAddress =
-    document.getElementById("dropOffAddress");
-
-  const dropOffCity =
-    document.getElementById("dropOffCity");
-
-  const dropOffState =
-    document.getElementById("dropOffState");
-
-  const dropOffZipCode =
-    document.getElementById("dropOffZipCode");
-
-  const selectedDropOffAddress =
-    document.getElementById("selectedDropOffAddress");
-
-  if (dropOffAddress) {
-    dropOffAddress.value = "";
-  }
-
-  if (dropOffCity) {
-    dropOffCity.value = "";
-  }
-
-  if (dropOffState) {
-    dropOffState.value = "";
-  }
-
-  if (dropOffZipCode) {
-    dropOffZipCode.value = "";
-  }
-
-  if (selectedDropOffAddress) {
-    selectedDropOffAddress.innerText = "";
-    selectedDropOffAddress.classList.add("hidden");
+    if (googleReady) initDropOffAutocomplete();
+  } else {
+    section.classList.add("hidden");
+    ["dropOffAddress","dropOffCity","dropOffState","dropOffZipCode"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+    const sel = document.getElementById("selectedDropOffAddress");
+    if (sel) { sel.innerText = ""; sel.classList.add("hidden"); }
   }
 }
 
@@ -1349,325 +839,67 @@ function handleCategoryChange() {
   toggleDropOffAddressSection();
 }
 
-function handleSelectedPlace(place) {
-  let streetNumber = "";
-  let route = "";
-  let city = "";
-  let state = "";
-  let zip = "";
-
-  const components =
-    place.address_components ||
-    place.addressComponents ||
-    [];
-
-  if (components.length) {
-    components.forEach(component => {
-      const types =
-        component.types || [];
-
-      const longValue =
-        component.long_name ||
-        component.longText ||
-        "";
-
-      const shortValue =
-        component.short_name ||
-        component.shortText ||
-        "";
-
-      if (types.includes("street_number")) {
-        streetNumber =
-          longValue;
-      }
-
-      if (types.includes("route")) {
-        route =
-          longValue;
-      }
-
-      if (types.includes("locality")) {
-        city =
-          longValue;
-      }
-
-      if (!city && types.includes("sublocality")) {
-        city =
-          longValue;
-      }
-
-      if (!city && types.includes("administrative_area_level_2")) {
-        city =
-          longValue;
-      }
-
-      if (types.includes("administrative_area_level_1")) {
-        state =
-          shortValue;
-      }
-
-      if (types.includes("postal_code")) {
-        zip =
-          longValue;
-      }
-    });
-  }
-
-  const formattedAddress =
-    place.formatted_address ||
-    place.formattedAddress ||
-    `${streetNumber} ${route}`.trim();
-
-  document.getElementById("address").value =
-    formattedAddress;
-
-  document.getElementById("city").value =
-    city;
-
-  document.getElementById("state").value =
-    state;
-
-  document.getElementById("zipCode").value =
-    zip;
-
-  const selectedAddress =
-    document.getElementById("selectedAddress");
-
-  selectedAddress.innerText =
-    formattedAddress;
-
-  selectedAddress.classList.remove("hidden");
-}
-
-function getAddressPartsFromPlace(place) {
-  let streetNumber = "";
-  let route = "";
-  let city = "";
-  let state = "";
-  let zip = "";
-
-  const components =
-    place.address_components ||
-    place.addressComponents ||
-    [];
-
-  if (components.length) {
-    components.forEach(component => {
-      const types =
-        component.types || [];
-
-      const longValue =
-        component.long_name ||
-        component.longText ||
-        "";
-
-      const shortValue =
-        component.short_name ||
-        component.shortText ||
-        "";
-
-      if (types.includes("street_number")) {
-        streetNumber =
-          longValue;
-      }
-
-      if (types.includes("route")) {
-        route =
-          longValue;
-      }
-
-      if (types.includes("locality")) {
-        city =
-          longValue;
-      }
-
-      if (!city && types.includes("sublocality")) {
-        city =
-          longValue;
-      }
-
-      if (!city && types.includes("administrative_area_level_2")) {
-        city =
-          longValue;
-      }
-
-      if (types.includes("administrative_area_level_1")) {
-        state =
-          shortValue;
-      }
-
-      if (types.includes("postal_code")) {
-        zip =
-          longValue;
-      }
-    });
-  }
-
-  return {
-    formattedAddress:
-      place.formatted_address ||
-      place.formattedAddress ||
-      `${streetNumber} ${route}`.trim(),
-    city,
-    state,
-    zip
-  };
-}
-
-function handleSelectedDropOffPlace(place) {
-  const addressParts =
-    getAddressPartsFromPlace(place);
-
-  document.getElementById("dropOffAddress").value =
-    addressParts.formattedAddress;
-
-  document.getElementById("dropOffCity").value =
-    addressParts.city;
-
-  document.getElementById("dropOffState").value =
-    addressParts.state;
-
-  document.getElementById("dropOffZipCode").value =
-    addressParts.zip;
-
-  const selectedDropOffAddress =
-    document.getElementById("selectedDropOffAddress");
-
-  selectedDropOffAddress.innerText =
-    addressParts.formattedAddress;
-
-  selectedDropOffAddress.classList.remove("hidden");
-}
-
 function generateArrivalCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
 function validateSlide(step) {
   if (step === 1) {
-    const category =
-      document.getElementById("category").value.trim();
-
-    const title =
-      document.getElementById("title").value.trim();
-
-    if (!category || !title) {
-      setStatusMessage("Select a category and enter a task title.", true);
-      return false;
-    }
-
+    const category = document.getElementById("category").value.trim();
+    const title = document.getElementById("title").value.trim();
+    if (!category || !title) { setStatusMessage("Select a category and enter a task title.", true); return false; }
     renderQuestions();
   }
 
   if (step === 2) {
-    const taskDate =
-      document.getElementById("taskDate").value;
-
-    const taskTime =
-      document.getElementById("taskTime").value;
-
-    const address =
-      document.getElementById("address").value.trim();
-
-    const city =
-      document.getElementById("city").value.trim();
-
-    const state =
-      document.getElementById("state").value.trim();
-
-    const zipCode =
-      document.getElementById("zipCode").value.trim();
+    const taskDate = document.getElementById("taskDate").value;
+    const taskTime = document.getElementById("taskTime").value;
+    const address = document.getElementById("address").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const state = document.getElementById("state").value.trim();
+    const zipCode = document.getElementById("zipCode").value.trim();
 
     if (!taskDate || !taskTime || !address || !city || !state || !zipCode) {
       setStatusMessage("Select a date, time, and full task address before continuing.", true);
       return false;
     }
 
-    const category =
-      document.getElementById("category").value;
-
-    if (category === "Moving") {
-      const dropOffAddress =
-        document.getElementById("dropOffAddress").value.trim();
-
-      const dropOffCity =
-        document.getElementById("dropOffCity").value.trim();
-
-      const dropOffState =
-        document.getElementById("dropOffState").value.trim();
-
-      const dropOffZipCode =
-        document.getElementById("dropOffZipCode").value.trim();
-
-      if (!dropOffAddress || !dropOffCity || !dropOffState || !dropOffZipCode) {
-        setStatusMessage("Enter the full drop-off address before continuing.", true);
-        return false;
-      }
+    if (document.getElementById("category").value === "Moving") {
+      const doa = document.getElementById("dropOffAddress").value.trim();
+      const doc = document.getElementById("dropOffCity").value.trim();
+      const dos = document.getElementById("dropOffState").value.trim();
+      const doz = document.getElementById("dropOffZipCode").value.trim();
+      if (!doa || !doc || !dos || !doz) { setStatusMessage("Enter the full drop-off address before continuing.", true); return false; }
     }
   }
 
   if (step === 3) {
-    const category =
-      document.getElementById("category").value;
-
-    const questions =
-      questionBank[category] || [];
-
+    const category = document.getElementById("category").value;
+    const questions = questionBank[category] || [];
     for (const question of questions) {
       if (question.type === "checkbox") {
-        const checked =
-          [...document.querySelectorAll(`input[name="question_${question.id}"]:checked`)];
-
-        if (!checked.length) {
-          setStatusMessage("Answer every task question before continuing.", true);
-          return false;
-        }
-
+        const checked = [...document.querySelectorAll(`input[name="question_${question.id}"]:checked`)];
+        if (!checked.length) { setStatusMessage("Answer every task question before continuing.", true); return false; }
         continue;
       }
-
-      const field =
-        document.getElementById(`question_${question.id}`);
-
-      if (!field || !field.value.trim()) {
-        setStatusMessage("Answer every task question before continuing.", true);
-        return false;
-      }
+      const field = document.getElementById(`question_${question.id}`);
+      if (!field || !field.value.trim()) { setStatusMessage("Answer every task question before continuing.", true); return false; }
     }
   }
 
   setStatusMessage("", false);
   return true;
 }
+
 async function loadPage() {
-  workerId =
-    getParam("worker_id") ||
-    localStorage.getItem("selectedWorkerId") ||
-    "";
+  workerId = getParam("worker_id") || localStorage.getItem("selectedWorkerId") || "";
+  const { data } = await supabaseClient.auth.getUser();
+  currentUser = data && data.user ? data.user : null;
 
-  const { data } =
-    await supabaseClient.auth.getUser();
+  if (!workerId) { document.getElementById("workerNotice").innerText = "No worker was selected."; return; }
 
-  currentUser =
-    data && data.user ? data.user : null;
-
-  if (!workerId) {
-    document.getElementById("workerNotice").innerText =
-      "No worker was selected.";
-    return;
-  }
-
-  const { data: worker } =
-    await supabaseClient
-      .from("worker_profiles")
-      .select("*")
-      .eq("id", workerId)
-      .maybeSingle();
-
-  if (worker) {
-    selectedWorkerName =
-      getWorkerName(worker);
-  }
+  const { data: worker } = await supabaseClient.from("worker_profiles").select("*").eq("id", workerId).maybeSingle();
+  if (worker) selectedWorkerName = getWorkerName(worker);
 
   document.getElementById("workerNotice").innerText =
     `This request will only be sent to ${selectedWorkerName}. It will not show as a public open task.`;
@@ -1675,322 +907,225 @@ async function loadPage() {
 
 function goBackToWorkerProfile() {
   if (workerId) {
-   window.location.replace(
-  `worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`
-);
+    window.location.replace(`worker-public-profile.html?worker_id=${encodeURIComponent(workerId)}`);
     return;
   }
-
   history.back();
 }
 
 function renderQuestions() {
-  const category =
-    document.getElementById("category").value;
-
-  const questionsArea =
-    document.getElementById("questionsArea");
-
+  const category = document.getElementById("category").value;
+  const questionsArea = document.getElementById("questionsArea");
   questionsArea.innerHTML = "";
-
-  if (!category || !questionBank[category]) {
-    return;
-  }
+  if (!category || !questionBank[category]) return;
 
   questionBank[category].forEach(question => {
-    const wrapper =
-      document.createElement("div");
-
-    wrapper.className =
-      "question-block";
+    const wrapper = document.createElement("div");
+    wrapper.className = "question-block";
 
     let inputHTML = "";
-
     if (question.type === "select") {
-      inputHTML = `
-        <select id="question_${question.id}">
-          <option value="">Select an answer</option>
-          ${question.options.map(option => `
-            <option value="${escapeHTML(option)}">${escapeHTML(option)}</option>
-          `).join("")}
-        </select>
-      `;
-    }
-
-    if (question.type === "text") {
-      inputHTML = `
-        <input id="question_${question.id}" placeholder="Type your answer">
-      `;
-    }
-
-    if (question.type === "textarea") {
-      inputHTML = `
-        <textarea id="question_${question.id}" placeholder="Type your answer"></textarea>
-      `;
-    }
-
-    if (question.type === "checkbox") {
-      inputHTML = question.options.map(option => `
+      inputHTML = `<select id="question_${question.id}"><option value="">Select an answer</option>${question.options.map(o => `<option value="${escapeHTML(o)}">${escapeHTML(o)}</option>`).join("")}</select>`;
+    } else if (question.type === "text") {
+      inputHTML = `<input id="question_${question.id}" placeholder="Type your answer">`;
+    } else if (question.type === "textarea") {
+      inputHTML = `<textarea id="question_${question.id}" placeholder="Type your answer"></textarea>`;
+    } else if (question.type === "checkbox") {
+      inputHTML = question.options.map(o => `
         <label class="checkbox-option">
-          <input
-            type="checkbox"
-            name="question_${question.id}"
-            value="${escapeHTML(option)}"
-          >
-          ${escapeHTML(option)}
+          <input type="checkbox" name="question_${question.id}" value="${escapeHTML(o)}">
+          ${escapeHTML(o)}
         </label>
       `).join("");
     }
 
-    wrapper.innerHTML = `
-      <label>${escapeHTML(question.label)}</label>
-      ${inputHTML}
-    `;
-
+    wrapper.innerHTML = `<label>${escapeHTML(question.label)}</label>${inputHTML}`;
     questionsArea.appendChild(wrapper);
   });
 }
+
 function collectQuestionAnswers() {
-  const category =
-    document.getElementById("category").value;
-
-  const questions =
-    questionBank[category] || [];
-
+  const category = document.getElementById("category").value;
+  const questions = questionBank[category] || [];
   const answers = {};
-
   questions.forEach(question => {
     if (question.type === "checkbox") {
-      const checked =
-        [...document.querySelectorAll(`input[name="question_${question.id}"]:checked`)]
-          .map(input => input.value);
-
-      answers[question.id] = checked;
+      answers[question.id] = [...document.querySelectorAll(`input[name="question_${question.id}"]:checked`)].map(i => i.value);
       return;
     }
-
-    const field =
-      document.getElementById(`question_${question.id}`);
-
-    answers[question.id] =
-      field ? field.value.trim() : "";
+    const field = document.getElementById(`question_${question.id}`);
+    answers[question.id] = field ? field.value.trim() : "";
   });
-
   return answers;
 }
 
 async function submitDirectRequest() {
-  const status =
-    document.getElementById("status");
-
+  const status = document.getElementById("status");
   status.innerText = "";
 
-  if (!currentUser) {
-    status.style.color = "#b00020";
-    status.innerText = "Please log in to request a quote.";
-    return;
-  }
+  if (!currentUser) { status.style.color = "#b00020"; status.innerText = "Please log in to request a quote."; return; }
+  if (!workerId) { status.style.color = "#b00020"; status.innerText = "Worker profile is missing."; return; }
 
-  if (!workerId) {
-    status.style.color = "#b00020";
-    status.innerText = "Worker profile is missing.";
-    return;
-  }
+  const category = document.getElementById("category").value.trim();
+  const title = document.getElementById("title").value.trim();
+  const taskDate = document.getElementById("taskDate").value;
+  const taskTime = document.getElementById("taskTime").value;
+  const address = document.getElementById("address").value.trim();
+  const city = document.getElementById("city").value.trim();
+  const st = document.getElementById("state").value.trim();
+  const zipCode = document.getElementById("zipCode").value.trim();
+  const dropOffAddress = document.getElementById("dropOffAddress")?.value.trim() || "";
+  const dropOffCity = document.getElementById("dropOffCity")?.value.trim() || "";
+  const dropOffState = document.getElementById("dropOffState")?.value.trim() || "";
+  const dropOffZipCode = document.getElementById("dropOffZipCode")?.value.trim() || "";
+  const additionalNotes = document.getElementById("additionalNotes").value.trim();
 
-  const category =
-    document.getElementById("category").value.trim();
+  if (!category || !title) { status.style.color = "#b00020"; status.innerText = "Select a category and enter a task title."; return; }
+  if (!taskDate || !taskTime || !address || !city || !st || !zipCode) { status.style.color = "#b00020"; status.innerText = "Enter the full date, time, and task address."; return; }
+  if (category === "Moving" && (!dropOffAddress || !dropOffCity || !dropOffState || !dropOffZipCode)) { status.style.color = "#b00020"; status.innerText = "Enter the full drop-off address."; return; }
+  if (!additionalNotes) { status.style.color = "#b00020"; status.innerText = "Enter additional notes before sending the request."; return; }
+  if (!validateSlide(3)) return;
 
-  const title =
-    document.getElementById("title").value.trim();
-
-  const taskDate =
-    document.getElementById("taskDate").value;
-
-  const taskTime =
-    document.getElementById("taskTime").value;
-
-  const address =
-    document.getElementById("address").value.trim();
-
-  const city =
-    document.getElementById("city").value.trim();
-
-  const state =
-    document.getElementById("state").value.trim();
-
-  const zipCode =
-    document.getElementById("zipCode").value.trim();
-
-  const dropOffAddress =
-    document.getElementById("dropOffAddress")
-      ? document.getElementById("dropOffAddress").value.trim()
-      : "";
-
-  const dropOffCity =
-    document.getElementById("dropOffCity")
-      ? document.getElementById("dropOffCity").value.trim()
-      : "";
-
-  const dropOffState =
-    document.getElementById("dropOffState")
-      ? document.getElementById("dropOffState").value.trim()
-      : "";
-
-  const dropOffZipCode =
-    document.getElementById("dropOffZipCode")
-      ? document.getElementById("dropOffZipCode").value.trim()
-      : "";
-
-  const additionalNotes =
-    document.getElementById("additionalNotes").value.trim();
-
-  if (!category || !title) {
-    status.style.color = "#b00020";
-    status.innerText = "Select a category and enter a task title.";
-    return;
-  }
-
-  if (!taskDate || !taskTime || !address || !city || !state || !zipCode) {
-    status.style.color = "#b00020";
-    status.innerText = "Enter the full date, time, and task address.";
-    return;
-  }
-
-  if (category === "Moving" && (!dropOffAddress || !dropOffCity || !dropOffState || !dropOffZipCode)) {
-    status.style.color = "#b00020";
-    status.innerText = "Enter the full drop-off address.";
-    return;
-  }
-
-  if (!additionalNotes) {
-    status.style.color = "#b00020";
-    status.innerText = "Enter additional notes before sending the request.";
-    return;
-  }
-
-  if (!validateSlide(3)) {
-    return;
-  }
-
-  const taskDetails =
-    collectQuestionAnswers();
+  const taskDetails = collectQuestionAnswers();
 
   if (category === "Moving") {
-    taskDetails.drop_off_address =
-      dropOffAddress;
-
-    taskDetails.drop_off_city =
-      dropOffCity;
-
-    taskDetails.drop_off_state =
-      dropOffState;
-
-    taskDetails.drop_off_zip_code =
-      dropOffZipCode;
+    taskDetails.drop_off_address = dropOffAddress;
+    taskDetails.drop_off_city = dropOffCity;
+    taskDetails.drop_off_state = dropOffState;
+    taskDetails.drop_off_zip_code = dropOffZipCode;
   }
 
-  const arrivalCode =
-    generateArrivalCode();
+  const arrivalCode = generateArrivalCode();
+  taskDetails.arrival_code = arrivalCode;
 
-  taskDetails.arrival_code =
-    arrivalCode;
+  status.style.color = "#666";
+  status.innerText = "Sending request...";
 
-  const { data: directRequest, error } =
+  // ── insert direct_task_requests row ──────────────────────────────────────
+  const { data: directRequest, error } = await supabaseClient
+    .from("direct_task_requests")
+    .insert({
+      customer_id: currentUser.id,
+      worker_id: workerId,
+      title,
+      category,
+      address,
+      city,
+      state: st,
+      zip_code: zipCode,
+      task_date: taskDate || null,
+      task_time: taskTime || null,
+      task_details: taskDetails,
+      additional_notes: additionalNotes,
+      arrival_code: arrivalCode,
+      status: "requested",
+      is_public: false,
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) { status.style.color = "#b00020"; status.innerText = error.message; return; }
+
+  // ── create a tasks row so the worker's calendar and my-jobs can find it
+  // when the worker accepts the quote, they update worker_quotes.status to "accepted"
+  // and that task_id points here so both pages load it correctly
+  const { data: taskRow } = await supabaseClient
+    .from("tasks")
+    .insert({
+      customer_id: currentUser.id,
+      worker_id: workerId,
+      title,
+      category,
+      address,
+      city,
+      state: st,
+      zip_code: zipCode,
+      task_date: taskDate || null,
+      task_time: taskTime || null,
+      task_details: taskDetails,
+      additional_notes: additionalNotes,
+      arrival_code: arrivalCode,
+      direct_request_id: directRequest.id,
+      status: "requested",
+      is_public: false,
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  // ── create a pending worker_quotes row so accepting it flows to calendar/my-jobs
+  if (taskRow) {
     await supabaseClient
-      .from("direct_task_requests")
+      .from("worker_quotes")
       .insert({
-        customer_id: currentUser.id,
+        task_id: taskRow.id,
         worker_id: workerId,
-        title: title,
-        category: category,
-        address: address,
-        city: city,
-        state: state,
-        zip_code: zipCode,
+        customer_id: currentUser.id,
+        direct_request_id: directRequest.id,
+        status: "pending",
+        quote_source: "direct_request",
         task_date: taskDate || null,
-        task_time: taskTime || null,
-        task_details: taskDetails,
-        additional_notes: additionalNotes,
-        arrival_code: arrivalCode,
-        status: "requested",
-        is_public: false,
         created_at: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-  if (error) {
-    status.style.color = "#b00020";
-    status.innerText = error.message;
-    return;
+      });
   }
 
-  const { data: conversation, error: conversationError } =
-    await supabaseClient
-      .from("task_conversations")
-      .insert([
-        {
-          customer_id: currentUser.id,
-          worker_id: workerId,
-          quote_request_id: directRequest.id,
-          conversation_type: "quote_request",
-          updated_at: new Date().toISOString()
-        }
-      ])
-      .select()
-      .single();
+  // ── conversation + first message ─────────────────────────────────────────
+  const { data: conversation, error: conversationError } = await supabaseClient
+    .from("task_conversations")
+    .insert([{
+      customer_id: currentUser.id,
+      worker_id: workerId,
+      quote_request_id: directRequest.id,
+      task_id: taskRow?.id || null,
+      conversation_type: "quote_request",
+      updated_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
 
-  if (conversationError) {
-    status.style.color = "#b00020";
-    status.innerText = conversationError.message;
-    return;
-  }
+  if (conversationError) { status.style.color = "#b00020"; status.innerText = conversationError.message; return; }
 
-  const { error: messageError } =
-    await supabaseClient
-      .from("task_messages")
-      .insert([
-        {
-          conversation_id: conversation.id,
-          sender_id: currentUser.id,
-          sender_type: "customer",
-          message: `Direct Quote Request: ${title}\n\n${additionalNotes || "Customer requested a quote."}`,
-          is_read: false
-        }
-      ]);
+  await supabaseClient.from("task_messages").insert([{
+    conversation_id: conversation.id,
+    sender_id: currentUser.id,
+    sender_type: "customer",
+    message: `Direct Quote Request: ${title}\n\n${additionalNotes || "Customer requested a quote."}`,
+    is_read: false
+  }]);
 
-  if (messageError) {
-    status.style.color = "#b00020";
-    status.innerText = messageError.message;
-    return;
-  }
-
-  await supabaseClient
-    .from("worker_inbox_items")
-    .insert([
-      {
-        worker_id: workerId,
-        customer_id: currentUser.id,
-        conversation_id: conversation.id,
-        quote_request_id: directRequest.id,
-        item_type: "quote_request",
-        title: title,
-        preview: additionalNotes || "New direct quote request",
-        is_read: false
-      }
-    ]);
+  // ── worker inbox item ─────────────────────────────────────────────────────
+  await supabaseClient.from("worker_inbox_items").insert([{
+    worker_id: workerId,
+    customer_id: currentUser.id,
+    conversation_id: conversation.id,
+    quote_request_id: directRequest.id,
+    task_id: taskRow?.id || null,
+    item_type: "quote_request",
+    title,
+    preview: additionalNotes || "New direct quote request",
+    is_read: false
+  }]);
 
   status.style.color = "#0b7a28";
   status.innerText = "Direct quote request sent.";
 
-  setTimeout(() => {
-    goBackToWorkerProfile();
-  }, 1000);
+  setTimeout(() => { goBackToWorkerProfile(); }, 1000);
 }
 
 loadPage();
 </script>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&callback=initGoogleMaps"></script>
+<!-- Google Maps: use loading=async for better mobile performance -->
+<script>
+(function() {
+  var script = document.createElement("script");
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&callback=initGoogleMaps&loading=async";
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+})();
+</script>
+
 </body>
 </html>
