@@ -4,6 +4,7 @@
 <title>Support - TaskMint</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *, *::before, *::after {
@@ -313,6 +314,76 @@ body {
   transform: translateY(-1px);
 }
 
+.form-group {
+  margin-top: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 7px;
+  color: var(--text);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  outline: none;
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent);
+}
+
+.submit-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+
+.submit-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.status-message {
+  margin-top: 10px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
 .nav {
   position: fixed;
   bottom: 0;
@@ -398,8 +469,50 @@ body {
   </div>
 
   <div class="contact-card">
-    <div class="section-title">Contact Us</div>
-    <div class="section-sub">Use email for account issues, payment questions, or support requests that need review.</div>
+    <div class="section-title">Submit a Support Request</div>
+    <div class="section-sub">
+      Choose the issue that best matches what you need help with. Your request will be sent to TaskMint support for review.
+    </div>
+
+    <div class="form-group">
+      <label for="supportReason">Support Issue</label>
+      <select id="supportReason">
+        <option value="">Select an issue</option>
+        <option value="Account access issue">Account access issue</option>
+        <option value="Login or password problem">Login or password problem</option>
+        <option value="Profile information issue">Profile information issue</option>
+        <option value="Payment or charge question">Payment or charge question</option>
+        <option value="Refund question">Refund question</option>
+        <option value="Cancellation fee question">Cancellation fee question</option>
+        <option value="Task not showing correctly">Task not showing correctly</option>
+        <option value="Problem posting a task">Problem posting a task</option>
+        <option value="Problem accepting a quote">Problem accepting a quote</option>
+        <option value="Worker did not arrive">Worker did not arrive</option>
+        <option value="Arrival code issue">Arrival code issue</option>
+        <option value="Message issue">Message issue</option>
+        <option value="Dispute question">Dispute question</option>
+        <option value="Review or rating issue">Review or rating issue</option>
+        <option value="Safety concern">Safety concern</option>
+        <option value="Technical problem">Technical problem</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="supportSubject">Subject</label>
+      <input id="supportSubject" type="text" maxlength="120" placeholder="Brief summary of the issue">
+    </div>
+
+    <div class="form-group">
+      <label for="supportMessage">Message</label>
+      <textarea id="supportMessage" maxlength="3000" placeholder="Describe what happened. Include the order number if this is about a task."></textarea>
+    </div>
+
+    <button id="submitSupportBtn" class="submit-btn" onclick="submitSupportRequest()">
+      Submit Support Request
+    </button>
+
+    <div id="supportStatus" class="status-message"></div>
 
     <div class="contact-row">
       <div class="contact-icon">📧</div>
@@ -484,11 +597,146 @@ body {
 </div>
 
 <script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
 function toggleFAQ(button) {
   const item =
     button.parentElement;
 
   item.classList.toggle("open");
+}
+
+function setSupportStatus(message, isError) {
+  const status =
+    document.getElementById("supportStatus");
+
+  status.innerText =
+    message;
+
+  status.style.color =
+    isError ? "var(--danger)" : "var(--accent)";
+}
+
+async function submitSupportRequest() {
+  const button =
+    document.getElementById("submitSupportBtn");
+
+  const reason =
+    document.getElementById("supportReason").value;
+
+  const subject =
+    document.getElementById("supportSubject").value.trim();
+
+  const message =
+    document.getElementById("supportMessage").value.trim();
+
+  if (!reason || !subject || !message) {
+    setSupportStatus("Please complete the support issue, subject, and message.", true);
+    return;
+  }
+
+  button.disabled =
+    true;
+
+  setSupportStatus("Submitting support request...", false);
+
+  try {
+    const { data } =
+      await supabaseClient.auth.getUser();
+
+    if (!data || !data.user) {
+      window.location.href =
+        "login.html";
+
+      return;
+    }
+
+    const user =
+      data.user;
+
+    const { data: profile } =
+      await supabaseClient
+        .from("profiles")
+        .select("id, first_name, last_name, full_name, email, phone, account_type")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    const { data: customerProfile } =
+      await supabaseClient
+        .from("customer_profiles")
+        .select("id, first_name, last_name, full_name, email, phone")
+        .or(`id.eq.${user.id},auth_user_id.eq.${user.id},user_id.eq.${user.id}`)
+        .maybeSingle();
+
+    const firstName =
+      profile?.first_name ||
+      customerProfile?.first_name ||
+      "";
+
+    const lastName =
+      profile?.last_name ||
+      customerProfile?.last_name ||
+      "";
+
+    const fullName =
+      profile?.full_name ||
+      customerProfile?.full_name ||
+      `${firstName} ${lastName}`.trim();
+
+    const email =
+      profile?.email ||
+      customerProfile?.email ||
+      user.email ||
+      "";
+
+    const phone =
+      profile?.phone ||
+      customerProfile?.phone ||
+      "";
+
+    const { error } =
+      await supabaseClient
+        .from("support_tickets")
+        .insert({
+          user_id: user.id,
+          customer_id: user.id,
+          user_type: "customer",
+          user_name: fullName,
+          user_email: email,
+          user_phone: phone,
+          category: reason,
+          support_reason: reason,
+          subject: subject,
+          message: message,
+          status: "open"
+        });
+
+    if (error) {
+      throw error;
+    }
+
+    setSupportStatus("Support request submitted successfully.", false);
+
+    document.getElementById("supportReason").value =
+      "";
+
+    document.getElementById("supportSubject").value =
+      "";
+
+    document.getElementById("supportMessage").value =
+      "";
+
+  } catch (error) {
+    console.error(error);
+
+    setSupportStatus(error.message || "Unable to submit support request.", true);
+  }
+
+  button.disabled =
+    false;
 }
 </script>
 
