@@ -1544,15 +1544,78 @@ function formatTaskDate(task) {
     task.scheduled_date ||
     task.created_at;
 
-  if (!dateValue) return "Ready to view";
+  if (!dateValue) return "Date not set";
 
   const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return "Ready to view";
+  if (Number.isNaN(date.getTime())) return "Date not set";
 
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleDateString("en-US", {
     month: "short",
-    day: "numeric"
+    day: "numeric",
+    year: "numeric"
   });
+}
+
+function formatTaskTimeValue(timeValue) {
+  if (!timeValue) return "Time not set";
+
+  const rawValue = String(timeValue).trim();
+  if (!rawValue) return "Time not set";
+
+  const dateFromValue = new Date(rawValue);
+  if (!Number.isNaN(dateFromValue.getTime())) {
+    return dateFromValue.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    });
+  }
+
+  const timeParts = rawValue.match(/^(\d{1,2}):(\d{2})(?::\d{2})?/);
+  if (!timeParts) return rawValue;
+
+  let hours = Number(timeParts[1]);
+  const minutes = timeParts[2];
+
+  if (Number.isNaN(hours)) return rawValue;
+
+  const suffix = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+
+  return `${hours}:${minutes} ${suffix}`;
+}
+
+function formatTaskSchedule(task) {
+  const dateValue =
+    task.scheduled_date ||
+    task.date ||
+    task.task_date ||
+    task.appointment_date ||
+    null;
+
+  const timeValue =
+    task.scheduled_time ||
+    task.time ||
+    task.task_time ||
+    task.start_time ||
+    task.scheduled_start_time ||
+    task.arrival_time ||
+    null;
+
+  if (!dateValue && !timeValue) return "New date and time required";
+
+  const dateText = dateValue
+    ? formatTaskDate({ scheduled_date: dateValue })
+    : "Date not set";
+
+  const timeText = formatTaskTimeValue(timeValue);
+
+  return `${dateText} at ${timeText}`;
+}
+
+function generateArrivalCode() {
+  return String(Math.floor(1000 + Math.random() * 9000));
 }
 
 async function loadTaskStats(userId) {
@@ -1640,12 +1703,31 @@ async function createBookAgainTask(originalTaskId, buttonElement) {
     "payment_intent_id",
     "stripe_payment_intent_id",
     "payment_status",
-    "arrival_code",
     "completion_code",
     "dispute_id"
   ].forEach(columnName => delete newTask[columnName]);
 
+  [
+    "scheduled_date",
+    "scheduled_time",
+    "scheduled_start_time",
+    "scheduled_end_time",
+    "start_time",
+    "end_time",
+    "task_date",
+    "task_time",
+    "date",
+    "time",
+    "appointment_date",
+    "appointment_time"
+  ].forEach(columnName => {
+    if (Object.prototype.hasOwnProperty.call(newTask, columnName)) {
+      newTask[columnName] = null;
+    }
+  });
+
   newTask.status = "open";
+  newTask.arrival_code = generateArrivalCode();
   newTask.rebooked_from_task_id = originalTaskId;
 
   const { data: createdTask, error: insertError } = await supabaseClient
@@ -1706,7 +1788,7 @@ async function loadBookAgain(userId) {
 
     card.innerHTML = `
       <div class="book-title">${escapeHtml(formatTaskTitle(task))}</div>
-      <div class="book-sub">Completed ${escapeHtml(formatTaskDate(task))}. Tap Book Again to create the same task as a new open task.</div>
+      <div class="book-sub">Last scheduled: ${escapeHtml(formatTaskSchedule(task))}. Book Again creates a new open task with a fresh arrival code. You will still need to update the new date and time.</div>
       <button class="book-again-btn" type="button">Book Again</button>
     `;
 
