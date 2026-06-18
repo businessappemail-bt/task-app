@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Build My To-Do List - TaskMint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7fbf8;
+      --surface: #ffffff;
+      --surface-soft: #f0f7f2;
+      --surface-mint: #e8f8ee;
+      --border: #dfeae3;
+      --accent: #0b7a28;
+      --accent-dark: #075d1e;
+      --accent-light: #e6f4eb;
+      --text: #111111;
+      --muted: #66756b;
+      --soft-text: #87938b;
+      --white: #ffffff;
+      --gold: #f7b733;
+      --danger: #d93025;
+      --shadow: 0 14px 35px rgba(13, 83, 36, 0.10);
+      --shadow-soft: 0 8px 24px rgba(17, 17, 17, 0.06);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(11,122,40,0.12), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #f7fbf8 42%, #ffffff 100%);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 108px;
+      overflow-x: hidden;
+    }
+
+    .top-bar,
+    .hero,
+    .container {
+      max-width: 470px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+    }
+
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(223,234,227,0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 20px;
+    }
+
+    .back-btn {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+
+    .brand img {
+      width: 116px;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hero {
+      padding: 22px 20px 8px;
+    }
+
+    .hero-card {
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.88), rgba(232,248,238,0.96)),
+        radial-gradient(circle at top right, rgba(11,122,40,0.22), transparent 34%);
+      border: 1px solid rgba(223,234,227,0.95);
+      border-radius: 30px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::after {
+      content: "✓";
+      position: absolute;
+      right: 18px;
+      top: 4px;
+      color: rgba(11,122,40,0.08);
+      font-size: 118px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 9px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: 31px;
+      font-weight: 800;
+      line-height: 1.08;
+      color: var(--text);
+      letter-spacing: -0.8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero p {
+      margin-top: 9px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 340px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-wrap {
+      margin-top: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(11,122,40,0.10);
+      overflow: hidden;
+      border: 1px solid rgba(11,122,40,0.08);
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #19a447);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .container {
+      padding: 12px 16px 20px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      margin: 22px 0 10px;
+    }
+
+    .section-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .section-link {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .planner-card,
+    .suggestion-card,
+    .item-card,
+    .empty-card,
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .planner-card {
+      border-radius: 25px;
+      padding: 15px;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 9px;
+      align-items: center;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: #fbfdfb;
+      padding: 13px 13px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #a3cfb0;
+      box-shadow: 0 0 0 3px rgba(11,122,40,0.08);
+    }
+
+    .add-btn,
+    .primary-btn,
+    .secondary-btn,
+    .danger-btn,
+    .tiny-btn {
+      border: 0;
+      border-radius: 15px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 800;
+      transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+    }
+
+    .add-btn {
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 22px;
+      box-shadow: 0 8px 18px rgba(11,122,40,0.18);
+    }
+
+    .primary-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), #0e9434);
+      color: #fff;
+      padding: 14px;
+      font-size: 13px;
+      box-shadow: 0 12px 24px rgba(11,122,40,0.20);
+    }
+
+    .secondary-btn {
+      width: 100%;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 14px;
+      font-size: 13px;
+    }
+
+    .danger-btn {
+      background: #fff5f5;
+      color: var(--danger);
+      border: 1px solid #ffd7d7;
+      padding: 10px 12px;
+      font-size: 11px;
+    }
+
+    .tiny-btn {
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      padding: 8px 10px;
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+
+    .add-btn:hover,
+    .primary-btn:hover,
+    .secondary-btn:hover,
+    .danger-btn:hover,
+    .tiny-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 1px 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .chips::-webkit-scrollbar { display: none; }
+
+    .suggestion-card {
+      flex: 0 0 auto;
+      width: 154px;
+      border-radius: 21px;
+      padding: 13px;
+      cursor: pointer;
+      transition: transform 0.18s, border-color 0.18s;
+    }
+
+    .suggestion-card:hover {
+      transform: translateY(-2px);
+      border-color: #a3cfb0;
+    }
+
+    .suggestion-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      margin-bottom: 10px;
+    }
+
+    .suggestion-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.22;
+    }
+
+    .suggestion-sub {
+      font-size: 10.5px;
+      color: var(--muted);
+      line-height: 1.35;
+      margin-top: 4px;
+    }
+
+    .priority-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .priority-tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 16px;
+      padding: 11px 6px;
+      font-family: inherit;
+      font-size: 10.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    }
+
+    .priority-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .list-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item-card {
+      border-radius: 21px;
+      padding: 13px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 11px;
+      align-items: flex-start;
+    }
+
+    .item-check {
+      width: 24px;
+      height: 24px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .item-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .item-title {
+      font-size: 13.5px;
+      line-height: 1.25;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .item-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      padding: 5px 8px;
+      font-size: 9.5px;
+      font-weight: 800;
+    }
+
+    .pill.gray {
+      background: #f3f5f3;
+      color: var(--muted);
+    }
+
+    .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 11px;
+    }
+
+    .empty-card {
+      border-style: dashed;
+      border-radius: 21px;
+      padding: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .action-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 470px;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -3px 18px rgba(0,0,0,0.07);
+      padding: 10px 14px 14px;
+      z-index: 45;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.42);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal-card {
+      width: 100%;
+      max-width: 470px;
+      border-radius: 28px;
+      padding: 17px;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .modal-sub {
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    .close-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 4px 0 6px;
+    }
+
+    .two-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 92px;
+      transform: translateX(-50%) translateY(80px);
+      background: #111;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 800;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+      opacity: 0;
+      transition: 0.25s;
+      z-index: 120;
+      width: calc(100% - 40px);
+      max-width: 380px;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.86);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 140;
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 380px) {
+      .hero h1 { font-size: 27px; }
+      .two-fields { grid-template-columns: 1fr; }
+      .priority-tabs { grid-template-columns: 1fr; }
+      .action-bar { grid-template-columns: 1fr; }
+      body { padding-bottom: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">Loading your to-do list...</div>
+
+<div class="top-bar">
+  <a class="back-btn" href="customer-home.html">← Home</a>
+  <div class="brand">
+    <img src="taskmintlogo-transparent.png" alt="TaskMint">
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-card">
+    <div class="hero-label">Home Planner</div>
+    <h1>Build My To-Do List</h1>
+    <p>Save projects, plan priorities, and turn selected items into open TaskMint tasks when you are ready.</p>
+
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span id="progressText">0 of 0 completed</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section-head">
+    <div class="section-label">Add to Your List</div>
+  </div>
+
+  <div class="planner-card">
+    <div class="input-row">
+      <input id="newItemInput" type="text" placeholder="Example: Deep clean kitchen" maxlength="120">
+      <button class="add-btn" type="button" onclick="addTodoItem()">＋</button>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div class="section-label">Smart Suggestions</div>
+    <button class="section-link" type="button" onclick="shuffleSuggestions()">Shuffle</button>
+  </div>
+
+  <div class="chips" id="suggestionList"></div>
+
+  <div class="section-head">
+    <div class="section-label">Priority Board</div>
+    <button class="section-link" type="button" onclick="selectAllVisible()">Select Visible</button>
+  </div>
+
+  <div class="priority-tabs">
+    <button class="priority-tab active" type="button" data-priority="urgent" onclick="setPriorityFilter('urgent')">🔥 Urgent</button>
+    <button class="priority-tab" type="button" data-priority="upcoming" onclick="setPriorityFilter('upcoming')">📅 Upcoming</button>
+    <button class="priority-tab" type="button" data-priority="someday" onclick="setPriorityFilter('someday')">💡 Someday</button>
+  </div>
+
+  <div class="list-stack" id="todoList"></div>
+
+  <div class="section-head">
+    <div class="section-label">Dream Projects</div>
+  </div>
+
+  <div class="chips" id="dreamList"></div>
+
+</div>
+
+<div class="action-bar">
+  <button class="secondary-btn" type="button" onclick="openPostModal('selected')">Post Selected</button>
+  <button class="primary-btn" type="button" onclick="openPostModal('all')">Post Entire List</button>
+</div>
+
+<div class="modal-overlay" id="postModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modalTitle">Post Selected Tasks</div>
+        <div class="modal-sub" id="modalSub">Choose the date, time, address, and budget before these show under Open Tasks.</div>
+      </div>
+      <button class="close-btn" type="button" onclick="closePostModal()">×</button>
+    </div>
+
+    <div class="form-grid">
+      <div>
+        <label class="field-label" for="scheduledDate">Task Date</label>
+        <input id="scheduledDate" type="date">
+      </div>
+
+      <div class="two-fields">
+        <div>
+          <label class="field-label" for="scheduledTime">Task Time</label>
+          <input id="scheduledTime" type="time">
+        </div>
+        <div>
+          <label class="field-label" for="budgetAmount">Budget</label>
+          <input id="budgetAmount" type="number" min="0" step="1" placeholder="Example: 150">
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label" for="taskAddress">Task Address</label>
+        <input id="taskAddress" type="text" placeholder="Enter the task address">
+      </div>
+
+      <div class="two-fields">
+        <div>
+          <label class="field-label" for="taskCity">City</label>
+          <input id="taskCity" type="text" placeholder="City">
+        </div>
+        <div>
+          <label class="field-label" for="taskState">State</label>
+          <input id="taskState" type="text" placeholder="GA" maxlength="2">
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label" for="extraDetails">Extra Details</label>
+        <textarea id="extraDetails" placeholder="Add anything workers should know before quoting."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="secondary-btn" type="button" onclick="closePostModal()">Cancel</button>
+      <button class="primary-btn" type="button" id="confirmPostBtn" onclick="postTasksFromList()">Post Tasks</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+  "https://dbcthtjmtlumidpbucrc.supabase.co",
+  "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
+);
+
+let currentUser = null;
+let todoItems = [];
+let activePriority = "urgent";
+let postMode = "selected";
+
+const suggestionPool = [
+  { title: "Deep clean kitchen", category: "House Cleaning", priority: "urgent", icon: "🧹", sub: "Popular before weekends" },
+  { title: "Pressure wash driveway", category: "Pressure Washing", priority: "upcoming", icon: "💦", sub: "Good seasonal project" },
+  { title: "Organize garage", category: "Organization", priority: "upcoming", icon: "📦", sub: "Pairs with junk removal" },
+  { title: "Mount TV", category: "Handyman", priority: "urgent", icon: "📺", sub: "Quick handyman task" },
+  { title: "Furniture assembly", category: "Assembly", priority: "urgent", icon: "🛋️", sub: "Fast local help" },
+  { title: "Mulch flower beds", category: "Lawn Care", priority: "someday", icon: "🌿", sub: "Great curb appeal task" },
+  { title: "Clean out closets", category: "Organization", priority: "someday", icon: "👕", sub: "Save for later" },
+  { title: "Move-out cleaning", category: "House Cleaning", priority: "upcoming", icon: "🏠", sub: "Useful before moving" }
+];
+
+const dreamProjects = [
+  { title: "Home office setup", icon: "💻", category: "Handyman" },
+  { title: "Guest room refresh", icon: "🛏️", category: "Painting" },
+  { title: "Backyard cleanup", icon: "🌳", category: "Lawn Care" },
+  { title: "Pantry organization", icon: "🥫", category: "Organization" }
+];
+
+async function initPage() {
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (!data.session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  currentUser = data.session.user;
+  await loadTodoItems();
+  renderSuggestions();
+  renderDreamProjects();
+  updateProgress();
+  document.getElementById("loadingOverlay").classList.add("hidden");
+}
+
+async function loadTodoItems() {
+  const { data, error } = await supabaseClient
+    .from("customer_todo_items")
+    .select("*")
+    .eq("customer_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    showToast("Unable to load your to-do list.");
+    todoItems = [];
+    renderTodoList();
+    return;
+  }
+
+  todoItems = data || [];
+  renderTodoList();
+}
+
+function renderSuggestions() {
+  const suggestionList = document.getElementById("suggestionList");
+  const shuffled = [...suggestionPool].sort(() => Math.random() - 0.5).slice(0, 6);
+
+  suggestionList.innerHTML = shuffled.map(item => `
+    <div class="suggestion-card" onclick="addSuggestedItem('${escapeForClick(item.title)}','${escapeForClick(item.category)}','${item.priority}')">
+      <div class="suggestion-icon">${item.icon}</div>
+      <div class="suggestion-title">${escapeHtml(item.title)}</div>
+      <div class="suggestion-sub">${escapeHtml(item.sub)}</div>
+    </div>
+  `).join("");
+}
+
+function renderDreamProjects() {
+  const dreamList = document.getElementById("dreamList");
+
+  dreamList.innerHTML = dreamProjects.map(item => `
+    <div class="suggestion-card" onclick="addSuggestedItem('${escapeForClick(item.title)}','${escapeForClick(item.category)}','someday')">
+      <div class="suggestion-icon">${item.icon}</div>
+      <div class="suggestion-title">${escapeHtml(item.title)}</div>
+      <div class="suggestion-sub">Save as a someday project</div>
+    </div>
+  `).join("");
+}
+
+function shuffleSuggestions() {
+  renderSuggestions();
+}
+
+async function addTodoItem() {
+  const input = document.getElementById("newItemInput");
+  const title = input.value.trim();
+
+  if (!title) {
+    showToast("Add a task first.");
+    return;
+  }
+
+  await createTodoItem({
+    title,
+    category: guessCategory(title),
+    priority: activePriority
+  });
+
+  input.value = "";
+}
+
+async function addSuggestedItem(title, category, priority) {
+  await createTodoItem({ title, category, priority });
+}
+
+async function createTodoItem(item) {
+  if (!currentUser) return;
+
+  const { data, error } = await supabaseClient
+    .from("customer_todo_items")
+    .insert({
+      customer_id: currentUser.id,
+      title: item.title,
+      category: item.category || "General Help",
+      priority: item.priority || activePriority,
+      status: "planned",
+      selected_for_posting: false
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    showToast("Unable to add item.");
+    return;
+  }
+
+  todoItems.unshift(data);
+  renderTodoList();
+  updateProgress();
+  showToast("Added to your list.");
+}
+
+function renderTodoList() {
+  const todoList = document.getElementById("todoList");
+  const visibleItems = todoItems.filter(item => item.priority === activePriority);
+
+  if (!visibleItems.length) {
+    todoList.innerHTML = `
+      <div class="empty-card">
+        No ${formatPriorityLabel(activePriority)} items yet. Add one above or tap a smart suggestion.
+      </div>
+    `;
+    return;
+  }
+
+  todoList.innerHTML = visibleItems.map(item => {
+    const checked = item.selected_for_posting ? "checked" : "";
+    const completed = item.status === "completed";
+    const posted = item.status === "posted";
+    const disabled = posted ? "disabled" : "";
+
+    return `
+      <div class="item-card">
+        <input class="item-check" type="checkbox" ${checked} ${disabled} onchange="toggleSelected('${item.id}', this.checked)">
+        <div>
+          <div class="item-title-row">
+            <div class="item-title">${escapeHtml(item.title)}</div>
+            <button class="danger-btn" type="button" onclick="deleteTodoItem('${item.id}')">Remove</button>
+          </div>
+          <div class="item-meta">
+            <span class="pill">${escapeHtml(item.category || "General Help")}</span>
+            <span class="pill gray">${formatPriorityLabel(item.priority)}</span>
+            <span class="pill gray">${formatStatusLabel(item.status)}</span>
+          </div>
+          <div class="item-actions">
+            <button class="tiny-btn" type="button" onclick="changePriority('${item.id}', 'urgent')">🔥 Urgent</button>
+            <button class="tiny-btn" type="button" onclick="changePriority('${item.id}', 'upcoming')">📅 Upcoming</button>
+            <button class="tiny-btn" type="button" onclick="changePriority('${item.id}', 'someday')">💡 Someday</button>
+            <button class="tiny-btn" type="button" onclick="toggleCompleted('${item.id}', ${completed ? 'false' : 'true'})">${completed ? 'Mark Planned' : 'Mark Done'}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function toggleSelected(itemId, isSelected) {
+  const { error } = await supabaseClient
+    .from("customer_todo_items")
+    .update({ selected_for_posting: isSelected })
+    .eq("id", itemId)
+    .eq("customer_id", currentUser.id);
+
+  if (error) {
+    showToast("Unable to update selection.");
+    return;
+  }
+
+  todoItems = todoItems.map(item =>
+    item.id === itemId ? { ...item, selected_for_posting: isSelected } : item
+  );
+}
+
+async function changePriority(itemId, priority) {
+  const { error } = await supabaseClient
+    .from("customer_todo_items")
+    .update({ priority })
+    .eq("id", itemId)
+    .eq("customer_id", currentUser.id);
+
+  if (error) {
+    showToast("Unable to move item.");
+    return;
+  }
+
+  todoItems = todoItems.map(item =>
+    item.id === itemId ? { ...item, priority } : item
+  );
+  renderTodoList();
+}
+
+async function toggleCompleted(itemId, shouldComplete) {
+  const nextStatus = shouldComplete ? "completed" : "planned";
+
+  const { error } = await supabaseClient
+    .from("customer_todo_items")
+    .update({ status: nextStatus })
+    .eq("id", itemId)
+    .eq("customer_id", currentUser.id);
+
+  if (error) {
+    showToast("Unable to update item.");
+    return;
+  }
+
+  todoItems = todoItems.map(item =>
+    item.id === itemId ? { ...item, status: nextStatus } : item
+  );
+  renderTodoList();
+  updateProgress();
+}
+
+async function deleteTodoItem(itemId) {
+  const confirmDelete = confirm("Remove this item from your to-do list?");
+  if (!confirmDelete) return;
+
+  const { error } = await supabaseClient
+    .from("customer_todo_items")
+    .delete()
+    .eq("id", itemId)
+    .eq("customer_id", currentUser.id);
+
+  if (error) {
+    showToast("Unable to remove item.");
+    return;
+  }
+
+  todoItems = todoItems.filter(item => item.id !== itemId);
+  renderTodoList();
+  updateProgress();
+}
+
+function setPriorityFilter(priority) {
+  activePriority = priority;
+  document.querySelectorAll(".priority-tab").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.priority === priority);
+  });
+  renderTodoList();
+}
+
+async function selectAllVisible() {
+  const visibleIds = todoItems
+    .filter(item => item.priority === activePriority && item.status !== "posted")
+    .map(item => item.id);
+
+  if (!visibleIds.length) {
+    showToast("No visible items to select.");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("customer_todo_items")
+    .update({ selected_for_posting: true })
+    .eq("customer_id", currentUser.id)
+    .in("id", visibleIds);
+
+  if (error) {
+    showToast("Unable to select items.");
+    return;
+  }
+
+  todoItems = todoItems.map(item =>
+    visibleIds.includes(item.id) ? { ...item, selected_for_posting: true } : item
+  );
+  renderTodoList();
+}
+
+function openPostModal(mode) {
+  postMode = mode;
+  const items = getPostableItems();
+
+  if (!items.length) {
+    showToast(mode === "selected" ? "Select at least one item first." : "Add a to-do item first.");
+    return;
+  }
+
+  document.getElementById("modalTitle").innerText =
+    mode === "selected" ? "Post Selected Tasks" : "Post Entire List";
+  document.getElementById("modalSub").innerText =
+    `${items.length} task${items.length === 1 ? "" : "s"} will be created under Open Tasks after you confirm the date, time, address, and budget.`;
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById("scheduledDate").min = formatDateForInput(new Date());
+  document.getElementById("scheduledDate").value = formatDateForInput(tomorrow);
+  document.getElementById("scheduledTime").value = "10:00";
+
+  document.getElementById("postModal").classList.add("show");
+}
+
+function closePostModal() {
+  document.getElementById("postModal").classList.remove("show");
+}
+
+function getPostableItems() {
+  if (postMode === "selected") {
+    return todoItems.filter(item => item.selected_for_posting && item.status !== "posted");
+  }
+
+  return todoItems.filter(item => item.status !== "posted");
+}
+
+async function postTasksFromList() {
+  const items = getPostableItems();
+  const scheduledDate = document.getElementById("scheduledDate").value;
+  const scheduledTime = document.getElementById("scheduledTime").value;
+  const budgetAmount = document.getElementById("budgetAmount").value;
+  const taskAddress = document.getElementById("taskAddress").value.trim();
+  const taskCity = document.getElementById("taskCity").value.trim();
+  const taskState = document.getElementById("taskState").value.trim().toUpperCase();
+  const extraDetails = document.getElementById("extraDetails").value.trim();
+
+  if (!items.length) {
+    showToast("No tasks selected.");
+    return;
+  }
+
+  if (!scheduledDate || !scheduledTime || !taskAddress || !taskCity || !taskState) {
+    showToast("Date, time, address, city, and state are required.");
+    return;
+  }
+
+  const confirmBtn = document.getElementById("confirmPostBtn");
+  confirmBtn.disabled = true;
+  confirmBtn.style.opacity = "0.65";
+  confirmBtn.innerText = "Posting...";
+
+  const taskRows = items.map(item => buildTaskInsert(item, {
+    scheduledDate,
+    scheduledTime,
+    budgetAmount,
+    taskAddress,
+    taskCity,
+    taskState,
+    extraDetails
+  }));
+
+  const { error } = await supabaseClient
+    .from("tasks")
+    .insert(taskRows);
+
+  if (error) {
+    console.error(error);
+    confirmBtn.disabled = false;
+    confirmBtn.style.opacity = "1";
+    confirmBtn.innerText = "Post Tasks";
+    showToast("Tasks could not be posted. Check your tasks table columns/RLS.");
+    return;
+  }
+
+  const postedIds = items.map(item => item.id);
+
+  await supabaseClient
+    .from("customer_todo_items")
+    .update({ status: "posted", selected_for_posting: false })
+    .eq("customer_id", currentUser.id)
+    .in("id", postedIds);
+
+  showToast("Posted to Open Tasks.");
+  window.location.href = "view-open-task.html";
+}
+
+function buildTaskInsert(item, formValues) {
+  const readableDate = formatDateDisplay(formValues.scheduledDate);
+  const readableTime = formatTime12Hour(formValues.scheduledTime);
+  const descriptionLines = [
+    `Task created from Build My To-Do List.`,
+    `Requested date: ${readableDate}`,
+    `Requested time: ${readableTime}`
+  ];
+
+  if (formValues.extraDetails) {
+    descriptionLines.push(`Customer notes: ${formValues.extraDetails}`);
+  }
+
+  return {
+    customer_id: currentUser.id,
+    title: item.title,
+    task_title: item.title,
+    description: descriptionLines.join("\n"),
+    task_description: descriptionLines.join("\n"),
+    category: item.category || "General Help",
+    task_category: item.category || "General Help",
+    service_type: item.category || "General Help",
+    status: "open",
+    arrival_code: generateArrivalCode(),
+    scheduled_date: formValues.scheduledDate,
+    scheduled_time: formValues.scheduledTime,
+    preferred_time: formValues.scheduledTime,
+    address: formValues.taskAddress,
+    task_address: formValues.taskAddress,
+    city: formValues.taskCity,
+    state: formValues.taskState,
+    budget: formValues.budgetAmount ? Number(formValues.budgetAmount) : null,
+    budget_amount: formValues.budgetAmount ? Number(formValues.budgetAmount) : null,
+    source: "customer_to_do_list",
+    created_at: new Date().toISOString()
+  };
+}
+
+function updateProgress() {
+  const total = todoItems.length;
+  const completed = todoItems.filter(item => item.status === "completed" || item.status === "posted").length;
+  const percent = total ? Math.round((completed / total) * 100) : 0;
+
+  document.getElementById("progressText").innerText = `${completed} of ${total} completed`;
+  document.getElementById("progressPercent").innerText = `${percent}%`;
+  document.getElementById("progressFill").style.width = `${percent}%`;
+}
+
+function guessCategory(title) {
+  const value = title.toLowerCase();
+  if (value.includes("clean") || value.includes("kitchen") || value.includes("bathroom")) return "House Cleaning";
+  if (value.includes("move") || value.includes("packing")) return "Moving Help";
+  if (value.includes("yard") || value.includes("lawn") || value.includes("mulch")) return "Lawn Care";
+  if (value.includes("mount") || value.includes("repair") || value.includes("paint")) return "Handyman";
+  if (value.includes("assemble") || value.includes("furniture")) return "Assembly";
+  if (value.includes("organize") || value.includes("closet") || value.includes("garage")) return "Organization";
+  if (value.includes("junk") || value.includes("haul")) return "Junk Removal";
+  return "General Help";
+}
+
+function generateArrivalCode() {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+function formatDateForInput(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatDateDisplay(dateValue) {
+  if (!dateValue) return "Not selected";
+  const parts = dateValue.split("-");
+  if (parts.length !== 3) return dateValue;
+  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+function formatTime12Hour(timeValue) {
+  if (!timeValue) return "Not selected";
+  const parts = timeValue.split(":");
+  let hour = Number(parts[0]);
+  const minute = parts[1] || "00";
+  if (Number.isNaN(hour)) return timeValue;
+  const suffix = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+  return `${hour}:${minute} ${suffix}`;
+}
+
+function formatPriorityLabel(priority) {
+  if (priority === "urgent") return "Urgent";
+  if (priority === "upcoming") return "Upcoming";
+  if (priority === "someday") return "Someday";
+  return "Planned";
+}
+
+function formatStatusLabel(status) {
+  if (status === "posted") return "Posted";
+  if (status === "completed") return "Done";
+  return "Planned";
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeForClick(value) {
+  return String(value || "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("'", "\\'")
+    .replaceAll('"', "&quot;");
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2400);
+}
+
+initPage();
+</script>
+</body>
+</html>
