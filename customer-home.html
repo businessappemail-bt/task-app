@@ -7,28 +7,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
     :root {
-      --bg:       #ffffff;
-      --surface:  #f2f7f4;
-      --border:   #e2ebe5;
-      --accent:   #0b7a28;
+      --bg: #f7fbf8;
+      --surface: #ffffff;
+      --surface-soft: #f0f7f2;
+      --surface-mint: #e8f8ee;
+      --border: #dfeae3;
+      --accent: #0b7a28;
+      --accent-dark: #075d1e;
       --accent-light: #e6f4eb;
-      --text:     #111111;
-      --muted:    #6b7870;
-      --white:    #ffffff;
+      --text: #111111;
+      --muted: #66756b;
+      --soft-text: #87938b;
+      --white: #ffffff;
+      --gold: #f7b733;
+      --danger: #d93025;
+      --shadow: 0 14px 35px rgba(13, 83, 36, 0.10);
+      --shadow-soft: 0 8px 24px rgba(17, 17, 17, 0.06);
     }
- 
+
     body {
-      background: var(--bg);
+      background:
+        radial-gradient(circle at top left, rgba(11,122,40,0.11), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #f7fbf8 42%, #ffffff 100%);
       color: var(--text);
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
-      padding-bottom: 100px;
+      padding-bottom: 108px;
       overflow-x: hidden;
     }
- 
-    /* ── CENTER EVERYTHING ── */
+
     .top-bar,
     .hero,
     .container {
@@ -37,33 +46,40 @@
       margin-right: auto;
       width: 100%;
     }
- 
-    /* ── TOP BAR ── */
+
     .top-bar {
       position: sticky;
       top: 0;
       z-index: 40;
-      background: rgba(255,255,255,0.97);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(223,234,227,0.8);
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 13px 20px;
     }
- 
+
     .brand img {
-      width: 130px;
+      width: 128px;
       height: auto;
       object-fit: contain;
+      display: block;
     }
- 
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .notification-wrap { position: relative; }
- 
-    .notification-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
+
+    .notification-btn,
+    .mini-circle-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
       background: var(--surface);
       border: 1px solid var(--border);
       font-size: 19px;
@@ -71,255 +87,746 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.18s;
+      transition: transform 0.18s, background 0.18s, box-shadow 0.18s;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
     }
-    .notification-btn:hover { background: #ddeee4; }
- 
+
+    .notification-btn:hover,
+    .mini-circle-btn:hover {
+      background: var(--surface-soft);
+      transform: translateY(-1px);
+    }
+
     .notification-count {
       position: absolute;
-      top: -5px; right: -5px;
-      min-width: 19px; height: 19px;
-      background: #d93025;
+      top: -5px;
+      right: -5px;
+      min-width: 19px;
+      height: 19px;
+      background: var(--danger);
       color: #fff;
       border-radius: 999px;
       font-size: 10px;
-      font-weight: 700;
+      font-weight: 800;
       display: none;
       align-items: center;
       justify-content: center;
       border: 2px solid #fff;
-      padding: 0 3px;
+      padding: 0 4px;
     }
- 
-    /* ── HERO ── */
+
     .hero {
-      padding: 26px 20px 6px;
+      padding: 22px 20px 8px;
     }
- 
-    .hero-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 6px;
+
+    .hero-card {
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.88), rgba(232,248,238,0.95)),
+        radial-gradient(circle at top right, rgba(11,122,40,0.20), transparent 34%);
+      border: 1px solid rgba(223,234,227,0.95);
+      border-radius: 30px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
       opacity: 0;
       animation: riseIn 0.35s 0.05s forwards;
     }
- 
-    .hero h1 {
-      font-size: 30px;
-      font-weight: 800;
-      line-height: 1.1;
-      color: var(--text);
-      letter-spacing: -0.5px;
-      opacity: 0;
-      animation: riseIn 0.35s 0.1s forwards;
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 135px;
+      height: 135px;
+      border-radius: 50%;
+      background: rgba(11,122,40,0.08);
+      right: -45px;
+      top: -55px;
     }
- 
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 9px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: 31px;
+      font-weight: 800;
+      line-height: 1.08;
+      color: var(--text);
+      letter-spacing: -0.8px;
+      position: relative;
+      z-index: 1;
+    }
+
     .hero h1 em {
       font-style: normal;
       color: var(--accent);
     }
- 
+
     .hero p {
-      margin-top: 7px;
+      margin-top: 9px;
       font-size: 13px;
       color: var(--muted);
       line-height: 1.55;
-      opacity: 0;
-      animation: riseIn 0.35s 0.15s forwards;
+      max-width: 330px;
+      position: relative;
+      z-index: 1;
     }
- 
-    /* ── MAIN CONTAINER ── */
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-stat {
+      background: rgba(255,255,255,0.76);
+      border: 1px solid rgba(223,234,227,0.95);
+      border-radius: 17px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+
+    .hero-stat span {
+      display: block;
+      margin-top: 3px;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
     .container {
-      padding: 18px 16px 20px;
+      padding: 12px 16px 20px;
     }
- 
-    /* ── SECTION LABEL ── */
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      margin: 22px 0 10px;
+    }
+
     .section-label {
       font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 1.4px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       color: var(--muted);
-      margin: 20px 0 9px;
     }
- 
-    /* ── PRIMARY CTA ── */
+
+    .section-link {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
     .primary-action {
-      background: var(--accent);
-      border-radius: 18px;
-      padding: 18px 20px;
+      background: linear-gradient(135deg, var(--accent) 0%, #0e9434 100%);
+      border-radius: 24px;
+      padding: 18px;
       display: flex;
       align-items: center;
       gap: 14px;
       cursor: pointer;
       transition: transform 0.18s, box-shadow 0.18s;
-      box-shadow: 0 6px 20px rgba(11,122,40,0.22);
+      box-shadow: 0 14px 30px rgba(11,122,40,0.23);
       width: 100%;
       opacity: 0;
-      animation: riseIn 0.35s 0.2s forwards;
+      animation: riseIn 0.35s 0.12s forwards;
+      position: relative;
+      overflow: hidden;
     }
- 
-    .primary-action:active,
-    .primary-action:hover {
+
+    .primary-action::after {
+      content: "";
+      position: absolute;
+      right: -24px;
+      top: -40px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .primary-action:hover,
+    .primary-action:active {
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(11,122,40,0.30);
+      box-shadow: 0 16px 34px rgba(11,122,40,0.30);
     }
- 
+
     .pa-icon {
-      width: 50px; height: 50px;
-      border-radius: 14px;
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
       background: rgba(255,255,255,0.18);
-      font-size: 24px;
-      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
+      color: #fff;
+      position: relative;
+      z-index: 1;
     }
- 
-    .pa-text { flex: 1; }
- 
+
+    .pa-text {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+
     .pa-title {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 800;
       color: #fff;
       line-height: 1.2;
     }
- 
+
     .pa-sub {
       font-size: 12px;
-      color: rgba(255,255,255,0.72);
-      margin-top: 3px;
+      color: rgba(255,255,255,0.78);
+      margin-top: 4px;
       line-height: 1.4;
     }
- 
+
     .pa-arrow {
+      font-size: 24px;
+      color: rgba(255,255,255,0.58);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quick-chip-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .quick-chip {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 17px;
+      min-height: 76px;
+      padding: 10px 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s, border-color 0.18s;
+      text-align: center;
+    }
+
+    .quick-chip:hover {
+      transform: translateY(-2px);
+      border-color: #a3cfb0;
+    }
+
+    .quick-chip span {
+      display: block;
+      font-size: 23px;
+      margin-bottom: 6px;
+    }
+
+    .quick-chip strong {
+      display: block;
+      font-size: 10.5px;
+      line-height: 1.18;
+      color: var(--text);
+    }
+
+    .horizontal-scroll {
+      display: flex;
+      gap: 11px;
+      overflow-x: auto;
+      padding: 2px 1px 8px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .horizontal-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .service-card,
+    .worker-card,
+    .book-card,
+    .reward-card,
+    .activity-card {
+      scroll-snap-align: start;
+      flex: 0 0 auto;
+    }
+
+    .service-card {
+      width: 145px;
+      min-height: 157px;
+      border-radius: 23px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 13px;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s, border-color 0.18s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card:hover {
+      transform: translateY(-2px);
+      border-color: #a3cfb0;
+    }
+
+    .service-art {
+      width: 100%;
+      height: 70px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--surface-mint), #ffffff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 33px;
+      margin-bottom: 12px;
+    }
+
+    .service-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .service-meta {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    .worker-card {
+      width: 168px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 13px;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s, border-color 0.18s;
+    }
+
+    .worker-card:hover {
+      transform: translateY(-2px);
+      border-color: #a3cfb0;
+    }
+
+    .worker-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .worker-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #e6f4eb, #ffffff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 22px;
-      color: rgba(255,255,255,0.5);
+      border: 1px solid var(--border);
       flex-shrink: 0;
     }
- 
-    /* ── 2-COL TILE GRID ── */
+
+    .worker-name {
+      font-size: 12.5px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .worker-role {
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    .worker-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .small-pill {
+      border-radius: 999px;
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 5px 8px;
+    }
+
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       width: 100%;
     }
- 
-    /* ── TILE CARD ── */
+
     .tile {
       background: var(--surface);
-      border-radius: 16px;
+      border-radius: 22px;
       padding: 15px;
       border: 1px solid var(--border);
       cursor: pointer;
       transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
-      min-height: 122px;
+      min-height: 128px;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       gap: 10px;
+      box-shadow: var(--shadow-soft);
     }
- 
+
     .tile:hover {
       border-color: #a3cfb0;
-      box-shadow: 0 4px 14px rgba(11,122,40,0.10);
-      transform: translateY(-1px);
+      box-shadow: 0 9px 22px rgba(11,122,40,0.10);
+      transform: translateY(-2px);
     }
- 
+
     .tile .t-icon {
-      width: 42px; height: 42px;
-      border-radius: 12px;
+      width: 45px;
+      height: 45px;
+      border-radius: 15px;
       background: var(--accent-light);
-      font-size: 19px;
-      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
- 
+
     .tile .t-title {
       font-size: 13.5px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text);
       line-height: 1.2;
     }
- 
+
     .tile .t-sub {
-      font-size: 11px;
+      font-size: 10.8px;
       color: var(--muted);
-      line-height: 1.45;
-      margin-top: 2px;
+      line-height: 1.42;
+      margin-top: 3px;
     }
- 
-    /* ── ROW CARD ── */
+
+    .tile-count {
+      align-self: flex-start;
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: var(--surface-soft);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
     .row-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 9px;
       width: 100%;
     }
- 
+
     .row-card {
       background: var(--surface);
-      border-radius: 14px;
-      padding: 13px 15px;
+      border-radius: 19px;
+      padding: 14px 15px;
       border: 1px solid var(--border);
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 13px;
-      min-height: 66px;
+      min-height: 70px;
       transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+      box-shadow: var(--shadow-soft);
     }
- 
+
     .row-card:hover {
       border-color: #a3cfb0;
-      box-shadow: 0 4px 14px rgba(11,122,40,0.09);
-      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(11,122,40,0.09);
+      transform: translateY(-2px);
     }
- 
+
     .row-card .r-icon {
-      width: 40px; height: 40px;
-      border-radius: 11px;
+      width: 43px;
+      height: 43px;
+      border-radius: 15px;
       background: var(--accent-light);
       font-size: 18px;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
- 
+
     .row-card .r-text { flex: 1; }
- 
+
     .row-card .r-title {
       font-size: 13.5px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text);
       line-height: 1.2;
     }
- 
+
     .row-card .r-sub {
-      font-size: 11px;
+      font-size: 10.8px;
       color: var(--muted);
-      margin-top: 2px;
+      margin-top: 3px;
       line-height: 1.4;
     }
- 
+
     .row-card .r-chev {
-      font-size: 16px;
-      color: #c0ccc4;
+      font-size: 18px;
+      color: #b7c5bc;
       flex-shrink: 0;
     }
- 
-    /* ── ANIMATIONS ── */
+
+    .season-card {
+      background:
+        linear-gradient(135deg, #fff9e9 0%, #e8f8ee 100%);
+      border: 1px solid #f0e6c6;
+      border-radius: 25px;
+      padding: 17px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      cursor: pointer;
+      transition: transform 0.18s;
+    }
+
+    .season-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .season-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .season-title {
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .season-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.42;
+    }
+
+    .book-card {
+      width: 210px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 23px;
+      padding: 14px;
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+    }
+
+    .book-title {
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.22;
+    }
+
+    .book-sub {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 10.8px;
+      line-height: 1.38;
+    }
+
+    .book-again-btn {
+      margin-top: 12px;
+      width: 100%;
+      border: 0;
+      border-radius: 13px;
+      background: var(--accent);
+      color: #fff;
+      padding: 10px;
+      font-weight: 800;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .reward-panel {
+      background:
+        linear-gradient(140deg, #101f16 0%, #0b7a28 100%);
+      border-radius: 26px;
+      padding: 17px;
+      color: #fff;
+      box-shadow: 0 16px 34px rgba(11,122,40,0.25);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .reward-panel::after {
+      content: "✦";
+      position: absolute;
+      right: 18px;
+      top: 8px;
+      color: rgba(255,255,255,0.18);
+      font-size: 88px;
+      line-height: 1;
+    }
+
+    .reward-title {
+      font-size: 16px;
+      font-weight: 800;
+      position: relative;
+      z-index: 1;
+    }
+
+    .reward-sub {
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.75);
+      margin-top: 5px;
+      line-height: 1.42;
+      position: relative;
+      z-index: 1;
+    }
+
+    .reward-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .reward-mini {
+      border-radius: 17px;
+      background: rgba(255,255,255,0.13);
+      border: 1px solid rgba(255,255,255,0.16);
+      padding: 12px;
+    }
+
+    .reward-mini strong {
+      display: block;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .reward-mini span {
+      display: block;
+      margin-top: 3px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.76);
+      line-height: 1.3;
+    }
+
+    .activity-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .activity-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px 13px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .activity-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .activity-text {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .activity-text span {
+      display: block;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 10.5px;
+      margin-top: 2px;
+    }
+
+    .empty-mini {
+      width: 100%;
+      background: var(--surface);
+      border: 1px dashed #cbd9d0;
+      border-radius: 20px;
+      padding: 15px;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.45;
+    }
+
     .fade-in {
       opacity: 0;
       animation: riseIn 0.35s forwards;
     }
- 
+
     @keyframes riseIn {
       from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
- 
-    /* ── BOTTOM NAV ── */
+
     .nav {
       position: fixed;
       bottom: 0;
@@ -328,63 +835,87 @@
       width: 100%;
       max-width: 470px;
       background: rgba(255,255,255,0.97);
-      backdrop-filter: blur(16px);
+      backdrop-filter: blur(18px);
       border-top: 1px solid var(--border);
-      box-shadow: 0 -3px 16px rgba(0,0,0,0.06);
+      box-shadow: 0 -3px 18px rgba(0,0,0,0.07);
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       padding: 10px 6px 14px;
       z-index: 50;
     }
- 
+
     .nav a {
       text-decoration: none;
       color: var(--muted);
       font-size: 10px;
-      font-weight: 600;
+      font-weight: 700;
       text-align: center;
       transition: color 0.18s;
     }
- 
+
     .nav a:hover { color: var(--accent); }
     .active { color: var(--accent) !important; }
- 
+
     .nav-icon {
       display: block;
       font-size: 20px;
       margin-bottom: 3px;
     }
- 
-    @media (max-width: 360px) {
-      .hero h1 { font-size: 26px; }
+
+    @media (max-width: 380px) {
+      .hero h1 { font-size: 27px; }
+      .quick-chip-grid { grid-template-columns: repeat(2, 1fr); }
       .two-col { gap: 8px; }
-      .tile { padding: 13px; min-height: 108px; }
+      .tile { padding: 13px; min-height: 118px; }
+      .service-card { width: 135px; }
+      .worker-card { width: 158px; }
     }
   </style>
 </head>
 <body>
- 
+
 <!-- TOP BAR -->
 <div class="top-bar">
   <div class="brand">
     <img src="taskmintlogo-transparent.png" alt="TaskMint">
   </div>
-  <div class="notification-wrap">
-    <button class="notification-btn" onclick="window.location.href='customer-notifications.html'">🔔</button>
-    <div class="notification-count" id="notificationCount">0</div>
+
+  <div class="top-actions">
+    <button class="mini-circle-btn" onclick="window.location.href='browse-workers.html'" title="Browse Workers">🔎</button>
+    <div class="notification-wrap">
+      <button class="notification-btn" onclick="window.location.href='customer-notifications.html'">🔔</button>
+      <div class="notification-count" id="notificationCount">0</div>
+    </div>
   </div>
 </div>
- 
+
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-label">Dashboard</div>
-  <h1 id="welcomeText">Welcome <em>Back</em></h1>
-  <p>Post tasks, manage quotes, browse workers, and keep everything organized.</p>
+  <div class="hero-card">
+    <div class="hero-label">Customer Dashboard</div>
+    <h1 id="welcomeText">Good afternoon, <em>Jordan</em></h1>
+    <p>What is on your to-do list today? Post a task, find trusted workers, rebook favorites, and stay updated.</p>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <strong id="openTaskStat">0</strong>
+        <span>Open</span>
+      </div>
+      <div class="hero-stat">
+        <strong id="activeTaskStat">0</strong>
+        <span>Active</span>
+      </div>
+      <div class="hero-stat">
+        <strong id="messageStat">0</strong>
+        <span>Unread</span>
+      </div>
+    </div>
+  </div>
 </div>
- 
+
 <!-- CONTENT -->
 <div class="container">
- 
+
   <!-- POST A TASK -->
   <div class="primary-action" onclick="window.location.href='post-job.html'">
     <div class="pa-icon">＋</div>
@@ -394,28 +925,143 @@
     </div>
     <div class="pa-arrow">›</div>
   </div>
- 
+
+  <!-- QUICK START -->
+  <div class="section-head">
+    <div class="section-label">Quick Start</div>
+    <button class="section-link" onclick="window.location.href='post-job.html'">Post Task</button>
+  </div>
+
+  <div class="quick-chip-grid fade-in" style="animation-delay:0.18s">
+    <button class="quick-chip" onclick="window.location.href='post-job.html'">
+      <span>🧹</span>
+      <strong>House Cleaning</strong>
+    </button>
+    <button class="quick-chip" onclick="window.location.href='post-job.html'">
+      <span>🚚</span>
+      <strong>Moving Help</strong>
+    </button>
+    <button class="quick-chip" onclick="window.location.href='post-job.html'">
+      <span>🔧</span>
+      <strong>Handyman</strong>
+    </button>
+    <button class="quick-chip" onclick="window.location.href='post-job.html'">
+      <span>🌿</span>
+      <strong>Lawn Care</strong>
+    </button>
+    <button class="quick-chip" onclick="window.location.href='post-job.html'">
+      <span>📦</span>
+      <strong>Junk Removal</strong>
+    </button>
+    <button class="quick-chip" onclick="window.location.href='post-job.html'">
+      <span>🛋️</span>
+      <strong>Assembly</strong>
+    </button>
+  </div>
+
+  <!-- POPULAR SERVICES -->
+  <div class="section-head">
+    <div class="section-label">Popular Near You</div>
+    <button class="section-link" onclick="window.location.href='post-job.html'">Start</button>
+  </div>
+
+  <div class="horizontal-scroll fade-in" style="animation-delay:0.24s">
+    <div class="service-card" onclick="window.location.href='post-job.html'">
+      <div class="service-art">🧹</div>
+      <div class="service-title">Home Cleaning</div>
+      <div class="service-meta">⭐ 4.9 · Local workers</div>
+    </div>
+    <div class="service-card" onclick="window.location.href='post-job.html'">
+      <div class="service-art">🚚</div>
+      <div class="service-title">Moving Help</div>
+      <div class="service-meta">⭐ 4.8 · Fast quotes</div>
+    </div>
+    <div class="service-card" onclick="window.location.href='post-job.html'">
+      <div class="service-art">🌿</div>
+      <div class="service-title">Yard Work</div>
+      <div class="service-meta">⭐ 4.9 · This week</div>
+    </div>
+    <div class="service-card" onclick="window.location.href='post-job.html'">
+      <div class="service-art">🔧</div>
+      <div class="service-title">Handyman</div>
+      <div class="service-meta">⭐ 4.8 · Skilled help</div>
+    </div>
+  </div>
+
+  <!-- SEASONAL -->
+  <div class="section-head">
+    <div class="section-label">Recommended</div>
+  </div>
+
+  <div class="season-card fade-in" style="animation-delay:0.28s" onclick="window.location.href='post-job.html'">
+    <div class="season-icon" id="seasonIcon">☀️</div>
+    <div>
+      <div class="season-title" id="seasonTitle">Summer home help is trending</div>
+      <div class="season-sub" id="seasonSub">Book lawn care, deep cleaning, moving help, or junk removal before the weekend fills up.</div>
+    </div>
+  </div>
+
+  <!-- FEATURED WORKERS -->
+  <div class="section-head">
+    <div class="section-label">Featured Workers</div>
+    <button class="section-link" onclick="window.location.href='browse-workers.html'">See All</button>
+  </div>
+
+  <div class="horizontal-scroll fade-in" id="featuredWorkers" style="animation-delay:0.32s">
+    <div class="worker-card" onclick="window.location.href='browse-workers.html'">
+      <div class="worker-top">
+        <div class="worker-avatar">👷</div>
+        <div>
+          <div class="worker-name">Browse Workers</div>
+          <div class="worker-role">Profiles, ratings, photos</div>
+        </div>
+      </div>
+      <div class="worker-pill-row">
+        <span class="small-pill">Verified</span>
+        <span class="small-pill">Local</span>
+      </div>
+    </div>
+    <div class="worker-card" onclick="window.location.href='saved-workers.html'">
+      <div class="worker-top">
+        <div class="worker-avatar">⭐</div>
+        <div>
+          <div class="worker-name">Saved Workers</div>
+          <div class="worker-role">Rebook favorites faster</div>
+        </div>
+      </div>
+      <div class="worker-pill-row">
+        <span class="small-pill">Favorites</span>
+        <span class="small-pill">Rebook</span>
+      </div>
+    </div>
+  </div>
+
   <!-- MANAGE TASKS -->
-  <div class="section-label">Manage Tasks</div>
- 
-  <div class="two-col fade-in" style="animation-delay:0.25s">
+  <div class="section-head">
+    <div class="section-label">Manage Tasks</div>
+  </div>
+
+  <div class="two-col fade-in" style="animation-delay:0.36s">
     <div class="tile" onclick="window.location.href='view-open-task.html'">
       <div class="t-icon">📌</div>
       <div>
         <div class="t-title">Open Tasks</div>
         <div class="t-sub">Review posted tasks, direct quotes, and worker quotes.</div>
       </div>
+      <div class="tile-count" id="openTaskTileCount">0 open</div>
     </div>
+
     <div class="tile" onclick="window.location.href='customer-accepted-tasks.html'">
       <div class="t-icon">🧾</div>
       <div>
         <div class="t-title">Accepted Tasks</div>
         <div class="t-sub">View active workers, payments, and open disputes.</div>
       </div>
+      <div class="tile-count" id="activeTaskTileCount">0 active</div>
     </div>
   </div>
- 
-  <div class="row-list fade-in" style="animation-delay:0.31s; margin-top:10px">
+
+  <div class="row-list fade-in" style="animation-delay:0.40s; margin-top:10px">
     <div class="row-card" onclick="window.location.href='message-center.html'">
       <div class="r-icon">💬</div>
       <div class="r-text">
@@ -424,6 +1070,7 @@
       </div>
       <div class="r-chev">›</div>
     </div>
+
     <div class="row-card" onclick="window.location.href='view-past-task.html'">
       <div class="r-icon">✅</div>
       <div class="r-text">
@@ -433,31 +1080,93 @@
       <div class="r-chev">›</div>
     </div>
   </div>
- 
-  <!-- FIND WORKERS -->
-  <div class="section-label">Find Workers</div>
- 
-  <div class="two-col fade-in" style="animation-delay:0.37s">
-    <div class="tile" onclick="window.location.href='browse-workers.html'">
-      <div class="t-icon">👷</div>
-      <div>
-        <div class="t-title">Browse Workers</div>
-        <div class="t-sub">View profiles, services, ratings, and photos.</div>
-      </div>
+
+  <!-- BOOK AGAIN -->
+  <div class="section-head">
+    <div class="section-label">Book Again</div>
+    <button class="section-link" onclick="window.location.href='view-past-task.html'">Past Tasks</button>
+  </div>
+
+  <div class="horizontal-scroll fade-in" id="bookAgainList" style="animation-delay:0.44s">
+    <div class="book-card" onclick="window.location.href='view-past-task.html'">
+      <div class="book-title">Your recent tasks will show here</div>
+      <div class="book-sub">Completed tasks can become quick rebook ideas.</div>
+      <button class="book-again-btn">View Past Tasks</button>
     </div>
-    <div class="tile" onclick="window.location.href='saved-workers.html'">
-      <div class="t-icon">⭐</div>
-      <div>
-        <div class="t-title">Saved Workers</div>
-        <div class="t-sub">Quickly view workers you've saved or hired before.</div>
+  </div>
+
+  <!-- SAVED WORKERS -->
+  <div class="section-head">
+    <div class="section-label">Favorite Workers</div>
+    <button class="section-link" onclick="window.location.href='saved-workers.html'">View</button>
+  </div>
+
+  <div class="row-card fade-in" style="animation-delay:0.48s" onclick="window.location.href='saved-workers.html'">
+    <div class="r-icon">❤️</div>
+    <div class="r-text">
+      <div class="r-title">Saved Workers</div>
+      <div class="r-sub">Keep your favorite workers close so you can rebook or message them faster.</div>
+    </div>
+    <div class="r-chev">›</div>
+  </div>
+
+  <!-- REWARDS -->
+  <div class="section-head">
+    <div class="section-label">Rewards & Badges</div>
+  </div>
+
+  <div class="reward-panel fade-in" style="animation-delay:0.52s">
+    <div class="reward-title">🏆 TaskMint Rewards</div>
+    <div class="reward-sub">Complete tasks, rebook workers, and keep your home projects moving to unlock badges.</div>
+    <div class="reward-row">
+      <div class="reward-mini">
+        <strong id="rewardPoints">0</strong>
+        <span>Mint Points</span>
+      </div>
+      <div class="reward-mini">
+        <strong id="badgeName">Starter</strong>
+        <span>Current Badge</span>
       </div>
     </div>
   </div>
- 
+
+  <!-- ACTIVITY FEED -->
+  <div class="section-head">
+    <div class="section-label">Activity Feed</div>
+  </div>
+
+  <div class="activity-feed fade-in" style="animation-delay:0.56s">
+    <div class="activity-card" onclick="window.location.href='message-center.html'">
+      <div class="activity-dot">💬</div>
+      <div class="activity-text">
+        Messages and quotes update here
+        <span>Open your messages to review worker conversations.</span>
+      </div>
+    </div>
+
+    <div class="activity-card" onclick="window.location.href='browse-workers.html'">
+      <div class="activity-dot">⭐</div>
+      <div class="activity-text">
+        Browse workers before you post
+        <span>Check profiles, services, ratings, and work photos.</span>
+      </div>
+    </div>
+
+    <div class="activity-card" onclick="window.location.href='post-job.html'">
+      <div class="activity-dot">🎉</div>
+      <div class="activity-text">
+        Need help this weekend?
+        <span>Post early to get more quotes from local workers.</span>
+      </div>
+    </div>
+  </div>
+
   <!-- ACCOUNT & SUPPORT -->
-  <div class="section-label">Account & Support</div>
- 
-  <div class="row-list fade-in" style="animation-delay:0.43s">
+  <div class="section-head">
+    <div class="section-label">Account & Support</div>
+  </div>
+
+  <div class="row-list fade-in" style="animation-delay:0.60s">
     <div class="row-card" onclick="window.location.href='dispute-center.html'">
       <div class="r-icon">⚠️</div>
       <div class="r-text">
@@ -466,6 +1175,7 @@
       </div>
       <div class="r-chev">›</div>
     </div>
+
     <div class="row-card" onclick="window.location.href='profile.html'">
       <div class="r-icon">👤</div>
       <div class="r-text">
@@ -475,9 +1185,9 @@
       <div class="r-chev">›</div>
     </div>
   </div>
- 
+
 </div>
- 
+
 <!-- BOTTOM NAV -->
 <div class="nav">
   <a href="customer-home.html" class="active"><span class="nav-icon">🏠</span>Home</a>
@@ -486,26 +1196,28 @@
   <a href="customer-accepted-tasks.html"><span class="nav-icon">🧾</span>Accepted</a>
   <a href="message-center.html"><span class="nav-icon">💬</span>Messages</a>
 </div>
- 
+
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://dbcthtjmtlumidpbucrc.supabase.co",
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
- 
+
 async function safeCount(tableName, selectColumn, filters) {
   let query = supabaseClient
     .from(tableName)
     .select(selectColumn, { count: "exact", head: true });
+
   filters.forEach(filter => {
     if (filter.type === "eq") query = query.eq(filter.column, filter.value);
     if (filter.type === "in") query = query.in(filter.column, filter.value);
   });
+
   const { count, error } = await query;
-  if (error) return null;
+  if (error) return 0;
   return count || 0;
 }
- 
+
 function getHiddenConversationIds() {
   try {
     return JSON.parse(localStorage.getItem("taskmintHiddenConversations") || "[]");
@@ -576,20 +1288,27 @@ async function countUnreadVisibleMessages(userId) {
 
 async function loadNotificationCounts(userId) {
   const notificationCount = document.getElementById("notificationCount");
+  const messageStat = document.getElementById("messageStat");
 
   const unreadMessages =
     await countUnreadVisibleMessages(userId);
 
   let newQuotes = 0;
- 
+
   const { count: workerQuoteCount } = await supabaseClient
     .from("worker_quotes")
     .select("id", { count: "exact", head: true })
     .eq("customer_id", userId)
     .in("status", ["pending", "sent", "new"]);
+
   if (workerQuoteCount) newQuotes += workerQuoteCount;
- 
+
   const totalNotifications = unreadMessages + newQuotes;
+
+  if (messageStat) {
+    messageStat.innerText = unreadMessages > 99 ? "99+" : unreadMessages;
+  }
+
   if (totalNotifications > 0) {
     notificationCount.innerText = totalNotifications > 99 ? "99+" : totalNotifications;
     notificationCount.style.display = "flex";
@@ -598,36 +1317,186 @@ async function loadNotificationCounts(userId) {
     notificationCount.style.display = "none";
   }
 }
- 
+
+function getGreeting() {
+  const hour = new Date().getHours();
+
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function setSeasonalCard() {
+  const month = new Date().getMonth();
+  const seasonIcon = document.getElementById("seasonIcon");
+  const seasonTitle = document.getElementById("seasonTitle");
+  const seasonSub = document.getElementById("seasonSub");
+
+  if (!seasonIcon || !seasonTitle || !seasonSub) return;
+
+  if (month >= 2 && month <= 4) {
+    seasonIcon.innerText = "🌷";
+    seasonTitle.innerText = "Spring cleaning is in season";
+    seasonSub.innerText = "Book deep cleaning, junk removal, yard work, or organizing help before your week gets busy.";
+  } else if (month >= 5 && month <= 7) {
+    seasonIcon.innerText = "☀️";
+    seasonTitle.innerText = "Summer home help is trending";
+    seasonSub.innerText = "Book lawn care, deep cleaning, moving help, or junk removal before the weekend fills up.";
+  } else if (month >= 8 && month <= 10) {
+    seasonIcon.innerText = "🍂";
+    seasonTitle.innerText = "Fall projects are picking up";
+    seasonSub.innerText = "Schedule leaf removal, garage cleanouts, handyman work, or seasonal organizing.";
+  } else {
+    seasonIcon.innerText = "❄️";
+    seasonTitle.innerText = "Winter tasks made easier";
+    seasonSub.innerText = "Find workers for holiday setup, cleaning, furniture assembly, and home projects.";
+  }
+}
+
+function formatTaskTitle(task) {
+  return (
+    task.title ||
+    task.task_title ||
+    task.service_type ||
+    task.category ||
+    task.task_category ||
+    "Completed Task"
+  );
+}
+
+function formatTaskDate(task) {
+  const dateValue =
+    task.completed_at ||
+    task.updated_at ||
+    task.scheduled_date ||
+    task.created_at;
+
+  if (!dateValue) return "Ready to view";
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return "Ready to view";
+
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric"
+  });
+}
+
+async function loadTaskStats(userId) {
+  const openStatuses = ["open", "posted", "pending", "quote_requested"];
+  const activeStatuses = ["accepted", "assigned", "in_progress", "active"];
+  const completedStatuses = ["completed", "paid", "resolved"];
+
+  const openCount = await safeCount("tasks", "id", [
+    { type: "eq", column: "customer_id", value: userId },
+    { type: "in", column: "status", value: openStatuses }
+  ]);
+
+  const activeCount = await safeCount("tasks", "id", [
+    { type: "eq", column: "customer_id", value: userId },
+    { type: "in", column: "status", value: activeStatuses }
+  ]);
+
+  const completedCount = await safeCount("tasks", "id", [
+    { type: "eq", column: "customer_id", value: userId },
+    { type: "in", column: "status", value: completedStatuses }
+  ]);
+
+  document.getElementById("openTaskStat").innerText = openCount > 99 ? "99+" : openCount;
+  document.getElementById("activeTaskStat").innerText = activeCount > 99 ? "99+" : activeCount;
+  document.getElementById("openTaskTileCount").innerText = `${openCount} open`;
+  document.getElementById("activeTaskTileCount").innerText = `${activeCount} active`;
+
+  const rewardPoints = completedCount * 25;
+  document.getElementById("rewardPoints").innerText = rewardPoints;
+
+  let badgeName = "Starter";
+  if (completedCount >= 20) badgeName = "VIP";
+  else if (completedCount >= 10) badgeName = "Home Hero";
+  else if (completedCount >= 5) badgeName = "Organizer";
+  else if (completedCount >= 1) badgeName = "First Task";
+
+  document.getElementById("badgeName").innerText = badgeName;
+}
+
+async function loadBookAgain(userId) {
+  const bookAgainList = document.getElementById("bookAgainList");
+  if (!bookAgainList) return;
+
+  const { data: tasks, error } = await supabaseClient
+    .from("tasks")
+    .select("*")
+    .eq("customer_id", userId)
+    .in("status", ["completed", "paid", "resolved"])
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  if (error || !tasks || !tasks.length) {
+    return;
+  }
+
+  bookAgainList.innerHTML = "";
+
+  tasks.forEach(task => {
+    const card = document.createElement("div");
+    card.className = "book-card";
+    card.onclick = () => {
+      window.location.href = "view-past-task.html";
+    };
+
+    card.innerHTML = `
+      <div class="book-title">${formatTaskTitle(task)}</div>
+      <div class="book-sub">Completed ${formatTaskDate(task)}. View details or use it as a quick rebook idea.</div>
+      <button class="book-again-btn" type="button">Book Again</button>
+    `;
+
+    bookAgainList.appendChild(card);
+  });
+}
+
 async function loadProfile() {
   const { data } = await supabaseClient.auth.getSession();
+
   if (!data.session) {
     window.location.href = "login.html";
     return;
   }
+
   const user = data.session.user;
+
   await loadNotificationCounts(user.id);
- 
+  await loadTaskStats(user.id);
+  await loadBookAgain(user.id);
+
   const { data: profile } = await supabaseClient
     .from("customer_profiles")
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
- 
-  if (!profile) return;
- 
+
+  const welcomeText = document.getElementById("welcomeText");
+  const greeting = getGreeting();
+
+  if (!profile) {
+    welcomeText.innerHTML = `${greeting}, <em>there</em>`;
+    return;
+  }
+
   if (profile.account_type && profile.account_type !== "customer") {
     await supabaseClient.auth.signOut();
     window.location.href = "login.html";
     return;
   }
- 
-  if (profile.first_name) {
-    document.getElementById("welcomeText").innerHTML =
-      `Welcome <em>${profile.first_name}</em>`;
-  }
+
+  const firstName =
+    profile.first_name ||
+    profile.full_name ||
+    "there";
+
+  welcomeText.innerHTML = `${greeting}, <em>${firstName}</em>`;
 }
- 
+
+setSeasonalCard();
 loadProfile();
 </script>
 </body>
