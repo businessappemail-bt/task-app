@@ -482,6 +482,21 @@
       margin-top: 12px;
     }
 
+    .worker-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      object-fit: cover;
+      display: block;
+    }
+
+    .worker-rating {
+      color: var(--gold);
+      font-size: 10.5px;
+      font-weight: 800;
+      margin-top: 7px;
+    }
+
     .small-pill {
       border-radius: 999px;
       background: var(--accent-light);
@@ -693,6 +708,11 @@
       font-weight: 800;
       font-size: 11px;
       cursor: pointer;
+    }
+
+    .book-again-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
 
     .reward-panel {
@@ -916,6 +936,27 @@
 <!-- CONTENT -->
 <div class="container">
 
+  <!-- REWARDS -->
+  <div class="section-head">
+    <div class="section-label">Rewards & Badges</div>
+  </div>
+
+  <div class="reward-panel fade-in" style="animation-delay:0.12s">
+    <div class="reward-title">🏆 TaskMint Rewards</div>
+    <div class="reward-sub">Complete tasks, rebook workers, and keep your home projects moving to unlock badges.</div>
+    <div class="reward-row">
+      <div class="reward-mini">
+        <strong id="rewardPoints">0</strong>
+        <span>Mint Points</span>
+      </div>
+      <div class="reward-mini">
+        <strong id="badgeName">Starter</strong>
+        <span>Current Badge</span>
+      </div>
+    </div>
+  </div>
+
+
   <!-- POST A TASK -->
   <div class="primary-action" onclick="window.location.href='post-job.html'">
     <div class="pa-icon">＋</div>
@@ -1012,28 +1053,24 @@
       <div class="worker-top">
         <div class="worker-avatar">👷</div>
         <div>
-          <div class="worker-name">Browse Workers</div>
-          <div class="worker-role">Profiles, ratings, photos</div>
+          <div class="worker-name">Loading Featured Workers</div>
+          <div class="worker-role">4.5 to 5 star workers only</div>
         </div>
       </div>
       <div class="worker-pill-row">
+        <span class="small-pill">Top Rated</span>
         <span class="small-pill">Verified</span>
-        <span class="small-pill">Local</span>
       </div>
     </div>
-    <div class="worker-card" onclick="window.location.href='saved-workers.html'">
-      <div class="worker-top">
-        <div class="worker-avatar">⭐</div>
-        <div>
-          <div class="worker-name">Saved Workers</div>
-          <div class="worker-role">Rebook favorites faster</div>
-        </div>
-      </div>
-      <div class="worker-pill-row">
-        <span class="small-pill">Favorites</span>
-        <span class="small-pill">Rebook</span>
-      </div>
+  </div>
+
+  <div class="row-card fade-in" style="animation-delay:0.34s; margin-top:10px" onclick="window.location.href='saved-workers.html'">
+    <div class="r-icon">⭐</div>
+    <div class="r-text">
+      <div class="r-title">Saved Workers</div>
+      <div class="r-sub">Rebook or message workers you already saved.</div>
     </div>
+    <div class="r-chev">›</div>
   </div>
 
   <!-- MANAGE TASKS -->
@@ -1092,41 +1129,6 @@
       <div class="book-title">Your recent tasks will show here</div>
       <div class="book-sub">Completed tasks can become quick rebook ideas.</div>
       <button class="book-again-btn">View Past Tasks</button>
-    </div>
-  </div>
-
-  <!-- SAVED WORKERS -->
-  <div class="section-head">
-    <div class="section-label">Favorite Workers</div>
-    <button class="section-link" onclick="window.location.href='saved-workers.html'">View</button>
-  </div>
-
-  <div class="row-card fade-in" style="animation-delay:0.48s" onclick="window.location.href='saved-workers.html'">
-    <div class="r-icon">❤️</div>
-    <div class="r-text">
-      <div class="r-title">Saved Workers</div>
-      <div class="r-sub">Keep your favorite workers close so you can rebook or message them faster.</div>
-    </div>
-    <div class="r-chev">›</div>
-  </div>
-
-  <!-- REWARDS -->
-  <div class="section-head">
-    <div class="section-label">Rewards & Badges</div>
-  </div>
-
-  <div class="reward-panel fade-in" style="animation-delay:0.52s">
-    <div class="reward-title">🏆 TaskMint Rewards</div>
-    <div class="reward-sub">Complete tasks, rebook workers, and keep your home projects moving to unlock badges.</div>
-    <div class="reward-row">
-      <div class="reward-mini">
-        <strong id="rewardPoints">0</strong>
-        <span>Mint Points</span>
-      </div>
-      <div class="reward-mini">
-        <strong id="badgeName">Starter</strong>
-        <span>Current Badge</span>
-      </div>
     </div>
   </div>
 
@@ -1353,6 +1355,177 @@ function setSeasonalCard() {
   }
 }
 
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function shuffleArray(items) {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function getWorkerRating(worker) {
+  const ratingValue =
+    worker.average_rating ??
+    worker.avg_rating ??
+    worker.rating ??
+    worker.worker_rating ??
+    worker.review_rating ??
+    worker.star_rating ??
+    0;
+
+  const rating = Number(ratingValue);
+  return Number.isFinite(rating) ? rating : 0;
+}
+
+function getWorkerDisplayName(worker) {
+  const firstLast = `${worker.first_name || ""} ${worker.last_name || ""}`.trim();
+  return worker.full_name || worker.display_name || worker.business_name || firstLast || "TaskMint Worker";
+}
+
+function getWorkerService(worker) {
+  const rawService =
+    worker.primary_service ||
+    worker.service_category ||
+    worker.service_type ||
+    worker.services_offered ||
+    worker.skills ||
+    worker.experience ||
+    "Local help";
+
+  if (Array.isArray(rawService)) return rawService[0] || "Local help";
+  return String(rawService).split(",")[0].trim() || "Local help";
+}
+
+function getWorkerPhoto(worker) {
+  return (
+    worker.profile_photo_url ||
+    worker.profile_picture_url ||
+    worker.avatar_url ||
+    worker.photo_url ||
+    worker.image_url ||
+    ""
+  );
+}
+
+function getWorkerProfileUrl(workerId) {
+  return `worker-public-profile.html?id=${encodeURIComponent(workerId)}`;
+}
+
+function renderSavedWorkerCard() {
+  return `
+    <div class="worker-card" onclick="window.location.href='saved-workers.html'">
+      <div class="worker-top">
+        <div class="worker-avatar">⭐</div>
+        <div>
+          <div class="worker-name">Saved Workers</div>
+          <div class="worker-role">Rebook favorites faster</div>
+        </div>
+      </div>
+      <div class="worker-pill-row">
+        <span class="small-pill">Saved</span>
+        <span class="small-pill">Rebook</span>
+      </div>
+    </div>
+  `;
+}
+
+async function loadFeaturedWorkers() {
+  const featuredWorkers = document.getElementById("featuredWorkers");
+  if (!featuredWorkers) return;
+
+  const { data: workers, error } = await supabaseClient
+    .from("worker_profiles")
+    .select("*")
+    .or("approval_status.eq.approved,is_approved.eq.true,is_worker_approved.eq.true")
+    .limit(50);
+
+  if (error || !workers || !workers.length) {
+    featuredWorkers.innerHTML = `
+      <div class="worker-card" onclick="window.location.href='browse-workers.html'">
+        <div class="worker-top">
+          <div class="worker-avatar">👷</div>
+          <div>
+            <div class="worker-name">Browse Workers</div>
+            <div class="worker-role">Profiles, ratings, photos</div>
+          </div>
+        </div>
+        <div class="worker-pill-row">
+          <span class="small-pill">Verified</span>
+          <span class="small-pill">Local</span>
+        </div>
+      </div>
+      ${renderSavedWorkerCard()}
+    `;
+    return;
+  }
+
+  const featured = shuffleArray(
+    workers.filter(worker => {
+      const rating = getWorkerRating(worker);
+      return rating >= 4.5 && rating <= 5;
+    })
+  ).slice(0, 8);
+
+  if (!featured.length) {
+    featuredWorkers.innerHTML = `
+      <div class="worker-card" onclick="window.location.href='browse-workers.html'">
+        <div class="worker-top">
+          <div class="worker-avatar">⭐</div>
+          <div>
+            <div class="worker-name">No Featured Workers Yet</div>
+            <div class="worker-role">Browse all approved workers</div>
+          </div>
+        </div>
+        <div class="worker-pill-row">
+          <span class="small-pill">Browse</span>
+          <span class="small-pill">All Ratings</span>
+        </div>
+      </div>
+      ${renderSavedWorkerCard()}
+    `;
+    return;
+  }
+
+  featuredWorkers.innerHTML = featured.map(worker => {
+    const workerId = worker.id || worker.worker_id || "";
+    const name = escapeHtml(getWorkerDisplayName(worker));
+    const service = escapeHtml(getWorkerService(worker));
+    const photo = getWorkerPhoto(worker);
+    const rating = getWorkerRating(worker).toFixed(1);
+    const avatar = photo
+      ? `<img src="${escapeHtml(photo)}" alt="${name}">`
+      : "👷";
+
+    return `
+      <div class="worker-card" onclick="window.location.href='${getWorkerProfileUrl(workerId)}'">
+        <div class="worker-top">
+          <div class="worker-avatar">${avatar}</div>
+          <div>
+            <div class="worker-name">${name}</div>
+            <div class="worker-role">${service}</div>
+          </div>
+        </div>
+        <div class="worker-rating">⭐ ${rating}</div>
+        <div class="worker-pill-row">
+          <span class="small-pill">Featured</span>
+          <span class="small-pill">Top Rated</span>
+        </div>
+      </div>
+    `;
+  }).join("") + renderSavedWorkerCard();
+}
+
 function formatTaskTitle(task) {
   return (
     task.title ||
@@ -1419,6 +1592,93 @@ async function loadTaskStats(userId) {
   document.getElementById("badgeName").innerText = badgeName;
 }
 
+async function createBookAgainTask(originalTaskId, buttonElement) {
+  if (!originalTaskId) return;
+
+  const originalText = buttonElement ? buttonElement.innerText : "Book Again";
+
+  if (buttonElement) {
+    buttonElement.disabled = true;
+    buttonElement.innerText = "Creating...";
+  }
+
+  const { data: originalTask, error: fetchError } = await supabaseClient
+    .from("tasks")
+    .select("*")
+    .eq("id", originalTaskId)
+    .maybeSingle();
+
+  if (fetchError || !originalTask) {
+    alert("This task could not be copied. Please try again or post a new task.");
+    if (buttonElement) {
+      buttonElement.disabled = false;
+      buttonElement.innerText = originalText;
+    }
+    return;
+  }
+
+  const newTask = { ...originalTask };
+
+  [
+    "id",
+    "created_at",
+    "updated_at",
+    "completed_at",
+    "cancelled_at",
+    "canceled_at",
+    "paid_at",
+    "resolved_at",
+    "accepted_at",
+    "assigned_at",
+    "arrival_confirmed_at",
+    "completion_confirmed_at",
+    "worker_id",
+    "assigned_worker_id",
+    "accepted_worker_id",
+    "accepted_quote_id",
+    "quote_id",
+    "payment_intent_id",
+    "stripe_payment_intent_id",
+    "payment_status",
+    "arrival_code",
+    "completion_code",
+    "dispute_id"
+  ].forEach(columnName => delete newTask[columnName]);
+
+  newTask.status = "open";
+  newTask.rebooked_from_task_id = originalTaskId;
+
+  const { data: createdTask, error: insertError } = await supabaseClient
+    .from("tasks")
+    .insert([newTask])
+    .select("id")
+    .single();
+
+  if (insertError) {
+    delete newTask.rebooked_from_task_id;
+
+    const retry = await supabaseClient
+      .from("tasks")
+      .insert([newTask])
+      .select("id")
+      .single();
+
+    if (retry.error) {
+      alert("This task could not be copied. Please try again or post a new task.");
+      if (buttonElement) {
+        buttonElement.disabled = false;
+        buttonElement.innerText = originalText;
+      }
+      return;
+    }
+
+    window.location.href = "view-open-task.html";
+    return;
+  }
+
+  window.location.href = "view-open-task.html";
+}
+
 async function loadBookAgain(userId) {
   const bookAgainList = document.getElementById("bookAgainList");
   if (!bookAgainList) return;
@@ -1445,10 +1705,16 @@ async function loadBookAgain(userId) {
     };
 
     card.innerHTML = `
-      <div class="book-title">${formatTaskTitle(task)}</div>
-      <div class="book-sub">Completed ${formatTaskDate(task)}. View details or use it as a quick rebook idea.</div>
+      <div class="book-title">${escapeHtml(formatTaskTitle(task))}</div>
+      <div class="book-sub">Completed ${escapeHtml(formatTaskDate(task))}. Tap Book Again to create the same task as a new open task.</div>
       <button class="book-again-btn" type="button">Book Again</button>
     `;
+
+    const bookButton = card.querySelector(".book-again-btn");
+    bookButton.addEventListener("click", event => {
+      event.stopPropagation();
+      createBookAgainTask(task.id, bookButton);
+    });
 
     bookAgainList.appendChild(card);
   });
@@ -1466,6 +1732,7 @@ async function loadProfile() {
 
   await loadNotificationCounts(user.id);
   await loadTaskStats(user.id);
+  await loadFeaturedWorkers();
   await loadBookAgain(user.id);
 
   const { data: profile } = await supabaseClient
