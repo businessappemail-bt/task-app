@@ -687,6 +687,10 @@ async function loadWorkers() {
         profileMap[String(worker.id || "")] ||
         {};
 
+      if (linkedProfile.profile_visible === false) {
+        return;
+      }
+
       const workerKey =
         String(worker.id || worker.auth_user_id || linkedProfile.id || "");
 
@@ -696,6 +700,10 @@ async function loadWorkers() {
 
   (profiles || [])
     .filter(profile => {
+      if (profile.profile_visible === false) {
+        return false;
+      }
+
       return (
         profile.can_send_quotes === true ||
         profile.is_worker_approved === true ||
