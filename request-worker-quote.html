@@ -966,6 +966,29 @@ async function submitDirectRequest() {
   if (!currentUser) { status.style.color = "#b00020"; status.innerText = "Please log in to request a quote."; return; }
   if (!workerId) { status.style.color = "#b00020"; status.innerText = "Worker profile is missing."; return; }
 
+  const { data: selectedWorker } = await supabaseClient
+    .from("worker_profiles")
+    .select("id, auth_user_id")
+    .eq("id", workerId)
+    .maybeSingle();
+
+  const workerProfileId =
+    selectedWorker?.auth_user_id ||
+    workerId;
+
+  const { data: selectedWorkerProfile } = await supabaseClient
+    .from("profiles")
+    .select("pause_mode")
+    .eq("id", workerProfileId)
+    .maybeSingle();
+
+  if (selectedWorkerProfile?.pause_mode === true) {
+    status.style.color = "#b00020";
+    status.innerText = "This worker is not accepting direct quote requests right now.";
+    return;
+  }
+
+
   const category = document.getElementById("category").value.trim();
   const title = document.getElementById("title").value.trim();
   const taskDate = document.getElementById("taskDate").value;
