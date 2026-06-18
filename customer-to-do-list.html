@@ -763,6 +763,7 @@ let currentUser = null;
 let todoItems = [];
 let activePriority = "urgent";
 let postMode = "selected";
+let isPostingTasks = false;
 
 const suggestionPool = [
   { title: "Deep clean kitchen", category: "House Cleaning", priority: "urgent", icon: "🧹", sub: "Popular before weekends" },
@@ -783,19 +784,59 @@ const dreamProjects = [
 ];
 
 async function initPage() {
-  const { data } = await supabaseClient.auth.getSession();
+  const { data, error } = await supabaseClient.auth.getSession();
 
-  if (!data.session) {
+  if (error || !data.session) {
     window.location.href = "login.html";
     return;
   }
 
   currentUser = data.session.user;
+
+  bindEnterToAdd();
   await loadTodoItems();
   renderSuggestions();
   renderDreamProjects();
   updateProgress();
-  document.getElementById("loadingOverlay").classList.add("hidden");
+  hideLoadingOverlay();
+}
+
+function hideLoadingOverlay() {
+  const overlay = document.getElementById("loadingOverlay");
+  if (overlay) overlay.classList.add("hidden");
+}
+
+function bindEnterToAdd() {
+  const input = document.getElementById("newItemInput");
+  if (!input) return;
+
+  input.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addTodoItem();
+    }
+  });
+}
+
+function getLocalStorageKey() {
+  return currentUser ? `taskmintCustomerTodoItems:${currentUser.id}` : "taskmintCustomerTodoItems";
+}
+
+function saveLocalBackup() {
+  try {
+    localStorage.setItem(getLocalStorageKey(), JSON.stringify(todoItems));
+  } catch (error) {
+    console.warn("Unable to save local to-do backup.", error);
+  }
+}
+
+function loadLocalBackup() {
+  try {
+    const saved = localStorage.getItem(getLocalStorageKey());
+    return saved ? JSON.parse(saved) : [];
+  } catch (error) {
+    return [];
+  }
 }
 
 async function loadTodoItems() {
@@ -806,96 +847,165 @@ async function loadTodoItems() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    showToast("Unable to load your to-do list.");
-    todoItems = [];
+    console.error("customer_todo_items load error:", error);
+    todoItems = loadLocalBackup();
     renderTodoList();
+    updateProgress();
+    showToast("Unable to load Supabase list. Check customer_todo_items table/RLS.");
     return;
   }
 
-  todoItems = data || [];
+  todoItems = normalizeLoadedItems(data || []);
+  saveLocalBackup();
   renderTodoList();
+  updateProgress();
+}
+
+function normalizeLoadedItems(items) {
+  return items.map(item => ({
+    ...item,
+    id: item.id || item.local_id || generateLocalId(),
+    customer_id: item.customer_id || currentUser.id,
+    title: item.title || "Untitled item",
+    category: item.category || "General Help",
+    priority: item.priority || "urgent",
+    status: item.status || "planned",
+    selected_for_posting: item.selected_for_posting === true
+  }));
 }
 
 function renderSuggestions() {
   const suggestionList = document.getElementById("suggestionList");
+  if (!suggestionList) return;
+
   const shuffled = [...suggestionPool].sort(() => Math.random() - 0.5).slice(0, 6);
 
   suggestionList.innerHTML = shuffled.map(item => `
-    <div class="suggestion-card" onclick="addSuggestedItem('${escapeForClick(item.title)}','${escapeForClick(item.category)}','${item.priority}')">
+    <button class="suggestion-card" type="button" onclick="addSuggestedItem('${escapeForClick(item.title)}','${escapeForClick(item.category)}','${escapeForClick(item.priority)}')">
       <div class="suggestion-icon">${item.icon}</div>
       <div class="suggestion-title">${escapeHtml(item.title)}</div>
       <div class="suggestion-sub">${escapeHtml(item.sub)}</div>
-    </div>
+    </button>
   `).join("");
 }
 
 function renderDreamProjects() {
   const dreamList = document.getElementById("dreamList");
+  if (!dreamList) return;
 
   dreamList.innerHTML = dreamProjects.map(item => `
-    <div class="suggestion-card" onclick="addSuggestedItem('${escapeForClick(item.title)}','${escapeForClick(item.category)}','someday')">
+    <button class="suggestion-card" type="button" onclick="addSuggestedItem('${escapeForClick(item.title)}','${escapeForClick(item.category)}','someday')">
       <div class="suggestion-icon">${item.icon}</div>
       <div class="suggestion-title">${escapeHtml(item.title)}</div>
       <div class="suggestion-sub">Save as a someday project</div>
-    </div>
+    </button>
   `).join("");
 }
 
 function shuffleSuggestions() {
   renderSuggestions();
+  showToast("Suggestions shuffled.");
 }
 
 async function addTodoItem() {
   const input = document.getElementById("newItemInput");
-  const title = input.value.trim();
+  const title = input ? input.value.trim() : "";
 
   if (!title) {
     showToast("Add a task first.");
     return;
   }
 
-  await createTodoItem({
+  const created = await createTodoItem({
     title,
     category: guessCategory(title),
     priority: activePriority
   });
 
-  input.value = "";
+  if (created && input) input.value = "";
 }
 
 async function addSuggestedItem(title, category, priority) {
-  await createTodoItem({ title, category, priority });
+  const safePriority = ["urgent", "upcoming", "someday"].includes(priority) ? priority : "urgent";
+  setPriorityFilter(safePriority, false);
+  await createTodoItem({ title, category, priority: safePriority });
 }
 
 async function createTodoItem(item) {
-  if (!currentUser) return;
-
-  const { data, error } = await supabaseClient
-    .from("customer_todo_items")
-    .insert({
-      customer_id: currentUser.id,
-      title: item.title,
-      category: item.category || "General Help",
-      priority: item.priority || activePriority,
-      status: "planned",
-      selected_for_posting: false
-    })
-    .select("*")
-    .single();
-
-  if (error) {
-    showToast("Unable to add item.");
-    return;
+  if (!currentUser) {
+    showToast("Log in again to save your list.");
+    return false;
   }
 
-  todoItems.unshift(data);
+  const localItem = {
+    id: generateLocalId(),
+    customer_id: currentUser.id,
+    title: item.title,
+    category: item.category || "General Help",
+    priority: item.priority || activePriority,
+    status: "planned",
+    selected_for_posting: false,
+    created_at: new Date().toISOString()
+  };
+
+  const insertRow = {
+    customer_id: currentUser.id,
+    title: localItem.title,
+    category: localItem.category,
+    priority: localItem.priority,
+    status: localItem.status,
+    selected_for_posting: false,
+    created_at: localItem.created_at
+  };
+
+  const { data, error } = await insertCustomerTodoItem(insertRow);
+
+  if (error) {
+    console.error("customer_todo_items insert error:", error);
+    showToast("Item could not save to Supabase. Check customer_todo_items SQL/RLS.");
+    return false;
+  }
+
+  const savedItem = data ? normalizeLoadedItems([data])[0] : localItem;
+  todoItems = [savedItem, ...todoItems.filter(existing => existing.id !== savedItem.id)];
+  saveLocalBackup();
+  setPriorityFilter(savedItem.priority, false);
   renderTodoList();
   updateProgress();
   showToast("Added to your list.");
+  return true;
+}
+
+async function insertCustomerTodoItem(row) {
+  let { data, error } = await supabaseClient
+    .from("customer_todo_items")
+    .insert(row)
+    .select("*")
+    .maybeSingle();
+
+  if (!error) return { data, error: null };
+
+  const missingColumn = getMissingColumnName(error);
+  if (!missingColumn) return { data: null, error };
+
+  const fallbackRow = { ...row };
+  delete fallbackRow[missingColumn];
+
+  const retry = await supabaseClient
+    .from("customer_todo_items")
+    .insert(fallbackRow)
+    .select("*")
+    .maybeSingle();
+
+  if (!retry.error) return { data: retry.data, error: null };
+
+  return { data: null, error: retry.error };
 }
 
 function renderTodoList() {
   const todoList = document.getElementById("todoList");
+  if (!todoList) return;
+
   const visibleItems = todoItems.filter(item => item.priority === activePriority);
 
   if (!visibleItems.length) {
@@ -904,6 +1014,7 @@ function renderTodoList() {
         No ${formatPriorityLabel(activePriority)} items yet. Add one above or tap a smart suggestion.
       </div>
     `;
+    updateProgress();
     return;
   }
 
@@ -914,12 +1025,12 @@ function renderTodoList() {
     const disabled = posted ? "disabled" : "";
 
     return `
-      <div class="item-card">
-        <input class="item-check" type="checkbox" ${checked} ${disabled} onchange="toggleSelected('${item.id}', this.checked)">
+      <div class="item-card" data-item-id="${escapeHtml(item.id)}">
+        <input class="item-check" type="checkbox" ${checked} ${disabled} onchange="toggleSelected('${escapeForClick(item.id)}', this.checked)">
         <div>
           <div class="item-title-row">
             <div class="item-title">${escapeHtml(item.title)}</div>
-            <button class="danger-btn" type="button" onclick="deleteTodoItem('${item.id}')">Remove</button>
+            <button class="danger-btn" type="button" onclick="deleteTodoItem('${escapeForClick(item.id)}')">Remove</button>
           </div>
           <div class="item-meta">
             <span class="pill">${escapeHtml(item.category || "General Help")}</span>
@@ -927,76 +1038,101 @@ function renderTodoList() {
             <span class="pill gray">${formatStatusLabel(item.status)}</span>
           </div>
           <div class="item-actions">
-            <button class="tiny-btn" type="button" onclick="changePriority('${item.id}', 'urgent')">🔥 Urgent</button>
-            <button class="tiny-btn" type="button" onclick="changePriority('${item.id}', 'upcoming')">📅 Upcoming</button>
-            <button class="tiny-btn" type="button" onclick="changePriority('${item.id}', 'someday')">💡 Someday</button>
-            <button class="tiny-btn" type="button" onclick="toggleCompleted('${item.id}', ${completed ? 'false' : 'true'})">${completed ? 'Mark Planned' : 'Mark Done'}</button>
+            <button class="tiny-btn" type="button" onclick="changePriority('${escapeForClick(item.id)}', 'urgent')">🔥 Urgent</button>
+            <button class="tiny-btn" type="button" onclick="changePriority('${escapeForClick(item.id)}', 'upcoming')">📅 Upcoming</button>
+            <button class="tiny-btn" type="button" onclick="changePriority('${escapeForClick(item.id)}', 'someday')">💡 Someday</button>
+            <button class="tiny-btn" type="button" onclick="toggleCompleted('${escapeForClick(item.id)}', ${completed ? 'false' : 'true'})">${completed ? 'Mark Planned' : 'Mark Done'}</button>
           </div>
         </div>
       </div>
     `;
   }).join("");
+
+  updateProgress();
 }
 
 async function toggleSelected(itemId, isSelected) {
-  const { error } = await supabaseClient
-    .from("customer_todo_items")
-    .update({ selected_for_posting: isSelected })
-    .eq("id", itemId)
-    .eq("customer_id", currentUser.id);
-
-  if (error) {
-    showToast("Unable to update selection.");
-    return;
-  }
-
+  const originalItems = [...todoItems];
   todoItems = todoItems.map(item =>
     item.id === itemId ? { ...item, selected_for_posting: isSelected } : item
   );
+  saveLocalBackup();
+  renderTodoList();
+
+  const { error } = await updateCustomerTodoItem(itemId, { selected_for_posting: isSelected });
+
+  if (error) {
+    console.error("selection update error:", error);
+    todoItems = originalItems;
+    saveLocalBackup();
+    renderTodoList();
+    showToast("Selection could not save to Supabase.");
+  }
 }
 
 async function changePriority(itemId, priority) {
-  const { error } = await supabaseClient
-    .from("customer_todo_items")
-    .update({ priority })
-    .eq("id", itemId)
-    .eq("customer_id", currentUser.id);
-
-  if (error) {
-    showToast("Unable to move item.");
-    return;
-  }
+  const oldItem = todoItems.find(item => item.id === itemId);
+  if (!oldItem) return;
 
   todoItems = todoItems.map(item =>
     item.id === itemId ? { ...item, priority } : item
   );
+  saveLocalBackup();
+  setPriorityFilter(priority, false);
   renderTodoList();
+
+  const { error } = await updateCustomerTodoItem(itemId, { priority });
+
+  if (error) {
+    console.error("priority update error:", error);
+    todoItems = todoItems.map(item =>
+      item.id === itemId ? { ...item, priority: oldItem.priority } : item
+    );
+    saveLocalBackup();
+    setPriorityFilter(oldItem.priority, false);
+    renderTodoList();
+    showToast("Priority could not save to Supabase.");
+  }
 }
 
 async function toggleCompleted(itemId, shouldComplete) {
   const nextStatus = shouldComplete ? "completed" : "planned";
-
-  const { error } = await supabaseClient
-    .from("customer_todo_items")
-    .update({ status: nextStatus })
-    .eq("id", itemId)
-    .eq("customer_id", currentUser.id);
-
-  if (error) {
-    showToast("Unable to update item.");
-    return;
-  }
+  const oldItem = todoItems.find(item => item.id === itemId);
+  if (!oldItem) return;
 
   todoItems = todoItems.map(item =>
-    item.id === itemId ? { ...item, status: nextStatus } : item
+    item.id === itemId ? { ...item, status: nextStatus, selected_for_posting: false } : item
   );
+  saveLocalBackup();
   renderTodoList();
   updateProgress();
+
+  const { error } = await updateCustomerTodoItem(itemId, {
+    status: nextStatus,
+    selected_for_posting: false
+  });
+
+  if (error) {
+    console.error("completion update error:", error);
+    todoItems = todoItems.map(item => item.id === itemId ? oldItem : item);
+    saveLocalBackup();
+    renderTodoList();
+    updateProgress();
+    showToast("Completion could not save to Supabase.");
+  } else {
+    showToast(shouldComplete ? "Marked done." : "Moved back to planned.");
+  }
 }
 
 async function deleteTodoItem(itemId) {
   const confirmDelete = confirm("Remove this item from your to-do list?");
   if (!confirmDelete) return;
+
+  const originalItems = [...todoItems];
+  todoItems = todoItems.filter(item => item.id !== itemId);
+  saveLocalBackup();
+  renderTodoList();
+  updateProgress();
 
   const { error } = await supabaseClient
     .from("customer_todo_items")
@@ -1005,30 +1141,57 @@ async function deleteTodoItem(itemId) {
     .eq("customer_id", currentUser.id);
 
   if (error) {
-    showToast("Unable to remove item.");
-    return;
+    console.error("delete error:", error);
+    todoItems = originalItems;
+    saveLocalBackup();
+    renderTodoList();
+    updateProgress();
+    showToast("Item could not be removed from Supabase.");
+  } else {
+    showToast("Removed from your list.");
   }
-
-  todoItems = todoItems.filter(item => item.id !== itemId);
-  renderTodoList();
-  updateProgress();
 }
 
-function setPriorityFilter(priority) {
+async function updateCustomerTodoItem(itemId, updates) {
+  if (String(itemId).startsWith("local_")) {
+    return { error: { message: "This item was not saved to Supabase." } };
+  }
+
+  return await supabaseClient
+    .from("customer_todo_items")
+    .update(updates)
+    .eq("id", itemId)
+    .eq("customer_id", currentUser.id);
+}
+
+function setPriorityFilter(priority, shouldRender = true) {
   activePriority = priority;
   document.querySelectorAll(".priority-tab").forEach(tab => {
     tab.classList.toggle("active", tab.dataset.priority === priority);
   });
-  renderTodoList();
+  if (shouldRender) renderTodoList();
 }
 
 async function selectAllVisible() {
   const visibleIds = todoItems
-    .filter(item => item.priority === activePriority && item.status !== "posted")
+    .filter(item => item.priority === activePriority && item.status === "planned")
     .map(item => item.id);
 
   if (!visibleIds.length) {
-    showToast("No visible items to select.");
+    showToast("No visible planned items to select.");
+    return;
+  }
+
+  const originalItems = [...todoItems];
+  todoItems = todoItems.map(item =>
+    visibleIds.includes(item.id) ? { ...item, selected_for_posting: true } : item
+  );
+  saveLocalBackup();
+  renderTodoList();
+
+  const supabaseIds = visibleIds.filter(id => !String(id).startsWith("local_"));
+  if (!supabaseIds.length) {
+    showToast("Selected visible items.");
     return;
   }
 
@@ -1036,17 +1199,17 @@ async function selectAllVisible() {
     .from("customer_todo_items")
     .update({ selected_for_posting: true })
     .eq("customer_id", currentUser.id)
-    .in("id", visibleIds);
+    .in("id", supabaseIds);
 
   if (error) {
-    showToast("Unable to select items.");
-    return;
+    console.error("select visible error:", error);
+    todoItems = originalItems;
+    saveLocalBackup();
+    renderTodoList();
+    showToast("Visible items could not save as selected.");
+  } else {
+    showToast("Selected visible items.");
   }
-
-  todoItems = todoItems.map(item =>
-    visibleIds.includes(item.id) ? { ...item, selected_for_posting: true } : item
-  );
-  renderTodoList();
 }
 
 function openPostModal(mode) {
@@ -1054,7 +1217,7 @@ function openPostModal(mode) {
   const items = getPostableItems();
 
   if (!items.length) {
-    showToast(mode === "selected" ? "Select at least one item first." : "Add a to-do item first.");
+    showToast(mode === "selected" ? "Select at least one planned item first." : "Add a planned to-do item first.");
     return;
   }
 
@@ -1078,13 +1241,15 @@ function closePostModal() {
 
 function getPostableItems() {
   if (postMode === "selected") {
-    return todoItems.filter(item => item.selected_for_posting && item.status !== "posted");
+    return todoItems.filter(item => item.selected_for_posting && item.status === "planned");
   }
 
-  return todoItems.filter(item => item.status !== "posted");
+  return todoItems.filter(item => item.status === "planned");
 }
 
 async function postTasksFromList() {
+  if (isPostingTasks) return;
+
   const items = getPostableItems();
   const scheduledDate = document.getElementById("scheduledDate").value;
   const scheduledTime = document.getElementById("scheduledTime").value;
@@ -1095,7 +1260,7 @@ async function postTasksFromList() {
   const extraDetails = document.getElementById("extraDetails").value.trim();
 
   if (!items.length) {
-    showToast("No tasks selected.");
+    showToast("No planned tasks selected.");
     return;
   }
 
@@ -1104,7 +1269,13 @@ async function postTasksFromList() {
     return;
   }
 
+  if (taskState.length !== 2) {
+    showToast("Use a 2-letter state abbreviation.");
+    return;
+  }
+
   const confirmBtn = document.getElementById("confirmPostBtn");
+  isPostingTasks = true;
   confirmBtn.disabled = true;
   confirmBtn.style.opacity = "0.65";
   confirmBtn.innerText = "Posting...";
@@ -1119,36 +1290,94 @@ async function postTasksFromList() {
     extraDetails
   }));
 
-  const { error } = await supabaseClient
-    .from("tasks")
-    .insert(taskRows);
+  const { error } = await insertRowsWithColumnFallback("tasks", taskRows);
 
   if (error) {
-    console.error(error);
+    console.error("tasks insert error:", error);
+    isPostingTasks = false;
     confirmBtn.disabled = false;
     confirmBtn.style.opacity = "1";
     confirmBtn.innerText = "Post Tasks";
-    showToast("Tasks could not be posted. Check your tasks table columns/RLS.");
+    showToast("Tasks could not post to Supabase. Check tasks table/RLS.");
     return;
   }
 
   const postedIds = items.map(item => item.id);
+  const supabasePostedIds = postedIds.filter(id => !String(id).startsWith("local_"));
 
-  await supabaseClient
-    .from("customer_todo_items")
-    .update({ status: "posted", selected_for_posting: false })
-    .eq("customer_id", currentUser.id)
-    .in("id", postedIds);
+  todoItems = todoItems.map(item =>
+    postedIds.includes(item.id)
+      ? { ...item, status: "posted", selected_for_posting: false }
+      : item
+  );
+  saveLocalBackup();
+  updateProgress();
+
+  if (supabasePostedIds.length) {
+    const { error: updateError } = await supabaseClient
+      .from("customer_todo_items")
+      .update({ status: "posted", selected_for_posting: false })
+      .eq("customer_id", currentUser.id)
+      .in("id", supabasePostedIds);
+
+    if (updateError) {
+      console.error("todo posted status update error:", updateError);
+    }
+  }
 
   showToast("Posted to Open Tasks.");
   window.location.href = "view-open-task.html";
+}
+
+async function insertRowsWithColumnFallback(tableName, rows) {
+  let workingRows = rows.map(row => ({ ...row }));
+  let lastError = null;
+  const removedColumns = new Set();
+
+  for (let attempt = 0; attempt < 15; attempt++) {
+    const { error } = await supabaseClient
+      .from(tableName)
+      .insert(workingRows);
+
+    if (!error) return { error: null };
+
+    lastError = error;
+    const missingColumn = getMissingColumnName(error);
+
+    if (!missingColumn || removedColumns.has(missingColumn)) {
+      return { error };
+    }
+
+    removedColumns.add(missingColumn);
+    workingRows = workingRows.map(row => {
+      const copy = { ...row };
+      delete copy[missingColumn];
+      return copy;
+    });
+  }
+
+  return { error: lastError };
+}
+
+function getMissingColumnName(error) {
+  const message = String(error?.message || error?.details || "");
+  const quotedMatch = message.match(/'([^']+)' column/i);
+  if (quotedMatch) return quotedMatch[1];
+
+  const relationMatch = message.match(/column "([^"]+)" of relation/i);
+  if (relationMatch) return relationMatch[1];
+
+  const schemaMatch = message.match(/Could not find the '([^']+)' column/i);
+  if (schemaMatch) return schemaMatch[1];
+
+  return null;
 }
 
 function buildTaskInsert(item, formValues) {
   const readableDate = formatDateDisplay(formValues.scheduledDate);
   const readableTime = formatTime12Hour(formValues.scheduledTime);
   const descriptionLines = [
-    `Task created from Build My To-Do List.`,
+    "Task created from Build My To-Do List.",
     `Requested date: ${readableDate}`,
     `Requested time: ${readableTime}`
   ];
@@ -1157,26 +1386,34 @@ function buildTaskInsert(item, formValues) {
     descriptionLines.push(`Customer notes: ${formValues.extraDetails}`);
   }
 
+  const description = descriptionLines.join("\n");
+  const budgetValue = formValues.budgetAmount ? Number(formValues.budgetAmount) : null;
+
   return {
     customer_id: currentUser.id,
     title: item.title,
     task_title: item.title,
-    description: descriptionLines.join("\n"),
-    task_description: descriptionLines.join("\n"),
+    description,
+    task_description: description,
+    details: description,
     category: item.category || "General Help",
     task_category: item.category || "General Help",
     service_type: item.category || "General Help",
     status: "open",
+    task_status: "open",
     arrival_code: generateArrivalCode(),
     scheduled_date: formValues.scheduledDate,
+    task_date: formValues.scheduledDate,
     scheduled_time: formValues.scheduledTime,
     preferred_time: formValues.scheduledTime,
+    task_time: formValues.scheduledTime,
     address: formValues.taskAddress,
     task_address: formValues.taskAddress,
     city: formValues.taskCity,
     state: formValues.taskState,
-    budget: formValues.budgetAmount ? Number(formValues.budgetAmount) : null,
-    budget_amount: formValues.budgetAmount ? Number(formValues.budgetAmount) : null,
+    budget: budgetValue,
+    budget_amount: budgetValue,
+    price: budgetValue,
     source: "customer_to_do_list",
     created_at: new Date().toISOString()
   };
@@ -1208,6 +1445,10 @@ function generateArrivalCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
+function generateLocalId() {
+  return `local_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+}
+
 function formatDateForInput(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -1220,7 +1461,7 @@ function formatDateDisplay(dateValue) {
   const parts = dateValue.split("-");
   if (parts.length !== 3) return dateValue;
   const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric"
@@ -1263,19 +1504,23 @@ function escapeHtml(value) {
 
 function escapeForClick(value) {
   return String(value || "")
-    .replaceAll("\\", "\\\\")
-    .replaceAll("'", "\\'")
-    .replaceAll('"', "&quot;");
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/"/g, "&quot;")
+    .replace(/\n/g, " ")
+    .replace(/\r/g, " ");
 }
 
 function showToast(message) {
   const toast = document.getElementById("toast");
+  if (!toast) return;
+
   toast.innerText = message;
   toast.classList.add("show");
 
   setTimeout(() => {
     toast.classList.remove("show");
-  }, 2400);
+  }, 2600);
 }
 
 initPage();
