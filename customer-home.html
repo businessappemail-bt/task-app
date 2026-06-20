@@ -1083,7 +1083,16 @@
     </div>
   </div>
 
-  <div class="row-card fade-in" style="animation-delay:0.34s; margin-top:10px" onclick="window.location.href='saved-workers.html'">
+  <div class="row-card fade-in" style="animation-delay:0.34s; margin-top:10px" onclick="window.location.href='browse-workers.html'">
+    <div class="r-icon">🔎</div>
+    <div class="r-text">
+      <div class="r-title">Browse Workers</div>
+      <div class="r-sub">View all worker profiles, services, ratings, and photos.</div>
+    </div>
+    <div class="r-chev">›</div>
+  </div>
+
+  <div class="row-card fade-in" style="animation-delay:0.35s; margin-top:10px" onclick="window.location.href='saved-workers.html'">
     <div class="r-icon">⭐</div>
     <div class="r-text">
       <div class="r-title">Saved Workers</div>
@@ -1463,22 +1472,6 @@ function getWorkerId(worker) {
   return worker.worker_id || worker.user_id || worker.profile_id || worker.id || "";
 }
 
-function isWorkerApproved(worker) {
-  const approvalValues = [
-    worker.approval_status,
-    worker.worker_approval_status,
-    worker.verification_status,
-    worker.worker_verification_status,
-    worker.status
-  ].map(value => String(value || "").trim().toLowerCase());
-
-  return (
-    worker.is_approved === true ||
-    worker.is_worker_approved === true ||
-    approvalValues.includes("approved")
-  );
-}
-
 async function loadFeaturedWorkers() {
   const featuredWorkers = document.getElementById("featuredWorkers");
   if (!featuredWorkers) return;
@@ -1498,33 +1491,33 @@ async function loadFeaturedWorkers() {
     return;
   }
 
-  const approvedWorkers = (workers || []).filter(isWorkerApproved);
-
-  if (!approvedWorkers.length) {
+  if (!workers || !workers.length) {
     featuredWorkers.innerHTML = `
       <div class="empty-mini">
-        No approved workers are available to feature yet.
+        No worker profiles with ratings are available yet.
       </div>
     `;
     return;
   }
 
-  const workerIds = approvedWorkers
+  const workerIds = workers
     .map(worker => getWorkerId(worker))
     .filter(Boolean);
 
   const profileNameMap = await getWorkerProfileNameMap(workerIds);
   const ratingMap = await getWorkerRatingMap(workerIds);
 
-  const workersWithRatings = approvedWorkers.map(worker => {
+  const workersWithRatings = workers.map(worker => {
     const workerId = getWorkerId(worker);
     const profileNames = profileNameMap[workerId] || {};
+    const profileRating = getWorkerRating(worker);
+    const reviewRating = ratingMap[workerId];
 
     return {
       ...profileNames,
       ...worker,
       id: workerId,
-      computed_rating: ratingMap[workerId] ?? getWorkerRating(worker)
+      computed_rating: reviewRating ?? profileRating
     };
   });
 
@@ -1538,7 +1531,7 @@ async function loadFeaturedWorkers() {
   if (!featured.length) {
     featuredWorkers.innerHTML = `
       <div class="empty-mini">
-        Approved workers were found, but none have a 4.5-5 star rating yet.
+        No 4.5-5 star worker profiles are available yet.
       </div>
     `;
     return;
@@ -1602,17 +1595,28 @@ async function getWorkerRatingMap(workerIds) {
 }
 
 async function getRatingsFromTable(tableName, workerIds) {
+  const byWorkerId = await getRatingsByColumn(tableName, "worker_id", workerIds);
+  if (Object.keys(byWorkerId).length) return byWorkerId;
+
+  const byProfileId = await getRatingsByColumn(tableName, "profile_id", workerIds);
+  if (Object.keys(byProfileId).length) return byProfileId;
+
+  const byReviewedUserId = await getRatingsByColumn(tableName, "reviewed_user_id", workerIds);
+  return byReviewedUserId;
+}
+
+async function getRatingsByColumn(tableName, columnName, workerIds) {
   const { data, error } = await supabaseClient
     .from(tableName)
-    .select("worker_id, rating")
-    .in("worker_id", workerIds);
+    .select(`${columnName}, rating`)
+    .in(columnName, workerIds);
 
   if (error || !data || !data.length) return {};
 
   const grouped = {};
 
   data.forEach(review => {
-    const workerId = review.worker_id;
+    const workerId = review[columnName];
     const rating = Number(review.rating);
 
     if (!workerId || !Number.isFinite(rating)) return;
