@@ -749,6 +749,26 @@ gmp-place-autocomplete::part(place-address) {
           <span class="option-sub">Describe the issue and repair needed.</span>
         </button>
 
+        <button class="option" onclick="selectCategory('Auto Help')">
+          <span class="option-title">🚗 Auto Help</span>
+          <span class="option-sub">Jump starts, flat tires, lockouts, detailing.</span>
+        </button>
+
+        <button class="option" onclick="selectCategory('Home Organization')">
+          <span class="option-title">🗂️ Home Organization</span>
+          <span class="option-sub">Closets, pantry, garage, decluttering.</span>
+        </button>
+
+        <button class="option" onclick="selectCategory('Seasonal Services')">
+          <span class="option-title">🍂 Seasonal Services</span>
+          <span class="option-sub">Leaves, holiday lights, gutters, storm prep.</span>
+        </button>
+
+        <button class="option" onclick="selectCategory('Interior Decorating')">
+          <span class="option-title">🖼️ Interior Decorating</span>
+          <span class="option-sub">Wall decor, furniture placement, staging.</span>
+        </button>
+
         <button class="option" onclick="selectCategory('Other')">
           <span class="option-title">✨ Other</span>
           <span class="option-sub">Anything else you need help with.</span>
@@ -1029,6 +1049,38 @@ const questionBank = {
     { id:"urgent", label:"Is this urgent?", type:"select", options:["Yes","No","Soon but not emergency"] },
     { id:"parts_provided", label:"Do you already have parts/materials?", type:"select", options:["Yes","No","Not sure"] },
     { id:"details", label:"Explain what repairs are needed and what issues you are having.", type:"textarea" }
+  ],
+
+  "Auto Help": [
+    { id:"auto_service_type", label:"What type of auto help do you need?", type:"select", options:["Jump start","Flat tire","Battery replacement","Lockout help","Oil change","Car detailing","Other"] },
+    { id:"vehicle_make_model", label:"What is the vehicle make and model?", type:"text" },
+    { id:"vehicle_drivable", label:"Is the vehicle currently drivable?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"auto_urgency", label:"How soon do you need help?", type:"select", options:["ASAP","Today","Within a few days","Flexible"] },
+    { id:"details", label:"Describe the auto issue or service needed.", type:"textarea" }
+  ],
+
+  "Home Organization": [
+    { id:"organization_area", label:"Which area needs organizing?", type:"select", options:["Closet","Pantry","Garage","Bedroom","Office","Whole house","Other"] },
+    { id:"organization_size", label:"Approximately how much needs to be organized?", type:"select", options:["Small area","Medium area","Large area","Entire room","Multiple rooms"] },
+    { id:"storage_supplies", label:"Will storage bins or supplies already be provided?", type:"select", options:["Yes","No","Some supplies","Not sure"] },
+    { id:"donation_removal", label:"Do you need help with donating or removing unwanted items?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"details", label:"Describe what you want organized.", type:"textarea" }
+  ],
+
+  "Seasonal Services": [
+    { id:"seasonal_service_type", label:"What seasonal service do you need?", type:"select", options:["Leaf cleanup","Holiday lights","Gutter cleaning","Storm prep","Snow removal","Other"] },
+    { id:"equipment_provided", label:"Is equipment provided?", type:"select", options:["Yes","No","Some equipment","Not sure"] },
+    { id:"ladder_required", label:"Is ladder work required?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"area_size", label:"Approximately how large is the area?", type:"select", options:["Small","Medium","Large","Not sure"] },
+    { id:"details", label:"Describe the seasonal work needed.", type:"textarea" }
+  ],
+
+  "Interior Decorating": [
+    { id:"decorating_type", label:"What type of decorating help do you need?", type:"select", options:["Hanging pictures","Furniture placement","Holiday decorating","Room staging","Wall decor","Other"] },
+    { id:"furniture_moving", label:"Is furniture moving required?", type:"select", options:["Yes","No","Not sure"] },
+    { id:"materials_available", label:"Are decorations or materials already available?", type:"select", options:["Yes","No","Some items","Not sure"] },
+    { id:"rooms_involved", label:"Approximately how many rooms are involved?", type:"select", options:["One room","Two rooms","Three or more rooms","Not sure"] },
+    { id:"details", label:"Describe your vision or what you want done.", type:"textarea" }
   ],
 
   "Other": [
