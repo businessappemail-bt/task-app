@@ -1467,7 +1467,7 @@ async function loadFeaturedWorkers() {
     .from("worker_profiles")
     .select("*")
     .or("approval_status.eq.approved,is_approved.eq.true,is_worker_approved.eq.true")
-    .limit(50);
+    .limit(75);
 
   if (error || !workers || !workers.length) {
     featuredWorkers.innerHTML = `
@@ -1489,9 +1489,28 @@ async function loadFeaturedWorkers() {
     return;
   }
 
+  const profileIds = workers
+    .map(worker => worker.id || worker.worker_id || worker.user_id || worker.profile_id)
+    .filter(Boolean);
+
+  const profileNameMap = await getWorkerProfileNameMap(profileIds);
+  const ratingMap = await getWorkerRatingMap(profileIds);
+
+  const workersWithRatings = workers.map(worker => {
+    const workerId = worker.id || worker.worker_id || worker.user_id || worker.profile_id || "";
+    const profileNames = profileNameMap[workerId] || {};
+
+    return {
+      ...profileNames,
+      ...worker,
+      id: workerId,
+      computed_rating: ratingMap[workerId] ?? getWorkerRating(worker)
+    };
+  });
+
   const featured = shuffleArray(
-    workers.filter(worker => {
-      const rating = getWorkerRating(worker);
+    workersWithRatings.filter(worker => {
+      const rating = Number(worker.computed_rating || 0);
       return rating >= 4.5 && rating <= 5;
     })
   ).slice(0, 8);
@@ -1503,7 +1522,7 @@ async function loadFeaturedWorkers() {
           <div class="worker-avatar">⭐</div>
           <div>
             <div class="worker-name">No Featured Workers Yet</div>
-            <div class="worker-role">Browse all approved workers</div>
+            <div class="worker-role">Workers need a 4.5-5 rating to show here</div>
           </div>
         </div>
         <div class="worker-pill-row">
@@ -1517,11 +1536,11 @@ async function loadFeaturedWorkers() {
   }
 
   featuredWorkers.innerHTML = featured.map(worker => {
-    const workerId = worker.id || worker.worker_id || "";
+    const workerId = worker.id || worker.worker_id || worker.user_id || worker.profile_id || "";
     const name = escapeHtml(getWorkerDisplayName(worker));
     const service = escapeHtml(getWorkerService(worker));
     const photo = getWorkerPhoto(worker);
-    const rating = getWorkerRating(worker).toFixed(1);
+    const rating = Number(worker.computed_rating || 0).toFixed(1);
     const avatar = photo
       ? `<img src="${escapeHtml(photo)}" alt="${name}">`
       : "👷";
@@ -1543,6 +1562,64 @@ async function loadFeaturedWorkers() {
       </div>
     `;
   }).join("") + renderSavedWorkerCard();
+}
+
+async function getWorkerProfileNameMap(workerIds) {
+  const uniqueIds = [...new Set((workerIds || []).filter(Boolean))];
+  if (!uniqueIds.length) return {};
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id, first_name, last_name, full_name, display_name")
+    .in("id", uniqueIds);
+
+  if (error || !data) return {};
+
+  return data.reduce((map, profile) => {
+    map[profile.id] = profile;
+    return map;
+  }, {});
+}
+
+async function getWorkerRatingMap(workerIds) {
+  const uniqueIds = [...new Set((workerIds || []).filter(Boolean))];
+  if (!uniqueIds.length) return {};
+
+  const ratingsFromRatingsReviews = await getRatingsFromTable("ratings_reviews", uniqueIds);
+  if (Object.keys(ratingsFromRatingsReviews).length) return ratingsFromRatingsReviews;
+
+  const ratingsFromReviews = await getRatingsFromTable("reviews", uniqueIds);
+  return ratingsFromReviews;
+}
+
+async function getRatingsFromTable(tableName, workerIds) {
+  const { data, error } = await supabaseClient
+    .from(tableName)
+    .select("worker_id, rating")
+    .in("worker_id", workerIds);
+
+  if (error || !data || !data.length) return {};
+
+  const grouped = {};
+
+  data.forEach(review => {
+    const workerId = review.worker_id;
+    const rating = Number(review.rating);
+
+    if (!workerId || !Number.isFinite(rating)) return;
+
+    if (!grouped[workerId]) {
+      grouped[workerId] = { total: 0, count: 0 };
+    }
+
+    grouped[workerId].total += rating;
+    grouped[workerId].count += 1;
+  });
+
+  return Object.keys(grouped).reduce((map, workerId) => {
+    map[workerId] = grouped[workerId].total / grouped[workerId].count;
+    return map;
+  }, {});
 }
 
 function formatTaskTitle(task) {
