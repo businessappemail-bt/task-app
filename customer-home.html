@@ -715,7 +715,28 @@
       cursor: not-allowed;
     }
 
-    .reward-panel {
+    .featured-actions-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .featured-actions-grid .reward-panel {
+      height:100%;
+    }
+
+    .featured-actions-column {
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    @media (max-width:700px){
+      .featured-actions-grid{grid-template-columns:1fr;}
+    }
+
+  .reward-panel {
       background:
         linear-gradient(140deg, #101f16 0%, #0b7a28 100%);
       border-radius: 26px;
@@ -941,6 +962,7 @@
     <div class="section-label">Rewards & Badges</div>
   </div>
 
+  <div class="featured-actions-grid">
   <div class="reward-panel fade-in" style="animation-delay:0.12s">
     <div class="reward-title">🏆 TaskMint Rewards</div>
     <div class="reward-sub">Complete tasks, rebook workers, and keep your home projects moving to unlock badges.</div>
@@ -978,6 +1000,8 @@
     </div>
     <div class="pa-arrow">›</div>
   </div>
+  </div>
+</div>
 
   <!-- QUICK START -->
   <div class="section-head">
