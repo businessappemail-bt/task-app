@@ -23,6 +23,7 @@
       --white: #ffffff;
       --gold: #f7b733;
       --danger: #d93025;
+      --purple: #6a4cff;
       --shadow: 0 14px 35px rgba(13, 83, 36, 0.10);
       --shadow-soft: 0 8px 24px rgba(17, 17, 17, 0.06);
     }
@@ -34,7 +35,7 @@
       color: var(--text);
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
-      padding-bottom: 108px;
+      padding-bottom: 118px;
       overflow-x: hidden;
     }
 
@@ -82,9 +83,7 @@
       display: block;
     }
 
-    .hero {
-      padding: 22px 20px 8px;
-    }
+    .hero { padding: 22px 20px 8px; }
 
     .hero-card {
       background:
@@ -174,9 +173,7 @@
       transition: width 0.25s ease;
     }
 
-    .container {
-      padding: 12px 16px 20px;
-    }
+    .container { padding: 12px 16px 20px; }
 
     .section-head {
       display: flex;
@@ -209,7 +206,8 @@
     .suggestion-card,
     .item-card,
     .empty-card,
-    .modal-card {
+    .modal-card,
+    .status-card {
       background: var(--surface);
       border: 1px solid var(--border);
       box-shadow: var(--shadow-soft);
@@ -258,8 +256,8 @@
     .primary-btn,
     .secondary-btn,
     .danger-btn,
-    .tiny-btn {
-      border: 0;
+    .tiny-btn,
+    .suggestion-card {
       border-radius: 15px;
       cursor: pointer;
       font-family: inherit;
@@ -270,6 +268,7 @@
     .add-btn {
       width: 48px;
       height: 48px;
+      border: 0;
       background: var(--accent);
       color: #fff;
       font-size: 22px;
@@ -278,6 +277,7 @@
 
     .primary-btn {
       width: 100%;
+      border: 0;
       background: linear-gradient(135deg, var(--accent), #0e9434);
       color: #fff;
       padding: 14px;
@@ -303,6 +303,7 @@
     }
 
     .tiny-btn {
+      border: 0;
       background: var(--accent-light);
       color: var(--accent-dark);
       padding: 8px 10px;
@@ -310,11 +311,17 @@
       white-space: nowrap;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .add-btn:hover,
     .primary-btn:hover,
     .secondary-btn:hover,
     .danger-btn:hover,
-    .tiny-btn:hover {
+    .tiny-btn:hover,
+    .suggestion-card:hover {
       transform: translateY(-1px);
     }
 
@@ -331,16 +338,13 @@
     .suggestion-card {
       flex: 0 0 auto;
       width: 154px;
+      text-align: left;
       border-radius: 21px;
       padding: 13px;
-      cursor: pointer;
       transition: transform 0.18s, border-color 0.18s;
     }
 
-    .suggestion-card:hover {
-      transform: translateY(-2px);
-      border-color: #a3cfb0;
-    }
+    .suggestion-card:hover { border-color: #a3cfb0; }
 
     .suggestion-icon {
       width: 44px;
@@ -409,6 +413,16 @@
       align-items: flex-start;
     }
 
+    .item-card.completed {
+      background: #f3fbf5;
+      border-color: #ccead4;
+    }
+
+    .item-card.posted {
+      background: #f8f8ff;
+      border-color: #ddd9ff;
+    }
+
     .item-check {
       width: 24px;
       height: 24px;
@@ -452,6 +466,11 @@
       color: var(--muted);
     }
 
+    .pill.purple {
+      background: #eeeaff;
+      color: #4c35c9;
+    }
+
     .item-actions {
       display: flex;
       flex-wrap: wrap;
@@ -459,7 +478,8 @@
       margin-top: 11px;
     }
 
-    .empty-card {
+    .empty-card,
+    .status-card {
       border-style: dashed;
       border-radius: 21px;
       padding: 18px;
@@ -467,6 +487,15 @@
       font-size: 12px;
       line-height: 1.45;
       text-align: center;
+    }
+
+    .status-card {
+      margin-top: 10px;
+      display: none;
+    }
+
+    .status-card.show {
+      display: block;
     }
 
     .action-bar {
@@ -616,7 +645,7 @@
       .two-fields { grid-template-columns: 1fr; }
       .priority-tabs { grid-template-columns: 1fr; }
       .action-bar { grid-template-columns: 1fr; }
-      body { padding-bottom: 160px; }
+      body { padding-bottom: 170px; }
     }
   </style>
 </head>
@@ -657,27 +686,28 @@
 
   <div class="planner-card">
     <div class="input-row">
-      <input id="newItemInput" type="text" placeholder="Example: Deep clean kitchen" maxlength="120">
-      <button class="add-btn" type="button" onclick="addTodoItem()">＋</button>
+      <input id="newItemInput" type="text" placeholder="Example: Deep clean kitchen" maxlength="120" autocomplete="off">
+      <button class="add-btn" type="button" data-action="add-custom">＋</button>
     </div>
+    <div class="status-card" id="saveStatusCard"></div>
   </div>
 
   <div class="section-head">
     <div class="section-label">Smart Suggestions</div>
-    <button class="section-link" type="button" onclick="shuffleSuggestions()">Shuffle</button>
+    <button class="section-link" type="button" data-action="shuffle-suggestions">Shuffle</button>
   </div>
 
   <div class="chips" id="suggestionList"></div>
 
   <div class="section-head">
     <div class="section-label">Priority Board</div>
-    <button class="section-link" type="button" onclick="selectAllVisible()">Select Visible</button>
+    <button class="section-link" type="button" data-action="select-visible">Select Visible</button>
   </div>
 
   <div class="priority-tabs">
-    <button class="priority-tab active" type="button" data-priority="urgent" onclick="setPriorityFilter('urgent')">🔥 Urgent</button>
-    <button class="priority-tab" type="button" data-priority="upcoming" onclick="setPriorityFilter('upcoming')">📅 Upcoming</button>
-    <button class="priority-tab" type="button" data-priority="someday" onclick="setPriorityFilter('someday')">💡 Someday</button>
+    <button class="priority-tab active" type="button" data-action="filter" data-priority="urgent">🔥 Urgent</button>
+    <button class="priority-tab" type="button" data-action="filter" data-priority="upcoming">📅 Upcoming</button>
+    <button class="priority-tab" type="button" data-action="filter" data-priority="someday">💡 Someday</button>
   </div>
 
   <div class="list-stack" id="todoList"></div>
@@ -691,8 +721,8 @@
 </div>
 
 <div class="action-bar">
-  <button class="secondary-btn" type="button" onclick="openPostModal('selected')">Post Selected</button>
-  <button class="primary-btn" type="button" onclick="openPostModal('all')">Post Entire List</button>
+  <button class="secondary-btn" type="button" data-action="open-post-selected">Post Selected</button>
+  <button class="primary-btn" type="button" data-action="open-post-all">Post Entire List</button>
 </div>
 
 <div class="modal-overlay" id="postModal">
@@ -702,7 +732,7 @@
         <div class="modal-title" id="modalTitle">Post Selected Tasks</div>
         <div class="modal-sub" id="modalSub">Choose the date, time, address, and budget before these show under Open Tasks.</div>
       </div>
-      <button class="close-btn" type="button" onclick="closePostModal()">×</button>
+      <button class="close-btn" type="button" data-action="close-modal">×</button>
     </div>
 
     <div class="form-grid">
@@ -745,8 +775,8 @@
     </div>
 
     <div class="modal-actions">
-      <button class="secondary-btn" type="button" onclick="closePostModal()">Cancel</button>
-      <button class="primary-btn" type="button" id="confirmPostBtn" onclick="postTasksFromList()">Post Tasks</button>
+      <button class="secondary-btn" type="button" data-action="close-modal">Cancel</button>
+      <button class="primary-btn" type="button" id="confirmPostBtn" data-action="post-tasks">Post Tasks</button>
     </div>
   </div>
 </div>
@@ -759,11 +789,15 @@ const supabaseClient = window.supabase.createClient(
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
+const TODO_TABLE = "customer_todo_items";
+const TASKS_TABLE = "tasks";
+
 let currentUser = null;
 let todoItems = [];
 let activePriority = "urgent";
 let postMode = "selected";
 let isPostingTasks = false;
+let supabaseTodoAvailable = true;
 
 const suggestionPool = [
   { title: "Deep clean kitchen", category: "House Cleaning", priority: "urgent", icon: "🧹", sub: "Popular before weekends" },
@@ -783,7 +817,11 @@ const dreamProjects = [
   { title: "Pantry organization", icon: "🥫", category: "Organization" }
 ];
 
+document.addEventListener("DOMContentLoaded", initPage);
+
 async function initPage() {
+  wirePageButtons();
+
   const { data, error } = await supabaseClient.auth.getSession();
 
   if (error || !data.session) {
@@ -794,11 +832,60 @@ async function initPage() {
   currentUser = data.session.user;
 
   bindEnterToAdd();
-  await loadTodoItems();
   renderSuggestions();
   renderDreamProjects();
+
+  await loadTodoItems();
+
   updateProgress();
   hideLoadingOverlay();
+}
+
+function wirePageButtons() {
+  document.addEventListener("click", async (event) => {
+    const actionEl = event.target.closest("[data-action]");
+    if (!actionEl) return;
+
+    const action = actionEl.dataset.action;
+
+    if (action === "add-custom") await addTodoItem();
+    if (action === "shuffle-suggestions") shuffleSuggestions();
+    if (action === "select-visible") await selectAllVisible();
+    if (action === "filter") setPriorityFilter(actionEl.dataset.priority || "urgent");
+    if (action === "open-post-selected") openPostModal("selected");
+    if (action === "open-post-all") openPostModal("all");
+    if (action === "close-modal") closePostModal();
+    if (action === "post-tasks") await postTasksFromList();
+
+    if (action === "add-suggestion") {
+      await addSuggestedItem(
+        actionEl.dataset.title || "",
+        actionEl.dataset.category || "General Help",
+        actionEl.dataset.priority || "urgent"
+      );
+    }
+
+    if (action === "toggle-selected") {
+      await toggleSelected(actionEl.dataset.id || "", actionEl.checked);
+    }
+
+    if (action === "move-priority") {
+      await changePriority(actionEl.dataset.id || "", actionEl.dataset.priority || "urgent");
+    }
+
+    if (action === "toggle-completed") {
+      await toggleCompleted(actionEl.dataset.id || "", actionEl.dataset.complete === "true");
+    }
+
+    if (action === "delete-item") {
+      await deleteTodoItem(actionEl.dataset.id || "");
+    }
+  });
+
+  const modal = document.getElementById("postModal");
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closePostModal();
+  });
 }
 
 function hideLoadingOverlay() {
@@ -833,45 +920,89 @@ function saveLocalBackup() {
 function loadLocalBackup() {
   try {
     const saved = localStorage.getItem(getLocalStorageKey());
-    return saved ? JSON.parse(saved) : [];
+    const parsed = saved ? JSON.parse(saved) : [];
+    return normalizeLoadedItems(Array.isArray(parsed) ? parsed : []);
   } catch (error) {
     return [];
   }
 }
 
 async function loadTodoItems() {
+  const localItems = loadLocalBackup();
+
   const { data, error } = await supabaseClient
-    .from("customer_todo_items")
+    .from(TODO_TABLE)
     .select("*")
     .eq("customer_id", currentUser.id)
     .order("created_at", { ascending: false });
 
   if (error) {
     console.error("customer_todo_items load error:", error);
-    todoItems = loadLocalBackup();
+    supabaseTodoAvailable = false;
+    todoItems = localItems;
     renderTodoList();
     updateProgress();
-    showToast("Unable to load Supabase list. Check customer_todo_items table/RLS.");
+    setSaveStatus("Your list will still work on this device, but Supabase rejected the load. Check customer_todo_items table/RLS.");
     return;
   }
 
-  todoItems = normalizeLoadedItems(data || []);
+  supabaseTodoAvailable = true;
+  const remoteItems = normalizeLoadedItems(data || []);
+  todoItems = mergeTodoItems(remoteItems, localItems);
   saveLocalBackup();
   renderTodoList();
   updateProgress();
+
+  if (localItems.some(item => isLocalOnly(item))) {
+    syncLocalOnlyItems();
+  }
+}
+
+function mergeTodoItems(remoteItems, localItems) {
+  const map = new Map();
+
+  remoteItems.forEach(item => {
+    map.set(item.id, {
+      ...item,
+      is_local_only: false,
+      sync_status: "synced"
+    });
+  });
+
+  localItems.forEach(item => {
+    if (!map.has(item.id)) {
+      map.set(item.id, item);
+    }
+  });
+
+  return Array.from(map.values()).sort((a, b) => {
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  });
 }
 
 function normalizeLoadedItems(items) {
   return items.map(item => ({
     ...item,
     id: item.id || item.local_id || generateLocalId(),
+    local_id: item.local_id || (String(item.id || "").startsWith("local_") ? item.id : generateLocalId()),
     customer_id: item.customer_id || currentUser.id,
     title: item.title || "Untitled item",
     category: item.category || "General Help",
-    priority: item.priority || "urgent",
-    status: item.status || "planned",
-    selected_for_posting: item.selected_for_posting === true
+    priority: normalizePriority(item.priority),
+    status: normalizeStatus(item.status),
+    selected_for_posting: item.selected_for_posting === true,
+    created_at: item.created_at || new Date().toISOString(),
+    is_local_only: item.is_local_only === true || String(item.id || "").startsWith("local_"),
+    sync_status: item.sync_status || (String(item.id || "").startsWith("local_") ? "local" : "synced")
   }));
+}
+
+function normalizePriority(priority) {
+  return ["urgent", "upcoming", "someday"].includes(priority) ? priority : "urgent";
+}
+
+function normalizeStatus(status) {
+  return ["planned", "completed", "posted"].includes(status) ? status : "planned";
 }
 
 function renderSuggestions() {
@@ -881,7 +1012,11 @@ function renderSuggestions() {
   const shuffled = [...suggestionPool].sort(() => Math.random() - 0.5).slice(0, 6);
 
   suggestionList.innerHTML = shuffled.map(item => `
-    <button class="suggestion-card" type="button" onclick="addSuggestedItem('${escapeForClick(item.title)}','${escapeForClick(item.category)}','${escapeForClick(item.priority)}')">
+    <button class="suggestion-card" type="button"
+      data-action="add-suggestion"
+      data-title="${escapeHtml(item.title)}"
+      data-category="${escapeHtml(item.category)}"
+      data-priority="${escapeHtml(item.priority)}">
       <div class="suggestion-icon">${item.icon}</div>
       <div class="suggestion-title">${escapeHtml(item.title)}</div>
       <div class="suggestion-sub">${escapeHtml(item.sub)}</div>
@@ -894,7 +1029,11 @@ function renderDreamProjects() {
   if (!dreamList) return;
 
   dreamList.innerHTML = dreamProjects.map(item => `
-    <button class="suggestion-card" type="button" onclick="addSuggestedItem('${escapeForClick(item.title)}','${escapeForClick(item.category)}','someday')">
+    <button class="suggestion-card" type="button"
+      data-action="add-suggestion"
+      data-title="${escapeHtml(item.title)}"
+      data-category="${escapeHtml(item.category)}"
+      data-priority="someday">
       <div class="suggestion-icon">${item.icon}</div>
       <div class="suggestion-title">${escapeHtml(item.title)}</div>
       <div class="suggestion-sub">Save as a someday project</div>
@@ -926,9 +1065,20 @@ async function addTodoItem() {
 }
 
 async function addSuggestedItem(title, category, priority) {
-  const safePriority = ["urgent", "upcoming", "someday"].includes(priority) ? priority : "urgent";
-  setPriorityFilter(safePriority, false);
-  await createTodoItem({ title, category, priority: safePriority });
+  const safeTitle = String(title || "").trim();
+  if (!safeTitle) {
+    showToast("Unable to add suggestion.");
+    return;
+  }
+
+  const safePriority = normalizePriority(priority);
+  const created = await createTodoItem({
+    title: safeTitle,
+    category: category || guessCategory(safeTitle),
+    priority: safePriority
+  });
+
+  if (created) setPriorityFilter(safePriority);
 }
 
 async function createTodoItem(item) {
@@ -939,67 +1089,121 @@ async function createTodoItem(item) {
 
   const localItem = {
     id: generateLocalId(),
+    local_id: generateLocalId(),
     customer_id: currentUser.id,
     title: item.title,
     category: item.category || "General Help",
-    priority: item.priority || activePriority,
+    priority: normalizePriority(item.priority || activePriority),
     status: "planned",
     selected_for_posting: false,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    is_local_only: true,
+    sync_status: "saving"
   };
 
-  const insertRow = {
-    customer_id: currentUser.id,
-    title: localItem.title,
-    category: localItem.category,
-    priority: localItem.priority,
-    status: localItem.status,
-    selected_for_posting: false,
-    created_at: localItem.created_at
-  };
-
-  const { data, error } = await insertCustomerTodoItem(insertRow);
-
-  if (error) {
-    console.error("customer_todo_items insert error:", error);
-    showToast("Item could not save to Supabase. Check customer_todo_items SQL/RLS.");
-    return false;
-  }
-
-  const savedItem = data ? normalizeLoadedItems([data])[0] : localItem;
-  todoItems = [savedItem, ...todoItems.filter(existing => existing.id !== savedItem.id)];
+  todoItems = [localItem, ...todoItems];
   saveLocalBackup();
-  setPriorityFilter(savedItem.priority, false);
-  renderTodoList();
+  setPriorityFilter(localItem.priority);
   updateProgress();
   showToast("Added to your list.");
+
+  const savedItem = await saveTodoItemToSupabase(localItem);
+
+  if (savedItem) {
+    todoItems = todoItems.map(existing =>
+      existing.id === localItem.id ? savedItem : existing
+    );
+    saveLocalBackup();
+    renderTodoList();
+    setSaveStatus("");
+  } else {
+    todoItems = todoItems.map(existing =>
+      existing.id === localItem.id
+        ? { ...existing, sync_status: "local", is_local_only: true }
+        : existing
+    );
+    saveLocalBackup();
+    renderTodoList();
+    setSaveStatus("Saved on this device. Supabase did not accept the save, so check customer_todo_items SQL/RLS.");
+  }
+
+  updateProgress();
   return true;
 }
 
-async function insertCustomerTodoItem(row) {
-  let { data, error } = await supabaseClient
-    .from("customer_todo_items")
-    .insert(row)
-    .select("*")
-    .maybeSingle();
+async function saveTodoItemToSupabase(item) {
+  const insertRow = {
+    customer_id: currentUser.id,
+    title: item.title,
+    category: item.category,
+    priority: item.priority,
+    status: item.status,
+    selected_for_posting: item.selected_for_posting,
+    created_at: item.created_at
+  };
 
-  if (!error) return { data, error: null };
+  const { data, error } = await insertOneWithColumnFallback(TODO_TABLE, insertRow);
 
-  const missingColumn = getMissingColumnName(error);
-  if (!missingColumn) return { data: null, error };
+  if (error) {
+    console.error("customer_todo_items insert error:", error);
+    supabaseTodoAvailable = false;
+    return null;
+  }
 
-  const fallbackRow = { ...row };
-  delete fallbackRow[missingColumn];
+  const normalized = normalizeLoadedItems([data || item])[0];
+  return {
+    ...normalized,
+    is_local_only: false,
+    sync_status: "synced"
+  };
+}
 
-  const retry = await supabaseClient
-    .from("customer_todo_items")
-    .insert(fallbackRow)
-    .select("*")
-    .maybeSingle();
+async function insertOneWithColumnFallback(tableName, row) {
+  let workingRow = { ...row };
+  let lastError = null;
+  const removedColumns = new Set();
 
-  if (!retry.error) return { data: retry.data, error: null };
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const { data, error } = await supabaseClient
+      .from(tableName)
+      .insert(workingRow)
+      .select("*")
+      .maybeSingle();
 
-  return { data: null, error: retry.error };
+    if (!error) return { data, error: null };
+
+    lastError = error;
+    const missingColumn = getMissingColumnName(error);
+
+    if (!missingColumn || removedColumns.has(missingColumn)) {
+      return { data: null, error };
+    }
+
+    removedColumns.add(missingColumn);
+    delete workingRow[missingColumn];
+  }
+
+  return { data: null, error: lastError };
+}
+
+async function syncLocalOnlyItems() {
+  if (!currentUser || !todoItems.length) return;
+
+  const localOnlyItems = todoItems.filter(item => isLocalOnly(item) && item.status !== "posted");
+
+  for (const item of localOnlyItems) {
+    const savedItem = await saveTodoItemToSupabase(item);
+    if (savedItem) {
+      todoItems = todoItems.map(existing => existing.id === item.id ? savedItem : existing);
+      saveLocalBackup();
+      renderTodoList();
+      updateProgress();
+    }
+  }
+}
+
+function isLocalOnly(item) {
+  return item.is_local_only === true || String(item.id || "").startsWith("local_") || item.sync_status === "local";
 }
 
 function renderTodoList() {
@@ -1022,26 +1226,35 @@ function renderTodoList() {
     const checked = item.selected_for_posting ? "checked" : "";
     const completed = item.status === "completed";
     const posted = item.status === "posted";
-    const disabled = posted ? "disabled" : "";
+    const disabled = posted || completed ? "disabled" : "";
+    const cardClass = posted ? "posted" : completed ? "completed" : "";
+    const syncLabel = item.sync_status === "synced" ? "Saved" : item.sync_status === "saving" ? "Saving" : "Device Only";
 
     return `
-      <div class="item-card" data-item-id="${escapeHtml(item.id)}">
-        <input class="item-check" type="checkbox" ${checked} ${disabled} onchange="toggleSelected('${escapeForClick(item.id)}', this.checked)">
+      <div class="item-card ${cardClass}" data-item-id="${escapeHtml(item.id)}">
+        <input class="item-check"
+          type="checkbox"
+          ${checked}
+          ${disabled}
+          data-action="toggle-selected"
+          data-id="${escapeHtml(item.id)}"
+          aria-label="Select ${escapeHtml(item.title)} for posting">
         <div>
           <div class="item-title-row">
             <div class="item-title">${escapeHtml(item.title)}</div>
-            <button class="danger-btn" type="button" onclick="deleteTodoItem('${escapeForClick(item.id)}')">Remove</button>
+            <button class="danger-btn" type="button" data-action="delete-item" data-id="${escapeHtml(item.id)}">Remove</button>
           </div>
           <div class="item-meta">
             <span class="pill">${escapeHtml(item.category || "General Help")}</span>
             <span class="pill gray">${formatPriorityLabel(item.priority)}</span>
             <span class="pill gray">${formatStatusLabel(item.status)}</span>
+            <span class="pill ${item.sync_status === "synced" ? "" : "purple"}">${syncLabel}</span>
           </div>
           <div class="item-actions">
-            <button class="tiny-btn" type="button" onclick="changePriority('${escapeForClick(item.id)}', 'urgent')">🔥 Urgent</button>
-            <button class="tiny-btn" type="button" onclick="changePriority('${escapeForClick(item.id)}', 'upcoming')">📅 Upcoming</button>
-            <button class="tiny-btn" type="button" onclick="changePriority('${escapeForClick(item.id)}', 'someday')">💡 Someday</button>
-            <button class="tiny-btn" type="button" onclick="toggleCompleted('${escapeForClick(item.id)}', ${completed ? 'false' : 'true'})">${completed ? 'Mark Planned' : 'Mark Done'}</button>
+            <button class="tiny-btn" type="button" data-action="move-priority" data-id="${escapeHtml(item.id)}" data-priority="urgent">🔥 Urgent</button>
+            <button class="tiny-btn" type="button" data-action="move-priority" data-id="${escapeHtml(item.id)}" data-priority="upcoming">📅 Upcoming</button>
+            <button class="tiny-btn" type="button" data-action="move-priority" data-id="${escapeHtml(item.id)}" data-priority="someday">💡 Someday</button>
+            <button class="tiny-btn" type="button" data-action="toggle-completed" data-id="${escapeHtml(item.id)}" data-complete="${completed ? "false" : "true"}">${completed ? "Mark Planned" : "Mark Done"}</button>
           </div>
         </div>
       </div>
@@ -1052,123 +1265,134 @@ function renderTodoList() {
 }
 
 async function toggleSelected(itemId, isSelected) {
-  const originalItems = [...todoItems];
-  todoItems = todoItems.map(item =>
-    item.id === itemId ? { ...item, selected_for_posting: isSelected } : item
-  );
-  saveLocalBackup();
-  renderTodoList();
+  const item = todoItems.find(entry => entry.id === itemId);
+  if (!item) return;
 
-  const { error } = await updateCustomerTodoItem(itemId, { selected_for_posting: isSelected });
-
-  if (error) {
-    console.error("selection update error:", error);
-    todoItems = originalItems;
-    saveLocalBackup();
+  if (item.status !== "planned") {
+    showToast("Only planned items can be selected for posting.");
     renderTodoList();
-    showToast("Selection could not save to Supabase.");
+    return;
+  }
+
+  updateItemLocal(itemId, { selected_for_posting: isSelected });
+
+  if (!isLocalOnly(item)) {
+    const { error } = await updateCustomerTodoItem(itemId, { selected_for_posting: isSelected });
+    if (error) {
+      console.error("selection update error:", error);
+      updateItemLocal(itemId, { selected_for_posting: !isSelected });
+      showToast("Selection did not save to Supabase.");
+    }
   }
 }
 
 async function changePriority(itemId, priority) {
-  const oldItem = todoItems.find(item => item.id === itemId);
-  if (!oldItem) return;
+  const safePriority = normalizePriority(priority);
+  const item = todoItems.find(entry => entry.id === itemId);
+  if (!item) return;
 
-  todoItems = todoItems.map(item =>
-    item.id === itemId ? { ...item, priority } : item
-  );
-  saveLocalBackup();
-  setPriorityFilter(priority, false);
-  renderTodoList();
+  const oldPriority = item.priority;
+  updateItemLocal(itemId, { priority: safePriority });
+  setPriorityFilter(safePriority);
 
-  const { error } = await updateCustomerTodoItem(itemId, { priority });
-
-  if (error) {
-    console.error("priority update error:", error);
-    todoItems = todoItems.map(item =>
-      item.id === itemId ? { ...item, priority: oldItem.priority } : item
-    );
-    saveLocalBackup();
-    setPriorityFilter(oldItem.priority, false);
-    renderTodoList();
-    showToast("Priority could not save to Supabase.");
+  if (!isLocalOnly(item)) {
+    const { error } = await updateCustomerTodoItem(itemId, { priority: safePriority });
+    if (error) {
+      console.error("priority update error:", error);
+      updateItemLocal(itemId, { priority: oldPriority });
+      setPriorityFilter(oldPriority);
+      showToast("Priority did not save to Supabase.");
+    }
   }
 }
 
 async function toggleCompleted(itemId, shouldComplete) {
+  const item = todoItems.find(entry => entry.id === itemId);
+  if (!item) return;
+
+  const oldItem = { ...item };
   const nextStatus = shouldComplete ? "completed" : "planned";
-  const oldItem = todoItems.find(item => item.id === itemId);
-  if (!oldItem) return;
 
-  todoItems = todoItems.map(item =>
-    item.id === itemId ? { ...item, status: nextStatus, selected_for_posting: false } : item
-  );
-  saveLocalBackup();
-  renderTodoList();
-  updateProgress();
-
-  const { error } = await updateCustomerTodoItem(itemId, {
+  updateItemLocal(itemId, {
     status: nextStatus,
     selected_for_posting: false
   });
 
-  if (error) {
-    console.error("completion update error:", error);
-    todoItems = todoItems.map(item => item.id === itemId ? oldItem : item);
-    saveLocalBackup();
-    renderTodoList();
-    updateProgress();
-    showToast("Completion could not save to Supabase.");
-  } else {
-    showToast(shouldComplete ? "Marked done." : "Moved back to planned.");
+  if (!isLocalOnly(item)) {
+    const { error } = await updateCustomerTodoItem(itemId, {
+      status: nextStatus,
+      selected_for_posting: false
+    });
+
+    if (error) {
+      console.error("completion update error:", error);
+      updateItemLocal(itemId, oldItem);
+      showToast("Completion did not save to Supabase.");
+      return;
+    }
   }
+
+  showToast(shouldComplete ? "Marked done." : "Moved back to planned.");
 }
 
 async function deleteTodoItem(itemId) {
+  const item = todoItems.find(entry => entry.id === itemId);
+  if (!item) return;
+
   const confirmDelete = confirm("Remove this item from your to-do list?");
   if (!confirmDelete) return;
 
   const originalItems = [...todoItems];
-  todoItems = todoItems.filter(item => item.id !== itemId);
+  todoItems = todoItems.filter(entry => entry.id !== itemId);
   saveLocalBackup();
   renderTodoList();
   updateProgress();
 
-  const { error } = await supabaseClient
-    .from("customer_todo_items")
-    .delete()
-    .eq("id", itemId)
-    .eq("customer_id", currentUser.id);
+  if (!isLocalOnly(item)) {
+    const { error } = await supabaseClient
+      .from(TODO_TABLE)
+      .delete()
+      .eq("id", itemId)
+      .eq("customer_id", currentUser.id);
 
-  if (error) {
-    console.error("delete error:", error);
-    todoItems = originalItems;
-    saveLocalBackup();
-    renderTodoList();
-    updateProgress();
-    showToast("Item could not be removed from Supabase.");
-  } else {
-    showToast("Removed from your list.");
+    if (error) {
+      console.error("delete error:", error);
+      todoItems = originalItems;
+      saveLocalBackup();
+      renderTodoList();
+      updateProgress();
+      showToast("Item could not be removed from Supabase.");
+      return;
+    }
   }
+
+  showToast("Removed from your list.");
 }
 
 async function updateCustomerTodoItem(itemId, updates) {
-  if (String(itemId).startsWith("local_")) {
-    return { error: { message: "This item was not saved to Supabase." } };
-  }
-
   return await supabaseClient
-    .from("customer_todo_items")
+    .from(TODO_TABLE)
     .update(updates)
     .eq("id", itemId)
     .eq("customer_id", currentUser.id);
 }
 
+function updateItemLocal(itemId, updates) {
+  todoItems = todoItems.map(item =>
+    item.id === itemId ? { ...item, ...updates } : item
+  );
+  saveLocalBackup();
+  renderTodoList();
+  updateProgress();
+}
+
 function setPriorityFilter(priority, shouldRender = true) {
-  activePriority = priority;
+  activePriority = normalizePriority(priority);
+
   document.querySelectorAll(".priority-tab").forEach(tab => {
-    tab.classList.toggle("active", tab.dataset.priority === priority);
+    tab.classList.toggle("active", tab.dataset.priority === activePriority);
   });
+
   if (shouldRender) renderTodoList();
 }
 
@@ -1183,6 +1407,7 @@ async function selectAllVisible() {
   }
 
   const originalItems = [...todoItems];
+
   todoItems = todoItems.map(item =>
     visibleIds.includes(item.id) ? { ...item, selected_for_posting: true } : item
   );
@@ -1190,26 +1415,25 @@ async function selectAllVisible() {
   renderTodoList();
 
   const supabaseIds = visibleIds.filter(id => !String(id).startsWith("local_"));
-  if (!supabaseIds.length) {
-    showToast("Selected visible items.");
-    return;
+
+  if (supabaseIds.length) {
+    const { error } = await supabaseClient
+      .from(TODO_TABLE)
+      .update({ selected_for_posting: true })
+      .eq("customer_id", currentUser.id)
+      .in("id", supabaseIds);
+
+    if (error) {
+      console.error("select visible error:", error);
+      todoItems = originalItems;
+      saveLocalBackup();
+      renderTodoList();
+      showToast("Visible items did not save as selected.");
+      return;
+    }
   }
 
-  const { error } = await supabaseClient
-    .from("customer_todo_items")
-    .update({ selected_for_posting: true })
-    .eq("customer_id", currentUser.id)
-    .in("id", supabaseIds);
-
-  if (error) {
-    console.error("select visible error:", error);
-    todoItems = originalItems;
-    saveLocalBackup();
-    renderTodoList();
-    showToast("Visible items could not save as selected.");
-  } else {
-    showToast("Selected visible items.");
-  }
+  showToast("Selected visible items.");
 }
 
 function openPostModal(mode) {
@@ -1228,9 +1452,13 @@ function openPostModal(mode) {
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
+
   document.getElementById("scheduledDate").min = formatDateForInput(new Date());
   document.getElementById("scheduledDate").value = formatDateForInput(tomorrow);
-  document.getElementById("scheduledTime").value = "10:00";
+
+  if (!document.getElementById("scheduledTime").value) {
+    document.getElementById("scheduledTime").value = "10:00";
+  }
 
   document.getElementById("postModal").classList.add("show");
 }
@@ -1277,7 +1505,6 @@ async function postTasksFromList() {
   const confirmBtn = document.getElementById("confirmPostBtn");
   isPostingTasks = true;
   confirmBtn.disabled = true;
-  confirmBtn.style.opacity = "0.65";
   confirmBtn.innerText = "Posting...";
 
   const taskRows = items.map(item => buildTaskInsert(item, {
@@ -1290,13 +1517,12 @@ async function postTasksFromList() {
     extraDetails
   }));
 
-  const { error } = await insertRowsWithColumnFallback("tasks", taskRows);
+  const { error } = await insertRowsWithColumnFallback(TASKS_TABLE, taskRows);
 
   if (error) {
     console.error("tasks insert error:", error);
     isPostingTasks = false;
     confirmBtn.disabled = false;
-    confirmBtn.style.opacity = "1";
     confirmBtn.innerText = "Post Tasks";
     showToast("Tasks could not post to Supabase. Check tasks table/RLS.");
     return;
@@ -1315,7 +1541,7 @@ async function postTasksFromList() {
 
   if (supabasePostedIds.length) {
     const { error: updateError } = await supabaseClient
-      .from("customer_todo_items")
+      .from(TODO_TABLE)
       .update({ status: "posted", selected_for_posting: false })
       .eq("customer_id", currentUser.id)
       .in("id", supabasePostedIds);
@@ -1334,7 +1560,7 @@ async function insertRowsWithColumnFallback(tableName, rows) {
   let lastError = null;
   const removedColumns = new Set();
 
-  for (let attempt = 0; attempt < 15; attempt++) {
+  for (let attempt = 0; attempt < 18; attempt++) {
     const { error } = await supabaseClient
       .from(tableName)
       .insert(workingRows);
@@ -1360,7 +1586,8 @@ async function insertRowsWithColumnFallback(tableName, rows) {
 }
 
 function getMissingColumnName(error) {
-  const message = String(error?.message || error?.details || "");
+  const message = String(error?.message || error?.details || error?.hint || "");
+
   const quotedMatch = message.match(/'([^']+)' column/i);
   if (quotedMatch) return quotedMatch[1];
 
@@ -1429,6 +1656,20 @@ function updateProgress() {
   document.getElementById("progressFill").style.width = `${percent}%`;
 }
 
+function setSaveStatus(message) {
+  const card = document.getElementById("saveStatusCard");
+  if (!card) return;
+
+  if (!message) {
+    card.classList.remove("show");
+    card.innerText = "";
+    return;
+  }
+
+  card.innerText = message;
+  card.classList.add("show");
+}
+
 function guessCategory(title) {
   const value = title.toLowerCase();
   if (value.includes("clean") || value.includes("kitchen") || value.includes("bathroom")) return "House Cleaning";
@@ -1458,7 +1699,7 @@ function formatDateForInput(date) {
 
 function formatDateDisplay(dateValue) {
   if (!dateValue) return "Not selected";
-  const parts = dateValue.split("-");
+  const parts = String(dateValue).split("-");
   if (parts.length !== 3) return dateValue;
   const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   return date.toLocaleDateString("en-US", {
@@ -1470,7 +1711,7 @@ function formatDateDisplay(dateValue) {
 
 function formatTime12Hour(timeValue) {
   if (!timeValue) return "Not selected";
-  const parts = timeValue.split(":");
+  const parts = String(timeValue).split(":");
   let hour = Number(parts[0]);
   const minute = parts[1] || "00";
   if (Number.isNaN(hour)) return timeValue;
@@ -1502,15 +1743,6 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function escapeForClick(value) {
-  return String(value || "")
-    .replace(/\\/g, "\\\\")
-    .replace(/'/g, "\\'")
-    .replace(/"/g, "&quot;")
-    .replace(/\n/g, " ")
-    .replace(/\r/g, " ");
-}
-
 function showToast(message) {
   const toast = document.getElementById("toast");
   if (!toast) return;
@@ -1522,8 +1754,6 @@ function showToast(message) {
     toast.classList.remove("show");
   }, 2600);
 }
-
-initPage();
 </script>
 </body>
 </html>
