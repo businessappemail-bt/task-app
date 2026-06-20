@@ -1510,6 +1510,25 @@ function extractRatingValue(record) {
   return 0;
 }
 
+function isWorkerProfileRecord(profile) {
+  const accountType =
+    String(
+      profile.account_type ||
+      profile.profile_type ||
+      profile.user_type ||
+      profile.role ||
+      ""
+    ).trim().toLowerCase();
+
+  return (
+    accountType === "worker" ||
+    profile.is_worker === true ||
+    profile.is_worker_approved === true ||
+    profile.worker_approval_status === "approved" ||
+    profile.worker_verification_status === "approved"
+  );
+}
+
 function getWorkerDisplayName(worker) {
   const firstLast = `${worker.first_name || ""} ${worker.last_name || ""}`.trim();
   return worker.full_name || worker.display_name || worker.business_name || firstLast || "TaskMint Worker";
@@ -1545,27 +1564,48 @@ async function loadFeaturedWorkers() {
   if (!featuredWorkers) return;
 
   const workerProfiles = await loadWorkerProfileRows();
-  const workerIds = workerProfiles.map(worker => getWorkerId(worker)).filter(Boolean);
-  const profileRows = await loadProfileRows(workerIds);
+  const profileRows = await loadAllProfileRows();
 
-  const profileMap = profileRows.reduce((map, profile) => {
-    map[profile.id] = profile;
+  const workerProfileIds = workerProfiles
+    .map(worker => getWorkerId(worker))
+    .filter(Boolean);
+
+  const workerProfileIdSet = new Set(workerProfileIds);
+
+  const workerProfilesById = workerProfiles.reduce((map, worker) => {
+    const workerId = getWorkerId(worker);
+    if (workerId) map[workerId] = worker;
     return map;
   }, {});
 
-  const reviewRatingMap = await getWorkerRatingMap(workerIds);
+  const profileRowsById = profileRows.reduce((map, profile) => {
+    if (profile.id) map[profile.id] = profile;
+    return map;
+  }, {});
 
-  const combinedWorkers = workerProfiles.map(worker => {
-    const workerId = getWorkerId(worker);
-    const profile = profileMap[workerId] || {};
-    const workerProfileRating = extractRatingValue(worker);
+  const candidateIds = [
+    ...workerProfileIds,
+    ...profileRows
+      .filter(profile => isWorkerProfileRecord(profile) || extractRatingValue(profile) >= 4.5)
+      .map(profile => profile.id)
+      .filter(Boolean)
+  ];
+
+  const uniqueCandidateIds = [...new Set(candidateIds)];
+
+  const reviewRatingMap = await getWorkerRatingMap(uniqueCandidateIds);
+
+  const combinedWorkers = uniqueCandidateIds.map(workerId => {
+    const profile = profileRowsById[workerId] || {};
+    const workerProfile = workerProfilesById[workerId] || {};
+    const workerProfileRating = extractRatingValue(workerProfile);
     const profileRating = extractRatingValue(profile);
     const reviewRating = reviewRatingMap[workerId] || 0;
     const computedRating = reviewRating || workerProfileRating || profileRating;
 
     return {
       ...profile,
-      ...worker,
+      ...workerProfile,
       id: workerId,
       computed_rating: computedRating
     };
@@ -1630,14 +1670,11 @@ async function loadWorkerProfileRows() {
   return data || [];
 }
 
-async function loadProfileRows(workerIds) {
-  const uniqueIds = [...new Set((workerIds || []).filter(Boolean))];
-  if (!uniqueIds.length) return [];
-
+async function loadAllProfileRows() {
   const { data, error } = await supabaseClient
     .from("profiles")
     .select("*")
-    .in("id", uniqueIds);
+    .limit(200);
 
   if (error) {
     console.error("profiles featured load error:", error);
