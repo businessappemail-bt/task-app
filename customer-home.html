@@ -715,26 +715,11 @@
       cursor: not-allowed;
     }
 
-    .featured-actions-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-      margin-bottom:18px;
-    }
-
-    .featured-actions-grid .reward-panel {
-      height:100%;
-    }
-
-    .featured-actions-column {
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
-    @media (max-width:700px){
-      .featured-actions-grid{grid-template-columns:1fr;}
-    }
+     .action-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;margin-bottom:18px;}
+ .action-row .primary-action{margin-bottom:0!important;padding:16px;}
+ .action-row .pa-title{font-size:15px;}
+ .action-row .pa-sub{display:none;}
+ .action-row .pa-icon{width:48px;height:48px;font-size:24px;}
 
   .reward-panel {
       background:
@@ -962,7 +947,6 @@
     <div class="section-label">Rewards & Badges</div>
   </div>
 
-  <div class="featured-actions-grid">
   <div class="reward-panel fade-in" style="animation-delay:0.12s">
     <div class="reward-title">🏆 TaskMint Rewards</div>
     <div class="reward-sub">Complete tasks, rebook workers, and keep your home projects moving to unlock badges.</div>
@@ -978,7 +962,7 @@
     </div>
   </div>
 
-
+<div class="action-row">
   <!-- BUILD MY TO-DO LIST -->
   <div class="primary-action"
        style="margin-bottom:14px;background:linear-gradient(135deg,#6a4cff 0%,#8b5cf6 100%);box-shadow:0 18px 40px rgba(106,76,255,.35);border:3px solid rgba(255,255,255,.25);"
@@ -999,7 +983,6 @@
       <div class="pa-sub">Create a task and receive quotes from local workers.</div>
     </div>
     <div class="pa-arrow">›</div>
-  </div>
   </div>
 </div>
 
