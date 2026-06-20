@@ -1469,60 +1469,110 @@ function renderSavedWorkerCard() {
 }
 
 function getWorkerId(worker) {
-  return worker.worker_id || worker.user_id || worker.profile_id || worker.id || "";
+  return (
+    worker.worker_id ||
+    worker.user_id ||
+    worker.profile_id ||
+    worker.id ||
+    ""
+  );
+}
+
+function extractRatingValue(record) {
+  if (!record) return 0;
+
+  const ratingFields = [
+    record.average_rating,
+    record.avg_rating,
+    record.rating,
+    record.worker_rating,
+    record.review_rating,
+    record.star_rating,
+    record.stars,
+    record.rating_average,
+    record.average_stars,
+    record.profile_rating
+  ];
+
+  for (const value of ratingFields) {
+    if (value === null || value === undefined || value === "") continue;
+
+    const directNumber = Number(value);
+    if (Number.isFinite(directNumber)) return directNumber;
+
+    const match = String(value).match(/(\d+(?:\.\d+)?)/);
+    if (match) {
+      const parsed = Number(match[1]);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+
+  return 0;
+}
+
+function getWorkerDisplayName(worker) {
+  const firstLast = `${worker.first_name || ""} ${worker.last_name || ""}`.trim();
+  return worker.full_name || worker.display_name || worker.business_name || firstLast || "TaskMint Worker";
+}
+
+function getWorkerService(worker) {
+  const rawService =
+    worker.primary_service ||
+    worker.service_category ||
+    worker.service_type ||
+    worker.services_offered ||
+    worker.skills ||
+    worker.experience ||
+    "Local help";
+
+  if (Array.isArray(rawService)) return rawService[0] || "Local help";
+  return String(rawService).split(",")[0].trim() || "Local help";
+}
+
+function getWorkerPhoto(worker) {
+  return (
+    worker.profile_photo_url ||
+    worker.profile_picture_url ||
+    worker.avatar_url ||
+    worker.photo_url ||
+    worker.image_url ||
+    ""
+  );
 }
 
 async function loadFeaturedWorkers() {
   const featuredWorkers = document.getElementById("featuredWorkers");
   if (!featuredWorkers) return;
 
-  const { data: workers, error } = await supabaseClient
-    .from("worker_profiles")
-    .select("*")
-    .limit(100);
+  const workerProfiles = await loadWorkerProfileRows();
+  const workerIds = workerProfiles.map(worker => getWorkerId(worker)).filter(Boolean);
+  const profileRows = await loadProfileRows(workerIds);
 
-  if (error) {
-    console.error("Featured workers load error:", error);
-    featuredWorkers.innerHTML = `
-      <div class="empty-mini">
-        Featured workers could not load. Check worker_profiles RLS/select policy.
-      </div>
-    `;
-    return;
-  }
+  const profileMap = profileRows.reduce((map, profile) => {
+    map[profile.id] = profile;
+    return map;
+  }, {});
 
-  if (!workers || !workers.length) {
-    featuredWorkers.innerHTML = `
-      <div class="empty-mini">
-        No worker profiles with ratings are available yet.
-      </div>
-    `;
-    return;
-  }
+  const reviewRatingMap = await getWorkerRatingMap(workerIds);
 
-  const workerIds = workers
-    .map(worker => getWorkerId(worker))
-    .filter(Boolean);
-
-  const profileNameMap = await getWorkerProfileNameMap(workerIds);
-  const ratingMap = await getWorkerRatingMap(workerIds);
-
-  const workersWithRatings = workers.map(worker => {
+  const combinedWorkers = workerProfiles.map(worker => {
     const workerId = getWorkerId(worker);
-    const profileNames = profileNameMap[workerId] || {};
-    const profileRating = getWorkerRating(worker);
-    const reviewRating = ratingMap[workerId];
+    const profile = profileMap[workerId] || {};
+    const workerProfileRating = extractRatingValue(worker);
+    const profileRating = extractRatingValue(profile);
+    const reviewRating = reviewRatingMap[workerId] || 0;
+    const computedRating = reviewRating || workerProfileRating || profileRating;
 
     return {
-      ...profileNames,
+      ...profile,
       ...worker,
       id: workerId,
-      computed_rating: reviewRating ?? profileRating
+      computed_rating: computedRating
     };
   });
 
   const featured = shuffleArray(
-    workersWithRatings.filter(worker => {
+    combinedWorkers.filter(worker => {
       const rating = Number(worker.computed_rating || 0);
       return rating >= 4.5 && rating <= 5;
     })
@@ -1566,43 +1616,59 @@ async function loadFeaturedWorkers() {
   }).join("");
 }
 
-async function getWorkerProfileNameMap(workerIds) {
+async function loadWorkerProfileRows() {
+  const { data, error } = await supabaseClient
+    .from("worker_profiles")
+    .select("*")
+    .limit(150);
+
+  if (error) {
+    console.error("worker_profiles featured load error:", error);
+    return [];
+  }
+
+  return data || [];
+}
+
+async function loadProfileRows(workerIds) {
   const uniqueIds = [...new Set((workerIds || []).filter(Boolean))];
-  if (!uniqueIds.length) return {};
+  if (!uniqueIds.length) return [];
 
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("id, first_name, last_name, full_name, display_name")
+    .select("*")
     .in("id", uniqueIds);
 
-  if (error || !data) return {};
+  if (error) {
+    console.error("profiles featured load error:", error);
+    return [];
+  }
 
-  return data.reduce((map, profile) => {
-    map[profile.id] = profile;
-    return map;
-  }, {});
+  return data || [];
 }
 
 async function getWorkerRatingMap(workerIds) {
   const uniqueIds = [...new Set((workerIds || []).filter(Boolean))];
   if (!uniqueIds.length) return {};
 
-  const ratingsFromRatingsReviews = await getRatingsFromTable("ratings_reviews", uniqueIds);
-  if (Object.keys(ratingsFromRatingsReviews).length) return ratingsFromRatingsReviews;
+  const ratings = {};
 
-  const ratingsFromReviews = await getRatingsFromTable("reviews", uniqueIds);
-  return ratingsFromReviews;
-}
+  const ratingSources = [
+    { table: "ratings_reviews", columns: ["worker_id", "profile_id", "reviewed_user_id", "reviewee_id"] },
+    { table: "reviews", columns: ["worker_id", "profile_id", "reviewed_user_id", "reviewee_id"] }
+  ];
 
-async function getRatingsFromTable(tableName, workerIds) {
-  const byWorkerId = await getRatingsByColumn(tableName, "worker_id", workerIds);
-  if (Object.keys(byWorkerId).length) return byWorkerId;
+  for (const source of ratingSources) {
+    for (const column of source.columns) {
+      const foundRatings = await getRatingsByColumn(source.table, column, uniqueIds);
+      Object.assign(ratings, foundRatings);
+    }
+  }
 
-  const byProfileId = await getRatingsByColumn(tableName, "profile_id", workerIds);
-  if (Object.keys(byProfileId).length) return byProfileId;
+  const taskReviewRatings = await getRatingsThroughTasks(uniqueIds);
+  Object.assign(ratings, taskReviewRatings);
 
-  const byReviewedUserId = await getRatingsByColumn(tableName, "reviewed_user_id", workerIds);
-  return byReviewedUserId;
+  return ratings;
 }
 
 async function getRatingsByColumn(tableName, columnName, workerIds) {
@@ -1621,14 +1687,62 @@ async function getRatingsByColumn(tableName, columnName, workerIds) {
 
     if (!workerId || !Number.isFinite(rating)) return;
 
-    if (!grouped[workerId]) {
-      grouped[workerId] = { total: 0, count: 0 };
-    }
+    if (!grouped[workerId]) grouped[workerId] = { total: 0, count: 0 };
 
     grouped[workerId].total += rating;
     grouped[workerId].count += 1;
   });
 
+  return averageGroupedRatings(grouped);
+}
+
+async function getRatingsThroughTasks(workerIds) {
+  const { data: reviews, error: reviewError } = await supabaseClient
+    .from("reviews")
+    .select("task_id, rating");
+
+  if (reviewError || !reviews || !reviews.length) return {};
+
+  const taskIds = reviews.map(review => review.task_id).filter(Boolean);
+  if (!taskIds.length) return {};
+
+  const { data: tasks, error: taskError } = await supabaseClient
+    .from("tasks")
+    .select("id, worker_id, assigned_worker_id, worker_profile_id")
+    .in("id", taskIds);
+
+  if (taskError || !tasks || !tasks.length) return {};
+
+  const taskWorkerMap = tasks.reduce((map, task) => {
+    const workerId =
+      task.worker_id ||
+      task.assigned_worker_id ||
+      task.worker_profile_id ||
+      "";
+
+    if (workerId) map[task.id] = workerId;
+    return map;
+  }, {});
+
+  const allowedWorkerIds = new Set(workerIds);
+  const grouped = {};
+
+  reviews.forEach(review => {
+    const workerId = taskWorkerMap[review.task_id];
+    const rating = Number(review.rating);
+
+    if (!workerId || !allowedWorkerIds.has(workerId) || !Number.isFinite(rating)) return;
+
+    if (!grouped[workerId]) grouped[workerId] = { total: 0, count: 0 };
+
+    grouped[workerId].total += rating;
+    grouped[workerId].count += 1;
+  });
+
+  return averageGroupedRatings(grouped);
+}
+
+function averageGroupedRatings(grouped) {
   return Object.keys(grouped).reduce((map, workerId) => {
     map[workerId] = grouped[workerId].total / grouped[workerId].count;
     return map;
