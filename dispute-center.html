@@ -994,25 +994,81 @@ async function loadDisputes() {
   pastList.innerHTML =
     `<div class="empty">Loading past disputes...</div>`;
 
-  const { data: disputes, error } =
+  const { data: customerTasks, error: taskError } =
+    await supabaseClient
+      .from("tasks")
+      .select("id,customer_id")
+      .eq("customer_id", customerId);
+
+  if (taskError) {
+    openList.innerHTML =
+      `<div class="empty error">${escapeHTML(taskError.message)}</div>`;
+
+    pastList.innerHTML = "";
+    return;
+  }
+
+  const taskIds =
+    (customerTasks || []).map(task => task.id).filter(Boolean);
+
+  let disputesByCustomer = [];
+  let disputesByTask = [];
+
+  const { data: customerDisputes, error: customerDisputeError } =
     await supabaseClient
       .from("disputes")
       .select("*")
       .eq("customer_id", customerId)
       .order("created_at", { ascending: false });
 
-  if (error) {
+  if (customerDisputeError) {
     openList.innerHTML =
-      `<div class="empty error">${escapeHTML(error.message)}</div>`;
+      `<div class="empty error">${escapeHTML(customerDisputeError.message)}</div>`;
 
     pastList.innerHTML = "";
     return;
   }
 
+  disputesByCustomer =
+    customerDisputes || [];
+
+  if (taskIds.length > 0) {
+    const { data: taskDisputes, error: taskDisputeError } =
+      await supabaseClient
+        .from("disputes")
+        .select("*")
+        .in("task_id", taskIds)
+        .order("created_at", { ascending: false });
+
+    if (taskDisputeError) {
+      openList.innerHTML =
+        `<div class="empty error">${escapeHTML(taskDisputeError.message)}</div>`;
+
+      pastList.innerHTML = "";
+      return;
+    }
+
+    disputesByTask =
+      taskDisputes || [];
+  }
+
+  const disputeMap =
+    new Map();
+
+  [...disputesByCustomer, ...disputesByTask].forEach(dispute => {
+    if (dispute && dispute.id) {
+      disputeMap.set(dispute.id, dispute);
+    }
+  });
+
+  const disputes =
+    Array.from(disputeMap.values())
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
   unreadDisputeIds = new Set();
 
   const disputeIds =
-    (disputes || []).map(dispute => dispute.id).filter(Boolean);
+    disputes.map(dispute => dispute.id).filter(Boolean);
 
   if (disputeIds.length > 0) {
     const { data: unreadMessages } =
@@ -1034,12 +1090,12 @@ async function loadDisputes() {
   }
 
   const openDisputes =
-    (disputes || []).filter(dispute =>
+    disputes.filter(dispute =>
       OPEN_DISPUTE_STATUSES.includes(String(dispute.status || "open").toLowerCase())
     );
 
   const pastDisputes =
-    (disputes || []).filter(dispute =>
+    disputes.filter(dispute =>
       PAST_DISPUTE_STATUSES.includes(String(dispute.status || "").toLowerCase())
     );
 
