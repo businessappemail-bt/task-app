@@ -388,7 +388,20 @@ body {
   line-height: 1.45;
   font-weight: 700;
 }
- 
+
+
+.dispute-center-link {
+  display: block;
+  margin-top: 10px;
+  background: #8b0018;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 11px;
+  padding: 11px 12px;
+  font-size: 12.5px;
+  font-weight: 800;
+} 
 /* ── ACTION ROW ── */
 .action-row {
   display: grid;
@@ -1181,6 +1194,52 @@ function isDisputeOpen(task) {
   );
 }
  
+
+async function fetchOpenDisputeForTask(taskId, customerId) {
+  if (!taskId || !customerId) {
+    return null;
+  }
+
+  const { data } =
+    await supabaseClient
+      .from("disputes")
+      .select("id,status,task_id,customer_id,reason,created_at")
+      .eq("task_id", taskId)
+      .eq("customer_id", customerId)
+      .in("status", ["open", "reviewing", "pending", "in_review", "waiting_on_customer", "waiting_on_worker"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+  return data || null;
+}
+
+function renderDisputeCenterLink(dispute, task) {
+  const disputeOpen =
+    isDisputeOpen(task) || !!dispute;
+
+  if (!disputeOpen) {
+    return "";
+  }
+
+  const disputeId =
+    dispute?.id || "";
+
+  const href =
+    disputeId
+      ? `dispute-center.html?dispute_id=${encodeURIComponent(disputeId)}&task_id=${encodeURIComponent(task.id)}`
+      : `dispute-center.html?task_id=${encodeURIComponent(task.id)}`;
+
+  return `
+    <div class="dispute-alert">
+      Dispute open for this task. Tap below to view the case and respond with more information.
+      <a class="dispute-center-link" href="${href}">
+        Tap here to open Dispute Center
+      </a>
+    </div>
+  `;
+}
+
 function getLiveTaskStatus(task, quote, assignment, paymentCompleted) {
   if (isDisputeOpen(task)) {
     return "Dispute Open";
@@ -1894,6 +1953,9 @@ async function loadAcceptedQuotes() {
     const disputeOpen =
       isDisputeOpen(task);
  
+    const openDispute =
+      await fetchOpenDisputeForTask(task.id, customerId);
+ 
     const card =
       document.createElement("div");
  
@@ -1974,6 +2036,8 @@ async function loadAcceptedQuotes() {
       ${renderProgressTracker(liveStatus)}
  
       ${renderArrivalCodeBox(arrivalCode, liveStatus)}
+ 
+      ${renderDisputeCenterLink(openDispute, task)}
  
       <div class="payment-box ${paymentCompleted ? "" : "unpaid"}">
         ${paymentCompleted
