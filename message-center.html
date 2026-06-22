@@ -1710,8 +1710,22 @@ async function markCurrentThreadRead() {
 
   await supabaseClient
     .from("task_conversations")
-    .update({ customer_unread_count: 0 })
+    .update({
+      customer_unread_count: 0,
+      unread_count: 0,
+      updated_at: new Date().toISOString()
+    })
     .eq("id", conversationId);
+
+  allInboxConversations = allInboxConversations.map(convo => {
+    if (convo.id === conversationId) {
+      convo.hydrated_unread_count = 0;
+      convo.customer_unread_count = 0;
+      convo.unread_count = 0;
+    }
+
+    return convo;
+  });
 }
 
 async function loadThreadTitle() {
