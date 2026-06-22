@@ -1196,43 +1196,44 @@ function isDisputeOpen(task) {
  
 
 async function fetchOpenDisputeForTask(taskId, customerId) {
-  if (!taskId || !customerId) {
+  if (!taskId) {
     return null;
   }
 
-  const { data } =
-    await supabaseClient
+  const openStatuses =
+    ["open", "reviewing", "pending", "in_review", "waiting_on_customer", "waiting_on_worker"];
+
+  let query =
+    supabaseClient
       .from("disputes")
       .select("id,status,task_id,customer_id,reason,created_at")
       .eq("task_id", taskId)
-      .eq("customer_id", customerId)
-      .in("status", ["open", "reviewing", "pending", "in_review", "waiting_on_customer", "waiting_on_worker"])
+      .in("status", openStatuses)
       .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(1);
+
+  if (customerId) {
+    query =
+      query.or(`customer_id.eq.${customerId},customer_id.is.null`);
+  }
+
+  const { data } =
+    await query.maybeSingle();
 
   return data || null;
 }
 
 function renderDisputeCenterLink(dispute, task) {
-  const disputeOpen =
-    isDisputeOpen(task) || !!dispute;
-
-  if (!disputeOpen) {
+  if (!dispute || !dispute.id) {
     return "";
   }
 
-  const disputeId =
-    dispute?.id || "";
-
   const href =
-    disputeId
-      ? `dispute-center.html?dispute_id=${encodeURIComponent(disputeId)}&task_id=${encodeURIComponent(task.id)}`
-      : `dispute-center.html?task_id=${encodeURIComponent(task.id)}`;
+    `dispute-center.html?dispute_id=${encodeURIComponent(dispute.id)}&task_id=${encodeURIComponent(task.id)}`;
 
   return `
     <div class="dispute-alert">
-      Dispute open for this task. Tap below to view the case and respond with more information.
+      A dispute is open for this task. Tap below to view the existing dispute and send more information to TaskMint.
       <a class="dispute-center-link" href="${href}">
         Tap here to open Dispute Center
       </a>
@@ -2045,12 +2046,7 @@ async function loadAcceptedQuotes() {
           : `Payment status: ${escapeHTML(formatStatus(paymentStatus))}.`
         }
       </div>
- 
-      ${disputeOpen ? `
-        <div class="dispute-alert">
-          A dispute is still open on this task. It should remain visible until the dispute is closed.
-        </div>
-      ` : ""}
+
  
       <div class="details-toggle" onclick="toggleDetails('${detailsId}')">
         View all task details
