@@ -815,7 +815,14 @@ function getTaskOrderNumber(task) {
 }
 
 async function findOpenDisputeByTask(taskIdValue) {
-  if (!taskIdValue || !customerId) {
+  if (!taskIdValue) {
+    return null;
+  }
+
+  const linkedTask =
+    await loadLinkedTaskInfo(taskIdValue);
+
+  if (!linkedTask) {
     return null;
   }
 
@@ -824,7 +831,6 @@ async function findOpenDisputeByTask(taskIdValue) {
       .from("disputes")
       .select("*")
       .eq("task_id", taskIdValue)
-      .eq("customer_id", customerId)
       .in("status", OPEN_DISPUTE_STATUSES)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -1304,12 +1310,20 @@ async function loadDisputeMessages() {
       .from("disputes")
       .select("*")
       .eq("id", activeDisputeId)
-      .eq("customer_id", customerId)
       .maybeSingle();
 
   if (disputeError || !dispute) {
     thread.innerHTML =
       `<div class="empty error">${escapeHTML(disputeError?.message || "Dispute not found.")}</div>`;
+    return;
+  }
+
+  const linkedTask =
+    await loadLinkedTaskInfo(dispute.task_id || taskId);
+
+  if (!linkedTask) {
+    thread.innerHTML =
+      `<div class="empty error">This dispute is not linked to your customer account.</div>`;
     return;
   }
 
@@ -1473,7 +1487,11 @@ async function initPage() {
   }
 
   if (urlDisputeId) {
-    await openDisputeMessages(urlDisputeId);
+    activeDisputeId =
+      urlDisputeId;
+
+    showMessageSection();
+    await loadDisputeMessages();
     return;
   }
 
