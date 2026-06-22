@@ -497,6 +497,262 @@ button:disabled {
   line-height: 1.45;
 }
 
+
+/* ── WORKER-STYLE DISPUTE CARDS ── */
+.dispute-card.worker-style-card {
+  background: #fff;
+  border-left: 4px solid var(--accent);
+  cursor: default;
+}
+
+.dispute-card.worker-style-card.status-resolved {
+  border-left-color: #027a48;
+}
+
+.dispute-card.worker-style-card.status-closed {
+  border-left-color: #aaa;
+}
+
+.dispute-card.worker-style-card.status-rejected {
+  border-left-color: var(--danger);
+}
+
+.dispute-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.dispute-title-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.dispute-title-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.dispute-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.dispute-info-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.dispute-info-label {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.dispute-info-value {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.dispute-details-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 11px;
+  margin-top: 10px;
+  font-size: 12.8px;
+  color: var(--muted);
+  line-height: 1.5;
+  font-weight: 600;
+  white-space: pre-wrap;
+}
+
+.evidence-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 11px;
+  margin-top: 10px;
+}
+
+.small-text {
+  font-size: 12.8px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 8px;
+  font-weight: 600;
+  white-space: pre-wrap;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  margin-top: 10px;
+  text-transform: capitalize;
+}
+
+.status.open {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border: 1px solid var(--warn-border);
+}
+
+.status.reviewing,
+.status.waiting_on_worker,
+.status.waiting_on_customer,
+.status.in_review,
+.status.pending {
+  background: #eef5ff;
+  color: #0b4d91;
+  border: 1px solid #c9def8;
+}
+
+.status.resolved {
+  background: var(--surface2);
+  color: var(--accent);
+  border: 1px solid #cfead7;
+}
+
+.status.rejected {
+  background: #ffe5e5;
+  color: var(--danger);
+  border: 1px solid #ffc4c4;
+}
+
+.status.closed,
+.status.cancelled {
+  background: #f1f1f1;
+  color: #555;
+  border: 1px solid #ddd;
+}
+
+.outcome-banner {
+  border-radius: 14px;
+  padding: 13px 14px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.outcome-resolved {
+  background: var(--surface2);
+  border: 1px solid #cfead7;
+  color: #027a48;
+}
+
+.outcome-closed {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.outcome-rejected {
+  background: #ffe5e5;
+  border: 1px solid #ffc4c4;
+  color: var(--danger);
+}
+
+.payment-outcome {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.payment-outcome-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.payment-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.payment-row:last-child {
+  border-bottom: none;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.payment-row span:first-child {
+  color: var(--muted);
+}
+
+.msg-item {
+  margin-top: 9px;
+  background: white;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.msg-item.from-admin {
+  border-left: 4px solid var(--accent);
+}
+
+.msg-item.from-customer {
+  border-left: 4px solid #0b4d91;
+}
+
+.msg-sender {
+  font-weight: 800;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.msg-sender.admin-sender {
+  color: var(--accent);
+}
+
+.msg-sender.customer-sender {
+  color: #0b4d91;
+}
+
+.msg-time {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.reply-status {
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 8px;
+  text-align: center;
+  line-height: 1.4;
+}
+
 @keyframes riseIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -552,15 +808,15 @@ button:disabled {
     </div>
 
     <div class="section-header-card">
-      <div class="section-title">Open Disputes</div>
+      <div class="section-title">Active Disputes</div>
       <p class="small">Active dispute reviews that are still open, pending, waiting, or in review.</p>
     </div>
 
     <div id="openDisputesList">Loading open disputes...</div>
 
     <div class="section-header-card">
-      <div class="section-title">Past Disputes</div>
-      <p class="small">Closed, resolved, rejected, or cancelled dispute history.</p>
+      <div class="section-title">Dispute History</div>
+      <p class="small">Resolved, rejected, closed, or cancelled dispute history.</p>
     </div>
 
     <div id="pastDisputesList">Loading past disputes...</div>
@@ -660,7 +916,7 @@ button:disabled {
       </div>
 
       <div class="notice compact">
-        Only you and TaskMint can see this message thread. Worker messages are separate and are not shown here.
+        Only you and TaskMint can see this customer support thread.
       </div>
 
       <div id="messageThread" class="message-thread">
@@ -745,6 +1001,47 @@ function formatDate(value) {
 
   return date.toLocaleDateString();
 }
+
+function formatDateTime(value) {
+  if (!value) {
+    return "";
+  }
+
+  const date =
+    new Date(value);
+
+  if (isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+function money(value) {
+  return "$" + Number(value || 0).toFixed(2);
+}
+
+function getDisputeDetails(dispute) {
+  return dispute.details || dispute.description || dispute.additional_notes || "";
+}
+
+function getDisputeOrderNumber(dispute) {
+  return (
+    dispute.order_number ||
+    dispute.task_order_number ||
+    (
+      dispute.task_id
+        ? "TM-" + String(dispute.task_id).slice(0, 8).toUpperCase()
+        : "Not linked"
+    )
+  );
+
 
 function goBack() {
   if (!document.getElementById("messageSection").classList.contains("hidden")) {
@@ -1119,66 +1416,174 @@ function createDisputeCard(dispute, isPast) {
     document.createElement("div");
 
   const hasUnread =
-    unreadDisputeIds.has(dispute.id);
-
-  div.className =
-    `dispute-card ${hasUnread ? "has-unread" : ""}`;
-
-  div.onclick =
-    () => openDisputeMessages(dispute.id);
+    unreadDisputeIds.has(String(dispute.id));
 
   const status =
-    dispute.status || "open";
+    String(dispute.status || "open").toLowerCase();
+
+  const statusClass =
+    `status-${status.replace(/[^a-z]/g, "")}`;
+
+  let outcomeBanner = "";
+
+  const closedStatuses =
+    ["resolved", "rejected", "closed", "cancelled"];
+
+  if (closedStatuses.includes(status)) {
+    const cls =
+      status === "resolved"
+        ? "outcome-resolved"
+        : status === "rejected"
+          ? "outcome-rejected"
+          : "outcome-closed";
+
+    const closedAt =
+      dispute.closed_at ||
+      dispute.resolved_at ||
+      dispute.updated_at ||
+      "";
+
+    const paymentAction =
+      dispute.admin_payment_action
+        ? "Payment: " + String(dispute.admin_payment_action).replaceAll("_", " ")
+        : "";
+
+    const customerRefund =
+      Number(dispute.admin_payment_amount_customer || 0) > 0
+        ? ` · Customer refund: ${money(dispute.admin_payment_amount_customer)}`
+        : "";
+
+    const workerPayout =
+      Number(dispute.admin_payment_amount_worker || 0) > 0
+        ? ` · Worker payout: ${money(dispute.admin_payment_amount_worker)}`
+        : "";
+
+    const closeReason =
+      dispute.resolution_note ||
+      dispute.closed_reason ||
+      dispute.admin_resolution_note ||
+      dispute.admin_notes ||
+      "";
+
+    outcomeBanner =
+      `<div class="outcome-banner ${cls}">
+        <strong>${escapeHTML(status.charAt(0).toUpperCase() + status.slice(1))}</strong>${paymentAction ? ` · ${escapeHTML(paymentAction)}` : ""}${customerRefund}${workerPayout}
+        <br>Closed by: TaskMint admin${closedAt ? ` · ${escapeHTML(formatDate(closedAt))}` : ""}
+        ${closeReason ? `<br>${escapeHTML(closeReason)}` : ""}
+      </div>`;
+  }
+
+  let paymentOutcome = "";
+
+  if (dispute.admin_payment_action) {
+    const customerAmount =
+      Number(dispute.admin_payment_amount_customer || 0);
+
+    const workerAmount =
+      Number(dispute.admin_payment_amount_worker || 0);
+
+    if (customerAmount > 0 || workerAmount > 0) {
+      paymentOutcome =
+        `<div class="payment-outcome">
+          <div class="payment-outcome-title">Payment Outcome</div>
+          ${customerAmount > 0 ? `<div class="payment-row"><span>Your refund</span><span>${money(customerAmount)}</span></div>` : ""}
+          ${workerAmount > 0 ? `<div class="payment-row"><span>Worker payout</span><span>${money(workerAmount)}</span></div>` : ""}
+        </div>`;
+    }
+  }
+
+  div.className =
+    `card dispute-card worker-style-card ${statusClass}`;
 
   div.innerHTML = `
-    <div class="dispute-top">
-      <div>
-        <div class="dispute-title">
-          ${escapeHTML(dispute.reason || "Dispute")}${hasUnread ? `<span class="unread-dot"></span>` : ""}
+    <div class="dispute-header-row">
+      <div class="dispute-title-area">
+        <div class="dispute-title-line">
+          ${hasUnread ? `<span class="unread-dot"></span>` : ""}
+          <div class="section-title" style="margin-bottom:0;">
+            ${escapeHTML(dispute.reason || "Dispute")}
+          </div>
         </div>
 
-        <div class="dispute-sub">
-          Order # ${escapeHTML(dispute.order_number || (dispute.task_id ? "TM-" + String(dispute.task_id).slice(0,8).toUpperCase() : "Not linked"))}<br>
-          Opened ${escapeHTML(formatDate(dispute.created_at))}
+        <div class="small-text">
+          Order # ${escapeHTML(getDisputeOrderNumber(dispute))}
         </div>
-        ${hasUnread ? `<div class="unread-label">New message</div>` : ""}
       </div>
 
-      <span class="status-pill ${escapeHTML(status)}">
-        ${escapeHTML(status)}
-      </span>
-    </div>
-
-    <div class="info-grid">
-      <div class="info-box">
-        <div class="info-label">Reason</div>
-        <div class="info-value">${escapeHTML(dispute.reason || "N/A")}</div>
-      </div>
-
-      <div class="info-box">
-        <div class="info-label">Review Time</div>
-        <div class="info-value">7–10 business days</div>
+      <div class="status ${escapeHTML(status)}">
+        ${escapeHTML(status.replaceAll("_", " "))}
       </div>
     </div>
 
-    <p class="small" style="margin-top:12px;">
-      ${escapeHTML(dispute.description || "")}
-    </p>
+    ${hasUnread ? `<div class="unread-label">New message</div>` : ""}
+
+    <div class="dispute-info-grid">
+      <div class="dispute-info-box">
+        <div class="dispute-info-label">Submitted</div>
+        <div class="dispute-info-value">${escapeHTML(formatDate(dispute.created_at))}</div>
+      </div>
+
+      <div class="dispute-info-box">
+        <div class="dispute-info-label">Last Updated</div>
+        <div class="dispute-info-value">${escapeHTML(formatDate(dispute.updated_at || dispute.created_at))}</div>
+      </div>
+
+      <div class="dispute-info-box">
+        <div class="dispute-info-label">Task ID</div>
+        <div class="dispute-info-value" style="font-size:10.5px;">${escapeHTML(dispute.task_id || "Not linked")}</div>
+      </div>
+
+      <div class="dispute-info-box">
+        <div class="dispute-info-label">Opened By</div>
+        <div class="dispute-info-value">${String(dispute.opened_by || "") === String(customerId) ? "You" : "Worker"}</div>
+      </div>
+    </div>
+
+    <div class="dispute-details-box">
+      ${escapeHTML(getDisputeDetails(dispute) || "No dispute details listed.")}
+    </div>
 
     ${
       dispute.evidence_url
-        ? `<img class="evidence-img" src="${escapeHTML(dispute.evidence_url)}">`
+        ? `<div class="evidence-section">
+            <div class="thread-title">Evidence</div>
+            <img class="evidence-img" src="${escapeHTML(dispute.evidence_url)}" alt="Dispute evidence">
+          </div>`
         : ""
     }
 
-    <button class="primary-btn" onclick="event.stopPropagation(); openDisputeMessages('${escapeHTML(dispute.id)}')">
-      View Dispute
-    </button>
+    ${outcomeBanner}
+    ${paymentOutcome}
 
-    <button class="secondary-btn" onclick="event.stopPropagation(); openDisputeMessages('${escapeHTML(dispute.id)}')">
-      ${isPast ? "View Message History" : "Message TaskMint"}
-    </button>
+    <div class="message-thread">
+      <div class="thread-title">TaskMint Support Thread</div>
+      <div id="messages-${escapeHTML(dispute.id)}">
+        <div class="small-text">Loading messages...</div>
+      </div>
+    </div>
+
+    ${
+      isPast
+        ? ""
+        : `
+          <label for="reply-${escapeHTML(dispute.id)}">Reply to TaskMint</label>
+          <textarea id="reply-${escapeHTML(dispute.id)}" placeholder="Reply to TaskMint support..."></textarea>
+
+          <label for="replyFile-${escapeHTML(dispute.id)}">Attach Evidence</label>
+          <input id="replyFile-${escapeHTML(dispute.id)}" type="file" accept="image/*">
+
+          <button class="primary-btn" onclick="sendCustomerReply('${escapeHTML(dispute.id)}')">
+            Send Reply
+          </button>
+
+          <div id="replyStatus-${escapeHTML(dispute.id)}" class="reply-status"></div>
+        `
+    }
   `;
+
+  setTimeout(() => {
+    loadCustomerDisputeMessages(dispute.id, `messages-${dispute.id}`);
+  }, 100);
 
   return div;
 }
@@ -1341,147 +1746,142 @@ async function openDisputeMessages(disputeId) {
   activeDisputeId =
     disputeId;
 
-  showMessageSection();
-  await loadDisputeMessages();
+  document.getElementById("dashboardSection").classList.remove("hidden");
+  document.getElementById("formSection").classList.add("hidden");
+  document.getElementById("messageSection").classList.add("hidden");
+
+  await loadDisputes();
+
+  setTimeout(() => {
+    const target =
+      document.getElementById(`messages-${disputeId}`);
+
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 250);
 }
 
-async function loadDisputeMessages() {
-  const thread =
-    document.getElementById("messageThread");
+async function loadCustomerDisputeMessages(disputeId, containerId) {
+  const container =
+    document.getElementById(containerId);
 
-  const title =
-    document.getElementById("messageDisputeTitle");
-
-  const sub =
-    document.getElementById("messageDisputeSub");
-
-  const pill =
-    document.getElementById("messageDisputeStatus");
-
-  thread.innerHTML =
-    "Loading messages...";
-
-  const { data: dispute, error: disputeError } =
-    await supabaseClient
-      .from("disputes")
-      .select("*")
-      .eq("id", activeDisputeId)
-      .maybeSingle();
-
-  if (disputeError || !dispute) {
-    thread.innerHTML =
-      `<div class="empty error">${escapeHTML(disputeError?.message || "Dispute not found.")}</div>`;
+  if (!container) {
     return;
   }
-
-  const linkedTask =
-    await loadLinkedTaskInfo(dispute.task_id || taskId);
-
-  if (!linkedTask) {
-    thread.innerHTML =
-      `<div class="empty error">This dispute is not linked to your customer account.</div>`;
-    return;
-  }
-
-  title.innerText =
-    dispute.reason || "Dispute Messages";
-
-  sub.innerText =
-    dispute.order_number ||
-    (
-      dispute.task_id
-        ? `Order # TM-${String(dispute.task_id).slice(0,8).toUpperCase()}`
-        : "Dispute not linked to a task"
-    );
-
-  pill.innerText =
-    dispute.status || "open";
-
-  pill.className =
-    `status-pill ${dispute.status || "open"}`;
 
   const { data: messages, error } =
     await supabaseClient
       .from("dispute_messages")
       .select("*")
-      .eq("dispute_id", activeDisputeId)
-      .in("visible_to", ["customer", "both"])
+      .eq("dispute_id", disputeId)
       .order("created_at", { ascending: true });
 
-  if (error) {
-    thread.innerHTML =
-      `<div class="empty error">${escapeHTML(error.message)}</div>`;
+  if (error || !messages) {
+    container.innerHTML =
+      `<div class="small-text">Unable to load messages.</div>`;
     return;
   }
 
-  if (!messages || messages.length === 0) {
-    thread.innerHTML =
-      `<div class="empty">No messages yet.</div>`;
+  const visibleMessages =
+    messages.filter(message => {
+      const visibleTo =
+        String(message.visible_to || "").toLowerCase();
+
+      const sender =
+        String(message.sender_role || message.sender_type || "").toLowerCase();
+
+      const isAdminToCustomer =
+        (visibleTo === "customer" || visibleTo === "both") &&
+        sender !== "customer" &&
+        sender !== "worker";
+
+      const isCustomerMessage =
+        sender === "customer";
+
+      return isAdminToCustomer || isCustomerMessage;
+    });
+
+  if (!visibleMessages.length) {
+    container.innerHTML =
+      `<div class="small-text">No messages yet. TaskMint will respond within 7–10 business days.</div>`;
     return;
   }
 
-  thread.innerHTML = "";
+  container.innerHTML = "";
 
-  messages.forEach(message => {
-    const div =
-      document.createElement("div");
+  visibleMessages.forEach(message => {
+    const sender =
+      String(message.sender_role || message.sender_type || "").toLowerCase();
 
     const isCustomer =
-      String(message.sender_role || message.sender_type || "").toLowerCase() === "customer";
+      sender === "customer";
 
-    div.className =
-      isCustomer
-        ? "thread-message customer"
-        : "thread-message taskmint";
+    const fromClass =
+      isCustomer ? "from-customer" : "from-admin";
 
-    div.innerHTML = `
-      <strong>${isCustomer ? "You" : "TaskMint"}</strong><br>
-      ${escapeHTML(message.message || "")}
-      ${
-        message.attachment_url
-          ? `<img class="evidence-img" src="${escapeHTML(message.attachment_url)}">`
-          : ""
-      }
-      <div class="message-meta">
-        ${message.created_at ? new Date(message.created_at).toLocaleString() : ""}
+    const senderClass =
+      isCustomer ? "customer-sender" : "admin-sender";
+
+    const senderLabel =
+      isCustomer ? "You" : "TaskMint Support";
+
+    const messageText =
+      message.message ||
+      message.body ||
+      message.content ||
+      message.text ||
+      "";
+
+    container.innerHTML += `
+      <div class="msg-item ${fromClass}">
+        <div class="msg-sender ${senderClass}">${senderLabel}</div>
+        <div>${escapeHTML(messageText)}</div>
+        ${
+          message.attachment_url
+            ? `<a href="${escapeHTML(message.attachment_url)}" target="_blank" style="color:var(--accent);font-size:12px;">View attachment ↗</a>`
+            : ""
+        }
+        <div class="msg-time">${formatDateTime(message.created_at)}</div>
       </div>
     `;
-
-    thread.appendChild(div);
   });
 
   await supabaseClient
     .from("dispute_messages")
     .update({ is_read: true })
-    .eq("dispute_id", activeDisputeId)
+    .eq("dispute_id", disputeId)
     .in("visible_to", ["customer", "both"])
     .neq("sender_role", "customer");
 
-  unreadDisputeIds.delete(activeDisputeId);
+  unreadDisputeIds.delete(String(disputeId));
 }
 
-async function sendDisputeMessage() {
+async function sendCustomerReply(disputeId) {
+  const input =
+    document.getElementById(`reply-${disputeId}`);
+
+  const fileInput =
+    document.getElementById(`replyFile-${disputeId}`);
+
   const status =
-    document.getElementById("messageStatus");
+    document.getElementById(`replyStatus-${disputeId}`);
 
-  const message =
-    document.getElementById("customerReply").value.trim();
-
-  const file =
-    document.getElementById("replyFile").files[0];
-
-  status.className = "";
-  status.innerText = "";
-
-  if (!activeDisputeId) {
-    status.className = "error";
-    status.innerText =
-      "No dispute selected.";
+  if (!input || !status) {
     return;
   }
 
+  const message =
+    input.value.trim();
+
+  const file =
+    fileInput?.files?.[0] || null;
+
+  status.style.color = "";
+  status.innerText = "";
+
   if (!message && !file) {
-    status.className = "error";
+    status.style.color = "#b00020";
     status.innerText =
       "Enter a message or attach evidence.";
     return;
@@ -1500,38 +1900,65 @@ async function sendDisputeMessage() {
         .from("dispute_messages")
         .insert([
           {
-            dispute_id: activeDisputeId,
+            dispute_id: disputeId,
             sender_id: customerId,
             sender_role: "customer",
             sender_type: "customer",
             visible_to: "customer",
             message: message,
             attachment_url: attachmentUrl,
-            is_read: false
+            is_read: false,
+            created_at: new Date().toISOString()
           }
         ]);
 
     if (error) {
-      status.className = "error";
+      status.style.color = "#b00020";
       status.innerText =
         error.message;
       return;
     }
 
-    document.getElementById("customerReply").value = "";
-    document.getElementById("replyFile").value = "";
+    await supabaseClient
+      .from("disputes")
+      .update({
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", disputeId);
 
-    status.className = "success";
+    input.value = "";
+
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    status.style.color = "#0b7a28";
     status.innerText =
-      "Reply sent.";
+      "Reply sent to TaskMint support.";
 
-    await loadDisputeMessages();
+    await loadCustomerDisputeMessages(disputeId, `messages-${disputeId}`);
 
   } catch (err) {
-    status.className = "error";
+    status.style.color = "#b00020";
     status.innerText =
       err.message;
   }
+}
+
+async function loadDisputeMessages() {
+  if (!activeDisputeId) {
+    return;
+  }
+
+  await loadCustomerDisputeMessages(activeDisputeId, "messageThread");
+}
+
+async function sendDisputeMessage() {
+  if (!activeDisputeId) {
+    return;
+  }
+
+  await sendCustomerReply(activeDisputeId);
 }
 
 async function initPage() {
@@ -1546,8 +1973,7 @@ async function initPage() {
     activeDisputeId =
       urlDisputeId;
 
-    showMessageSection();
-    await loadDisputeMessages();
+    await openDisputeMessages(urlDisputeId);
     return;
   }
 
