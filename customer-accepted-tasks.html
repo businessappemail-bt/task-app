@@ -1203,39 +1203,37 @@ async function fetchOpenDisputeForTask(taskId, customerId) {
   const openStatuses =
     ["open", "reviewing", "pending", "in_review", "waiting_on_customer", "waiting_on_worker"];
 
-  let query =
-    supabaseClient
+  const { data } =
+    await supabaseClient
       .from("disputes")
       .select("id,status,task_id,customer_id,reason,created_at")
       .eq("task_id", taskId)
       .in("status", openStatuses)
       .order("created_at", { ascending: false })
-      .limit(1);
-
-  if (customerId) {
-    query =
-      query.or(`customer_id.eq.${customerId},customer_id.is.null`);
-  }
-
-  const { data } =
-    await query.maybeSingle();
+      .limit(1)
+      .maybeSingle();
 
   return data || null;
 }
 
 function renderDisputeCenterLink(dispute, task) {
-  if (!dispute || !dispute.id) {
+  const disputeIsOpen =
+    isDisputeOpen(task) || !!dispute;
+
+  if (!disputeIsOpen) {
     return "";
   }
 
   const href =
-    `dispute-center.html?dispute_id=${encodeURIComponent(dispute.id)}&task_id=${encodeURIComponent(task.id)}`;
+    dispute?.id
+      ? `dispute-center.html?dispute_id=${encodeURIComponent(dispute.id)}&task_id=${encodeURIComponent(task.id)}`
+      : `dispute-center.html?task_id=${encodeURIComponent(task.id)}`;
 
   return `
     <div class="dispute-alert">
       A dispute is open for this task. Tap below to view the existing dispute and send more information to TaskMint.
       <a class="dispute-center-link" href="${href}">
-        Tap here to open Dispute Center
+        Tap here to view Dispute Center
       </a>
     </div>
   `;
