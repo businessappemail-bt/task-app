@@ -44,7 +44,6 @@ body {
   max-width: 470px;
 }
 
-/* ── TOP BAR ── */
 .top-bar {
   position: sticky;
   top: 0;
@@ -66,12 +65,10 @@ body {
   font-size: 14px;
 }
 
-/* ── CONTAINER ── */
 .container {
   padding: 20px 16px 30px;
 }
 
-/* ── HERO ── */
 .hero {
   background: var(--accent);
   border-radius: 20px;
@@ -98,7 +95,6 @@ body {
   color: rgba(255,255,255,0.80);
 }
 
-/* ── SUMMARY GRID ── */
 .summary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -142,7 +138,6 @@ body {
   line-height: 1.35;
 }
 
-/* ── CARDS ── */
 .card,
 .dispute-card {
   background: var(--surface);
@@ -240,7 +235,6 @@ body {
   margin: 0;
 }
 
-/* ── STATUS ── */
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -263,7 +257,6 @@ body {
   color: #333;
 }
 
-/* ── FORM ── */
 .form-card {
   background: var(--surface);
   border-radius: 18px;
@@ -310,7 +303,6 @@ textarea {
   resize: vertical;
 }
 
-/* ── BUTTONS ── */
 button {
   width: 100%;
   border: none;
@@ -349,7 +341,6 @@ button:disabled {
   color: #fff;
 }
 
-/* ── TEXT HELPERS ── */
 .small {
   color: var(--muted);
   font-size: 12px;
@@ -378,7 +369,6 @@ button:disabled {
   color: var(--accent);
 }
 
-/* ── TASK RESULT ── */
 .task-result {
   padding: 13px;
   border: 1px solid var(--border);
@@ -389,7 +379,6 @@ button:disabled {
   line-height: 1.45;
 }
 
-/* ── TASK INFO GRID ── */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -420,7 +409,6 @@ button:disabled {
   line-height: 1.35;
 }
 
-/* ── DISPUTE CARDS ── */
 .dispute-top {
   display: flex;
   justify-content: space-between;
@@ -440,7 +428,6 @@ button:disabled {
   line-height: 1.4;
 }
 
-/* ── MESSAGE THREAD ── */
 .message-card-header {
   background: #fff;
   border: 1px solid var(--border);
@@ -566,7 +553,7 @@ button:disabled {
 
     <div class="section-header-card">
       <div class="section-title">Open Disputes</div>
-      <p class="small">Active dispute reviews that are still open, pending, or in review.</p>
+      <p class="small">Active dispute reviews that are still open, pending, waiting, or in review.</p>
     </div>
 
     <div id="openDisputesList">Loading open disputes...</div>
@@ -712,14 +699,24 @@ let taskId =
 
 let workerId =
   params.get("worker_id") || "";
+
 let orderNumber =
   params.get("order_number") || "";
+
+let urlDisputeId =
+  params.get("dispute_id") || "";
 
 let customerId =
   localStorage.getItem("taskmintUserId") || "";
 
 let activeDisputeId = "";
 let unreadDisputeIds = new Set();
+
+const OPEN_DISPUTE_STATUSES =
+  ["open", "reviewing", "pending", "in_review", "waiting_on_customer", "waiting_on_worker"];
+
+const PAST_DISPUTE_STATUSES =
+  ["closed", "resolved", "rejected", "cancelled"];
 
 function escapeHTML(value) {
   if (value === null || value === undefined) {
@@ -809,6 +806,67 @@ function showMessageSection() {
   document.getElementById("messageSection").classList.remove("hidden");
 }
 
+function getTaskOrderNumber(task) {
+  return (
+    task.order_number ||
+    task.task_order_number ||
+    `TM-${String(task.id).slice(0,8).toUpperCase()}`
+  );
+}
+
+async function findOpenDisputeByTask(taskIdValue) {
+  if (!taskIdValue || !customerId) {
+    return null;
+  }
+
+  const { data } =
+    await supabaseClient
+      .from("disputes")
+      .select("*")
+      .eq("task_id", taskIdValue)
+      .eq("customer_id", customerId)
+      .in("status", OPEN_DISPUTE_STATUSES)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+  return data || null;
+}
+
+async function loadLinkedTaskInfo(taskIdValue) {
+  if (!taskIdValue || !customerId) {
+    return null;
+  }
+
+  const { data: task } =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("id", taskIdValue)
+      .eq("customer_id", customerId)
+      .maybeSingle();
+
+  if (!task) {
+    return null;
+  }
+
+  taskId =
+    task.id;
+
+  workerId =
+    workerId ||
+    task.assigned_worker_id ||
+    task.accepted_worker_id ||
+    task.worker_id ||
+    task.completed_by_worker_id ||
+    "";
+
+  orderNumber =
+    orderNumber || getTaskOrderNumber(task);
+
+  return task;
+}
+
 async function searchTask() {
   const resultBox =
     document.getElementById("taskSearchResult");
@@ -824,40 +882,25 @@ async function searchTask() {
     return;
   }
 
-  const cleanValue =
-    value.replace("TM-", "").replace("tm-", "").trim();
-
   let query =
     supabaseClient
       .from("tasks")
       .select("*")
       .eq("customer_id", customerId);
 
-const searchValue =
-  value.toUpperCase().trim();
+  const searchValue =
+    value.toUpperCase().trim();
 
-if (searchValue.startsWith("TM-")) {
-
-  query =
-    query.eq(
-      "order_number",
-      searchValue
-    );
-
-} else if (searchValue.length === 8) {
-
-  query =
-    query.eq(
-      "order_number",
-      `TM-${searchValue}`
-    );
-
-} else {
-
-  query =
-    query.eq("id", value);
-
-}
+  if (searchValue.startsWith("TM-")) {
+    query =
+      query.or(`order_number.eq.${searchValue},task_order_number.eq.${searchValue}`);
+  } else if (searchValue.length === 8) {
+    query =
+      query.or(`order_number.eq.TM-${searchValue},task_order_number.eq.TM-${searchValue}`);
+  } else {
+    query =
+      query.eq("id", value);
+  }
 
   const { data: tasks, error } =
     await query;
@@ -877,31 +920,37 @@ if (searchValue.startsWith("TM-")) {
   const task =
     Array.isArray(tasks) ? tasks[0] : tasks;
 
+  const existingDispute =
+    await findOpenDisputeByTask(task.id);
+
+  const taskOrder =
+    getTaskOrderNumber(task);
+
   resultBox.innerHTML = `
     <div class="task-result">
       <strong>${escapeHTML(task.category || task.title || "Task")}</strong><br>
-      Order # TM-${String(task.id).slice(0,8).toUpperCase()}<br>
+      Order # ${escapeHTML(taskOrder)}<br>
       ${escapeHTML(task.city || "")}, ${escapeHTML(task.state || "")}
+
       ${
-  task.status === "completed"
-    ? `
-      <button
-        class="primary-btn"
-        onclick="startDisputeForTask('${task.id}', '${task.assigned_worker_id || task.worker_id || ""}', '${task.order_number || ("TM-" + String(task.id).slice(0,8).toUpperCase())}')"
-      >
-        Open Dispute for This Task
-      </button>
-    `
-    : `
-      <button
-        class="secondary-btn"
-        disabled
-        style="opacity:.6;cursor:not-allowed;"
-      >
-        Disputes can only be opened on completed tasks
-      </button>
-    `
-}
+        existingDispute
+          ? `
+            <button
+              class="primary-btn"
+              onclick="openDisputeMessages('${escapeHTML(existingDispute.id)}')"
+            >
+              Open Existing Dispute
+            </button>
+          `
+          : `
+            <button
+              class="primary-btn"
+              onclick="startDisputeForTask('${escapeHTML(task.id)}', '${escapeHTML(task.assigned_worker_id || task.accepted_worker_id || task.worker_id || task.completed_by_worker_id || "")}', '${escapeHTML(taskOrder)}')"
+            >
+              Open Dispute for This Task
+            </button>
+          `
+      }
     </div>
   `;
 }
@@ -912,7 +961,9 @@ function startDisputeForTask(selectedTaskId, selectedWorkerId, selectedOrderNumb
 
   workerId =
     selectedWorkerId || "";
-  orderNumber = selectedOrderNumber || orderNumber || "";
+
+  orderNumber =
+    selectedOrderNumber || orderNumber || "";
 
   showForm();
 }
@@ -978,12 +1029,12 @@ async function loadDisputes() {
 
   const openDisputes =
     (disputes || []).filter(dispute =>
-      ["open", "reviewing", "pending", "in_review"].includes(String(dispute.status || "open"))
+      OPEN_DISPUTE_STATUSES.includes(String(dispute.status || "open").toLowerCase())
     );
 
   const pastDisputes =
     (disputes || []).filter(dispute =>
-      ["closed", "resolved", "rejected", "cancelled"].includes(String(dispute.status || ""))
+      PAST_DISPUTE_STATUSES.includes(String(dispute.status || "").toLowerCase())
     );
 
   openList.innerHTML =
@@ -1025,7 +1076,7 @@ function createDisputeCard(dispute, isPast) {
         </div>
 
         <div class="dispute-sub">
-          Order # ${dispute.task_id ? "TM-" + String(dispute.task_id).slice(0,8).toUpperCase() : "Not linked"}<br>
+          Order # ${escapeHTML(dispute.order_number || (dispute.task_id ? "TM-" + String(dispute.task_id).slice(0,8).toUpperCase() : "Not linked"))}<br>
           Opened ${escapeHTML(formatDate(dispute.created_at))}
         </div>
         ${hasUnread ? `<div class="unread-label">New message</div>` : ""}
@@ -1058,11 +1109,11 @@ function createDisputeCard(dispute, isPast) {
         : ""
     }
 
-    <button class="primary-btn" onclick="event.stopPropagation(); openDisputeMessages('${dispute.id}')">
+    <button class="primary-btn" onclick="event.stopPropagation(); openDisputeMessages('${escapeHTML(dispute.id)}')">
       View Dispute
     </button>
 
-    <button class="secondary-btn" onclick="event.stopPropagation(); openDisputeMessages('${dispute.id}')">
+    <button class="secondary-btn" onclick="event.stopPropagation(); openDisputeMessages('${escapeHTML(dispute.id)}')">
       ${isPast ? "View Message History" : "Message TaskMint"}
     </button>
   `;
@@ -1127,6 +1178,21 @@ async function submitDispute() {
     return;
   }
 
+  if (!taskId) {
+    status.className = "error";
+    status.innerText =
+      "This dispute is not linked to a task yet.";
+    return;
+  }
+
+  const existingDispute =
+    await findOpenDisputeByTask(taskId);
+
+  if (existingDispute) {
+    await openDisputeMessages(existingDispute.id);
+    return;
+  }
+
   let evidenceUrl = null;
 
   try {
@@ -1155,6 +1221,13 @@ async function submitDispute() {
         .select()
         .single();
 
+    if (error) {
+      status.className = "error";
+      status.innerText =
+        error.message;
+      return;
+    }
+
     if (taskId) {
       await supabaseClient
         .from("tasks")
@@ -1167,13 +1240,6 @@ async function submitDispute() {
         .eq("id", taskId);
     }
 
-    if (error) {
-      status.className = "error";
-      status.innerText =
-        error.message;
-      return;
-    }
-
     await supabaseClient
       .from("dispute_messages")
       .insert([
@@ -1181,6 +1247,7 @@ async function submitDispute() {
           dispute_id: dispute.id,
           sender_id: customerId,
           sender_role: "customer",
+          sender_type: "customer",
           visible_to: "customer",
           message: description,
           attachment_url: evidenceUrl,
@@ -1250,9 +1317,12 @@ async function loadDisputeMessages() {
     dispute.reason || "Dispute Messages";
 
   sub.innerText =
-    dispute.task_id
-      ? `Order # TM-${String(dispute.task_id).slice(0,8).toUpperCase()}`
-      : "Dispute not linked to a task";
+    dispute.order_number ||
+    (
+      dispute.task_id
+        ? `Order # TM-${String(dispute.task_id).slice(0,8).toUpperCase()}`
+        : "Dispute not linked to a task"
+    );
 
   pill.innerText =
     dispute.status || "open";
@@ -1287,7 +1357,7 @@ async function loadDisputeMessages() {
       document.createElement("div");
 
     const isCustomer =
-      message.sender_role === "customer";
+      String(message.sender_role || message.sender_type || "").toLowerCase() === "customer";
 
     div.className =
       isCustomer
@@ -1363,6 +1433,7 @@ async function sendDisputeMessage() {
             dispute_id: activeDisputeId,
             sender_id: customerId,
             sender_role: "customer",
+            sender_type: "customer",
             visible_to: "customer",
             message: message,
             attachment_url: attachmentUrl,
@@ -1394,13 +1465,34 @@ async function sendDisputeMessage() {
 }
 
 async function initPage() {
-  await getCurrentUser();
+  const user =
+    await getCurrentUser();
+
+  if (!user) {
+    return;
+  }
+
+  if (urlDisputeId) {
+    await openDisputeMessages(urlDisputeId);
+    return;
+  }
 
   if (taskId) {
+    await loadLinkedTaskInfo(taskId);
+
+    const existingDispute =
+      await findOpenDisputeByTask(taskId);
+
+    if (existingDispute) {
+      await openDisputeMessages(existingDispute.id);
+      return;
+    }
+
     showForm();
-  } else {
-    showDashboard();
+    return;
   }
+
+  showDashboard();
 }
 
 initPage();
