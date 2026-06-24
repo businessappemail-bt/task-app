@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <title>Post a Task - TaskMint</title>
@@ -679,6 +680,7 @@ gmp-place-autocomplete::part(place-address) {
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 
 <body>
@@ -697,257 +699,258 @@ gmp-place-autocomplete::part(place-address) {
 
   <div class="card">
 
-    <div id="categoryStep">
-      <div class="step-heading">
-        <h3>Select a task type</h3>
-        <p class="subtext">Pick the category that best matches what you need done.</p>
-      </div>
+<div id="categoryStep">
+  <div class="step-heading">
+    <h3>Select a task type</h3>
+    <p class="subtext">Pick the category that best matches what you need done.</p>
+  </div>
 
-      <div class="category-grid">
-        <button class="option" onclick="selectCategory('Moving')">
-          <span class="option-title">🚚 Moving</span>
-          <span class="option-sub">Furniture, rooms, drop-off, stairs.</span>
-        </button>
+  <div class="category-grid">
+    <button class="option" onclick="selectCategory('Moving')">
+      <span class="option-title">🚚 Moving</span>
+      <span class="option-sub">Furniture, rooms, drop-off, stairs.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('TV Mounting')">
-          <span class="option-title">📺 TV Mounting</span>
-          <span class="option-sub">Mount type, wall type, wire hiding.</span>
-        </button>
+    <button class="option" onclick="selectCategory('TV Mounting')">
+      <span class="option-title">📺 TV Mounting</span>
+      <span class="option-sub">Mount type, wall type, wire hiding.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Furniture Assembly')">
-          <span class="option-title">🪑 Assembly</span>
-          <span class="option-sub">Furniture, tools, number of items.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Furniture Assembly')">
+      <span class="option-title">🪑 Assembly</span>
+      <span class="option-sub">Furniture, tools, number of items.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Cleaning')">
-          <span class="option-title">🧽 Cleaning</span>
-          <span class="option-sub">Deep, move-out, rooms, bathrooms.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Cleaning')">
+      <span class="option-title">🧽 Cleaning</span>
+      <span class="option-sub">Deep, move-out, rooms, bathrooms.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Trash Removal')">
-          <span class="option-title">🗑️ Trash Removal</span>
-          <span class="option-sub">Bags, bulky items, junk removal.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Trash Removal')">
+      <span class="option-title">🗑️ Trash Removal</span>
+      <span class="option-sub">Bags, bulky items, junk removal.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Errands')">
-          <span class="option-title">🛍️ Errands</span>
-          <span class="option-sub">Pickup, drop-off, local errands.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Errands')">
+      <span class="option-title">🛍️ Errands</span>
+      <span class="option-sub">Pickup, drop-off, local errands.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Handywork')">
-          <span class="option-title">🔧 Handywork</span>
-          <span class="option-sub">Small installs, fixes, household help.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Handywork')">
+      <span class="option-title">🔧 Handywork</span>
+      <span class="option-sub">Small installs, fixes, household help.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Yard Work')">
-          <span class="option-title">🌿 Yard Work</span>
-          <span class="option-sub">Grass, trimming, edging, flower beds.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Yard Work')">
+      <span class="option-title">🌿 Yard Work</span>
+      <span class="option-sub">Grass, trimming, edging, flower beds.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Repairs')">
-          <span class="option-title">🛠️ Repairs</span>
-          <span class="option-sub">Describe the issue and repair needed.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Repairs')">
+      <span class="option-title">🛠️ Repairs</span>
+      <span class="option-sub">Describe the issue and repair needed.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Auto Help')">
-          <span class="option-title">🚗 Auto Help</span>
-          <span class="option-sub">Jump starts, flat tires, lockouts, detailing.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Auto Help')">
+      <span class="option-title">🚗 Auto Help</span>
+      <span class="option-sub">Jump starts, flat tires, lockouts, detailing.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Home Organization')">
-          <span class="option-title">🗂️ Home Organization</span>
-          <span class="option-sub">Closets, pantry, garage, decluttering.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Home Organization')">
+      <span class="option-title">🗂️ Home Organization</span>
+      <span class="option-sub">Closets, pantry, garage, decluttering.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Seasonal Services')">
-          <span class="option-title">🍂 Seasonal Services</span>
-          <span class="option-sub">Leaves, holiday lights, gutters, storm prep.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Seasonal Services')">
+      <span class="option-title">🍂 Seasonal Services</span>
+      <span class="option-sub">Leaves, holiday lights, gutters, storm prep.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Interior Decorating')">
-          <span class="option-title">🖼️ Interior Decorating</span>
-          <span class="option-sub">Wall decor, furniture placement, staging.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Interior Decorating')">
+      <span class="option-title">🖼️ Interior Decorating</span>
+      <span class="option-sub">Wall decor, furniture placement, staging.</span>
+    </button>
 
-        <button class="option" onclick="selectCategory('Other')">
-          <span class="option-title">✨ Other</span>
-          <span class="option-sub">Anything else you need help with.</span>
-        </button>
+    <button class="option" onclick="selectCategory('Other')">
+      <span class="option-title">✨ Other</span>
+      <span class="option-sub">Anything else you need help with.</span>
+    </button>
+  </div>
+</div>
+
+<div id="questionStep" class="hidden">
+  <div class="progress">
+    <div id="progressBar" class="progress-bar"></div>
+  </div>
+</div>
+
+<div id="dateStep" class="hidden">
+  <div class="modern-step-card">
+    <div class="date-icon-row">
+      <div class="step-icon">📅</div>
+      <div>
+        <h3>When do you need this done?</h3>
+        <p class="subtext">Select a date or choose flexible if you are open to worker availability.</p>
       </div>
     </div>
 
-    <div id="questionStep" class="hidden">
-      <div class="progress">
-        <div id="progressBar" class="progress-bar"></div>
-      </div>
-    </div>
+    <input id="dateNeeded" type="date">
 
-    <div id="dateStep" class="hidden">
-      <div class="modern-step-card">
-        <div class="date-icon-row">
-          <div class="step-icon">📅</div>
-          <div>
-            <h3>When do you need this done?</h3>
-            <p class="subtext">Select a date or choose flexible if you are open to worker availability.</p>
-          </div>
-        </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="dateFlexible" onchange="toggleFlexibleDateOptions()">
+      My date is flexible
+    </label>
 
-        <input id="dateNeeded" type="date">
-
-        <label class="checkbox-row">
-          <input type="checkbox" id="dateFlexible" onchange="toggleFlexibleDateOptions()">
-          My date is flexible
-        </label>
-
-        <div id="flexibleDateOptions" class="hidden">
-          <div class="help-box">
-            Choose 3 possible dates. Workers will pick the date that works best when they send a quote.
-          </div>
-
-          <input id="flexibleDateOne" type="date" placeholder="Preferred Date 1">
-          <input id="flexibleDateTwo" type="date" placeholder="Preferred Date 2">
-          <input id="flexibleDateThree" type="date" placeholder="Preferred Date 3">
-        </div>
-      </div>
-
-      <div class="modern-step-card">
-        <div class="date-icon-row">
-          <div class="step-icon">⏰</div>
-          <div>
-            <h3>What time do you need it completed by?</h3>
-            <p class="subtext">Choose the time the task should be completed by.</p>
-          </div>
-        </div>
-
-        <input id="timeNeeded" class="native-time-hidden" type="time">
-
-        <div class="time-picker-modern">
-          <div class="time-display-card" id="selectedTimeDisplay">
-            No time selected
-          </div>
-
-          <div class="time-chip-grid">
-            <button type="button" class="time-chip" onclick="selectPresetTime('09:00', this)">
-              9:00 AM
-            </button>
-
-            <button type="button" class="time-chip" onclick="selectPresetTime('12:00', this)">
-              12:00 PM
-            </button>
-
-            <button type="button" class="time-chip" onclick="selectPresetTime('15:00', this)">
-              3:00 PM
-            </button>
-
-            <button type="button" class="time-chip" onclick="selectPresetTime('18:00', this)">
-              6:00 PM
-            </button>
-          </div>
-
-          <div class="custom-time-row">
-            <div class="custom-time-label">Or choose a custom time</div>
-            <input
-              id="customTimeNeeded"
-              class="custom-time-input"
-              type="time"
-              onchange="selectCustomTime()"
-            >
-          </div>
-        </div>
-      </div>
-
+    <div id="flexibleDateOptions" class="hidden">
       <div class="help-box">
-        Flexible dates may help you receive more quotes from workers.
+        Choose 3 possible dates. Workers will pick the date that works best when they send a quote.
       </div>
 
-      <button onclick="saveDateNeeded()">Next</button>
-      <button class="secondary" onclick="goBack()">Back</button>
+      <input id="flexibleDateOne" type="date" placeholder="Preferred Date 1">
+      <input id="flexibleDateTwo" type="date" placeholder="Preferred Date 2">
+      <input id="flexibleDateThree" type="date" placeholder="Preferred Date 3">
+    </div>
+  </div>
+
+  <div class="modern-step-card">
+    <div class="date-icon-row">
+      <div class="step-icon">⏰</div>
+      <div>
+        <h3>What time do you need it completed by?</h3>
+        <p class="subtext">Choose the time the task should be completed by.</p>
+      </div>
     </div>
 
-    <div id="pickupAddressStep" class="hidden">
-      <div class="address-shell">
-        <div class="date-icon-row">
-          <div class="step-icon">📍</div>
-          <div>
-            <h3>Task Address</h3>
-            <p class="subtext">Start typing and select the address from Google. The city, state, and zip will fill in automatically.</p>
-          </div>
-        </div>
+    <input id="timeNeeded" class="native-time-hidden" type="time">
 
-        <div class="address-label">Address search</div>
-        <div id="pickupGoogleBox"></div>
-        <div class="address-help">Select the full address from the dropdown so TaskMint can save the location correctly.</div>
-        <div id="pickupSelected" class="selected-address hidden"></div>
+    <div class="time-picker-modern">
+      <div class="time-display-card" id="selectedTimeDisplay">
+        No time selected
       </div>
 
-      <div class="modern-step-card">
-        <div class="input-section-title">Address details</div>
+      <div class="time-chip-grid">
+        <button type="button" class="time-chip" onclick="selectPresetTime('09:00', this)">
+          9:00 AM
+        </button>
 
-        <input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
+        <button type="button" class="time-chip" onclick="selectPresetTime('12:00', this)">
+          12:00 PM
+        </button>
 
-        <div class="field-grid">
-          <input id="pickupCity" placeholder="City">
-          <input id="pickupState" placeholder="State">
-        </div>
+        <button type="button" class="time-chip" onclick="selectPresetTime('15:00', this)">
+          3:00 PM
+        </button>
 
-        <input id="pickupZip" placeholder="Zip Code">
+        <button type="button" class="time-chip" onclick="selectPresetTime('18:00', this)">
+          6:00 PM
+        </button>
       </div>
 
-      <button onclick="savePickupAddress()">Next</button>
+      <div class="custom-time-row">
+        <div class="custom-time-label">Or choose a custom time</div>
+        <input
+          id="customTimeNeeded"
+          class="custom-time-input"
+          type="time"
+          onchange="selectCustomTime()"
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="help-box">
+    Flexible dates may help you receive more quotes from workers.
+  </div>
+
+  <button onclick="saveDateNeeded()">Next</button>
+  <button class="secondary" onclick="goBack()">Back</button>
+</div>
+
+<div id="pickupAddressStep" class="hidden">
+  <div class="address-shell">
+    <div class="date-icon-row">
+      <div class="step-icon">📍</div>
+      <div>
+        <h3>Task Address</h3>
+        <p class="subtext">Start typing and select the address from Google. The city, state, and zip will fill in automatically.</p>
+      </div>
     </div>
 
-    <div id="dropoffAddressStep" class="hidden">
-      <div class="address-shell">
-        <div class="date-icon-row">
-          <div class="step-icon">📦</div>
-          <div>
-            <h3>Drop-Off Address</h3>
-            <p class="subtext">Start typing and select the drop-off address from Google. The city, state, and zip will fill in automatically.</p>
-          </div>
-        </div>
+    <div class="address-label">Address search</div>
+    <div id="pickupGoogleBox"></div>
+    <div class="address-help">Select the full address from the dropdown so TaskMint can save the location correctly.</div>
+    <div id="pickupSelected" class="selected-address hidden"></div>
+  </div>
 
-        <div class="address-label">Address search</div>
-        <div id="dropoffGoogleBox"></div>
-        <div class="address-help">Select the full drop-off address from the dropdown so TaskMint can save the location correctly.</div>
-        <div id="dropoffSelected" class="selected-address hidden"></div>
-      </div>
+  <div class="modern-step-card">
+    <div class="input-section-title">Address details</div>
 
-      <div class="modern-step-card">
-        <div class="input-section-title">Drop-off details</div>
+    <input id="pickupUnit" placeholder="Unit / Apt / Suite, if any">
 
-        <input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
-
-        <div class="field-grid">
-          <input id="dropoffCity" placeholder="Drop-off city">
-          <input id="dropoffState" placeholder="Drop-off state">
-        </div>
-
-        <input id="dropoffZip" placeholder="Drop-off zip code">
-      </div>
-
-      <button onclick="saveDropoffAddress()">Next</button>
+    <div class="field-grid">
+      <input id="pickupCity" placeholder="City">
+      <input id="pickupState" placeholder="State">
     </div>
 
-    <div id="reviewStep" class="hidden">
-      <div class="review-header-card">
-        <h3>Review Task</h3>
-        <p class="subtext">Workers will review your task and send quotes. You can compare offers before accepting.</p>
+    <input id="pickupZip" placeholder="Zip Code">
+  </div>
+
+  <button onclick="savePickupAddress()">Next</button>
+</div>
+
+<div id="dropoffAddressStep" class="hidden">
+  <div class="address-shell">
+    <div class="date-icon-row">
+      <div class="step-icon">📦</div>
+      <div>
+        <h3>Drop-Off Address</h3>
+        <p class="subtext">Start typing and select the drop-off address from Google. The city, state, and zip will fill in automatically.</p>
       </div>
-
-      <div id="priceGuidance" class="price-box hidden"></div>
-      <div id="reviewBox" class="review-box"></div>
-
-      <button onclick="submitTask()">Post Task</button>
-
-      <div class="action-row">
-        <button class="secondary" onclick="editTaskDetails()">Edit Task</button>
-        <button class="cancel-btn" onclick="cancelTask()">Cancel</button>
-      </div>
-
-      <button class="secondary" onclick="goBack()">Back</button>
     </div>
 
-    <p id="status"></p>
+    <div class="address-label">Address search</div>
+    <div id="dropoffGoogleBox"></div>
+    <div class="address-help">Select the full drop-off address from the dropdown so TaskMint can save the location correctly.</div>
+    <div id="dropoffSelected" class="selected-address hidden"></div>
+  </div>
+
+  <div class="modern-step-card">
+    <div class="input-section-title">Drop-off details</div>
+
+    <input id="dropoffUnit" placeholder="Unit / Apt / Suite, if any">
+
+    <div class="field-grid">
+      <input id="dropoffCity" placeholder="Drop-off city">
+      <input id="dropoffState" placeholder="Drop-off state">
+    </div>
+
+    <input id="dropoffZip" placeholder="Drop-off zip code">
+  </div>
+
+  <button onclick="saveDropoffAddress()">Next</button>
+</div>
+
+<div id="reviewStep" class="hidden">
+  <div class="review-header-card">
+    <h3>Review Task</h3>
+    <p class="subtext">Workers will review your task and send quotes. You can compare offers before accepting.</p>
+  </div>
+
+  <div id="priceGuidance" class="price-box hidden"></div>
+  <div id="reviewBox" class="review-box"></div>
+
+  <button onclick="submitTask()">Post Task</button>
+
+  <div class="action-row">
+    <button class="secondary" onclick="editTaskDetails()">Edit Task</button>
+    <button class="cancel-btn" onclick="cancelTask()">Cancel</button>
+  </div>
+
+  <button class="secondary" onclick="goBack()">Back</button>
+</div>
+
+<p id="status"></p>
+
   </div>
 </div>
 
@@ -1293,539 +1296,296 @@ function showQuestion() {
 
   if (question.type === "textarea") {
     html += `<textarea id="answerInput" placeholder="Add clear details so workers can quote accurately."></textarea>`;
-  }
 
-  if (question.type === "checkbox") {
-    question.options.forEach(option => {
-      html += `
-        <label class="checkbox-row">
+}
+
+if (question.type === "checkbox") {question.options.forEach(option => {html +=         <label class="checkbox-row">
           <input type="checkbox" name="answerCheckbox" value="${option}">
           ${option}
         </label>
-      `;
-    });
-  }
+     ;});}
 
-  html += `
-    </div>
+html += `</div>
 
-    <button onclick="saveAnswer()">Next</button>
-    <button class="secondary" onclick="goBack()">Back</button>
-  `;
+<button onclick="saveAnswer()">Next</button>
+<button class="secondary" onclick="goBack()">Back</button>
 
-  box.innerHTML = html;
-  box.classList.remove("hidden");
-}
+`;
 
-function getQuestionHelp(questionId) {
-  const helpfulMessages = {
-    "truck_needed": "This helps workers know if they need to bring a truck or only labor.",
-    "stairs": "Stairs can affect time, effort, and the quotes workers send.",
-    "heavy_items": "Heavy items may require multiple workers or special equipment.",
-    "mount_provided": "If you need the worker to bring a mount, mention the TV size and mount preference.",
-    "wall_type": "Wall type matters because brick, concrete, and stone may require different tools.",
-    "supplies_provided": "Workers may quote differently if they need to bring cleaning supplies.",
-    "paid_items": "Avoid paying outside the app. Use messages to clarify purchase details before accepting a quote."
-  };
+box.innerHTML = html;box.classList.remove("hidden");}
 
-  if (!helpfulMessages[questionId]) {
-    return "";
-  }
+function getQuestionHelp(questionId) {const helpfulMessages = {"truck_needed": "This helps workers know if they need to bring a truck or only labor.","stairs": "Stairs can affect time, effort, and the quotes workers send.","heavy_items": "Heavy items may require multiple workers or special equipment.","mount_provided": "If you need the worker to bring a mount, mention the TV size and mount preference.","wall_type": "Wall type matters because brick, concrete, and stone may require different tools.","supplies_provided": "Workers may quote differently if they need to bring cleaning supplies.","paid_items": "Avoid paying outside the app. Use messages to clarify purchase details before accepting a quote."};
 
-  return `<div class="help-box">${helpfulMessages[questionId]}</div>`;
-}
+if (!helpfulMessages[questionId]) {return "";}
 
-function saveAnswer() {
-  const question = questions[questionIndex];
-  let value = "";
+return <div class="help-box">${helpfulMessages[questionId]}</div>;}
 
-  if (question.type === "checkbox") {
-    const checked =
-      Array.from(document.querySelectorAll("input[name='answerCheckbox']:checked"));
+function saveAnswer() {const question = questions[questionIndex];let value = "";
 
-    value =
-      checked.map(item => item.value).join(", ");
-  } else {
-    value =
-      document.getElementById("answerInput").value.trim();
-  }
+if (question.type === "checkbox") {const checked =Array.from(document.querySelectorAll("input[name='answerCheckbox']"));
 
-  if (!value) {
-    document.getElementById("status").innerText =
-      "Please answer this question.";
-    return;
-  }
+value =
+  checked.map(item => item.value).join(", ");
 
-  document.getElementById("status").innerText = "";
-  answers[question.id] = value;
+} else {value =document.getElementById("answerInput").value.trim();}
 
-  if (questionIndex < questions.length - 1) {
-    questionIndex++;
-    showQuestion();
-  } else {
-    showDateNeeded();
-  }
-}
+if (!value) {document.getElementById("status").innerText ="Please answer this question.";return;}
 
+document.getElementById("status").innerText = "";answers[question.id] = value;
 
-function updateTimeDisplay(value) {
-  const display =
-    document.getElementById("selectedTimeDisplay");
+if (questionIndex < questions.length - 1) {questionIndex++;showQuestion();} else {showDateNeeded();}}
 
-  if (display) {
-    display.innerText =
-      value ? "Selected time: " + formatTimeForDisplay(value) : "No time selected";
-  }
-}
+function updateTimeDisplay(value) {const display =document.getElementById("selectedTimeDisplay");
 
-function clearSelectedTimeChips() {
-  document
-    .querySelectorAll(".time-chip")
-    .forEach(button => button.classList.remove("selected"));
-}
+if (display) {display.innerText =value ? "Selected time: " + formatTimeForDisplay(value) : "No time selected";}}
 
-function selectPresetTime(value, button) {
-  const timeInput =
-    document.getElementById("timeNeeded");
+function clearSelectedTimeChips() {document.querySelectorAll(".time-chip").forEach(button => button.classList.remove("selected"));}
 
-  const customInput =
-    document.getElementById("customTimeNeeded");
+function selectPresetTime(value, button) {const timeInput =document.getElementById("timeNeeded");
 
-  if (timeInput) {
-    timeInput.value = value;
-  }
+const customInput =document.getElementById("customTimeNeeded");
 
-  if (customInput) {
-    customInput.value = "";
-  }
+if (timeInput) {timeInput.value = value;}
 
-  clearSelectedTimeChips();
+if (customInput) {customInput.value = "";}
 
-  if (button) {
-    button.classList.add("selected");
-  }
+clearSelectedTimeChips();
 
-  updateTimeDisplay(value);
-}
+if (button) {button.classList.add("selected");}
 
-function selectCustomTime() {
-  const customInput =
-    document.getElementById("customTimeNeeded");
+updateTimeDisplay(value);}
 
-  const timeInput =
-    document.getElementById("timeNeeded");
+function selectCustomTime() {const customInput =document.getElementById("customTimeNeeded");
 
-  const value =
-    customInput ? customInput.value : "";
+const timeInput =document.getElementById("timeNeeded");
 
-  if (timeInput) {
-    timeInput.value = value;
-  }
+const value =customInput ? customInput.value : "";
 
-  clearSelectedTimeChips();
-  updateTimeDisplay(value);
-}
+if (timeInput) {timeInput.value = value;}
 
-function syncModernTimePicker(value) {
-  const timeInput =
-    document.getElementById("timeNeeded");
+clearSelectedTimeChips();updateTimeDisplay(value);}
 
-  const customInput =
-    document.getElementById("customTimeNeeded");
+function syncModernTimePicker(value) {const timeInput =document.getElementById("timeNeeded");
 
-  if (timeInput) {
-    timeInput.value = value || "";
-  }
+const customInput =document.getElementById("customTimeNeeded");
 
-  if (customInput) {
-    customInput.value = "";
-  }
+if (timeInput) {timeInput.value = value || "";}
 
-  clearSelectedTimeChips();
+if (customInput) {customInput.value = "";}
 
-  const matchingChip =
-    Array
-      .from(document.querySelectorAll(".time-chip"))
-      .find(button => {
-        const onclickValue =
-          button.getAttribute("onclick") || "";
+clearSelectedTimeChips();
 
-        return value && onclickValue.includes("'" + value + "'");
-      });
+const matchingChip =Array.from(document.querySelectorAll(".time-chip")).find(button => {const onclickValue =button.getAttribute("onclick") || "";
 
-  if (matchingChip) {
-    matchingChip.classList.add("selected");
-  } else if (customInput && value) {
-    customInput.value = value;
-  }
-
-  updateTimeDisplay(value || "");
-}
-
-function toggleFlexibleDateOptions() {
-  const flexible =
-    document.getElementById("dateFlexible");
-
-  const optionsBox =
-    document.getElementById("flexibleDateOptions");
-
-  const dateInput =
-    document.getElementById("dateNeeded");
-
-  if (!flexible || !optionsBox) {
-    return;
-  }
-
-  if (flexible.checked) {
-    optionsBox.classList.remove("hidden");
-
-    if (dateInput) {
-      dateInput.value = "";
-    }
-  } else {
-    optionsBox.classList.add("hidden");
-
-    ["flexibleDateOne", "flexibleDateTwo", "flexibleDateThree"].forEach(id => {
-      const input =
-        document.getElementById(id);
-
-      if (input) {
-        input.value = "";
-      }
-    });
-  }
-}
-
-function syncFlexibleDateInputs() {
-  const flexible =
-    document.getElementById("dateFlexible");
-
-  const dateInput =
-    document.getElementById("dateNeeded");
-
-  const flexibleDateOne =
-    document.getElementById("flexibleDateOne");
-
-  const flexibleDateTwo =
-    document.getElementById("flexibleDateTwo");
-
-  const flexibleDateThree =
-    document.getElementById("flexibleDateThree");
-
-  if (dateInput) {
-    dateInput.value =
-      answers.date_needed && answers.date_needed !== "Flexible"
-        ? normalizeDateInputValue(answers.date_needed)
-        : "";
-  }
-
-  if (flexible) {
-    flexible.checked =
-      answers.date_flexible === "Yes" ||
-      answers.date_needed === "Flexible";
-  }
-
-  if (flexibleDateOne) {
-    flexibleDateOne.value =
-      normalizeDateInputValue(answers.flexible_date_1 || "");
-  }
-
-  if (flexibleDateTwo) {
-    flexibleDateTwo.value =
-      normalizeDateInputValue(answers.flexible_date_2 || "");
-  }
-
-  if (flexibleDateThree) {
-    flexibleDateThree.value =
-      normalizeDateInputValue(answers.flexible_date_3 || "");
-  }
-
-  toggleFlexibleDateOptions();
-}
-
-function setFlexibleDateMinimums() {
-  const todayValue =
-    getTodayDateInputValue();
-
-  ["flexibleDateOne", "flexibleDateTwo", "flexibleDateThree"].forEach(id => {
-    const input =
-      document.getElementById(id);
-
-    if (input && !input.min) {
-      input.min = todayValue;
-    }
+    return value && onclickValue.includes("'" + value + "'");
   });
+
+if (matchingChip) {matchingChip.classList.add("selected");} else if (customInput && value) {customInput.value = value;}
+
+updateTimeDisplay(value || "");}
+
+function toggleFlexibleDateOptions() {const flexible =document.getElementById("dateFlexible");
+
+const optionsBox =document.getElementById("flexibleDateOptions");
+
+const dateInput =document.getElementById("dateNeeded");
+
+if (!flexible || !optionsBox) {return;}
+
+if (flexible.checked) {optionsBox.classList.remove("hidden");
+
+if (dateInput) {
+  dateInput.value = "";
 }
 
-function showDateNeeded() {
-  hideAllSteps();
+} else {optionsBox.classList.add("hidden");
 
-  document.getElementById("pageTitle").innerText =
-    "Date Needed";
+["flexibleDateOne", "flexibleDateTwo", "flexibleDateThree"].forEach(id => {
+  const input =
+    document.getElementById(id);
 
-  document.getElementById("pageSubtext").innerText =
-    "Tell workers when you need the task completed.";
-
-  setStepPill("Date");
-
-  const dateInput = document.getElementById("dateNeeded");
-
-  if (dateInput && !dateInput.min) {
-    dateInput.min =
-      getTodayDateInputValue();
+  if (input) {
+    input.value = "";
   }
+});
 
-  setFlexibleDateMinimums();
-  syncFlexibleDateInputs();
+}}
 
-  syncModernTimePicker(answers.time_needed || "");
+function syncFlexibleDateInputs() {const flexible =document.getElementById("dateFlexible");
 
-  document
-    .getElementById("dateStep")
-    .classList
-    .remove("hidden");
+const dateInput =document.getElementById("dateNeeded");
+
+const flexibleDateOne =document.getElementById("flexibleDateOne");
+
+const flexibleDateTwo =document.getElementById("flexibleDateTwo");
+
+const flexibleDateThree =document.getElementById("flexibleDateThree");
+
+if (dateInput) {dateInput.value =answers.date_needed && answers.date_needed !== "Flexible"? normalizeDateInputValue(answers.date_needed): "";}
+
+if (flexible) {flexible.checked =answers.date_flexible === "Yes" ||answers.date_needed === "Flexible";}
+
+if (flexibleDateOne) {flexibleDateOne.value =normalizeDateInputValue(answers.flexible_date_1 || "");}
+
+if (flexibleDateTwo) {flexibleDateTwo.value =normalizeDateInputValue(answers.flexible_date_2 || "");}
+
+if (flexibleDateThree) {flexibleDateThree.value =normalizeDateInputValue(answers.flexible_date_3 || "");}
+
+toggleFlexibleDateOptions();}
+
+function setFlexibleDateMinimums() {const todayValue =getTodayDateInputValue();
+
+["flexibleDateOne", "flexibleDateTwo", "flexibleDateThree"].forEach(id => {const input =document.getElementById(id);
+
+if (input && !input.min) {
+  input.min = todayValue;
 }
 
-function saveDateNeeded() {
-  const dateNeeded =
-    normalizeDateInputValue(document.getElementById("dateNeeded").value);
+});}
 
-  const timeNeeded =
-    document.getElementById("timeNeeded").value;
+function showDateNeeded() {hideAllSteps();
 
-  const flexible =
-    document.getElementById("dateFlexible").checked;
+document.getElementById("pageTitle").innerText ="Date Needed";
 
-  const flexibleDateOne =
-    normalizeDateInputValue(document.getElementById("flexibleDateOne").value);
+document.getElementById("pageSubtext").innerText ="Tell workers when you need the task completed.";
 
-  const flexibleDateTwo =
-    normalizeDateInputValue(document.getElementById("flexibleDateTwo").value);
+setStepPill("Date");
 
-  const flexibleDateThree =
-    normalizeDateInputValue(document.getElementById("flexibleDateThree").value);
+const dateInput = document.getElementById("dateNeeded");
 
-  if (!dateNeeded && !flexible) {
-    document.getElementById("status").innerText =
-      "Select a date or choose flexible.";
-    return;
-  }
+if (dateInput && !dateInput.min) {dateInput.min =getTodayDateInputValue();}
 
-  if (
-    flexible &&
-    (
-      !flexibleDateOne ||
-      !flexibleDateTwo ||
-      !flexibleDateThree
-    )
-  ) {
-    document.getElementById("status").innerText =
-      "Select all 3 flexible date options.";
-    return;
-  }
+setFlexibleDateMinimums();syncFlexibleDateInputs();
 
-  if (!timeNeeded) {
-    document.getElementById("status").innerText =
-      "Select the time you need the task completed by.";
-    return;
-  }
+syncModernTimePicker(answers.time_needed || "");
 
-  answers.date_needed =
-    flexible ? "Flexible" : dateNeeded;
+document.getElementById("dateStep").classList.remove("hidden");}
 
-  answers.date_flexible =
-    flexible ? "Yes" : "No";
+function saveDateNeeded() {const dateNeeded =normalizeDateInputValue(document.getElementById("dateNeeded").value);
 
-  if (flexible) {
-    answers.flexible_date_1 = flexibleDateOne;
-    answers.flexible_date_2 = flexibleDateTwo;
-    answers.flexible_date_3 = flexibleDateThree;
-  } else {
-    delete answers.flexible_date_1;
-    delete answers.flexible_date_2;
-    delete answers.flexible_date_3;
-  }
+const timeNeeded =document.getElementById("timeNeeded").value;
 
-  answers.time_needed =
-    timeNeeded;
+const flexible =document.getElementById("dateFlexible").checked;
 
-  document.getElementById("status").innerText = "";
-  showPickupAddress();
+const flexibleDateOne =normalizeDateInputValue(document.getElementById("flexibleDateOne").value);
+
+const flexibleDateTwo =normalizeDateInputValue(document.getElementById("flexibleDateTwo").value);
+
+const flexibleDateThree =normalizeDateInputValue(document.getElementById("flexibleDateThree").value);
+
+if (!dateNeeded && !flexible) {document.getElementById("status").innerText ="Select a date or choose flexible.";return;}
+
+if (flexible &&(!flexibleDateOne ||!flexibleDateTwo ||!flexibleDateThree)) {document.getElementById("status").innerText ="Select all 3 flexible date options.";return;}
+
+if (!timeNeeded) {document.getElementById("status").innerText ="Select the time you need the task completed by.";return;}
+
+answers.date_needed =flexible ? "Flexible" : dateNeeded;
+
+answers.date_flexible =flexible ? "Yes" : "No";
+
+if (flexible) {answers.flexible_date_1 = flexibleDateOne;answers.flexible_date_2 = flexibleDateTwo;answers.flexible_date_3 = flexibleDateThree;} else {delete answers.flexible_date_1;delete answers.flexible_date_2;delete answers.flexible_date_3;}
+
+answers.time_needed =timeNeeded;
+
+document.getElementById("status").innerText = "";showPickupAddress();}
+
+function showPickupAddress() {hideAllSteps();
+
+document.getElementById("pageTitle").innerText ="Task Address";
+
+document.getElementById("pageSubtext").innerText ="Select the address where the task starts.";
+
+setStepPill("Address");
+
+document.getElementById("pickupAddressStep").classList.remove("hidden");
+
+document.getElementById("pickupUnit").value =pickupAddress.unit || "";
+
+document.getElementById("pickupCity").value =pickupAddress.city || "";
+
+document.getElementById("pickupState").value =pickupAddress.state || "";
+
+document.getElementById("pickupZip").value =pickupAddress.zip || "";
+
+if (pickupAddress.address) {document.getElementById("pickupSelected").innerText =pickupAddress.address;
+
+document
+  .getElementById("pickupSelected")
+  .classList
+  .remove("hidden");
+
 }
 
-function showPickupAddress() {
-  hideAllSteps();
+setupPlaceAutocomplete("pickupGoogleBox", "pickup");}
 
-  document.getElementById("pageTitle").innerText =
-    "Task Address";
+function savePickupAddress() {const unit =document.getElementById("pickupUnit").value.trim();
 
-  document.getElementById("pageSubtext").innerText =
-    "Select the address where the task starts.";
+const city =document.getElementById("pickupCity").value.trim();
 
-  setStepPill("Address");
+const state =document.getElementById("pickupState").value.trim();
 
-  document
-    .getElementById("pickupAddressStep")
-    .classList
-    .remove("hidden");
+const zip =document.getElementById("pickupZip").value.trim();
 
-  document.getElementById("pickupUnit").value =
-    pickupAddress.unit || "";
+if (!pickupAddress.address ||!city ||!state ||!zip ||!pickupLat ||!pickupLng) {document.getElementById("status").innerText ="Please select the task address from Google suggestions.";return;}
 
-  document.getElementById("pickupCity").value =
-    pickupAddress.city || "";
+pickupAddress.unit = unit;pickupAddress.city = city;pickupAddress.state = state;pickupAddress.zip = zip;
 
-  document.getElementById("pickupState").value =
-    pickupAddress.state || "";
+document.getElementById("status").innerText = "";
 
-  document.getElementById("pickupZip").value =
-    pickupAddress.zip || "";
+if (selectedCategory === "Moving" ||selectedCategory === "Errands") {showDropoffAddress();} else {showReview();}}
 
-  if (pickupAddress.address) {
-    document.getElementById("pickupSelected").innerText =
-      pickupAddress.address;
+function showDropoffAddress() {hideAllSteps();
 
-    document
-      .getElementById("pickupSelected")
-      .classList
-      .remove("hidden");
-  }
+document.getElementById("pageTitle").innerText ="Drop-Off Address";
 
-  setupPlaceAutocomplete("pickupGoogleBox", "pickup");
+document.getElementById("pageSubtext").innerText ="Select where the item or errand should be dropped off.";
+
+setStepPill("Drop-off");
+
+document.getElementById("dropoffAddressStep").classList.remove("hidden");
+
+document.getElementById("dropoffUnit").value =dropoffAddress.unit || "";
+
+document.getElementById("dropoffCity").value =dropoffAddress.city || "";
+
+document.getElementById("dropoffState").value =dropoffAddress.state || "";
+
+document.getElementById("dropoffZip").value =dropoffAddress.zip || "";
+
+if (dropoffAddress.address) {document.getElementById("dropoffSelected").innerText =dropoffAddress.address;
+
+document
+  .getElementById("dropoffSelected")
+  .classList
+  .remove("hidden");
+
 }
 
-function savePickupAddress() {
-  const unit =
-    document.getElementById("pickupUnit").value.trim();
+setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");}
 
-  const city =
-    document.getElementById("pickupCity").value.trim();
+function saveDropoffAddress() {const unit =document.getElementById("dropoffUnit").value.trim();
 
-  const state =
-    document.getElementById("pickupState").value.trim();
+const city =document.getElementById("dropoffCity").value.trim();
 
-  const zip =
-    document.getElementById("pickupZip").value.trim();
+const state =document.getElementById("dropoffState").value.trim();
 
-  if (
-    !pickupAddress.address ||
-    !city ||
-    !state ||
-    !zip ||
-    !pickupLat ||
-    !pickupLng
-  ) {
-    document.getElementById("status").innerText =
-      "Please select the task address from Google suggestions.";
-    return;
-  }
+const zip =document.getElementById("dropoffZip").value.trim();
 
-  pickupAddress.unit = unit;
-  pickupAddress.city = city;
-  pickupAddress.state = state;
-  pickupAddress.zip = zip;
+if (!dropoffAddress.address ||!city ||!state ||!zip ||!dropoffLat ||!dropoffLng) {document.getElementById("status").innerText ="Please select the drop-off address from Google suggestions.";return;}
 
-  document.getElementById("status").innerText = "";
+dropoffAddress.unit = unit;dropoffAddress.city = city;dropoffAddress.state = state;dropoffAddress.zip = zip;
 
-  if (
-    selectedCategory === "Moving" ||
-    selectedCategory === "Errands"
-  ) {
-    showDropoffAddress();
-  } else {
-    showReview();
-  }
-}
+document.getElementById("status").innerText = "";showReview();}
 
-function showDropoffAddress() {
-  hideAllSteps();
+function showReview() {hideAllSteps();
 
-  document.getElementById("pageTitle").innerText =
-    "Drop-Off Address";
+document.getElementById("pageTitle").innerText =editTaskId ? "Review Task Updates" : "Review Task";
 
-  document.getElementById("pageSubtext").innerText =
-    "Select where the item or errand should be dropped off.";
+document.getElementById("pageSubtext").innerText =editTaskId ? "Confirm the updated details before saving." : "Confirm the details before posting.";
 
-  setStepPill("Drop-off");
+setStepPill("Review");
 
-  document
-    .getElementById("dropoffAddressStep")
-    .classList
-    .remove("hidden");
-
-  document.getElementById("dropoffUnit").value =
-    dropoffAddress.unit || "";
-
-  document.getElementById("dropoffCity").value =
-    dropoffAddress.city || "";
-
-  document.getElementById("dropoffState").value =
-    dropoffAddress.state || "";
-
-  document.getElementById("dropoffZip").value =
-    dropoffAddress.zip || "";
-
-  if (dropoffAddress.address) {
-    document.getElementById("dropoffSelected").innerText =
-      dropoffAddress.address;
-
-    document
-      .getElementById("dropoffSelected")
-      .classList
-      .remove("hidden");
-  }
-
-  setupPlaceAutocomplete("dropoffGoogleBox", "dropoff");
-}
-
-function saveDropoffAddress() {
-  const unit =
-    document.getElementById("dropoffUnit").value.trim();
-
-  const city =
-    document.getElementById("dropoffCity").value.trim();
-
-  const state =
-    document.getElementById("dropoffState").value.trim();
-
-  const zip =
-    document.getElementById("dropoffZip").value.trim();
-
-  if (
-    !dropoffAddress.address ||
-    !city ||
-    !state ||
-    !zip ||
-    !dropoffLat ||
-    !dropoffLng
-  ) {
-    document.getElementById("status").innerText =
-      "Please select the drop-off address from Google suggestions.";
-    return;
-  }
-
-  dropoffAddress.unit = unit;
-  dropoffAddress.city = city;
-  dropoffAddress.state = state;
-  dropoffAddress.zip = zip;
-
-  document.getElementById("status").innerText = "";
-  showReview();
-}
-
-function showReview() {
-  hideAllSteps();
-
-  document.getElementById("pageTitle").innerText =
-    editTaskId ? "Review Task Updates" : "Review Task";
-
-  document.getElementById("pageSubtext").innerText =
-    editTaskId ? "Confirm the updated details before saving." : "Confirm the details before posting.";
-
-  setStepPill("Review");
-
-  let html = `
-    <div class="code-note">
+let html =     <div class="code-note">
       Arrival Code will show on the open task page after saving.<br>
       Only give this code to the worker after they have arrived for the job.
     </div>
@@ -1838,603 +1598,288 @@ function showReview() {
     <p><strong>City:</strong> ${pickupAddress.city}</p>
     <p><strong>State:</strong> ${pickupAddress.state}</p>
     <p><strong>Zip:</strong> ${pickupAddress.zip}</p>
-  `;
+ ;
 
-  if (dropoffAddress.address) {
-    html += `
-      <hr>
+if (dropoffAddress.address) {html +=       <hr>
       <p><strong>Drop-Off Address:</strong> ${dropoffAddress.address}</p>
       <p><strong>Unit:</strong> ${dropoffAddress.unit || "N/A"}</p>
       <p><strong>City:</strong> ${dropoffAddress.city}</p>
       <p><strong>State:</strong> ${dropoffAddress.state}</p>
       <p><strong>Zip:</strong> ${dropoffAddress.zip}</p>
-    `;
-  }
+   ;}
 
-  html += `<hr>`;
+html += <hr>;
 
-  Object.keys(answers).forEach(key => {
-    if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {
-      return;
-    }
+Object.keys(answers).forEach(key => {if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {return;}
 
-    if (
-      key === "flexible_date_1" ||
-      key === "flexible_date_2" ||
-      key === "flexible_date_3"
-    ) {
-      html += `<p><strong>${formatLabel(key)}:</strong> ${formatDate(answers[key])}</p>`;
-      return;
-    }
-
-    html += `<p><strong>${formatLabel(key)}:</strong> ${answers[key]}</p>`;
-  });
-
-  document.getElementById("reviewBox").innerHTML = html;
-
-  const guidance = getPriceGuidance();
-  const priceBox = document.getElementById("priceGuidance");
-
-  if (guidance) {
-    priceBox.innerHTML = guidance;
-    priceBox.classList.remove("hidden");
-  } else {
-    priceBox.classList.add("hidden");
-  }
-
-  const submitButton =
-    document.querySelector("#reviewStep button");
-
-  if (submitButton) {
-    submitButton.innerText =
-      editTaskId ? "Save Task Updates" : "Post Task";
-  }
-
-  document
-    .getElementById("reviewStep")
-    .classList
-    .remove("hidden");
+if (
+  key === "flexible_date_1" ||
+  key === "flexible_date_2" ||
+  key === "flexible_date_3"
+) {
+  html += `<p><strong>${formatLabel(key)}:</strong> ${formatDate(answers[key])}</p>`;
+  return;
 }
 
-function getPriceGuidance() {
-  if (selectedCategory === "Moving") {
-    let extra = "";
+html += `<p><strong>${formatLabel(key)}:</strong> ${answers[key]}</p>`;
 
-    if (
-      answers.heavy_items === "Yes" ||
-      answers.stairs === "2 flights" ||
-      answers.stairs === "3+ flights"
-    ) {
-      extra =
-        " Larger moves, heavy items, or stairs may increase worker quotes.";
-    }
+});
 
-    return "Quote tip: small moving jobs are often quoted based on time, truck needs, stairs, and number of workers." + extra;
-  }
+document.getElementById("reviewBox").innerHTML = html;
 
-  if (selectedCategory === "TV Mounting") {
-    return "Quote tip: TV mounting quotes may change based on wall type, TV size, mount type, and whether wires need to be hidden.";
-  }
+const guidance = getPriceGuidance();const priceBox = document.getElementById("priceGuidance");
 
-  if (selectedCategory === "Furniture Assembly") {
-    return "Quote tip: assembly quotes usually depend on number of items, complexity, tools, and whether two workers are needed.";
-  }
+if (guidance) {priceBox.innerHTML = guidance;priceBox.classList.remove("hidden");} else {priceBox.classList.add("hidden");}
 
-  if (selectedCategory === "Cleaning") {
-    return "Quote tip: cleaning quotes usually depend on square footage, bathrooms, depth of cleaning, and whether supplies are provided.";
-  }
+const submitButton =document.querySelector("#reviewStep button");
 
-  if (selectedCategory === "Trash Removal") {
-    return "Quote tip: trash removal quotes often depend on item size, number of bags, stairs, and disposal effort.";
-  }
+if (submitButton) {submitButton.innerText =editTaskId ? "Save Task Updates" : "Post Task";}
 
-  if (selectedCategory === "Yard Work") {
-    return "Quote tip: yard work quotes usually depend on yard size, equipment needs, and whether trimming or cleanup is included.";
-  }
+document.getElementById("reviewStep").classList.remove("hidden");}
 
-  return "Quote tip: add clear details so workers can send accurate offers.";
+function getPriceGuidance() {if (selectedCategory === "Moving") {let extra = "";
+
+if (
+  answers.heavy_items === "Yes" ||
+  answers.stairs === "2 flights" ||
+  answers.stairs === "3+ flights"
+) {
+  extra =
+    " Larger moves, heavy items, or stairs may increase worker quotes.";
 }
 
-function generateArrivalCode() {
-  return String(Math.floor(1000 + Math.random() * 9000));
+return "Quote tip: small moving jobs are often quoted based on time, truck needs, stairs, and number of workers." + extra;
+
 }
 
-function normalizeDateInputValue(value) {
-  if (!value) {
-    return "";
-  }
+if (selectedCategory === "TV Mounting") {return "Quote tip: TV mounting quotes may change based on wall type, TV size, mount type, and whether wires need to be hidden.";}
 
-  const rawValue =
-    String(value).trim();
+if (selectedCategory === "Furniture Assembly") {return "Quote tip: assembly quotes usually depend on number of items, complexity, tools, and whether two workers are needed.";}
 
-  const dateOnlyMatch =
-    rawValue.match(/^\d{4}-\d{2}-\d{2}/);
+if (selectedCategory === "Cleaning") {return "Quote tip: cleaning quotes usually depend on square footage, bathrooms, depth of cleaning, and whether supplies are provided.";}
 
-  if (dateOnlyMatch) {
-    return dateOnlyMatch[0];
-  }
+if (selectedCategory === "Trash Removal") {return "Quote tip: trash removal quotes often depend on item size, number of bags, stairs, and disposal effort.";}
 
-  return rawValue;
+if (selectedCategory === "Yard Work") {return "Quote tip: yard work quotes usually depend on yard size, equipment needs, and whether trimming or cleanup is included.";}
+
+return "Quote tip: add clear details so workers can send accurate offers.";}
+
+function generateArrivalCode() {return String(Math.floor(1000 + Math.random() * 9000));}
+
+function normalizeDateInputValue(value) {if (!value) {return "";}
+
+const rawValue =String(value).trim();
+
+const dateOnlyMatch =rawValue.match(/^\d{4}-\d{2}-\d{2}/);
+
+if (dateOnlyMatch) {return dateOnlyMatch[0];}
+
+return rawValue;}
+
+function getTodayDateInputValue() {const today =new Date();
+
+const year =today.getFullYear();
+
+const month =String(today.getMonth() + 1).padStart(2, "0");
+
+const day =String(today.getDate()).padStart(2, "0");
+
+return ${year}-${month}-${day};}
+
+function formatTimeForDisplay(value) {if (!value) {return "Not listed";}
+
+const parts =String(value).split(":");
+
+if (parts.length < 2) {return value;}
+
+let hour =Number(parts[0]);
+
+const minute =parts[1];
+
+if (Number.isNaN(hour)) {return value;}
+
+const suffix =hour >= 12 ? "PM" : "AM";
+
+hour =hour % 12;
+
+if (hour === 0) {hour = 12;}
+
+return ${hour}:${minute} ${suffix};}
+
+function formatDate(value) {const normalizedValue =normalizeDateInputValue(value);
+
+if (!normalizedValue) {return "Not listed";}
+
+const parts =normalizedValue.split("-");
+
+if (parts.length !== 3) {return normalizedValue;}
+
+const date =new Date(Number(parts[0]),Number(parts[1]) - 1,Number(parts[2]));
+
+if (Number.isNaN(date.getTime())) {return normalizedValue;}
+
+return date.toLocaleDateString([], {year: "numeric",month: "long",day: "numeric"});}
+
+function calculateDistanceMiles(lat1, lng1, lat2, lng2) {if (!lat1 || !lng1 || !lat2 || !lng2) {return null;}
+
+const earthRadiusMiles = 3958.8;const dLat = (lat2 - lat1) * Math.PI / 180;const dLng = (lng2 - lng1) * Math.PI / 180;
+
+const a =Math.sin(dLat / 2) * Math.sin(dLat / 2) +Math.cos(lat1 * Math.PI / 180) *Math.cos(lat2 * Math.PI / 180) *Math.sin(dLng / 2) *Math.sin(dLng / 2);
+
+const c =2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+return Number((earthRadiusMiles * c).toFixed(2));}
+
+function editTaskDetails() {questionIndex = 0;showQuestion();}
+
+function cancelTask() {const confirmCancel =confirm("Cancel this task post and return home?");
+
+if (confirmCancel) {window.location.href = "customer-home.html";}}
+
+function formatLabel(key) {return key.replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase());}
+
+function buildDescription() {let description =Category: ${selectedCategory}\nDate Needed: ${answers.date_needed || "Not listed"}\nCompletion Time: ${formatTimeForDisplay(answers.time_needed)}\nFlexible Date: ${answers.date_flexible || "No"}\n\n;
+
+Object.keys(answers).forEach(key => {if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {return;}
+
+if (
+  key === "flexible_date_1" ||
+  key === "flexible_date_2" ||
+  key === "flexible_date_3"
+) {
+  description += `${formatLabel(key)}: ${formatDate(answers[key])}\n`;
+  return;
 }
 
-function getTodayDateInputValue() {
-  const today =
-    new Date();
+description += `${formatLabel(key)}: ${answers[key]}\n`;
 
-  const year =
-    today.getFullYear();
+});
 
-  const month =
-    String(today.getMonth() + 1).padStart(2, "0");
+if (dropoffAddress.address) {description +=\nDrop-Off Address: ${dropoffAddress.address}, ${dropoffAddress.unit || ""}, ${dropoffAddress.city}, ${dropoffAddress.state} ${dropoffAddress.zip};}
 
-  const day =
-    String(today.getDate()).padStart(2, "0");
+return description;}
 
-  return `${year}-${month}-${day}`;
+async function getCustomerProfile() {const { data, error } =await supabaseClient.auth.getSession();
+
+if (error || !data.session || !data.session.user) {return null;}
+
+currentUser = data.session.user;
+
+const { data: profile } =await supabaseClient.from("customer_profiles").select("id, email, account_type").eq("id", currentUser.id).maybeSingle();
+
+if (profile) {currentProfile = profile;localStorage.setItem("taskmintUserId", profile.id);return profile;}
+
+return null;}
+
+async function submitTask() {const status =document.getElementById("status");
+
+status.style.color = "#b00020";status.innerText = "";
+
+const profile =await getCustomerProfile();
+
+if (!profile) {status.innerText ="Could not find your customer profile. Log out and log back in, then try again.";return;}
+
+if (profile.account_type &&profile.account_type !== "customer") {status.innerText ="Only customer accounts can post tasks.";return;}
+
+const postButton =document.querySelector("#reviewStep button");
+
+postButton.disabled = true;postButton.innerText =editTaskId ? "Saving Updates..." : "Posting Task...";
+
+const taskPayload = {customer_id: profile.id,title: selectedCategory,category: selectedCategory,description: buildDescription(),task_details: answers,task_date: answers.date_needed === "Flexible" ? null : normalizeDateInputValue(answers.date_needed),date_needed: answers.date_needed === "Flexible" ? "Flexible" : normalizeDateInputValue(answers.date_needed),scheduled_for: answers.date_needed === "Flexible" ? null : ${normalizeDateInputValue(answers.date_needed)}T${answers.time_needed}:00,schedule_preference: answers.time_needed || null,date_flexible: answers.date_flexible === "Yes",distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),location_address: pickupAddress.address || null,unit: pickupAddress.unit || null,city: pickupAddress.city || null,state: pickupAddress.state || null,zip_code: pickupAddress.zip || null,pickup_lat: pickupLat,pickup_lng: pickupLng,dropoff_address: dropoffAddress.address || null,dropoff_unit: dropoffAddress.unit || null,dropoff_city: dropoffAddress.city || null,dropoff_state: dropoffAddress.state || null,dropoff_zip_code: dropoffAddress.zip || null,dropoff_lat: dropoffLat,dropoff_lng: dropoffLng,status: "open"};
+
+if (!editTaskId) {taskPayload.arrival_code = generateArrivalCode();}
+
+let result;
+
+if (editTaskId) {result =await supabaseClient.from("tasks").update(taskPayload).eq("id", editTaskId).eq("customer_id", profile.id);} else {result =await supabaseClient.from("tasks").insert([taskPayload]);}
+
+if (result.error) {status.innerText = result.error.message;postButton.disabled = false;postButton.innerText =editTaskId ? "Save Task Updates" : "Post Task";return;}
+
+status.style.color = "#0b7a28";status.innerText =editTaskId? "Task updated successfully.": "Task posted. Workers can now send quotes. Only give the arrival code to the worker once they arrive.";
+
+setTimeout(() => {window.location.href = "view-open-task.html";}, 1000);}
+
+function goBack() {const reviewVisible =!document.getElementById("reviewStep").classList.contains("hidden");
+
+const dropoffVisible =!document.getElementById("dropoffAddressStep").classList.contains("hidden");
+
+const pickupVisible =!document.getElementById("pickupAddressStep").classList.contains("hidden");
+
+const dateVisible =!document.getElementById("dateStep").classList.contains("hidden");
+
+const questionVisible =!document.getElementById("questionStep").classList.contains("hidden");
+
+const categoryVisible =!document.getElementById("categoryStep").classList.contains("hidden");
+
+if (reviewVisible) {if (selectedCategory === "Moving" ||selectedCategory === "Errands") {showDropoffAddress();} else {showPickupAddress();}
+
+return;
+
 }
 
-function formatTimeForDisplay(value) {
-  if (!value) {
-    return "Not listed";
-  }
+if (dropoffVisible) {showPickupAddress();return;}
 
-  const parts =
-    String(value).split(":");
+if (pickupVisible) {showDateNeeded();return;}
 
-  if (parts.length < 2) {
-    return value;
-  }
+if (dateVisible) {if (questions && questions.length) {questionIndex = questions.length - 1;showQuestion();} else {resetToCategories();}
 
-  let hour =
-    Number(parts[0]);
+return;
 
-  const minute =
-    parts[1];
-
-  if (Number.isNaN(hour)) {
-    return value;
-  }
-
-  const suffix =
-    hour >= 12 ? "PM" : "AM";
-
-  hour =
-    hour % 12;
-
-  if (hour === 0) {
-    hour = 12;
-  }
-
-  return `${hour}:${minute} ${suffix}`;
 }
 
-function formatDate(value) {
-  const normalizedValue =
-    normalizeDateInputValue(value);
+if (questionVisible) {if (questionIndex > 0) {questionIndex--;showQuestion();} else {resetToCategories();}
 
-  if (!normalizedValue) {
-    return "Not listed";
-  }
+return;
 
-  const parts =
-    normalizedValue.split("-");
-
-  if (parts.length !== 3) {
-    return normalizedValue;
-  }
-
-  const date =
-    new Date(
-      Number(parts[0]),
-      Number(parts[1]) - 1,
-      Number(parts[2])
-    );
-
-  if (Number.isNaN(date.getTime())) {
-    return normalizedValue;
-  }
-
-  return date.toLocaleDateString([], {
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  });
 }
 
-function calculateDistanceMiles(lat1, lng1, lat2, lng2) {
-  if (!lat1 || !lng1 || !lat2 || !lng2) {
-    return null;
-  }
-
-  const earthRadiusMiles = 3958.8;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
-
-  const c =
-    2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return Number((earthRadiusMiles * c).toFixed(2));
-}
-
-function editTaskDetails() {
-  questionIndex = 0;
-  showQuestion();
-}
-
-function cancelTask() {
-  const confirmCancel =
-    confirm("Cancel this task post and return home?");
-
-  if (confirmCancel) {
-    window.location.href = "customer-home.html";
-  }
-}
-
-function formatLabel(key) {
-  return key
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, char => char.toUpperCase());
-}
-
-function buildDescription() {
-  let description =
-    `Category: ${selectedCategory}\nDate Needed: ${answers.date_needed || "Not listed"}\nCompletion Time: ${formatTimeForDisplay(answers.time_needed)}\nFlexible Date: ${answers.date_flexible || "No"}\n\n`;
-
-  Object.keys(answers).forEach(key => {
-    if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {
-      return;
-    }
-
-    if (
-      key === "flexible_date_1" ||
-      key === "flexible_date_2" ||
-      key === "flexible_date_3"
-    ) {
-      description += `${formatLabel(key)}: ${formatDate(answers[key])}\n`;
-      return;
-    }
-
-    description += `${formatLabel(key)}: ${answers[key]}\n`;
-  });
-
-  if (dropoffAddress.address) {
-    description +=
-      `\nDrop-Off Address: ${dropoffAddress.address}, ${dropoffAddress.unit || ""}, ${dropoffAddress.city}, ${dropoffAddress.state} ${dropoffAddress.zip}`;
-  }
-
-  return description;
-}
-
-async function getCustomerProfile() {
-  const { data, error } =
-    await supabaseClient.auth.getSession();
-
-  if (error || !data.session || !data.session.user) {
-    return null;
-  }
-
-  currentUser = data.session.user;
-
-  const { data: profile } =
-    await supabaseClient
-      .from("customer_profiles")
-      .select("id, email, account_type")
-      .eq("id", currentUser.id)
-      .maybeSingle();
-
-  if (profile) {
-    currentProfile = profile;
-    localStorage.setItem("taskmintUserId", profile.id);
-    return profile;
-  }
-
-  return null;
-}
-
-async function submitTask() {
-  const status =
-    document.getElementById("status");
-
-  status.style.color = "#b00020";
-  status.innerText = "";
-
-  const profile =
-    await getCustomerProfile();
-
-  if (!profile) {
-    status.innerText =
-      "Could not find your customer profile. Log out and log back in, then try again.";
-    return;
-  }
-
-  if (
-    profile.account_type &&
-    profile.account_type !== "customer"
-  ) {
-    status.innerText =
-      "Only customer accounts can post tasks.";
-    return;
-  }
-
-  const postButton =
-    document.querySelector("#reviewStep button");
-
-  postButton.disabled = true;
-  postButton.innerText =
-    editTaskId ? "Saving Updates..." : "Posting Task...";
-
-  const taskPayload = {
-    customer_id: profile.id,
-    title: selectedCategory,
-    category: selectedCategory,
-    description: buildDescription(),
-    task_details: answers,
-    task_date: answers.date_needed === "Flexible" ? null : normalizeDateInputValue(answers.date_needed),
-    date_needed: answers.date_needed === "Flexible" ? "Flexible" : normalizeDateInputValue(answers.date_needed),
-    scheduled_for: answers.date_needed === "Flexible" ? null : `${normalizeDateInputValue(answers.date_needed)}T${answers.time_needed}:00`,
-    schedule_preference: answers.time_needed || null,
-    date_flexible: answers.date_flexible === "Yes",
-    distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),
-    location_address: pickupAddress.address || null,
-    unit: pickupAddress.unit || null,
-    city: pickupAddress.city || null,
-    state: pickupAddress.state || null,
-    zip_code: pickupAddress.zip || null,
-    pickup_lat: pickupLat,
-    pickup_lng: pickupLng,
-    dropoff_address: dropoffAddress.address || null,
-    dropoff_unit: dropoffAddress.unit || null,
-    dropoff_city: dropoffAddress.city || null,
-    dropoff_state: dropoffAddress.state || null,
-    dropoff_zip_code: dropoffAddress.zip || null,
-    dropoff_lat: dropoffLat,
-    dropoff_lng: dropoffLng,
-    status: "open"
-  };
-
-  if (!editTaskId) {
-    taskPayload.arrival_code = generateArrivalCode();
-  }
-
-  let result;
-
-  if (editTaskId) {
-    result =
-      await supabaseClient
-        .from("tasks")
-        .update(taskPayload)
-        .eq("id", editTaskId)
-        .eq("customer_id", profile.id);
-  } else {
-    result =
-      await supabaseClient
-        .from("tasks")
-        .insert([taskPayload]);
-  }
-
-  if (result.error) {
-    status.innerText = result.error.message;
-    postButton.disabled = false;
-    postButton.innerText =
-      editTaskId ? "Save Task Updates" : "Post Task";
-    return;
-  }
-
-  status.style.color = "#0b7a28";
-  status.innerText =
-    editTaskId
-      ? "Task updated successfully."
-      : "Task posted. Workers can now send quotes. Only give the arrival code to the worker once they arrive.";
-
-  setTimeout(() => {
-    window.location.href = "view-open-task.html";
-  }, 1000);
-}
-
-function goBack() {
-  const reviewVisible =
-    !document
-      .getElementById("reviewStep")
-      .classList
-      .contains("hidden");
-
-  const dropoffVisible =
-    !document
-      .getElementById("dropoffAddressStep")
-      .classList
-      .contains("hidden");
-
-  const pickupVisible =
-    !document
-      .getElementById("pickupAddressStep")
-      .classList
-      .contains("hidden");
-
-  const dateVisible =
-    !document
-      .getElementById("dateStep")
-      .classList
-      .contains("hidden");
-
-  const questionVisible =
-    !document
-      .getElementById("questionStep")
-      .classList
-      .contains("hidden");
-
-  const categoryVisible =
-    !document
-      .getElementById("categoryStep")
-      .classList
-      .contains("hidden");
-
-  if (reviewVisible) {
-    if (
-      selectedCategory === "Moving" ||
-      selectedCategory === "Errands"
-    ) {
-      showDropoffAddress();
-    } else {
-      showPickupAddress();
-    }
-
-    return;
-  }
-
-  if (dropoffVisible) {
-    showPickupAddress();
-    return;
-  }
-
-  if (pickupVisible) {
-    showDateNeeded();
-    return;
-  }
-
-  if (dateVisible) {
-    if (questions && questions.length) {
-      questionIndex = questions.length - 1;
-      showQuestion();
-    } else {
-      resetToCategories();
-    }
-
-    return;
-  }
-
-  if (questionVisible) {
-    if (questionIndex > 0) {
-      questionIndex--;
-      showQuestion();
-    } else {
-      resetToCategories();
-    }
-
-    return;
-  }
-
-  if (categoryVisible) {
-    window.location.href =
-      editTaskId ? "view-open-task.html" : "customer-home.html";
-    return;
-  }
-
-  window.location.href =
-    editTaskId ? "view-open-task.html" : "customer-home.html";
-}
-
-async function loadTaskForEdit() {
-  const status =
-    document.getElementById("status");
-
-  const profile =
-    await getCustomerProfile();
-
-  if (!profile) {
-    status.innerText =
-      "Could not find your customer profile. Log out and log back in, then try again.";
-    return;
-  }
-
-  const { data: task, error } =
-    await supabaseClient
-      .from("tasks")
-      .select("*")
-      .eq("id", editTaskId)
-      .eq("customer_id", profile.id)
-      .maybeSingle();
-
-  if (error || !task) {
-    status.innerText =
-      error?.message || "Could not load task for editing.";
-    return;
-  }
-
-  selectedCategory =
-    task.category || task.title || "";
-
-  questions =
-    questionBank[selectedCategory] || [];
-
-  questionIndex = 0;
-
-  answers =
-    task.task_details || {};
-
-  if (task.date_flexible || task.date_needed === "Flexible") {
-    answers.date_needed = "Flexible";
-    answers.date_flexible = "Yes";
-  } else {
-    answers.date_needed =
-      normalizeDateInputValue(task.date_needed || task.task_date || "");
-    answers.date_flexible = "No";
-  }
-
-  answers.time_needed =
-    task.schedule_preference ||
-    (
-      task.scheduled_for && String(task.scheduled_for).includes("T")
-        ? String(task.scheduled_for).split("T")[1].slice(0, 5)
-        : ""
-    );
-
-  pickupAddress = {
-    address: task.location_address || "",
-    unit: task.unit || "",
-    city: task.city || "",
-    state: task.state || "",
-    zip: task.zip_code || ""
-  };
-
-  pickupLat = task.pickup_lat || null;
-  pickupLng = task.pickup_lng || null;
-
-  dropoffAddress = {
-    address: task.dropoff_address || "",
-    unit: task.dropoff_unit || "",
-    city: task.dropoff_city || "",
-    state: task.dropoff_state || "",
-    zip: task.dropoff_zip_code || ""
-  };
-
-  dropoffLat = task.dropoff_lat || null;
-  dropoffLng = task.dropoff_lng || null;
-
-  showReview();
-}
-
-function resetToCategories() {
-  hideAllSteps();
-
-  document.getElementById("pageTitle").innerText =
-    editTaskId ? "Edit Task" : "Post a Task";
-
-  document.getElementById("pageSubtext").innerText =
-    editTaskId
-      ? "Choose a category to update this task."
-      : "Choose what you need help with. Workers will send you quotes.";
-
-  setStepPill("Choose task");
-
-  document
-    .getElementById("categoryStep")
-    .classList
-    .remove("hidden");
-}
-
-if (editTaskId) {
-  loadTaskForEdit();
-} else {
-  resetToCategories();
-}
-</script>
+if (categoryVisible) {window.location.href =editTaskId ? "view-open-task.html" : "customer-home.html";return;}
+
+window.location.href =editTaskId ? "view-open-task.html" : "customer-home.html";}
+
+async function loadTaskForEdit() {const status =document.getElementById("status");
+
+const profile =await getCustomerProfile();
+
+if (!profile) {status.innerText ="Could not find your customer profile. Log out and log back in, then try again.";return;}
+
+const { data: task, error } =await supabaseClient.from("tasks").select("*").eq("id", editTaskId).eq("customer_id", profile.id).maybeSingle();
+
+if (error || !task) {status.innerText =error?.message || "Could not load task for editing.";return;}
+
+selectedCategory =task.category || task.title || "";
+
+questions =questionBank[selectedCategory] || [];
+
+questionIndex = 0;
+
+answers =task.task_details || {};
+
+if (task.date_flexible || task.date_needed === "Flexible") {answers.date_needed = "Flexible";answers.date_flexible = "Yes";} else {answers.date_needed =normalizeDateInputValue(task.date_needed || task.task_date || "");answers.date_flexible = "No";}
+
+answers.time_needed =task.schedule_preference ||(task.scheduled_for && String(task.scheduled_for).includes("T")? String(task.scheduled_for).split("T")[1].slice(0, 5): "");
+
+pickupAddress = {address: task.location_address || "",unit: task.unit || "",city: task.city || "",state: task.state || "",zip: task.zip_code || ""};
+
+pickupLat = task.pickup_lat || null;pickupLng = task.pickup_lng || null;
+
+dropoffAddress = {address: task.dropoff_address || "",unit: task.dropoff_unit || "",city: task.dropoff_city || "",state: task.dropoff_state || "",zip: task.dropoff_zip_code || ""};
+
+dropoffLat = task.dropoff_lat || null;dropoffLng = task.dropoff_lng || null;
+
+showReview();}
+
+function resetToCategories() {hideAllSteps();
+
+document.getElementById("pageTitle").innerText =editTaskId ? "Edit Task" : "Post a Task";
+
+document.getElementById("pageSubtext").innerText =editTaskId? "Choose a category to update this task.": "Choose what you need help with. Workers will send you quotes.";
+
+setStepPill("Choose task");
+
+document.getElementById("categoryStep").classList.remove("hidden");}
+
+if (editTaskId) {loadTaskForEdit();} else {resetToCategories();}</script>
 
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=beta&callback=initGoogleMaps"></script>
 
