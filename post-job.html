@@ -656,6 +656,53 @@ gmp-place-autocomplete::part(place-address) {
   filter: none !important;
 }
 
+.address-autocomplete-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.address-suggestion-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 999999;
+  background: #fff;
+  color: #111;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.14);
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.address-suggestion-list.show {
+  display: block;
+}
+
+.address-suggestion-item {
+  width: 100%;
+  margin: 0;
+  padding: 11px 12px;
+  background: #fff;
+  color: #111;
+  border: none;
+  border-bottom: 1px solid #edf1ee;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.address-suggestion-item:hover {
+  background: var(--surface);
+  transform: none;
+  box-shadow: none;
+}
+
 @keyframes riseIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -1149,41 +1196,151 @@ function setupPlaceAutocomplete(containerId, type) {
   document.getElementById("status").innerText = "";
   container.innerHTML = "";
 
+  const wrapper =
+    document.createElement("div");
+
+  wrapper.className =
+    "address-autocomplete-wrap";
+
   const input =
     document.createElement("input");
 
   input.type = "text";
   input.autocomplete = "off";
+  input.autocorrect = "off";
+  input.autocapitalize = "off";
+  input.spellcheck = false;
   input.placeholder =
     type === "dropoff"
       ? "Start typing drop-off address"
       : "Start typing task address";
 
-  container.appendChild(input);
+  const suggestionList =
+    document.createElement("div");
 
-  const autocomplete =
-    new google.maps.places.Autocomplete(input, {
-      componentRestrictions: {
-        country: "us"
+  suggestionList.className =
+    "address-suggestion-list";
+
+  wrapper.appendChild(input);
+  wrapper.appendChild(suggestionList);
+  container.appendChild(wrapper);
+
+  const autocompleteService =
+    new google.maps.places.AutocompleteService();
+
+  const placesServiceElement =
+    document.createElement("div");
+
+  const placesService =
+    new google.maps.places.PlacesService(placesServiceElement);
+
+  let debounceTimer = null;
+
+  function clearSuggestions() {
+    suggestionList.innerHTML = "";
+    suggestionList.classList.remove("show");
+  }
+
+  function getPredictions(searchValue) {
+    autocompleteService.getPlacePredictions(
+      {
+        input: searchValue,
+        componentRestrictions: {
+          country: "us"
+        },
+        types: ["address"]
       },
-      fields: [
-        "formatted_address",
-        "geometry",
-        "address_components"
-      ],
-      types: ["address"]
-    });
+      (predictions, status) => {
+        if (
+          status !== google.maps.places.PlacesServiceStatus.OK ||
+          !predictions ||
+          !predictions.length
+        ) {
+          clearSuggestions();
+          return;
+        }
 
-  autocomplete.addListener("place_changed", () => {
-    const place = autocomplete.getPlace();
+        suggestionList.innerHTML = "";
 
-    if (!place || !place.geometry || !place.geometry.location) {
-      document.getElementById("status").innerText =
-        "Please select the full address from Google suggestions.";
+        predictions.forEach(prediction => {
+          const button =
+            document.createElement("button");
+
+          button.type = "button";
+          button.className = "address-suggestion-item";
+          button.innerText = prediction.description;
+
+          button.addEventListener("click", () => {
+            input.value = prediction.description;
+            clearSuggestions();
+
+            placesService.getDetails(
+              {
+                placeId: prediction.place_id,
+                fields: [
+                  "formatted_address",
+                  "geometry",
+                  "address_components"
+                ]
+              },
+              (place, detailsStatus) => {
+                if (
+                  detailsStatus !== google.maps.places.PlacesServiceStatus.OK ||
+                  !place ||
+                  !place.geometry ||
+                  !place.geometry.location
+                ) {
+                  document.getElementById("status").innerText =
+                    "Please select the full address from Google suggestions.";
+                  return;
+                }
+
+                document.getElementById("status").innerText = "";
+                handleSelectedPlace(place, type);
+              }
+            );
+          });
+
+          suggestionList.appendChild(button);
+        });
+
+        suggestionList.classList.add("show");
+      }
+    );
+  }
+
+  input.addEventListener("input", () => {
+    const searchValue =
+      input.value.trim();
+
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    if (searchValue.length < 3) {
+      clearSuggestions();
       return;
     }
 
-    handleSelectedPlace(place, type);
+    debounceTimer =
+      setTimeout(() => {
+        getPredictions(searchValue);
+      }, 250);
+  });
+
+  input.addEventListener("focus", () => {
+    const searchValue =
+      input.value.trim();
+
+    if (searchValue.length >= 3) {
+      getPredictions(searchValue);
+    }
+  });
+
+  document.addEventListener("click", event => {
+    if (!wrapper.contains(event.target)) {
+      clearSuggestions();
+    }
   });
 
   container.dataset.loaded = "true";
@@ -2141,374 +2298,4 @@ function editTaskDetails() {
 }
 
 function cancelTask() {
-  const confirmCancel =
-    confirm("Cancel this task post and return home?");
-
-  if (confirmCancel) {
-    window.location.href = "customer-home.html";
-  }
-}
-
-function formatLabel(key) {
-  return key
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, char => char.toUpperCase());
-}
-
-function buildDescription() {
-  let description =
-    `Category: ${selectedCategory}\nDate Needed: ${answers.date_needed || "Not listed"}\nCompletion Time: ${formatTimeForDisplay(answers.time_needed)}\nFlexible Date: ${answers.date_flexible || "No"}\n\n`;
-
-  Object.keys(answers).forEach(key => {
-    if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {
-      return;
-    }
-
-    if (
-      key === "flexible_date_1" ||
-      key === "flexible_date_2" ||
-      key === "flexible_date_3"
-    ) {
-      description += `${formatLabel(key)}: ${formatDate(answers[key])}\n`;
-      return;
-    }
-
-    description += `${formatLabel(key)}: ${answers[key]}\n`;
-  });
-
-  if (dropoffAddress.address) {
-    description +=
-      `\nDrop-Off Address: ${dropoffAddress.address}, ${dropoffAddress.unit || ""}, ${dropoffAddress.city}, ${dropoffAddress.state} ${dropoffAddress.zip}`;
-  }
-
-  return description;
-}
-
-async function getCustomerProfile() {
-  const { data, error } =
-    await supabaseClient.auth.getSession();
-
-  if (error || !data.session || !data.session.user) {
-    return null;
-  }
-
-  currentUser = data.session.user;
-
-  const { data: profile } =
-    await supabaseClient
-      .from("customer_profiles")
-      .select("id, email, account_type")
-      .eq("id", currentUser.id)
-      .maybeSingle();
-
-  if (profile) {
-    currentProfile = profile;
-    localStorage.setItem("taskmintUserId", profile.id);
-    return profile;
-  }
-
-  return null;
-}
-
-async function submitTask() {
-  const status =
-    document.getElementById("status");
-
-  status.style.color = "#b00020";
-  status.innerText = "";
-
-  const profile =
-    await getCustomerProfile();
-
-  if (!profile) {
-    status.innerText =
-      "Could not find your customer profile. Log out and log back in, then try again.";
-    return;
-  }
-
-  if (
-    profile.account_type &&
-    profile.account_type !== "customer"
-  ) {
-    status.innerText =
-      "Only customer accounts can post tasks.";
-    return;
-  }
-
-  const postButton =
-    document.querySelector("#reviewStep button");
-
-  postButton.disabled = true;
-  postButton.innerText =
-    editTaskId ? "Saving Updates..." : "Posting Task...";
-
-  const taskPayload = {
-    customer_id: profile.id,
-    title: selectedCategory,
-    category: selectedCategory,
-    description: buildDescription(),
-    task_details: answers,
-    task_date: answers.date_needed === "Flexible" ? null : normalizeDateInputValue(answers.date_needed),
-    date_needed: answers.date_needed === "Flexible" ? "Flexible" : normalizeDateInputValue(answers.date_needed),
-    scheduled_for: answers.date_needed === "Flexible" ? null : `${normalizeDateInputValue(answers.date_needed)}T${answers.time_needed}:00`,
-    schedule_preference: answers.time_needed || null,
-    date_flexible: answers.date_flexible === "Yes",
-    distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),
-    location_address: pickupAddress.address || null,
-    unit: pickupAddress.unit || null,
-    city: pickupAddress.city || null,
-    state: pickupAddress.state || null,
-    zip_code: pickupAddress.zip || null,
-    pickup_lat: pickupLat,
-    pickup_lng: pickupLng,
-    dropoff_address: dropoffAddress.address || null,
-    dropoff_unit: dropoffAddress.unit || null,
-    dropoff_city: dropoffAddress.city || null,
-    dropoff_state: dropoffAddress.state || null,
-    dropoff_zip_code: dropoffAddress.zip || null,
-    dropoff_lat: dropoffLat,
-    dropoff_lng: dropoffLng,
-    status: "open"
-  };
-
-  if (!editTaskId) {
-    taskPayload.arrival_code = generateArrivalCode();
-  }
-
-  let result;
-
-  if (editTaskId) {
-    result =
-      await supabaseClient
-        .from("tasks")
-        .update(taskPayload)
-        .eq("id", editTaskId)
-        .eq("customer_id", profile.id);
-  } else {
-    result =
-      await supabaseClient
-        .from("tasks")
-        .insert([taskPayload]);
-  }
-
-  if (result.error) {
-    status.innerText = result.error.message;
-    postButton.disabled = false;
-    postButton.innerText =
-      editTaskId ? "Save Task Updates" : "Post Task";
-    return;
-  }
-
-  status.style.color = "#0b7a28";
-  status.innerText =
-    editTaskId
-      ? "Task updated successfully."
-      : "Task posted. Workers can now send quotes. Only give the arrival code to the worker once they arrive.";
-
-  setTimeout(() => {
-    window.location.href = "view-open-task.html";
-  }, 1000);
-}
-
-function goBack() {
-  const reviewVisible =
-    !document
-      .getElementById("reviewStep")
-      .classList
-      .contains("hidden");
-
-  const dropoffVisible =
-    !document
-      .getElementById("dropoffAddressStep")
-      .classList
-      .contains("hidden");
-
-  const pickupVisible =
-    !document
-      .getElementById("pickupAddressStep")
-      .classList
-      .contains("hidden");
-
-  const dateVisible =
-    !document
-      .getElementById("dateStep")
-      .classList
-      .contains("hidden");
-
-  const questionVisible =
-    !document
-      .getElementById("questionStep")
-      .classList
-      .contains("hidden");
-
-  const categoryVisible =
-    !document
-      .getElementById("categoryStep")
-      .classList
-      .contains("hidden");
-
-  if (reviewVisible) {
-    if (
-      selectedCategory === "Moving" ||
-      selectedCategory === "Errands"
-    ) {
-      showDropoffAddress();
-    } else {
-      showPickupAddress();
-    }
-
-    return;
-  }
-
-  if (dropoffVisible) {
-    showPickupAddress();
-    return;
-  }
-
-  if (pickupVisible) {
-    showDateNeeded();
-    return;
-  }
-
-  if (dateVisible) {
-    if (questions && questions.length) {
-      questionIndex = questions.length - 1;
-      showQuestion();
-    } else {
-      resetToCategories();
-    }
-
-    return;
-  }
-
-  if (questionVisible) {
-    if (questionIndex > 0) {
-      questionIndex--;
-      showQuestion();
-    } else {
-      resetToCategories();
-    }
-
-    return;
-  }
-
-  if (categoryVisible) {
-    window.location.href =
-      editTaskId ? "view-open-task.html" : "customer-home.html";
-    return;
-  }
-
-  window.location.href =
-    editTaskId ? "view-open-task.html" : "customer-home.html";
-}
-
-async function loadTaskForEdit() {
-  const status =
-    document.getElementById("status");
-
-  const profile =
-    await getCustomerProfile();
-
-  if (!profile) {
-    status.innerText =
-      "Could not find your customer profile. Log out and log back in, then try again.";
-    return;
-  }
-
-  const { data: task, error } =
-    await supabaseClient
-      .from("tasks")
-      .select("*")
-      .eq("id", editTaskId)
-      .eq("customer_id", profile.id)
-      .maybeSingle();
-
-  if (error || !task) {
-    status.innerText =
-      error?.message || "Could not load task for editing.";
-    return;
-  }
-
-  selectedCategory =
-    task.category || task.title || "";
-
-  questions =
-    questionBank[selectedCategory] || [];
-
-  questionIndex = 0;
-
-  answers =
-    task.task_details || {};
-
-  if (task.date_flexible || task.date_needed === "Flexible") {
-    answers.date_needed = "Flexible";
-    answers.date_flexible = "Yes";
-  } else {
-    answers.date_needed =
-      normalizeDateInputValue(task.date_needed || task.task_date || "");
-    answers.date_flexible = "No";
-  }
-
-  answers.time_needed =
-    task.schedule_preference ||
-    (
-      task.scheduled_for && String(task.scheduled_for).includes("T")
-        ? String(task.scheduled_for).split("T")[1].slice(0, 5)
-        : ""
-    );
-
-  pickupAddress = {
-    address: task.location_address || "",
-    unit: task.unit || "",
-    city: task.city || "",
-    state: task.state || "",
-    zip: task.zip_code || ""
-  };
-
-  pickupLat = task.pickup_lat || null;
-  pickupLng = task.pickup_lng || null;
-
-  dropoffAddress = {
-    address: task.dropoff_address || "",
-    unit: task.dropoff_unit || "",
-    city: task.dropoff_city || "",
-    state: task.dropoff_state || "",
-    zip: task.dropoff_zip_code || ""
-  };
-
-  dropoffLat = task.dropoff_lat || null;
-  dropoffLng = task.dropoff_lng || null;
-
-  showReview();
-}
-
-function resetToCategories() {
-  hideAllSteps();
-
-  document.getElementById("pageTitle").innerText =
-    editTaskId ? "Edit Task" : "Post a Task";
-
-  document.getElementById("pageSubtext").innerText =
-    editTaskId
-      ? "Choose a category to update this task."
-      : "Choose what you need help with. Workers will send you quotes.";
-
-  setStepPill("Choose task");
-
-  document
-    .getElementById("categoryStep")
-    .classList
-    .remove("hidden");
-}
-
-if (editTaskId) {
-  loadTaskForEdit();
-} else {
-  resetToCategories();
-}
-</script>
-
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=weekly&callback=initGoogleMaps"></script>
-
-</body>
-</html>
+6
