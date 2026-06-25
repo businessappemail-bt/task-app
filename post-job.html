@@ -2298,4 +2298,374 @@ function editTaskDetails() {
 }
 
 function cancelTask() {
-6
+  const confirmCancel =
+    confirm("Cancel this task post and return home?");
+
+  if (confirmCancel) {
+    window.location.href = "customer-home.html";
+  }
+}
+
+function formatLabel(key) {
+  return key
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function buildDescription() {
+  let description =
+    `Category: ${selectedCategory}\nDate Needed: ${answers.date_needed || "Not listed"}\nCompletion Time: ${formatTimeForDisplay(answers.time_needed)}\nFlexible Date: ${answers.date_flexible || "No"}\n\n`;
+
+  Object.keys(answers).forEach(key => {
+    if (key === "date_needed" || key === "date_flexible" || key === "time_needed") {
+      return;
+    }
+
+    if (
+      key === "flexible_date_1" ||
+      key === "flexible_date_2" ||
+      key === "flexible_date_3"
+    ) {
+      description += `${formatLabel(key)}: ${formatDate(answers[key])}\n`;
+      return;
+    }
+
+    description += `${formatLabel(key)}: ${answers[key]}\n`;
+  });
+
+  if (dropoffAddress.address) {
+    description +=
+      `\nDrop-Off Address: ${dropoffAddress.address}, ${dropoffAddress.unit || ""}, ${dropoffAddress.city}, ${dropoffAddress.state} ${dropoffAddress.zip}`;
+  }
+
+  return description;
+}
+
+async function getCustomerProfile() {
+  const { data, error } =
+    await supabaseClient.auth.getSession();
+
+  if (error || !data.session || !data.session.user) {
+    return null;
+  }
+
+  currentUser = data.session.user;
+
+  const { data: profile } =
+    await supabaseClient
+      .from("customer_profiles")
+      .select("id, email, account_type")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+
+  if (profile) {
+    currentProfile = profile;
+    localStorage.setItem("taskmintUserId", profile.id);
+    return profile;
+  }
+
+  return null;
+}
+
+async function submitTask() {
+  const status =
+    document.getElementById("status");
+
+  status.style.color = "#b00020";
+  status.innerText = "";
+
+  const profile =
+    await getCustomerProfile();
+
+  if (!profile) {
+    status.innerText =
+      "Could not find your customer profile. Log out and log back in, then try again.";
+    return;
+  }
+
+  if (
+    profile.account_type &&
+    profile.account_type !== "customer"
+  ) {
+    status.innerText =
+      "Only customer accounts can post tasks.";
+    return;
+  }
+
+  const postButton =
+    document.querySelector("#reviewStep button");
+
+  postButton.disabled = true;
+  postButton.innerText =
+    editTaskId ? "Saving Updates..." : "Posting Task...";
+
+  const taskPayload = {
+    customer_id: profile.id,
+    title: selectedCategory,
+    category: selectedCategory,
+    description: buildDescription(),
+    task_details: answers,
+    task_date: answers.date_needed === "Flexible" ? null : normalizeDateInputValue(answers.date_needed),
+    date_needed: answers.date_needed === "Flexible" ? "Flexible" : normalizeDateInputValue(answers.date_needed),
+    scheduled_for: answers.date_needed === "Flexible" ? null : `${normalizeDateInputValue(answers.date_needed)}T${answers.time_needed}:00`,
+    schedule_preference: answers.time_needed || null,
+    date_flexible: answers.date_flexible === "Yes",
+    distance_miles: calculateDistanceMiles(pickupLat, pickupLng, dropoffLat, dropoffLng),
+    location_address: pickupAddress.address || null,
+    unit: pickupAddress.unit || null,
+    city: pickupAddress.city || null,
+    state: pickupAddress.state || null,
+    zip_code: pickupAddress.zip || null,
+    pickup_lat: pickupLat,
+    pickup_lng: pickupLng,
+    dropoff_address: dropoffAddress.address || null,
+    dropoff_unit: dropoffAddress.unit || null,
+    dropoff_city: dropoffAddress.city || null,
+    dropoff_state: dropoffAddress.state || null,
+    dropoff_zip_code: dropoffAddress.zip || null,
+    dropoff_lat: dropoffLat,
+    dropoff_lng: dropoffLng,
+    status: "open"
+  };
+
+  if (!editTaskId) {
+    taskPayload.arrival_code = generateArrivalCode();
+  }
+
+  let result;
+
+  if (editTaskId) {
+    result =
+      await supabaseClient
+        .from("tasks")
+        .update(taskPayload)
+        .eq("id", editTaskId)
+        .eq("customer_id", profile.id);
+  } else {
+    result =
+      await supabaseClient
+        .from("tasks")
+        .insert([taskPayload]);
+  }
+
+  if (result.error) {
+    status.innerText = result.error.message;
+    postButton.disabled = false;
+    postButton.innerText =
+      editTaskId ? "Save Task Updates" : "Post Task";
+    return;
+  }
+
+  status.style.color = "#0b7a28";
+  status.innerText =
+    editTaskId
+      ? "Task updated successfully."
+      : "Task posted. Workers can now send quotes. Only give the arrival code to the worker once they arrive.";
+
+  setTimeout(() => {
+    window.location.href = "view-open-task.html";
+  }, 1000);
+}
+
+function goBack() {
+  const reviewVisible =
+    !document
+      .getElementById("reviewStep")
+      .classList
+      .contains("hidden");
+
+  const dropoffVisible =
+    !document
+      .getElementById("dropoffAddressStep")
+      .classList
+      .contains("hidden");
+
+  const pickupVisible =
+    !document
+      .getElementById("pickupAddressStep")
+      .classList
+      .contains("hidden");
+
+  const dateVisible =
+    !document
+      .getElementById("dateStep")
+      .classList
+      .contains("hidden");
+
+  const questionVisible =
+    !document
+      .getElementById("questionStep")
+      .classList
+      .contains("hidden");
+
+  const categoryVisible =
+    !document
+      .getElementById("categoryStep")
+      .classList
+      .contains("hidden");
+
+  if (reviewVisible) {
+    if (
+      selectedCategory === "Moving" ||
+      selectedCategory === "Errands"
+    ) {
+      showDropoffAddress();
+    } else {
+      showPickupAddress();
+    }
+
+    return;
+  }
+
+  if (dropoffVisible) {
+    showPickupAddress();
+    return;
+  }
+
+  if (pickupVisible) {
+    showDateNeeded();
+    return;
+  }
+
+  if (dateVisible) {
+    if (questions && questions.length) {
+      questionIndex = questions.length - 1;
+      showQuestion();
+    } else {
+      resetToCategories();
+    }
+
+    return;
+  }
+
+  if (questionVisible) {
+    if (questionIndex > 0) {
+      questionIndex--;
+      showQuestion();
+    } else {
+      resetToCategories();
+    }
+
+    return;
+  }
+
+  if (categoryVisible) {
+    window.location.href =
+      editTaskId ? "view-open-task.html" : "customer-home.html";
+    return;
+  }
+
+  window.location.href =
+    editTaskId ? "view-open-task.html" : "customer-home.html";
+}
+
+async function loadTaskForEdit() {
+  const status =
+    document.getElementById("status");
+
+  const profile =
+    await getCustomerProfile();
+
+  if (!profile) {
+    status.innerText =
+      "Could not find your customer profile. Log out and log back in, then try again.";
+    return;
+  }
+
+  const { data: task, error } =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("id", editTaskId)
+      .eq("customer_id", profile.id)
+      .maybeSingle();
+
+  if (error || !task) {
+    status.innerText =
+      error?.message || "Could not load task for editing.";
+    return;
+  }
+
+  selectedCategory =
+    task.category || task.title || "";
+
+  questions =
+    questionBank[selectedCategory] || [];
+
+  questionIndex = 0;
+
+  answers =
+    task.task_details || {};
+
+  if (task.date_flexible || task.date_needed === "Flexible") {
+    answers.date_needed = "Flexible";
+    answers.date_flexible = "Yes";
+  } else {
+    answers.date_needed =
+      normalizeDateInputValue(task.date_needed || task.task_date || "");
+    answers.date_flexible = "No";
+  }
+
+  answers.time_needed =
+    task.schedule_preference ||
+    (
+      task.scheduled_for && String(task.scheduled_for).includes("T")
+        ? String(task.scheduled_for).split("T")[1].slice(0, 5)
+        : ""
+    );
+
+  pickupAddress = {
+    address: task.location_address || "",
+    unit: task.unit || "",
+    city: task.city || "",
+    state: task.state || "",
+    zip: task.zip_code || ""
+  };
+
+  pickupLat = task.pickup_lat || null;
+  pickupLng = task.pickup_lng || null;
+
+  dropoffAddress = {
+    address: task.dropoff_address || "",
+    unit: task.dropoff_unit || "",
+    city: task.dropoff_city || "",
+    state: task.dropoff_state || "",
+    zip: task.dropoff_zip_code || ""
+  };
+
+  dropoffLat = task.dropoff_lat || null;
+  dropoffLng = task.dropoff_lng || null;
+
+  showReview();
+}
+
+function resetToCategories() {
+  hideAllSteps();
+
+  document.getElementById("pageTitle").innerText =
+    editTaskId ? "Edit Task" : "Post a Task";
+
+  document.getElementById("pageSubtext").innerText =
+    editTaskId
+      ? "Choose a category to update this task."
+      : "Choose what you need help with. Workers will send you quotes.";
+
+  setStepPill("Choose task");
+
+  document
+    .getElementById("categoryStep")
+    .classList
+    .remove("hidden");
+}
+
+if (editTaskId) {
+  loadTaskForEdit();
+} else {
+  resetToCategories();
+}
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBepTtlay-fhr4JxJrQIIVmAUMw04Nob3g&libraries=places&v=weekly&callback=initGoogleMaps"></script>
+
+</body>
+</html>
