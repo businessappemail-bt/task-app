@@ -458,6 +458,55 @@ const supabaseClient = window.supabase.createClient(
 let allPastTasks = [];
 let currentUserId = "";
 
+async function redirectToLogin(message) {
+  await supabaseClient.auth.signOut();
+  localStorage.clear();
+  sessionStorage.clear();
+
+  if (message) {
+    alert(message);
+  }
+
+  window.location.href = "login.html";
+}
+
+async function requireValidCustomerSession() {
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  if (sessionError || !sessionData.session || !sessionData.session.user) {
+    await redirectToLogin("You must be logged in.");
+    return null;
+  }
+
+  const user =
+    sessionData.session.user;
+
+  const { data: profile, error: profileError } =
+    await supabaseClient
+      .from("profiles")
+      .select("id, account_type")
+      .eq("id", user.id)
+      .maybeSingle();
+
+  if (profileError || !profile) {
+    await redirectToLogin("This account no longer exists.");
+    return null;
+  }
+
+  if (profile.account_type && profile.account_type !== "customer") {
+    await redirectToLogin("This page is for customer accounts only.");
+    return null;
+  }
+
+  currentUserId =
+    user.id;
+
+  localStorage.setItem("taskmintUserId", user.id);
+
+  return user;
+}
+
 function escapeHTML(value) {
   if (value === null || value === undefined) {
     return "";
@@ -567,23 +616,7 @@ function getTaskDetails(task) {
 }
 
 async function getCurrentUser() {
-  const { data } =
-    await supabaseClient.auth.getSession();
-
-  if (data.session && data.session.user) {
-    localStorage.setItem("taskmintUserId", data.session.user.id);
-    return data.session.user;
-  }
-
-  const savedUserId =
-    localStorage.getItem("taskmintUserId");
-
-  if (savedUserId) {
-    return { id: savedUserId };
-  }
-
-  window.location.href = "login.html";
-  return null;
+  return await requireValidCustomerSession();
 }
 
 async function attachQuoteAmountsAndWorkers() {
@@ -930,7 +963,18 @@ function toggleDetails(detailsId) {
     box.style.display === "block" ? "none" : "block";
 }
 
-loadPastTasks();
+async function startPage() {
+  const validUser =
+    await requireValidCustomerSession();
+
+  if (!validUser) {
+    return;
+  }
+
+  await loadPastTasks();
+}
+
+startPage();
 </script>
 </body>
 </html>
