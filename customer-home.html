@@ -1235,6 +1235,52 @@ const supabaseClient = window.supabase.createClient(
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
+async function redirectToLogin(message) {
+  await supabaseClient.auth.signOut();
+  localStorage.clear();
+  sessionStorage.clear();
+
+  if (message) {
+    alert(message);
+  }
+
+  window.location.href = "login.html";
+}
+
+async function requireValidCustomerSession() {
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  if (sessionError || !sessionData.session || !sessionData.session.user) {
+    await redirectToLogin("You must be logged in.");
+    return null;
+  }
+
+  const user =
+    sessionData.session.user;
+
+  const { data: profile, error: profileError } =
+    await supabaseClient
+      .from("profiles")
+      .select("id, account_type")
+      .eq("id", user.id)
+      .maybeSingle();
+
+  if (profileError || !profile) {
+    await redirectToLogin("This account no longer exists.");
+    return null;
+  }
+
+  if (profile.account_type && profile.account_type !== "customer") {
+    await redirectToLogin("This page is for customer accounts only.");
+    return null;
+  }
+
+  localStorage.setItem("taskmintUserId", user.id);
+
+  return user;
+}
+
 async function safeCount(tableName, selectColumn, filters) {
   let query = supabaseClient
     .from(tableName)
@@ -2065,14 +2111,11 @@ async function loadBookAgain(userId) {
 }
 
 async function loadProfile() {
-  const { data } = await supabaseClient.auth.getSession();
+  const user = await requireValidCustomerSession();
 
-  if (!data.session) {
-    window.location.href = "login.html";
+  if (!user) {
     return;
   }
-
-  const user = data.session.user;
 
   await loadNotificationCounts(user.id);
   await loadTaskStats(user.id);
