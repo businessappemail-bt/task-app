@@ -496,6 +496,51 @@ async function login() {
     return;
   }
 
+  const { data: mainProfile, error: mainProfileError } =
+    await supabaseClient
+      .from("profiles")
+      .select("id, account_type")
+      .eq("id", authUser.id)
+      .maybeSingle();
+
+  if (
+    mainProfileError ||
+    !mainProfile
+  ) {
+
+    await supabaseClient.auth.signOut();
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    status.innerText =
+      "This account no longer exists.";
+
+    loginButton.disabled = false;
+    loginButton.innerText = "Log In";
+
+    return;
+  }
+
+  if (
+    mainProfile.account_type &&
+    mainProfile.account_type !== "customer"
+  ) {
+
+    await supabaseClient.auth.signOut();
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    status.innerText =
+      "This is the customer login. Please log in through the worker app or create a customer account.";
+
+    loginButton.disabled = false;
+    loginButton.innerText = "Log In";
+
+    return;
+  }
+
   const { data: profile } =
     await supabaseClient
       .from("customer_profiles")
@@ -512,6 +557,7 @@ async function login() {
     await supabaseClient.auth.signOut();
 
     localStorage.clear();
+    sessionStorage.clear();
 
     status.innerText =
       "This account has been deactivated and can no longer be accessed.";
@@ -530,6 +576,7 @@ async function login() {
   await supabaseClient.auth.signOut();
 
   localStorage.clear();
+  sessionStorage.clear();
 
   status.innerText =
     "This is the customer login. Please log in through the worker app or create a customer account.";
