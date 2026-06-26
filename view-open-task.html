@@ -566,6 +566,57 @@ const supabaseClient = window.supabase.createClient(
   "sb_publishable_3h7cO2Z8CDxZyEKDLRzvtg_1UJCLldJ"
 );
 
+let currentCustomerId = null;
+
+async function redirectToLogin(message) {
+  await supabaseClient.auth.signOut();
+  localStorage.clear();
+  sessionStorage.clear();
+
+  if (message) {
+    alert(message);
+  }
+
+  window.location.href = "login.html";
+}
+
+async function requireValidCustomerSession() {
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  if (sessionError || !sessionData.session || !sessionData.session.user) {
+    await redirectToLogin("You must be logged in.");
+    return null;
+  }
+
+  const user =
+    sessionData.session.user;
+
+  const { data: profile, error: profileError } =
+    await supabaseClient
+      .from("profiles")
+      .select("id, account_type")
+      .eq("id", user.id)
+      .maybeSingle();
+
+  if (profileError || !profile) {
+    await redirectToLogin("This account no longer exists.");
+    return null;
+  }
+
+  if (profile.account_type && profile.account_type !== "customer") {
+    await redirectToLogin("This page is for customer accounts only.");
+    return null;
+  }
+
+  currentCustomerId =
+    user.id;
+
+  localStorage.setItem("taskmintUserId", user.id);
+
+  return user.id;
+}
+
 function escapeHTML(value) {
   if (value === null || value === undefined) {
     return "";
@@ -803,15 +854,11 @@ function statusBar(status) {
 }
 
 async function getCustomerId() {
-  const { data } =
-    await supabaseClient.auth.getSession();
-
-  if (data.session && data.session.user) {
-    localStorage.setItem("taskmintUserId", data.session.user.id);
-    return data.session.user.id;
+  if (currentCustomerId) {
+    return currentCustomerId;
   }
 
-  return localStorage.getItem("taskmintUserId");
+  return await requireValidCustomerSession();
 }
 
 function getTaskDetails(task) {
@@ -1488,7 +1535,18 @@ async function cancelTask(taskId, isDirectRequest = false) {
   await loadOpenTasks();
 }
 
-loadOpenTasks();
+async function startPage() {
+  const validCustomerId =
+    await requireValidCustomerSession();
+
+  if (!validCustomerId) {
+    return;
+  }
+
+  await loadOpenTasks();
+}
+
+startPage();
 </script>
 </body>
 </html>
